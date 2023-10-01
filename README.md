@@ -26,5 +26,5 @@ Developed and tested with `Ubuntu 22.04.3 LTS` and `Node v18.17.1`.
 TypeScript React Development environment is set up manually with `ESLint`, `Prettier`, `WebPack`, and `Babel`, rather than using ohter Boilerplate codes (such as `create-react-app`).
 For Code styling rules and deploy configurations, please refer to the setup files.
 
-Used React 17.0.2 and React Router 6.1.1.
-Also utilize Material UI (MUI) Library (v5.2.5) for elegant design.
+Used `React 18.2.0` and `React Router 6.16.0`.
+Also utilize `Material UI (MUI) Library (v5.14.11)` for elegant design.
