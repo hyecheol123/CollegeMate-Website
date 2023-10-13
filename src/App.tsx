@@ -3,16 +3,26 @@
  * @author Hyecheol (Jerry) Jang <hyecheol123@gmail.com>
  */
 
+// React
 import React from 'react';
 import { render } from 'react-dom';
+// Material UI
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { CssBaseline } from '@mui/material';
+// Router
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
+// Elements
 import Loading from './components/Loading/Loading';
+// import { LoginContextProvider, useLoginContext } from './LoginData';
+// const Calendar = React.lazy(() => import('./Calendar'));
+// const EventDetail = React.lazy(() => import('./EventDetail'));
+// const EventParticipants = React.lazy(() => import('./EventParticipants'));
+// const Login = React.lazy(() => import('./Login'));
+// const ChangePW = React.lazy(() => import('./ChangePW'));
 
 // Define breakpoints
 const breakpoints = {
@@ -26,19 +36,19 @@ const breakpoints = {
 };
 
 // Material-UI Theme configuration
-// displayLarge,displayMedium and SubHead is not currently using.
+// displayLarge,displayMedium and subHead is not currently using.
 declare module '@mui/material/styles' {
   interface TypographyVariantsOptions {
     // displayLarge?: React.CSSProperties;
     // displayMedium?: React.CSSProperties;
     displaySmall?: React.CSSProperties;
-    Headline?: React.CSSProperties;
-    // SubHead?: React.CSSProperties;
-    AboutDesktopBody?: React.CSSProperties;
-    BigBody?: React.CSSProperties;
-    PlaceHolder?: React.CSSProperties;
-    SmallBody?: React.CSSProperties;
-    FooterLegal?: React.CSSProperties;
+    headline?: React.CSSProperties;
+    // subHead?: React.CSSProperties;
+    aboutDesktopBody?: React.CSSProperties;
+    bigBody?: React.CSSProperties;
+    placeHolder?: React.CSSProperties;
+    smallBody?: React.CSSProperties;
+    footerLegal?: React.CSSProperties;
   }
 
   interface PaletteOptions {
@@ -59,13 +69,13 @@ declare module '@mui/material/styles' {
     // displayLarge?: React.CSSProperties;
     // displayMedium?: React.CSSProperties;
     displaySmall: true;
-    HeadLine: true;
-    // SubHead?: React.CSSProperties;
-    AboutDesktopBody: true;
-    BigBody: true;
-    PlaceHolder: true;
-    SmallBody: true;
-    FooterLegal: true;
+    headLine: true;
+    // subHead?: React.CSSProperties;
+    aboutDesktopBody: true;
+    bigBody: true;
+    placeHolder: true;
+    smallBody: true;
+    footerLegal: true;
   }
 }
 
@@ -94,13 +104,13 @@ const theme = createTheme({
       letterSpacing: 0,
     },
     // Web App's Title for each categories.
-    Headline: {
+    headline: {
       fontWeight: 400,
       fontSize: 26,
       lineHeight: 26,
       letterSpacing: 0,
     },
-    // SubHead: {
+    // subHead: {
     //   fontWeight: 400,
     //   fontSize: 22,
     //   lineHeight: 26,
@@ -109,33 +119,33 @@ const theme = createTheme({
     // Body for Landing Page (About).
     // This is only for Desktop & Tablet version of landing page.
     // Otherwise, BodySmall will be used for landing page for mobile.
-    AboutDesktopBody: {
+    aboutDesktopBody: {
       fontWeight: 400,
       fontSize: 21,
       lineHeight: 28,
       letterSpacing: 0,
     },
-    BigBody: {
+    bigBody: {
       fontWeight: 400,
       fontSize: 16,
       lineHeight: 19,
       letterSpacing: 0,
     },
-    PlaceHolder: {
+    placeHolder: {
       fontWeight: 400,
       fontSize: 14,
       lineHeight: 18,
       letterSpacing: 0,
       opacity: 0.5,
     },
-    SmallBody: {
+    smallBody: {
       fontWeight: 400,
       fontSize: 14,
       lineHeight: 18,
       letterSpacing: 0,
     },
     // Footer legal Information
-    FooterLegal: {
+    footerLegal: {
       fontWeight: 400,
       fontSize: 11,
       lineHeight: 13,
@@ -157,17 +167,30 @@ const theme = createTheme({
   },
 });
 
+/**
+ * React functional component to render the application's content
+ * @return {React.ReactElement} The content of the application
+ */
 function App(): React.ReactElement {
   return (
-    <ThemeProvider theme={theme}>
-      <>
-        <CssBaseline />
-        <Loading />
-      </>
-    </ThemeProvider>
+    // <ThemeProvider theme={theme}>
+    <>
+      <CssBaseline />
+      {/* <Router basename={'collegemate'}>
+        <Routes>
+          <Route path="/" element={false ? <></> : <Loading />} />
+        </Routes>
+      </Router> */}
+      <Loading />
+    </>
+    // </ThemeProvider>
   );
 }
 
+/**
+ * React functional component to render the application's entry point
+ * @return {React.ReactElement} The entry point of the application
+ */
 function AppWrapper(): React.ReactElement {
   return (
     <React.StrictMode>
