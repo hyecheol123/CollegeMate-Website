@@ -7,7 +7,7 @@
 import React from 'react';
 import { render } from 'react-dom';
 // Material UI
-import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { ThemeProvider, createTheme, ThemeOptions } from '@mui/material/styles';
 import { CssBaseline } from '@mui/material';
 // Router
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
@@ -52,15 +52,11 @@ declare module '@mui/material/styles' {
   }
 
   interface PaletteOptions {
-    primary?: {
-      red: string;
+    customColors?: {
       darkGrey: string;
-      lightGrey: string;
+      grey: string;
       whiteGrey: string;
       white: string;
-    };
-    secondary?: {
-      yellow: string;
       green: string;
     };
   }
@@ -152,16 +148,21 @@ const theme = createTheme({
       letterSpacing: 0,
     },
   },
+  // Please refer the figma (06. Design System)
   palette: {
     primary: {
-      red: '#B20000',
-      darkGrey: '#494949',
-      lightGrey: '#DEE3E5',
-      whiteGrey: '#f7f7f7',
-      white: '#ffffff',
+      // red
+      main: '#B20000', 
     },
     secondary: {
-      yellow: '#FFC700',
+      // yellow
+      main: '#FFC700',
+    },
+    customColors: {
+      darkGrey: '#494949',
+      grey: '#DEE3E5',
+      whiteGrey: '#f7f7f7',
+      white: '#ffffff',
       green: '#1CC82D',
     },
   },
@@ -173,7 +174,7 @@ const theme = createTheme({
  */
 function App(): React.ReactElement {
   return (
-    // <ThemeProvider theme={theme}>
+    <ThemeProvider theme={theme}>
     <>
       <CssBaseline />
       {/* <Router basename={'collegemate'}>
@@ -183,7 +184,7 @@ function App(): React.ReactElement {
       </Router> */}
       <Loading />
     </>
-    // </ThemeProvider>
+    </ThemeProvider>
   );
 }
 
