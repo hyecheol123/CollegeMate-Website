@@ -6,15 +6,20 @@
 // React
 import React from 'react';
 import { render } from 'react-dom';
+
 // Material UI
 import { ThemeProvider, createTheme, ThemeOptions } from '@mui/material/styles';
 import { CssBaseline } from '@mui/material';
+
 // Router
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
+// Font imports
 import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
+
 // Elements
 import Loading from './components/Loading/Loading';
 // import { LoginContextProvider, useLoginContext } from './LoginData';
@@ -35,135 +40,149 @@ const breakpoints = {
   },
 };
 
+// Define an interface for the custom palette colors
+interface CustomPaletteColors {
+  main: string;
+}
+
+// Define a custom palette using the specified colors
+interface CustomPalette {
+  red: CustomPaletteColors;
+  yellow: CustomPaletteColors;
+  darkGrey: CustomPaletteColors;
+  grey: CustomPaletteColors;
+  whiteGrey: CustomPaletteColors;
+  white: CustomPaletteColors;
+  green: CustomPaletteColors;
+}
+
 // Material-UI Theme configuration
-// displayLarge,displayMedium and subHead is not currently using.
 declare module '@mui/material/styles' {
   interface TypographyVariantsOptions {
-    // displayLarge?: React.CSSProperties;
-    // displayMedium?: React.CSSProperties;
-    displaySmall?: React.CSSProperties;
-    headline?: React.CSSProperties;
-    // subHead?: React.CSSProperties;
-    aboutDesktopBody?: React.CSSProperties;
-    bigBody?: React.CSSProperties;
-    placeHolder?: React.CSSProperties;
-    smallBody?: React.CSSProperties;
-    footerLegal?: React.CSSProperties;
+    h1?: React.CSSProperties;
+    h2?: React.CSSProperties;
+    h3?: React.CSSProperties;
+    h4?: React.CSSProperties;
+    h5?: React.CSSProperties;
+    body1?: React.CSSProperties;
+    body2?: React.CSSProperties;
+    body3?: React.CSSProperties;
+    caption?: React.CSSProperties;
+    footnote?: React.CSSProperties;
+  }
+
+  // Disabling h1, h2, and h5
+  interface TypographyPropsVariantOverrides {
+    h1: false;
+    h2: false;
+    h3: true;
+    h4: true;
+    h5: false;
+    body1: true;
+    body2: true;
+    body3: true;
+    caption: true;
+    footnote: true;
+  }
+
+  interface Palette {
+    custom: CustomPalette;
   }
 
   interface PaletteOptions {
-    customColors?: {
-      darkGrey: string;
-      grey: string;
-      whiteGrey: string;
-      white: string;
-      green: string;
-    };
-  }
-  
-  interface TypographyPropsVariantOverrides {
-    // displayLarge?: React.CSSProperties;
-    // displayMedium?: React.CSSProperties;
-    displaySmall: true;
-    headLine: true;
-    // subHead?: React.CSSProperties;
-    aboutDesktopBody: true;
-    bigBody: true;
-    placeHolder: true;
-    smallBody: true;
-    footerLegal: true;
+    custom: CustomPalette;
   }
 }
 
 const theme = createTheme({
   breakpoints,
   typography: {
-    fontFamily: 'Roboto',
-    // displayLarge and displayMedium, SubHead is not currently using.
-    // displayLarge: { 
-    //   fontWeight: 400, 
-    //   fontSize: 57,
-    //   lineHeight:67,
-    //   letterSpacing:0
-    // },
-    // displayMedium: {
-    //   fontWeight: 400,
-    //   fontSize: 45,
-    //   lineHeight: 53,
-    //   letterSpacing:0
-    // },
-    // Landing Page (About)'s Tagline and Title.
-    displaySmall: {
+    fontFamily: 'Roboto, Lato, sans-serif',
+    h1: {
+      fontWeight: 400,
+      fontSize: 57,
+      lineHeight: 67,
+      letterSpacing: 0
+    },
+    h2: {
+      fontWeight: 400,
+      fontSize: 45,
+      lineHeight: 53,
+      letterSpacing: 0
+    },
+    h3: {
       fontWeight: 400,
       fontSize: 38,
       lineHeight: 44,
       letterSpacing: 0,
     },
-    // Web App's Title for each categories.
-    headline: {
+    h4: {
       fontWeight: 400,
       fontSize: 26,
       lineHeight: 26,
       letterSpacing: 0,
     },
-    // subHead: {
-    //   fontWeight: 400,
-    //   fontSize: 22,
-    //   lineHeight: 26,
-    //   letterSpacing: 0,
-    // },
-    // Body for Landing Page (About).
-    // This is only for Desktop & Tablet version of landing page.
-    // Otherwise, BodySmall will be used for landing page for mobile.
-    aboutDesktopBody: {
+    h5: {
+      fontWeight: 400,
+      fontSize: 22,
+      lineHeight: 26,
+      letterSpacing: 0,
+    },
+    body1: {
       fontWeight: 400,
       fontSize: 21,
       lineHeight: 28,
       letterSpacing: 0,
     },
-    bigBody: {
+    body2: {
       fontWeight: 400,
       fontSize: 16,
       lineHeight: 19,
       letterSpacing: 0,
     },
-    placeHolder: {
+    body3: {
       fontWeight: 400,
       fontSize: 14,
       lineHeight: 18,
       letterSpacing: 0,
       opacity: 0.5,
     },
-    smallBody: {
+    caption: {
       fontWeight: 400,
       fontSize: 14,
       lineHeight: 18,
       letterSpacing: 0,
     },
-    // Footer legal Information
-    footerLegal: {
+    footnote: {
       fontWeight: 400,
       fontSize: 11,
       lineHeight: 13,
       letterSpacing: 0,
     },
   },
-  // Please refer the figma (06. Design System)
   palette: {
-    primary: {
-      // red
-      main: '#B20000', 
-    },
-    secondary: {
-      // yellow
-      main: '#FFC700',
-    },
-    customColors: {
-      darkGrey: '#494949',
-      grey: '#DEE3E5',
-      whiteGrey: '#f7f7f7',
-      white: '#ffffff',
-      green: '#1CC82D',
+    custom: {
+      red: {
+        main: '#B20000',
+      },
+      yellow: {
+        main: '#FFC700',
+      },
+      darkGrey: {
+        main: '#494949',
+      },
+      grey: {
+        main: '#DEE3E5',
+      },
+      whiteGrey: {
+        main: '#f7f7f7',
+      },
+      white: {
+        main: '#ffffff',
+      },
+      green: {
+        main: '#1CC82D',
+      },
     },
   },
 });
@@ -175,7 +194,6 @@ const theme = createTheme({
 function App(): React.ReactElement {
   return (
     <ThemeProvider theme={theme}>
-    <>
       <CssBaseline />
       {/* <Router basename={'collegemate'}>
         <Routes>
@@ -183,7 +201,6 @@ function App(): React.ReactElement {
         </Routes>
       </Router> */}
       <Loading />
-    </>
     </ThemeProvider>
   );
 }
