@@ -11,7 +11,12 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { CssBaseline } from '@mui/material';
 import { green } from '@mui/material/colors';
 // Router
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import {
+  Routes,
+  Route,
+  createBrowserRouter,
+  RouterProvider,
+} from 'react-router-dom';
 // Font
 // import '@fontsource/ibm-plex-sans-kr/300.css';
 // import '@fontsource/ibm-plex-sans-kr/400.css';
@@ -134,16 +139,15 @@ function App(): React.ReactElement {
     // <ThemeProvider theme={theme}>
     <>
       <CssBaseline />
-      {/* <Router basename={'collegemate'}>
-        <Routes>
-          <Route path="/" element={false ? <></> : <Loading />} />
-        </Routes>
-      </Router> */}
-      <Loading />
+      <Routes>
+        <Route path="/" element={false ? <></> : <Loading />} />
+      </Routes>
     </>
     // </ThemeProvider>
   );
 }
+
+const router = createBrowserRouter([{ path: '*', Component: App }]);
 
 /**
  * React functional component to render the application's entry point
@@ -153,7 +157,7 @@ function AppWrapper(): React.ReactElement {
   return (
     <React.StrictMode>
       <React.Suspense fallback={<Loading />}>
-        <App />
+        <RouterProvider router={router} />
       </React.Suspense>
     </React.StrictMode>
   );
