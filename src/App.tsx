@@ -90,7 +90,49 @@ const theme = createTheme({
   breakpoints,
   typography: {
     fontFamily: '"Roboto", sans-serif',
-    // TODO
+    h1: {
+      fontWeight: 700,
+      fontSize: 38,
+      lineHeight: 44,
+      letterSpacing: 0
+    },
+    h2: {
+      fontWeight: 700,
+      fontSize: 26,
+      lineHeight: 30,
+      letterSpacing: 0
+    },
+    h3: {
+      fontWeight: 400,
+      fontSize: 21,
+      lineHeight: 28,
+      letterSpacing: 0
+    },
+    body1: {
+      fontWeight: 500,
+      fontSize: 16,
+      lineHeight: 19,
+      letterSpacing: 0
+    },
+    body2: {
+      fontWeight: 400,
+      fontSize: 14,
+      lineHeight: 18,
+      letterSpacing: 0,
+      opacity: 0.5
+    },
+    body3: {
+      fontWeight: 400,
+      fontSize: 14,
+      lineHeight: 18,
+      letterSpacing: 0
+    },
+    body4: {
+      fontWeight: 400,
+      fontSize: 11,
+      lineHeight: 13,
+      letterSpacing: 0
+    }
   },
   palette: {
     primary: redColor,
@@ -98,7 +140,21 @@ const theme = createTheme({
     yellow: {
       main: '#FFC700',
     },
-    // TODO
+    darkGrey: {
+      main: '#494949',
+    },
+    defGrey: {
+      main: '#DEE3E5',
+    },
+    whiteGrey: {
+      main: '#f7f7f7',
+    },
+    white: {
+      main: '#ffffff',
+    },
+    green: {
+      main: '#1CC82D',
+    },
   },
 });
 
