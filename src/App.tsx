@@ -16,6 +16,7 @@ import {
   Route,
   createBrowserRouter,
   RouterProvider,
+  Outlet,
 } from 'react-router-dom';
 // Font
 // import '@fontsource/ibm-plex-sans-kr/300.css';
@@ -131,19 +132,31 @@ import Loading from './components/Loading/Loading';
 // });
 
 /**
+ * React functional component to setup App Layout
+ * @return {React.ReactElement} The Layout setup for this application
+ */
+function Layout(): React.ReactElement {
+  return (
+    // <ThemeProvider theme={theme}>
+    <>
+      <CssBaseline />
+      <Outlet />
+    </>
+    // </ThemeProvider>
+  );
+}
+
+/**
  * React functional component to render the application's content
  * @return {React.ReactElement} The content of the application
  */
 function App(): React.ReactElement {
   return (
-    // <ThemeProvider theme={theme}>
-    <>
-      <CssBaseline />
-      <Routes>
+    <Routes>
+      <Route element={<Layout />}>
         <Route path="/" element={false ? <></> : <Loading />} />
-      </Routes>
-    </>
-    // </ThemeProvider>
+      </Route>
+    </Routes>
   );
 }
 
