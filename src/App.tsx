@@ -5,7 +5,7 @@
 
 // React
 import React from 'react';
-import { render } from 'react-dom';
+import { createRoot } from 'react-dom/client';
 // Material UI
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { CssBaseline, Typography } from '@mui/material';
@@ -209,4 +209,6 @@ function AppWrapper(): React.ReactElement {
   );
 }
 
-render(<AppWrapper />, document.getElementById('root'));
+const container = document.getElementById('root') as HTMLElement;
+const root = createRoot(container);
+root.render(<AppWrapper />);
