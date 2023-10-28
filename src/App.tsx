@@ -92,45 +92,45 @@ const theme = createTheme({
     fontFamily: '"Roboto", sans-serif',
     h1: {
       fontWeight: 700,
-      fontSize: 38,
-      lineHeight: 44,
+      fontSize: '38px',
+      lineHeight: '44px',
       letterSpacing: 0
     },
     h2: {
       fontWeight: 700,
-      fontSize: 26,
-      lineHeight: 30,
+      fontSize: '26px',
+      lineHeight: '30px',
       letterSpacing: 0
     },
     h3: {
       fontWeight: 400,
-      fontSize: 21,
-      lineHeight: 28,
+      fontSize: '21px',
+      lineHeight: '28px',
       letterSpacing: 0
     },
     body1: {
       fontWeight: 500,
-      fontSize: 16,
-      lineHeight: 19,
+      fontSize: '16px',
+      lineHeight: '19px',
       letterSpacing: 0
     },
     body2: {
       fontWeight: 400,
-      fontSize: 14,
-      lineHeight: 18,
+      fontSize: '14px',
+      lineHeight: '18px',
       letterSpacing: 0,
       opacity: 0.5
     },
     body3: {
       fontWeight: 400,
-      fontSize: 14,
-      lineHeight: 18,
+      fontSize: '14px',
+      lineHeight: '18px',
       letterSpacing: 0
     },
     body4: {
       fontWeight: 400,
-      fontSize: 11,
-      lineHeight: 13,
+      fontSize: '11px',
+      lineHeight: '13px',
       letterSpacing: 0
     }
   },
