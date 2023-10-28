@@ -11,7 +11,13 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { CssBaseline } from '@mui/material';
 import { green } from '@mui/material/colors';
 // Router
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import {
+  Routes,
+  Route,
+  createBrowserRouter,
+  RouterProvider,
+  Outlet,
+} from 'react-router-dom';
 // Font
 // import '@fontsource/ibm-plex-sans-kr/300.css';
 // import '@fontsource/ibm-plex-sans-kr/400.css';
@@ -126,24 +132,35 @@ import Loading from './components/Loading/Loading';
 // });
 
 /**
+ * React functional component to setup App Layout
+ * @return {React.ReactElement} The Layout setup for this application
+ */
+function Layout(): React.ReactElement {
+  return (
+    // <ThemeProvider theme={theme}>
+    <>
+      <CssBaseline />
+      <Outlet />
+    </>
+    // </ThemeProvider>
+  );
+}
+
+/**
  * React functional component to render the application's content
  * @return {React.ReactElement} The content of the application
  */
 function App(): React.ReactElement {
   return (
-    // <ThemeProvider theme={theme}>
-    <>
-      <CssBaseline />
-      {/* <Router basename={'collegemate'}>
-        <Routes>
-          <Route path="/" element={false ? <></> : <Loading />} />
-        </Routes>
-      </Router> */}
-      <Loading />
-    </>
-    // </ThemeProvider>
+    <Routes>
+      <Route element={<Layout />}>
+        <Route path="/" element={false ? <></> : <Loading />} />
+      </Route>
+    </Routes>
   );
 }
+
+const router = createBrowserRouter([{ path: '*', Component: App }]);
 
 /**
  * React functional component to render the application's entry point
@@ -153,7 +170,7 @@ function AppWrapper(): React.ReactElement {
   return (
     <React.StrictMode>
       <React.Suspense fallback={<Loading />}>
-        <App />
+        <RouterProvider router={router} />
       </React.Suspense>
     </React.StrictMode>
   );
