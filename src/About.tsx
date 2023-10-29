@@ -9,7 +9,7 @@ import React from 'react';
 // Material UI Icons
 // Components
 import Slides from './components/About/Slides';
-import { Box } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 // Global Style
 
 /**
@@ -41,7 +41,9 @@ function About(): React.ReactElement {
               width: '100vw',
               height: '100vh',
             }}
-          />,
+          >
+            <Typography>HorizontalScroll</Typography>
+          </Box>,
           <Box
             sx={{
               backgroundColor: 'grey.light',

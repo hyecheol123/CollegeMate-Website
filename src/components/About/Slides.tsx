@@ -6,7 +6,7 @@
 // React
 import React from 'react';
 // Material UI
-import { Box, Typography } from '@mui/material';
+import { Box } from '@mui/material';
 // Material UI Icons
 // Components
 // Global Style
@@ -29,13 +29,59 @@ function Slides(props: SlideProps): React.ReactElement {
   // States
   const [verticalIdx, setVerticalIdx] = React.useState(0);
 
+  // variable that is not a state (cleared after every re-render)
+  // For mouse wheel / trackpad gesture detection
+  let wheelTimeout: number | undefined;
+  let acceptScroll = true;
+  let deltaY = 0;
+  let deltaX = 0;
+
+  // Event Handler for mouse wheel / trackpad gesture detection
+  const wheelResetScroll = (): void => {
+    deltaY = 0;
+    deltaX = 0;
+    acceptScroll = true;
+  };
+  const wheelTimeoutEvent = (): void => {
+    if (Math.abs(deltaY) >= Math.abs(deltaX)) {
+      // Vertical scroll detected
+      if (deltaY > 50 && verticalIdx < components.length - 1) {
+        setVerticalIdx(verticalIdx + 1);
+      } else if (deltaY < -50 && verticalIdx > 0) {
+        setVerticalIdx(verticalIdx - 1);
+      }
+    } else {
+      // Horizontal scroll detected
+      // TODO
+    }
+
+    window.setTimeout(wheelResetScroll, 500);
+  };
+  const wheelEventHandler = (event: React.WheelEvent<HTMLDivElement>): void => {
+    // Prevent detault action
+    event.stopPropagation();
+
+    if (acceptScroll) {
+      // Setup timer to detect end of wheel activity
+      if (wheelTimeout) {
+        clearTimeout(wheelTimeout);
+      }
+      wheelTimeout = window.setTimeout(wheelTimeoutEvent, 300);
+
+      // Calculate delta
+      deltaY += event.deltaY;
+      deltaX += event.deltaX;
+    }
+  };
+
+  // Event Handler for touch gesture detection
+  // TODO
+
   return (
-    <Box>
-      {(components[verticalIdx] as any)?.length === undefined ? (
-        components[verticalIdx]
-      ) : (
-        <Typography>Horizontal Scroll</Typography>
-      )}
+    <Box onWheel={wheelEventHandler}>
+      {(components[verticalIdx] as any)?.length === undefined
+        ? components[verticalIdx]
+        : (components[verticalIdx] as React.ReactElement[])[0]}
     </Box>
   );
 }
