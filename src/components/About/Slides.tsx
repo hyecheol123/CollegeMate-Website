@@ -31,11 +31,14 @@ function Slides(props: ISlideProps): React.ReactElement {
   const [horizontalIdx, setHorizontalIdx] = React.useState<number[]>([]);
 
   // variable that is not a state (cleared after every re-render)
-  // For mouse wheel / trackpad gesture detection
-  let wheelTimeout: number | undefined;
+  // For scroll detection
+  let scrollTimeout: number | undefined;
   let acceptScroll = true;
   let deltaY = 0;
   let deltaX = 0;
+  // Specific to touch screen
+  let prevX = -1;
+  let prevY = -1;
 
   // function to detect whether the child slide is horizontal scrollable or not
   const isHorizontal = React.useCallback(
@@ -51,13 +54,16 @@ function Slides(props: ISlideProps): React.ReactElement {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Event Handler for mouse wheel / trackpad gesture detection
-  const wheelResetScroll = (): void => {
+  // Event Handler for scroll detection
+  const scrollResetScroll = (): void => {
+    scrollTimeout = undefined;
+    acceptScroll = true;
     deltaY = 0;
     deltaX = 0;
-    acceptScroll = true;
+    prevY = -1;
+    prevX = -1;
   };
-  const wheelTimeoutEvent = (): void => {
+  const scrollTimeoutEvent = (): void => {
     if (Math.abs(deltaY) >= Math.abs(deltaX)) {
       // Vertical scroll detected
       if (deltaY > 50 && verticalIdx < components.length - 1) {
@@ -82,30 +88,41 @@ function Slides(props: ISlideProps): React.ReactElement {
       }
     }
 
-    window.setTimeout(wheelResetScroll, 500);
+    window.setTimeout(scrollResetScroll, 500);
   };
-  const wheelEventHandler = (event: React.WheelEvent<HTMLDivElement>): void => {
-    // Prevent detault action
-    event.stopPropagation();
-
+  const scrollEventHandler = (
+    e: React.SyntheticEvent<HTMLDivElement>,
+  ): void => {
     if (acceptScroll) {
       // Setup timer to detect end of wheel activity
-      if (wheelTimeout) {
-        clearTimeout(wheelTimeout);
+      if (scrollTimeout) {
+        clearTimeout(scrollTimeout);
       }
-      wheelTimeout = window.setTimeout(wheelTimeoutEvent, 300);
+      scrollTimeout = window.setTimeout(scrollTimeoutEvent, 300);
 
       // Calculate delta
-      deltaY += event.deltaY;
-      deltaX += event.deltaX;
+      if (e.type === 'wheel') {
+        deltaY += (e as unknown as React.WheelEvent).deltaY;
+        deltaX += (e as unknown as React.WheelEvent).deltaX;
+      } else {
+        const y = (e as unknown as React.TouchEvent).targetTouches[0].clientY;
+        const x = (e as unknown as React.TouchEvent).targetTouches[0].clientX;
+
+        // Not the first touch event - calculate delta
+        if (prevY !== -1 || prevX !== -1) {
+          deltaY += prevY - y;
+          deltaX += prevX - x;
+        }
+
+        // Store current client coordinate as previous coordinate
+        prevY = y;
+        prevX = x;
+      }
     }
   };
 
-  // Event Handler for touch gesture detection
-  // TODO
-
   return (
-    <Box onWheel={wheelEventHandler}>
+    <Box onWheel={scrollEventHandler} onTouchMove={scrollEventHandler}>
       {isHorizontal(components[verticalIdx])
         ? (components[verticalIdx] as React.ReactElement[])[
             horizontalIdx[verticalIdx]
