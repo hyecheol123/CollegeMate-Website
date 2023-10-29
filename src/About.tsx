@@ -23,23 +23,26 @@ function About(): React.ReactElement {
         <Box
           sx={{
             backgroundColor: 'red.light',
-            width: '100vw',
-            height: '100vh',
+            width: '100%',
+            height: '100%',
+            position: 'fixed',
           }}
         />,
         <Box
           sx={{
             backgroundColor: 'green.light',
-            width: '100vw',
-            height: '100vh',
+            width: '100%',
+            height: '100%',
+            position: 'fixed',
           }}
         />,
         [
           <Box
             sx={{
               backgroundColor: 'yellow.light',
-              width: '100vw',
-              height: '100vh',
+              width: '100%',
+              height: '100%',
+              position: 'fixed',
             }}
           >
             <Typography>HorizontalScroll</Typography>
@@ -47,8 +50,9 @@ function About(): React.ReactElement {
           <Box
             sx={{
               backgroundColor: 'grey.light',
-              width: '100vw',
-              height: '100vh',
+              width: '100%',
+              height: '100%',
+              position: 'fixed',
             }}
           />,
         ],
