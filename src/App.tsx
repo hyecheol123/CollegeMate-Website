@@ -5,11 +5,10 @@
 
 // React
 import React from 'react';
-import { render } from 'react-dom';
+import { createRoot } from 'react-dom/client';
 // Material UI
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import { CssBaseline } from '@mui/material';
-import { green } from '@mui/material/colors';
+import { CssBaseline, Typography } from '@mui/material';
 // Router
 import {
   Routes,
@@ -19,9 +18,10 @@ import {
   Outlet,
 } from 'react-router-dom';
 // Font
-// import '@fontsource/ibm-plex-sans-kr/300.css';
-// import '@fontsource/ibm-plex-sans-kr/400.css';
-// import '@fontsource/ibm-plex-sans-kr/500.css';
+import '@fontsource/roboto/300.css';
+import '@fontsource/roboto/400.css';
+import '@fontsource/roboto/500.css';
+import '@fontsource/roboto/700.css';
 // Elements
 import Loading from './components/Loading/Loading';
 // import { LoginContextProvider, useLoginContext } from './LoginData';
@@ -32,104 +32,131 @@ import Loading from './components/Loading/Loading';
 // const ChangePW = React.lazy(() => import('./ChangePW'));
 
 // MUI Theme (Setup Font family and Palette Color)
-// declare module '@mui/material/styles' {
-//   interface TypographyVariantsOptions {
-//     calendarDaysOfWeek?: React.CSSProperties;
-//     calendarBody?: React.CSSProperties;
-//     calendarEvent?: React.CSSProperties;
-//     eventDetailBody?: React.CSSProperties;
-//   }
-//   interface Palette {
-//     tertiary: Palette['primary'];
-//   }
-//   interface PaletteOptions {
-//     tertiary?: PaletteOptions['primary'];
-//   }
-// }
-// declare module '@mui/material/Typography' {
-//   interface TypographyPropsVariantOverrides {
-//     calendarDaysOfWeek: true;
-//     calendarBody: true;
-//     calendarEvent: true;
-//     eventDetailBody: true;
-//   }
-// }
+declare module '@mui/material/styles' {
+  interface TypographyVariantsOptions {
+    body3?: React.CSSProperties;
+    body4?: React.CSSProperties;
+  }
+  interface Palette {
+    red: Palette['primary'];
+    yellow: Palette['primary'];
+    darkGrey: Palette['primary'];
+    defGrey: Palette['primary'];
+    whiteGrey: Palette['primary'];
+    white: Palette['primary'];
+    green: Palette['primary'];
+  }
+  interface PaletteOptions {
+    red?: PaletteOptions['primary'];
+    yellow?: PaletteOptions['primary'];
+    darkGrey?: PaletteOptions['primary'];
+    defGrey?: PaletteOptions['primary'];
+    whiteGrey?: PaletteOptions['primary'];
+    white?: PaletteOptions['primary'];
+    green?: PaletteOptions['primary'];
+  }
+}
+declare module '@mui/material/Typography' {
+  interface TypographyPropsVariantOverrides {
+    h4: false;
+    h5: false;
+    h6: false;
+    subtitle1: false;
+    subtitle2: false;
+    body3: true;
+    body4: true;
+    button: false;
+    caption: false;
+    overline: false;
+  }
+}
 // declare module '@mui/material/Button' {
 //   interface ButtonPropsColorOverrides {
 //     tertiary: true;
 //   }
 // }
-// const breakpoints = {
-//   values: {
-//     xs: 0,
-//     sm: 600,
-//     md: 900,
-//     lg: 1200,
-//     xl: 1536,
-//   },
-// };
-// const theme = createTheme({
-//   breakpoints,
-//   typography: {
-//     fontFamily: '"IBM Plex Sans KR", sans-serif',
-//     h4: {
-//       fontWeight: 500,
-//       [`@media screen and (max-width: ${breakpoints.values.md}px)`]: {
-//         fontSize: '1.5rem',
-//       },
-//     },
-//     h5: {
-//       fontWeight: 500,
-//     },
-//     calendarEvent: {
-//       fontWeight: 400,
-//       fontSize: '0.875rem',
-//       lineHeight: 1.43,
-//       letterSpacing: '0.01071em',
-//       [`@media screen and (max-width: ${breakpoints.values.md}px)`]: {
-//         fontSize: '0.6rem',
-//       },
-//     },
-//     eventDetailBody: {
-//       fontWeight: 400,
-//       fontSize: '1rem',
-//       lineHeight: 1.5,
-//       letterSpacing: '0.00938em',
-//       [`@media screen and (max-width: ${breakpoints.values.md}px)`]: {
-//         fontSize: '0.9rem',
-//       },
-//     },
-//     calendarDaysOfWeek: {
-//       fontWeight: 400,
-//       fontSize: '1rem',
-//       lineHeight: 1.75,
-//       letterSpacing: '0.00938em',
-//       [`@media screen and (max-width: ${breakpoints.values.md}px)`]: {
-//         fontSize: '0.8rem',
-//       },
-//     },
-//     calendarBody: {
-//       fontWeight: 400,
-//       fontSize: '1rem',
-//       lineHeight: 1.5,
-//       letterSpacing: '0.00938em',
-//       [`@media screen and (max-width: ${breakpoints.values.md}px)`]: {
-//         fontSize: '0.7rem',
-//       },
-//     },
-//     caption: {
-//       fontSize: '0.8rem',
-//     },
-//   },
-//   palette: {
-//     tertiary: {
-//       light: green[300],
-//       main: green[600],
-//       dark: green[800],
-//       contrastText: '#fff',
-//     },
-//   },
-// });
+
+const breakpoints = {
+  values: {
+    xs: 0,
+    sm: 600,
+    md: 900,
+    lg: 1200,
+    xl: 1536,
+  },
+};
+const redColor = { main: '#B20000' };
+const theme = createTheme({
+  breakpoints,
+  typography: {
+    fontFamily: '"Roboto", sans-serif',
+    h1: {
+      fontWeight: 700,
+      fontSize: '38px',
+      lineHeight: '44px',
+      letterSpacing: 0,
+    },
+    h2: {
+      fontWeight: 700,
+      fontSize: '26px',
+      lineHeight: '30px',
+      letterSpacing: 0,
+    },
+    h3: {
+      fontWeight: 400,
+      fontSize: '21px',
+      lineHeight: '28px',
+      letterSpacing: 0,
+    },
+    body1: {
+      fontWeight: 500,
+      fontSize: '16px',
+      lineHeight: '19px',
+      letterSpacing: 0,
+    },
+    body2: {
+      fontWeight: 400,
+      fontSize: '14px',
+      lineHeight: '18px',
+      letterSpacing: 0,
+      opacity: 0.5,
+    },
+    body3: {
+      fontWeight: 400,
+      fontSize: '14px',
+      lineHeight: '18px',
+      letterSpacing: 0,
+    },
+    body4: {
+      fontWeight: 400,
+      fontSize: '11px',
+      lineHeight: '13px',
+      letterSpacing: 0,
+    },
+  },
+  palette: {
+    primary: redColor,
+    red: redColor,
+    yellow: {
+      main: '#FFC700',
+    },
+    darkGrey: {
+      main: '#494949',
+    },
+    defGrey: {
+      main: '#DEE3E5',
+    },
+    whiteGrey: {
+      main: '#f7f7f7',
+    },
+    white: {
+      main: '#ffffff',
+    },
+    green: {
+      main: '#1CC82D',
+    },
+  },
+});
 
 /**
  * React functional component to setup App Layout
@@ -137,12 +164,10 @@ import Loading from './components/Loading/Loading';
  */
 function Layout(): React.ReactElement {
   return (
-    // <ThemeProvider theme={theme}>
-    <>
+    <ThemeProvider theme={theme}>
       <CssBaseline />
       <Outlet />
-    </>
-    // </ThemeProvider>
+    </ThemeProvider>
   );
 }
 
@@ -154,7 +179,15 @@ function App(): React.ReactElement {
   return (
     <Routes>
       <Route element={<Layout />}>
-        <Route path="/" element={false ? <></> : <Loading />} />
+        <Route
+          path="/"
+          element={
+            <Typography variant="h1" color="primary">
+              Hello World
+            </Typography>
+          }
+        />
+        <Route path="/loading" element={<Loading />} />
       </Route>
     </Routes>
   );
@@ -176,4 +209,6 @@ function AppWrapper(): React.ReactElement {
   );
 }
 
-render(<AppWrapper />, document.getElementById('root'));
+const container = document.getElementById('root') as HTMLElement;
+const root = createRoot(container);
+root.render(<AppWrapper />);
