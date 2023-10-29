@@ -14,20 +14,21 @@ import { Box } from '@mui/material';
 /**
  * Interface for SlideProps
  */
-interface SlideProps {
+interface ISlideProps {
   components: (React.ReactElement | React.ReactElement[])[];
 }
 
 /**
  * React Functional Component for full-page scroll wrapper
- * @param {SlideProps} props Properties that passed from the parent Component
+ * @param {ISlideProps} props Properties that passed from the parent Component
  * @return {React.ReactElement} Renders full-page scroll wrapper
  */
-function Slides(props: SlideProps): React.ReactElement {
+function Slides(props: ISlideProps): React.ReactElement {
   const { components } = props;
 
   // States
-  const [verticalIdx, setVerticalIdx] = React.useState(0);
+  const [verticalIdx, setVerticalIdx] = React.useState<number>(0);
+  const [horizontalIdx, setHorizontalIdx] = React.useState<number[]>([]);
 
   // variable that is not a state (cleared after every re-render)
   // For mouse wheel / trackpad gesture detection
@@ -35,6 +36,20 @@ function Slides(props: SlideProps): React.ReactElement {
   let acceptScroll = true;
   let deltaY = 0;
   let deltaX = 0;
+
+  // function to detect whether the child slide is horizontal scrollable or not
+  const isHorizontal = React.useCallback(
+    (slide: React.ReactElement | React.ReactElement[]): boolean => {
+      return (slide as any)?.length !== undefined ? true : false;
+    },
+    [],
+  );
+
+  // Initialize horitonalIdx
+  React.useEffect(() => {
+    setHorizontalIdx(components.map((slide) => (isHorizontal(slide) ? 0 : -1)));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Event Handler for mouse wheel / trackpad gesture detection
   const wheelResetScroll = (): void => {
@@ -52,7 +67,19 @@ function Slides(props: SlideProps): React.ReactElement {
       }
     } else {
       // Horizontal scroll detected
-      // TODO
+      if (horizontalIdx[verticalIdx] !== -1) {
+        if (
+          deltaX > 50 &&
+          horizontalIdx[verticalIdx] <
+            (components[verticalIdx] as React.ReactElement[]).length - 1
+        ) {
+          horizontalIdx[verticalIdx] += 1;
+          setHorizontalIdx([...horizontalIdx]);
+        } else if (deltaX < -50 && horizontalIdx[verticalIdx] > 0) {
+          horizontalIdx[verticalIdx] -= 1;
+          setHorizontalIdx([...horizontalIdx]);
+        }
+      }
     }
 
     window.setTimeout(wheelResetScroll, 500);
@@ -79,9 +106,11 @@ function Slides(props: SlideProps): React.ReactElement {
 
   return (
     <Box onWheel={wheelEventHandler}>
-      {(components[verticalIdx] as any)?.length === undefined
-        ? components[verticalIdx]
-        : (components[verticalIdx] as React.ReactElement[])[0]}
+      {isHorizontal(components[verticalIdx])
+        ? (components[verticalIdx] as React.ReactElement[])[
+            horizontalIdx[verticalIdx]
+          ]
+        : components[verticalIdx]}
     </Box>
   );
 }
