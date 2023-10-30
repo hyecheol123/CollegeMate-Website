@@ -9,6 +9,7 @@ import React from 'react';
 import { Box } from '@mui/material';
 // Material UI Icons
 // Components
+import NavBar from './Slides/NavBar';
 // Global Style
 
 /**
@@ -46,6 +47,15 @@ function Slides(props: ISlideProps): React.ReactElement {
       return (slide as any)?.length !== undefined ? true : false;
     },
     [],
+  );
+
+  // function to modify horizontalIdx
+  const horizontalIdxSetter = React.useCallback(
+    (verticalIdx: number, newHorizontalIdx: number): void => {
+      horizontalIdx[verticalIdx] = newHorizontalIdx;
+      setHorizontalIdx([...horizontalIdx]);
+    },
+    [horizontalIdx],
   );
 
   // Initialize horitonalIdx
@@ -123,6 +133,22 @@ function Slides(props: ISlideProps): React.ReactElement {
 
   return (
     <Box onWheel={scrollEventHandler} onTouchMove={scrollEventHandler}>
+      <NavBar
+        orientation="vertical"
+        length={components.length}
+        currIdx={verticalIdx}
+        clickHandler={setVerticalIdx}
+      />
+      {isHorizontal(components[verticalIdx]) ? (
+        <NavBar
+          orientation="horizontal"
+          length={(components[verticalIdx] as React.ReactElement[]).length}
+          currIdx={horizontalIdx[verticalIdx]}
+          clickHandler={(newHorizontalIdx: number): void =>
+            horizontalIdxSetter(verticalIdx, newHorizontalIdx)
+          }
+        />
+      ) : undefined}
       {isHorizontal(components[verticalIdx])
         ? (components[verticalIdx] as React.ReactElement[])[
             horizontalIdx[verticalIdx]

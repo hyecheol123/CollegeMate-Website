@@ -22,7 +22,7 @@ function About(): React.ReactElement {
       components={[
         <Box
           sx={{
-            backgroundColor: 'red.light',
+            backgroundColor: 'darkGrey.light',
             width: '100%',
             height: '100%',
             position: 'fixed',
