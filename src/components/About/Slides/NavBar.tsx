@@ -1,6 +1,6 @@
 /**
  * NavBar component to visualize current location and
- *   to support quick navigationfor Slide component
+ *   to support quick navigation for Slide component
  * @author Hyecheol (Jerry) Jang <hyecheol123@gmail.com>
  */
 
@@ -31,16 +31,54 @@ interface INavBarProps {
 function NavBar(props: INavBarProps): React.ReactElement {
   const { orientation, length, currIdx, clickHandler } = props;
 
-  // TODO: use clickHandler to properly handle icon click.
-  // TODO: Use orientation, length, and currIdx prop to properly display the icons
-  // TODO: Use NavBarCircle to display icons
+  // Function to generate the list of navigation circles
+  const generateNavBarCircles = () => {
+    let circles = [];
+    for (let i = 0; i < length; i++) {
+      circles.push(
+        <NavBarCircle
+          key={i}
+          isCurrent={currIdx === i}
+          thisIdx={i}
+          clickHandler={() => clickHandler(i)}
+        />
+      );
+    }
+    return circles;
+  };
+
+  // Style for the vertical navigation bar
+  const verticalBoxStyle = {
+    position: 'fixed',
+    top: '50%',
+    right: '0',
+    transform: 'translateY(-50%)',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '8px',
+    zIndex: 1000,
+  };
+
+  // Style for the horizontal navigation bar
+  const horizontalBoxStyle = {
+    position: 'fixed',
+    bottom: '10px',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '8px',
+    zIndex: 1000,
+  };
+
+  // Conditional rendering based on the orientation prop
   return (
-    <Box>
-      <NavBarCircle
-        isCurrent={false}
-        thisIdx={-1}
-        clickHandler={(): void => clickHandler(-1)}
-      />
+    <Box sx={orientation === 'vertical' ? verticalBoxStyle : horizontalBoxStyle}>
+      {generateNavBarCircles()}
     </Box>
   );
 }

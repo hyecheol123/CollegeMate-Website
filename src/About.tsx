@@ -45,7 +45,7 @@ function About(): React.ReactElement {
               position: 'fixed',
             }}
           >
-            <Typography>HorizontalScroll</Typography>
+            <Typography>Feature1 (Horizontal Slide)</Typography>
           </Box>,
           <Box
             sx={{
@@ -54,8 +54,28 @@ function About(): React.ReactElement {
               height: '100%',
               position: 'fixed',
             }}
-          />,
+          >
+            <Typography>Feature2 (Horizontal Slide)</Typography>
+          </Box>,
+          <Box
+            sx={{
+              backgroundColor: 'red.light',
+              width: '100%',
+              height: '100%',
+              position: 'fixed',
+            }}
+          >
+            <Typography>Feature3 (Horizontal Slide)</Typography>
+          </Box>,
         ],
+        <Box
+          sx={{
+            backgroundColor: 'whiteGrey.light',
+            width: '100%',
+            height: '100%',
+            position: 'fixed',
+          }}
+        />,
       ]}
     />
   );

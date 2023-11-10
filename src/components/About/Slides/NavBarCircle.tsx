@@ -28,8 +28,19 @@ interface INavBarCircleProps {
 function NavBarCircle(props: INavBarCircleProps): React.ReactElement {
   const { isCurrent, thisIdx, clickHandler } = props;
 
-  // TODO: Create each circle here
-  return <></>;
+  const style = {
+    width: '10px',
+    height: '10px',
+    borderRadius: '50%',
+    background: isCurrent ? '#B20000' : '#DEE3E5',
+    cursor: 'pointer',
+    margin: '10px', // TODO: Adjust margin to control space between circles
+  };
+
+  return (
+    <div style={style} onClick={clickHandler} aria-label={`Navigate to slide ${thisIdx + 1}`}>
+    </div>
+  );
 }
 
 export default NavBarCircle;
