@@ -7,6 +7,7 @@
 // React
 import React from 'react';
 // Material UI
+import { Box } from '@mui/material';
 // Material UI Icons
 // Components
 // Global Style
@@ -28,8 +29,24 @@ interface INavBarCircleProps {
 function NavBarCircle(props: INavBarCircleProps): React.ReactElement {
   const { isCurrent, thisIdx, clickHandler } = props;
 
-  // TODO: Create each circle here
-  return <></>;
+  const style = React.useMemo(() => {
+    return {
+      width: '10px',
+      height: '10px',
+      borderRadius: '50%',
+      backgroundColor: isCurrent ? 'red.main' : 'grey.dark',
+      cursor: 'pointer',
+    };
+  }, [isCurrent]);
+
+  return (
+    <Box
+      sx={style}
+      onClick={clickHandler}
+      role={'button'}
+      aria-label={`Navigate to slide ${thisIdx + 1}`}
+    />
+  );
 }
 
-export default NavBarCircle;
+export default React.memo(NavBarCircle);

@@ -1,6 +1,6 @@
 /**
  * NavBar component to visualize current location and
- *   to support quick navigationfor Slide component
+ *   to support quick navigation for Slide component
  * @author Hyecheol (Jerry) Jang <hyecheol123@gmail.com>
  */
 
@@ -31,18 +31,39 @@ interface INavBarProps {
 function NavBar(props: INavBarProps): React.ReactElement {
   const { orientation, length, currIdx, clickHandler } = props;
 
-  // TODO: use clickHandler to properly handle icon click.
-  // TODO: Use orientation, length, and currIdx prop to properly display the icons
-  // TODO: Use NavBarCircle to display icons
+  const style = React.useMemo(() => {
+    return {
+      position: 'fixed',
+      top: orientation === 'vertical' ? '50%' : undefined,
+      right: orientation === 'vertical' ? '0' : undefined,
+      bottom: orientation === 'vertical' ? undefined : '10px',
+      left: orientation === 'vertical' ? undefined : '50%',
+      marginRight: orientation === 'vertical' ? '10px' : undefined,
+      marginBottom: orientation === 'vertical' ? undefined : '10px',
+      display: 'flex',
+      flexDirection: orientation === 'vertical' ? 'column' : 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: '10px',
+      transform:
+        orientation === 'vertical' ? 'translateY(-50%)' : 'translateX(-50%)',
+      zIndex: 1000,
+    };
+  }, [orientation]);
+
+  // Conditional rendering based on the orientation prop
   return (
-    <Box>
-      <NavBarCircle
-        isCurrent={false}
-        thisIdx={-1}
-        clickHandler={(): void => clickHandler(-1)}
-      />
+    <Box sx={style}>
+      {Array.from(Array(length)).map((_value, idx) => (
+        <NavBarCircle
+          key={idx}
+          isCurrent={currIdx === idx}
+          thisIdx={idx}
+          clickHandler={(): void => clickHandler(idx)}
+        />
+      ))}
     </Box>
   );
 }
 
-export default NavBar;
+export default React.memo(NavBar);
