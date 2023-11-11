@@ -38,8 +38,11 @@ function NavBarCircle(props: INavBarCircleProps): React.ReactElement {
   };
 
   return (
-    <div style={style} onClick={clickHandler} aria-label={`Navigate to slide ${thisIdx + 1}`}>
-    </div>
+    <div
+      style={style}
+      onClick={clickHandler}
+      aria-label={`Navigate to slide ${thisIdx + 1}`}
+    ></div>
   );
 }
 

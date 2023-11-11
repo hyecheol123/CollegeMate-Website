@@ -28,14 +28,6 @@ function About(): React.ReactElement {
             position: 'fixed',
           }}
         />,
-        <Box
-          sx={{
-            backgroundColor: 'green.light',
-            width: '100%',
-            height: '100%',
-            position: 'fixed',
-          }}
-        />,
         [
           <Box
             sx={{
@@ -68,6 +60,14 @@ function About(): React.ReactElement {
             <Typography>Feature3 (Horizontal Slide)</Typography>
           </Box>,
         ],
+        <Box
+          sx={{
+            backgroundColor: 'green.light',
+            width: '100%',
+            height: '100%',
+            position: 'fixed',
+          }}
+        />,
         <Box
           sx={{
             backgroundColor: 'whiteGrey.light',

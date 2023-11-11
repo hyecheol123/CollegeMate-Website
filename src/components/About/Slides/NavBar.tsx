@@ -32,8 +32,8 @@ function NavBar(props: INavBarProps): React.ReactElement {
   const { orientation, length, currIdx, clickHandler } = props;
 
   // Function to generate the list of navigation circles
-  const generateNavBarCircles = () => {
-    let circles = [];
+  const generateNavBarCircles = (): React.ReactNode[] => {
+    const circles: React.ReactNode[] = [];
     for (let i = 0; i < length; i++) {
       circles.push(
         <NavBarCircle
@@ -41,7 +41,7 @@ function NavBar(props: INavBarProps): React.ReactElement {
           isCurrent={currIdx === i}
           thisIdx={i}
           clickHandler={() => clickHandler(i)}
-        />
+        />,
       );
     }
     return circles;
@@ -77,7 +77,9 @@ function NavBar(props: INavBarProps): React.ReactElement {
 
   // Conditional rendering based on the orientation prop
   return (
-    <Box sx={orientation === 'vertical' ? verticalBoxStyle : horizontalBoxStyle}>
+    <Box
+      sx={orientation === 'vertical' ? verticalBoxStyle : horizontalBoxStyle}
+    >
       {generateNavBarCircles()}
     </Box>
   );
