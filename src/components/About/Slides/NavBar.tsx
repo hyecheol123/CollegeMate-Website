@@ -31,58 +31,39 @@ interface INavBarProps {
 function NavBar(props: INavBarProps): React.ReactElement {
   const { orientation, length, currIdx, clickHandler } = props;
 
-  // Function to generate the list of navigation circles
-  const generateNavBarCircles = (): React.ReactNode[] => {
-    const circles: React.ReactNode[] = [];
-    for (let i = 0; i < length; i++) {
-      circles.push(
-        <NavBarCircle
-          key={i}
-          isCurrent={currIdx === i}
-          thisIdx={i}
-          clickHandler={() => clickHandler(i)}
-        />,
-      );
-    }
-    return circles;
-  };
-
-  // Style for the vertical navigation bar
-  const verticalBoxStyle = {
-    position: 'fixed',
-    top: '50%',
-    right: '0',
-    transform: 'translateY(-50%)',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: '8px',
-    zIndex: 1000,
-  };
-
-  // Style for the horizontal navigation bar
-  const horizontalBoxStyle = {
-    position: 'fixed',
-    bottom: '10px',
-    left: '50%',
-    transform: 'translateX(-50%)',
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: '8px',
-    zIndex: 1000,
-  };
+  const style = React.useMemo(() => {
+    return {
+      position: 'fixed',
+      top: orientation === 'vertical' ? '50%' : undefined,
+      right: orientation === 'vertical' ? '0' : undefined,
+      bottom: orientation === 'vertical' ? undefined : '10px',
+      left: orientation === 'vertical' ? undefined : '50%',
+      marginRight: orientation === 'vertical' ? '10px' : undefined,
+      marginBottom: orientation === 'vertical' ? undefined : '10px',
+      display: 'flex',
+      flexDirection: orientation === 'vertical' ? 'column' : 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: '10px',
+      transform:
+        orientation === 'vertical' ? 'translateY(-50%)' : 'translateX(-50%)',
+      zIndex: 1000,
+    };
+  }, [orientation]);
 
   // Conditional rendering based on the orientation prop
   return (
-    <Box
-      sx={orientation === 'vertical' ? verticalBoxStyle : horizontalBoxStyle}
-    >
-      {generateNavBarCircles()}
+    <Box sx={style}>
+      {Array.from(Array(length)).map((_value, idx) => (
+        <NavBarCircle
+          key={idx}
+          isCurrent={currIdx === idx}
+          thisIdx={idx}
+          clickHandler={(): void => clickHandler(idx)}
+        />
+      ))}
     </Box>
   );
 }
 
-export default NavBar;
+export default React.memo(NavBar);
