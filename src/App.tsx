@@ -70,11 +70,11 @@ declare module '@mui/material/Typography' {
     overline: false;
   }
 }
-// declare module '@mui/material/Button' {
-//   interface ButtonPropsColorOverrides {
-//     tertiary: true;
-//   }
-// }
+declare module '@mui/material/Button' {
+  interface ButtonPropsColorOverrides {
+    whiteGrey: true;
+  }
+}
 
 const breakpoints = {
   values: {
