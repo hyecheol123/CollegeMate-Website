@@ -6,10 +6,11 @@
 // React
 import React from 'react';
 // Material UI
+import { Box, Typography } from '@mui/material';
 // Material UI Icons
 // Components
 import Slides from './components/About/Slides';
-import { Box, Typography } from '@mui/material';
+import Page1 from './components/About/Pages/Page1';
 // Global Style
 
 /**
@@ -20,13 +21,7 @@ function About(): React.ReactElement {
   return (
     <Slides
       components={[
-        <Box
-          sx={{
-            backgroundColor: 'darkGrey.light',
-            width: '100%',
-            height: '100%',
-          }}
-        />,
+        <Page1 />,
         [
           <Box
             sx={{
