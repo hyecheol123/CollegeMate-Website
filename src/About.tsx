@@ -25,7 +25,6 @@ function About(): React.ReactElement {
             backgroundColor: 'darkGrey.light',
             width: '100%',
             height: '100%',
-            position: 'fixed',
           }}
         />,
         [
@@ -34,7 +33,6 @@ function About(): React.ReactElement {
               backgroundColor: 'yellow.light',
               width: '100%',
               height: '100%',
-              position: 'fixed',
             }}
           >
             <Typography>Feature1 (Horizontal Slide)</Typography>
@@ -44,7 +42,6 @@ function About(): React.ReactElement {
               backgroundColor: 'grey.light',
               width: '100%',
               height: '100%',
-              position: 'fixed',
             }}
           >
             <Typography>Feature2 (Horizontal Slide)</Typography>
@@ -54,7 +51,6 @@ function About(): React.ReactElement {
               backgroundColor: 'red.light',
               width: '100%',
               height: '100%',
-              position: 'fixed',
             }}
           >
             <Typography>Feature3 (Horizontal Slide)</Typography>
@@ -65,7 +61,6 @@ function About(): React.ReactElement {
             backgroundColor: 'green.light',
             width: '100%',
             height: '100%',
-            position: 'fixed',
           }}
         />,
         <Box
@@ -73,7 +68,6 @@ function About(): React.ReactElement {
             backgroundColor: 'whiteGrey.light',
             width: '100%',
             height: '100%',
-            position: 'fixed',
           }}
         />,
       ]}

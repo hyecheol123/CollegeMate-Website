@@ -20,16 +20,33 @@ interface ISlideProps {
 }
 
 /**
+ * Interface for Index State
+ */
+interface IIdxState {
+  currVIdx: number;
+  pastVIdx: number;
+  currHIdx: number[];
+  pastHIdx: number[];
+  isSwitching: boolean;
+}
+
+/**
  * React Functional Component for full-page scroll wrapper
  * @param {ISlideProps} props Properties that passed from the parent Component
  * @return {React.ReactElement} Renders full-page scroll wrapper
  */
 function Slides(props: ISlideProps): React.ReactElement {
   const { components } = props;
+  const transitionSpeed = 150;
 
   // States
-  const [verticalIdx, setVerticalIdx] = React.useState<number>(0);
-  const [horizontalIdx, setHorizontalIdx] = React.useState<number[]>([]);
+  const [idxState, setIdxState] = React.useState<IIdxState>({
+    currVIdx: 0,
+    pastVIdx: 0,
+    currHIdx: [],
+    pastHIdx: [],
+    isSwitching: false,
+  });
 
   // variable that is not a state (cleared after every re-render)
   // For scroll detection
@@ -49,23 +66,54 @@ function Slides(props: ISlideProps): React.ReactElement {
     [],
   );
 
-  // function to modify horizontalIdx
-  const horizontalIdxSetter = React.useCallback(
-    (verticalIdx: number, newHorizontalIdx: number): void => {
-      horizontalIdx[verticalIdx] = newHorizontalIdx;
-      setHorizontalIdx([...horizontalIdx]);
-    },
-    [horizontalIdx],
-  );
-
-  // Initialize horitonalIdx
   React.useEffect(() => {
-    setHorizontalIdx(components.map((slide) => (isHorizontal(slide) ? 0 : -1)));
+    idxState.currHIdx = components.map((slide) =>
+      isHorizontal(slide) ? 0 : -1,
+    );
+    idxState.pastHIdx = components.map((slide) =>
+      isHorizontal(slide) ? 0 : -1,
+    );
+    setIdxState({ ...idxState });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // function to modify index
+  const vIdxSetter = React.useCallback(
+    (newIdx: number): void => {
+      idxState.pastHIdx = [...idxState.currHIdx];
+      idxState.pastVIdx = idxState.currVIdx;
+      idxState.isSwitching = true;
+      setIdxState({ ...idxState });
+
+      window.setTimeout(() => {
+        idxState.isSwitching = false;
+        idxState.currVIdx = newIdx;
+        setIdxState({ ...idxState });
+      }, transitionSpeed);
+    },
+    [idxState],
+  );
+  const hIdxSetter = React.useCallback(
+    (newIdx: number): void => {
+      idxState.pastVIdx = idxState.currVIdx;
+      idxState.pastHIdx = [...idxState.pastHIdx];
+      idxState.pastHIdx[idxState.currVIdx] =
+        idxState.currHIdx[idxState.currVIdx];
+      idxState.isSwitching = true;
+      setIdxState({ ...idxState });
+
+      window.setTimeout(() => {
+        idxState.isSwitching = false;
+        idxState.currHIdx = [...idxState.currHIdx];
+        idxState.currHIdx[idxState.currVIdx] = newIdx;
+        setIdxState({ ...idxState });
+      }, transitionSpeed);
+    },
+    [idxState],
+  );
+
   // Event Handler for scroll detection
-  const scrollResetScroll = (): void => {
+  const scrollReset = (): void => {
     scrollTimeout = undefined;
     acceptScroll = true;
     deltaY = 0;
@@ -76,29 +124,27 @@ function Slides(props: ISlideProps): React.ReactElement {
   const scrollTimeoutEvent = (): void => {
     if (Math.abs(deltaY) >= Math.abs(deltaX)) {
       // Vertical scroll detected
-      if (deltaY > 50 && verticalIdx < components.length - 1) {
-        setVerticalIdx(verticalIdx + 1);
-      } else if (deltaY < -50 && verticalIdx > 0) {
-        setVerticalIdx(verticalIdx - 1);
+      if (deltaY > 50 && idxState.currVIdx < components.length - 1) {
+        vIdxSetter(idxState.currVIdx + 1);
+      } else if (deltaY < -50 && idxState.currVIdx > 0) {
+        vIdxSetter(idxState.currVIdx - 1);
       }
     } else {
       // Horizontal scroll detected
-      if (horizontalIdx[verticalIdx] !== -1) {
+      if (idxState.currHIdx[idxState.currVIdx] !== -1) {
         if (
           deltaX > 50 &&
-          horizontalIdx[verticalIdx] <
-            (components[verticalIdx] as React.ReactElement[]).length - 1
+          idxState.currHIdx[idxState.currVIdx] <
+            (components[idxState.currVIdx] as React.ReactElement[]).length - 1
         ) {
-          horizontalIdx[verticalIdx] += 1;
-          setHorizontalIdx([...horizontalIdx]);
-        } else if (deltaX < -50 && horizontalIdx[verticalIdx] > 0) {
-          horizontalIdx[verticalIdx] -= 1;
-          setHorizontalIdx([...horizontalIdx]);
+          hIdxSetter(idxState.currHIdx[idxState.currVIdx] + 1);
+        } else if (deltaX < -50 && idxState.currHIdx[idxState.currVIdx] > 0) {
+          hIdxSetter(idxState.currHIdx[idxState.currVIdx] - 1);
         }
       }
     }
 
-    window.setTimeout(scrollResetScroll, 500);
+    window.setTimeout(scrollReset, 300);
   };
   const scrollEventHandler = (
     e: React.SyntheticEvent<HTMLDivElement>,
@@ -131,29 +177,51 @@ function Slides(props: ISlideProps): React.ReactElement {
     }
   };
 
+  const slideStyle = {
+    width: '100%',
+    height: '100%',
+    position: 'fixed',
+  };
+
   return (
     <Box onWheel={scrollEventHandler} onTouchMove={scrollEventHandler}>
       <NavBar
         orientation="vertical"
         length={components.length}
-        currIdx={verticalIdx}
-        clickHandler={setVerticalIdx}
+        currIdx={idxState.currVIdx}
+        clickHandler={vIdxSetter}
       />
-      {isHorizontal(components[verticalIdx]) ? (
+      {isHorizontal(components[idxState.currVIdx]) ? (
         <NavBar
           orientation="horizontal"
-          length={(components[verticalIdx] as React.ReactElement[]).length}
-          currIdx={horizontalIdx[verticalIdx]}
-          clickHandler={(newHorizontalIdx: number): void =>
-            horizontalIdxSetter(verticalIdx, newHorizontalIdx)
+          length={
+            (components[idxState.currVIdx] as React.ReactElement[]).length
           }
+          currIdx={idxState.currHIdx[idxState.currVIdx]}
+          clickHandler={hIdxSetter}
         />
       ) : undefined}
-      {isHorizontal(components[verticalIdx])
-        ? (components[verticalIdx] as React.ReactElement[])[
-            horizontalIdx[verticalIdx]
-          ]
-        : components[verticalIdx]}
+      <Box
+        sx={{
+          ...slideStyle,
+          zIndex: 3,
+          transition: `all ${transitionSpeed}ms linear 0ms`,
+          opacity: idxState.isSwitching ? 1 : 0,
+        }}
+      >
+        {isHorizontal(components[idxState.pastVIdx])
+          ? (components[idxState.pastVIdx] as React.ReactElement[])[
+              idxState.pastHIdx[idxState.pastVIdx]
+            ]
+          : components[idxState.pastVIdx]}
+      </Box>
+      <Box sx={{ ...slideStyle, zIndex: 2 }}>
+        {isHorizontal(components[idxState.currVIdx])
+          ? (components[idxState.currVIdx] as React.ReactElement[])[
+              idxState.currHIdx[idxState.currVIdx]
+            ]
+          : components[idxState.currVIdx]}
+      </Box>
     </Box>
   );
 }
