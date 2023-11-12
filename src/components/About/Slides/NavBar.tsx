@@ -34,12 +34,6 @@ function NavBar(props: INavBarProps): React.ReactElement {
   const style = React.useMemo(() => {
     return {
       position: 'fixed',
-      top: orientation === 'vertical' ? '50%' : undefined,
-      right: orientation === 'vertical' ? '0' : undefined,
-      bottom: orientation === 'vertical' ? undefined : '10px',
-      left: orientation === 'vertical' ? undefined : '50%',
-      marginRight: orientation === 'vertical' ? '10px' : undefined,
-      marginBottom: orientation === 'vertical' ? undefined : '10px',
       display: 'flex',
       flexDirection: orientation === 'vertical' ? 'column' : 'row',
       alignItems: 'center',
@@ -53,7 +47,15 @@ function NavBar(props: INavBarProps): React.ReactElement {
 
   // Conditional rendering based on the orientation prop
   return (
-    <Box sx={style}>
+    <Box
+      top={orientation === 'vertical' ? '50%' : undefined}
+      right={orientation === 'vertical' ? '0' : undefined}
+      bottom={orientation === 'vertical' ? undefined : '10px'}
+      left={orientation === 'vertical' ? undefined : '50%'}
+      marginRight={orientation === 'vertical' ? '10px' : undefined}
+      marginBottom={orientation === 'vertical' ? undefined : '10px'}
+      sx={style}
+    >
       {Array.from(Array(length)).map((_value, idx) => (
         <NavBarCircle
           key={idx}
