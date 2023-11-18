@@ -12,7 +12,6 @@ import { Box, Button, Typography } from '@mui/material';
 // Global Styles
 import PageWrapperStyle from '../Styles/PageWrapper';
 // Assets
-import MockupImageWebp from '../../../../assets/landing_page_mockup.png?as=webp';
 import MockupImagePng from '../../../../assets/landing_page_mockup.png';
 
 const pictureWrapperStyle = { flex: 1, mx: '5%' };
@@ -46,7 +45,7 @@ function Page1(): React.ReactElement {
       </Typography>
       <Box sx={pictureWrapperStyle}>
         <picture>
-          <source srcSet={MockupImageWebp} type="image/webp" />
+          <source srcSet={ MockupImagePng } type="image/webp" />
           <Box
             sx={pictureStyle}
             component="img"

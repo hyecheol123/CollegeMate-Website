@@ -11,6 +11,7 @@ import { Box, Typography } from '@mui/material';
 // Components
 import Slides from './components/About/Slides';
 import Page1 from './components/About/Pages/Page1';
+import Page2 from './components/About/Pages/Page2';
 // Global Style
 
 /**
@@ -23,15 +24,7 @@ function About(): React.ReactElement {
       components={[
         <Page1 />,
         [
-          <Box
-            sx={{
-              backgroundColor: 'yellow.light',
-              width: '100%',
-              height: '100%',
-            }}
-          >
-            <Typography>Feature1 (Horizontal Slide)</Typography>
-          </Box>,
+          <Page2 />,
           <Box
             sx={{
               backgroundColor: 'grey.light',
