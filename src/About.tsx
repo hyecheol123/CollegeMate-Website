@@ -19,6 +19,11 @@ import Page2 from './components/About/Pages/Feature';
  * @return {React.ReactElement} Renders About page
  */
 function About(): React.ReactElement {
+  // Prevent refresh on overscroll
+  React.useEffect(() => {
+    console.log(document);
+  }, []);
+
   return (
     <Slides
       components={[

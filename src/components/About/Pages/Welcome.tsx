@@ -11,20 +11,12 @@ import { Box, Button, Typography } from '@mui/material';
 // Components
 // Global Styles
 import PageWrapperStyle from '../Styles/PageWrapper';
+import PictureStyle from '../Styles/Picture';
 // Assets
 import MockupImageWebp from '../../../../assets/landing_page_mockup.png?as=webp';
 import MockupImagePng from '../../../../assets/landing_page_mockup.png';
 
 const pictureWrapperStyle = { flex: 1, mx: '5%', py: '15px' };
-const pictureStyle = {
-  margin: 'auto',
-  display: 'block',
-  height: 0,
-  minHeight: '100%',
-  width: 0,
-  minWidth: '100%',
-  objectFit: 'contain',
-};
 const buttonWrapperStyle = {
   display: 'flex',
   justifyContent: 'center',
@@ -48,7 +40,7 @@ function Welcome(): React.ReactElement {
         <picture>
           <source srcSet={MockupImageWebp} type="image/webp" />
           <Box
-            sx={pictureStyle}
+            sx={PictureStyle}
             component="img"
             src={MockupImagePng}
             alt="Mockup of CollegeMate"
