@@ -12,25 +12,24 @@ import { Box, Typography } from '@mui/material';
 // Global Styles
 import PageWrapperStyle from '../Styles/PageWrapper';
 import PictureStyle from '../Styles/Picture';
-// Assets
-import feature1 from '../../../../assets/thumbnail_Feature1.png';
 
-// Styles for portrait mode
-const pictureWrapperStyle = { flex: 1, mx: '5%' };
-
-const textContainerStyle = {
-  display: 'flex',
-  flexDirection: 'column',
-  justifyContent: 'center',
-  textAlign: 'center',
-  gap: '15px',
-};
+/**
+ * Interface for feature props
+ */
+interface IFeatureProps {
+  title: string;
+  body: string;
+  pngImage: any;
+  webpImage: any;
+  imageAlt: string;
+}
 
 /**
  * React Functional Component for About page's second page
+ * @param {IFeatureProps} props Properties that passed from the parent Component
  * @return {React.ReactElement} Renders second page of about page
  */
-function Feature(): React.ReactElement {
+function Feature(props: IFeatureProps): React.ReactElement {
   // States
   const [isLandscape, setIsLandscape] = React.useState<boolean>(false);
 
@@ -47,6 +46,15 @@ function Feature(): React.ReactElement {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const pictureWrapperStyle = { flex: 1, mx: '5%' };
+  const textContainerStyle = {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    textAlign: 'center',
+    gap: '15px',
+  };
+
   return (
     <Box
       sx={{
@@ -56,22 +64,24 @@ function Feature(): React.ReactElement {
     >
       <Box sx={textContainerStyle} maxWidth={isLandscape ? '50%' : undefined}>
         <Typography variant="h1" color="red.main" align="center">
-          Customize Schedule
+          {props.title}
         </Typography>
         <Typography variant="body1" align="center" mt="30px" mb="30px">
-          Customize your schedule effortlessly with CollegeMate - real-time data
-          from UW's database at your fingertips. CollegeMate updates for you.
+          {props.body}
         </Typography>
       </Box>
       <Box
         sx={{ ...pictureWrapperStyle, pb: isLandscape ? undefined : '15px' }}
       >
-        <Box
-          sx={PictureStyle}
-          component="img"
-          src={feature1}
-          alt="Mockup of Schedule Customization"
-        />
+        <picture>
+          <source srcSet={props.webpImage} type="image/webp" />
+          <Box
+            sx={PictureStyle}
+            component="img"
+            src={props.pngImage}
+            alt={props.imageAlt}
+          />
+        </picture>
       </Box>
     </Box>
   );
