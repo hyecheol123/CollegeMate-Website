@@ -10,8 +10,8 @@ import { Box, Typography } from '@mui/material';
 // Material UI Icons
 // Components
 import Slides from './components/About/Slides';
-import Page1 from './components/About/Pages/Page1';
-import Page2 from './components/About/Pages/Page2';
+import Page1 from './components/About/Pages/Welcome';
+import Page2 from './components/About/Pages/Feature';
 // Global Style
 
 /**

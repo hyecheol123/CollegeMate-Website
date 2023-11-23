@@ -5,7 +5,10 @@
 const PageWrapperStyle = {
   width: '100%',
   height: '100%',
-  padding: '15px',
+  paddingTop: '45px',
+  paddingBottom: '30px',
+  paddingLeft: '15px',
+  paddingRight: '15px',
   display: 'flex',
   flexDirection: 'column',
 };

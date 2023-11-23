@@ -1,10 +1,10 @@
 /**
- * Component for the second page of about page.
+ * Component for the second page of about page (Feature List).
  * @author Daekyun Kim <daekyun97@gmail.com>
  */
 
 // React
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 // Material UI
 import { Box, Typography } from '@mui/material';
 // Assets
@@ -16,11 +16,18 @@ const pictureStyle = {
   margin: 'auto',
   display: 'block',
   height: 0,
-  minHeight: '90%',
+  minHeight: '100%',
   width: 0,
-  minWidth: '90%',
-  objectFit: 'contain' as const,
+  minWidth: '100%',
+  objectFit: 'contain',
 };
+// // Style for the image in landscape mode for a smaller size
+// const imageStyleLandscape = {
+//   maxWidth: '85%',
+//   maxHeight: '400px',
+//   height: 'auto',
+//   width: 'auto',
+// };
 
 const Page2WrapperStyle = {
   maxWidth: '700px',
@@ -57,57 +64,52 @@ const imageContainerStyle = {
   alignItems: 'center',
 };
 
-// Style for the image in landscape mode for a smaller size
-const imageStyleLandscape = {
-  maxWidth: '85%',
-  maxHeight: '400px',
-  height: 'auto',
-  width: 'auto',
-};
-
 /**
  * React Functional Component for About page's second page
  * @return {React.ReactElement} Renders second page of about page
  */
-function Page2(): React.ReactElement {
-  const [windowSize, setWindowSize] = useState({
-    width: window.innerWidth,
-    height: window.innerHeight,
-  });
+function Feature(): React.ReactElement {
+  // States
+  const [isLandscape, setIsLandscape] = React.useState<boolean>(false);
 
-  useEffect(() => {
-    function handleResize() {
-      setWindowSize({
-        width: window.innerWidth,
-        height: window.innerHeight,
-      });
-    }
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+  // Detect orientation of viewport
+  const getOrientation = React.useCallback(() => {
+    setIsLandscape(
+      window.innerWidth > window.innerHeight && window.innerHeight < 500,
+    );
   }, []);
-
-  const isLandscape = windowSize.width > windowSize.height && windowSize.height < 500;
+  React.useEffect(() => {
+    window.addEventListener('resize', getOrientation);
+    return () => window.removeEventListener('resize', getOrientation);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <Box sx={isLandscape ? Page2WrapperLandscapeStyle : Page2WrapperStyle}>
-      <Box sx={isLandscape ? textContainerStyle : {}}>
-        <Typography variant="h1" color="red.main" align="center" marginTop="30px">
+      <Box sx={isLandscape ? textContainerStyle : undefined}>
+        <Typography
+          variant="h1"
+          color="red.main"
+          align="center"
+          marginTop="30px"
+        >
           Customize Schedule
         </Typography>
         <Typography variant="body1" align="center" marginTop="30px" mb="30px">
-        Customize your schedule effortlessly with CollegeMate - real-time data from UW's database at your fingertips. CollegeMate updates for you.
+          Customize your schedule effortlessly with CollegeMate - real-time data
+          from UW's database at your fingertips. CollegeMate updates for you.
         </Typography>
       </Box>
       <Box sx={isLandscape ? imageContainerStyle : pictureWrapperStyle}>
-        <img
+        <Box
+          sx={pictureStyle}
+          component="img"
           src={feature1}
           alt="Mockup of Schedule Customization"
-          style={isLandscape ? imageStyleLandscape : pictureStyle}
         />
       </Box>
     </Box>
   );
 }
 
-export default React.memo(Page2);
+export default React.memo(Feature);

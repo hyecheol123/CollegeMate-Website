@@ -1,5 +1,5 @@
 /**
- * Component for the first page of about page.
+ * Component for the first page of about page (Welcome).
  * @author Hyecheol (Jerry) Jang <hyecheol123@gmail.com>
  */
 
@@ -12,9 +12,10 @@ import { Box, Button, Typography } from '@mui/material';
 // Global Styles
 import PageWrapperStyle from '../Styles/PageWrapper';
 // Assets
+import MockupImageWebp from '../../../../assets/landing_page_mockup.png?as=webp';
 import MockupImagePng from '../../../../assets/landing_page_mockup.png';
 
-const pictureWrapperStyle = { flex: 1, mx: '5%' };
+const pictureWrapperStyle = { flex: 1, mx: '5%', py: '15px' };
 const pictureStyle = {
   margin: 'auto',
   display: 'block',
@@ -37,7 +38,7 @@ const buttonWrapperStyle = {
  * React Functional Component for About page's first page
  * @return {React.ReactElement} Renders first page of about page
  */
-function Page1(): React.ReactElement {
+function Welcome(): React.ReactElement {
   return (
     <Box sx={PageWrapperStyle}>
       <Typography variant="h1" color="red.main" align="center" mb="15px">
@@ -45,7 +46,7 @@ function Page1(): React.ReactElement {
       </Typography>
       <Box sx={pictureWrapperStyle}>
         <picture>
-          <source srcSet={ MockupImagePng } type="image/webp" />
+          <source srcSet={MockupImageWebp} type="image/webp" />
           <Box
             sx={pictureStyle}
             component="img"
@@ -64,4 +65,4 @@ function Page1(): React.ReactElement {
   );
 }
 
-export default React.memo(Page1);
+export default React.memo(Welcome);

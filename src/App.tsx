@@ -108,7 +108,7 @@ let theme = createTheme({
       letterSpacing: 0,
     },
     body1: {
-      fontWeight: 500,
+      fontWeight: 400,
       fontSize: '16px',
       lineHeight: '19px',
       letterSpacing: 0,
