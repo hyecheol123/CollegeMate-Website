@@ -184,7 +184,11 @@ function Slides(props: ISlideProps): React.ReactElement {
   };
 
   return (
-    <Box onWheel={scrollEventHandler} onTouchMove={scrollEventHandler}>
+    <Box
+      sx={{ overscrollBehavior: 'none' }}
+      onWheel={scrollEventHandler}
+      onTouchMove={scrollEventHandler}
+    >
       <NavBar
         orientation="vertical"
         length={components.length}
@@ -208,6 +212,7 @@ function Slides(props: ISlideProps): React.ReactElement {
           transition: `all ${transitionSpeed}ms linear 0ms`,
           opacity: idxState.isSwitching ? 1 : 0,
         }}
+        visibility={idxState.isSwitching ? undefined : 'hidden'}
       >
         {isHorizontal(components[idxState.pastVIdx])
           ? (components[idxState.pastVIdx] as React.ReactElement[])[
