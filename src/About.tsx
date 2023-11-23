@@ -6,49 +6,58 @@
 // React
 import React from 'react';
 // Material UI
-import { Box, Typography } from '@mui/material';
+import { Box } from '@mui/material';
 // Material UI Icons
 // Components
 import Slides from './components/About/Slides';
-import Page1 from './components/About/Pages/Welcome';
-import Page2 from './components/About/Pages/Feature';
+import Welcome from './components/About/Pages/Welcome';
+import Feature from './components/About/Pages/Feature';
 // Global Style
+// Assets
+import feature1Png from '../assets/thumbnail_Feature1.png';
+import feature1Webp from '../assets/thumbnail_Feature1.png?as=webp';
+import feature2Png from '../assets/thumbnail_Feature2.png';
+import feature2Webp from '../assets/thumbnail_Feature2.png?as=webp';
+import feature3Png from '../assets/thumbnail_Feature3.png';
+import feature3Webp from '../assets/thumbnail_Feature3.png?as=webp';
 
 /**
  * React Functional Component to generate About page
  * @return {React.ReactElement} Renders About page
  */
 function About(): React.ReactElement {
-  // Prevent refresh on overscroll
-  React.useEffect(() => {
-    console.log(document);
-  }, []);
+  // Feature Data
+  const featureData = [
+    {
+      title: 'Customize Schedule',
+      body: "Customize your schedule effortlessly with CollegeMate - real-time data from UW's database at your fingertips. CollegeMate updates for you.",
+      pngImage: feature1Png,
+      webpImage: feature1Webp,
+      imageAlt: 'Mockup of Schedule Customization',
+    },
+    {
+      title: 'Share Schedule With Friends',
+      body: 'Eliminate the "What\'s your schedule?" dilemma. CollegeMate simplifies viewing friends\' timetables. No back-and-forth. Stay connected in a snap',
+      pngImage: feature2Png,
+      webpImage: feature2Webp,
+      imageAlt: "Mockup of Friend's Schedule",
+    },
+    {
+      title: 'Set Schedule as Wallpaper',
+      body: "Download your timetable to perfectly fit your phone's screen. Say goodbye to screenshots. Access your schedule whenever and wherever.",
+      pngImage: feature3Png,
+      webpImage: feature3Webp,
+      imageAlt: 'Mockup of Wallpaper Download',
+    },
+  ];
 
   return (
     <Slides
       components={[
-        <Page1 />,
-        [
-          <Page2 />,
-          <Box
-            sx={{
-              backgroundColor: 'grey.light',
-              width: '100%',
-              height: '100%',
-            }}
-          >
-            <Typography>Feature2 (Horizontal Slide)</Typography>
-          </Box>,
-          <Box
-            sx={{
-              backgroundColor: 'red.light',
-              width: '100%',
-              height: '100%',
-            }}
-          >
-            <Typography>Feature3 (Horizontal Slide)</Typography>
-          </Box>,
-        ],
+        <Welcome />,
+        featureData.map((data): React.ReactElement => {
+          return <Feature {...data} />;
+        }),
         <Box
           sx={{
             backgroundColor: 'green.light',
