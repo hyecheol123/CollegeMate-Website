@@ -16,10 +16,13 @@ import Feature from './components/About/Pages/Feature';
 // Assets
 import feature1Png from '../assets/thumbnail_Feature1.png';
 import feature1Webp from '../assets/thumbnail_Feature1.png?as=webp';
+import feature1Avif from '../assets/thumbnail_Feature1.png?as=avif';
 import feature2Png from '../assets/thumbnail_Feature2.png';
 import feature2Webp from '../assets/thumbnail_Feature2.png?as=webp';
+import feature2Avif from '../assets/thumbnail_Feature2.png?as=avif';
 import feature3Png from '../assets/thumbnail_Feature3.png';
 import feature3Webp from '../assets/thumbnail_Feature3.png?as=webp';
+import feature3Avif from '../assets/thumbnail_Feature3.png?as=avif';
 
 /**
  * React Functional Component to generate About page
@@ -33,6 +36,7 @@ function About(): React.ReactElement {
       body: "Customize your schedule effortlessly with CollegeMate - real-time data from UW's database at your fingertips. CollegeMate updates for you.",
       pngImage: feature1Png,
       webpImage: feature1Webp,
+      avifImage: feature1Avif,
       imageAlt: 'Mockup of Schedule Customization',
     },
     {
@@ -40,6 +44,7 @@ function About(): React.ReactElement {
       body: 'Eliminate the "What\'s your schedule?" dilemma. CollegeMate simplifies viewing friends\' timetables. No back-and-forth. Stay connected in a snap',
       pngImage: feature2Png,
       webpImage: feature2Webp,
+      avifImage: feature2Avif,
       imageAlt: "Mockup of Friend's Schedule",
     },
     {
@@ -47,6 +52,7 @@ function About(): React.ReactElement {
       body: "Download your timetable to perfectly fit your phone's screen. Say goodbye to screenshots. Access your schedule whenever and wherever.",
       pngImage: feature3Png,
       webpImage: feature3Webp,
+      avifImage: feature3Avif,
       imageAlt: 'Mockup of Wallpaper Download',
     },
   ];

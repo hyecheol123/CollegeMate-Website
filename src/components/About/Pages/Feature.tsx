@@ -21,6 +21,7 @@ interface IFeatureProps {
   body: string;
   pngImage: any;
   webpImage: any;
+  avifImage: any;
   imageAlt: string;
 }
 
@@ -74,6 +75,7 @@ function Feature(props: IFeatureProps): React.ReactElement {
         sx={{ ...pictureWrapperStyle, pb: isLandscape ? undefined : '15px' }}
       >
         <picture style={PictureStyle}>
+          <source srcSet={props.avifImage} type="image/avif" />
           <source srcSet={props.webpImage} type="image/webp" />
           <Box
             sx={{ ...PictureStyle, objectFit: 'contain' }}
