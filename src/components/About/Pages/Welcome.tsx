@@ -37,10 +37,10 @@ function Welcome(): React.ReactElement {
         Boost college life with CollegeMate
       </Typography>
       <Box sx={pictureWrapperStyle}>
-        <picture>
+        <picture style={PictureStyle}>
           <source srcSet={MockupImageWebp} type="image/webp" />
           <Box
-            sx={PictureStyle}
+            sx={{ ...PictureStyle, objectFit: 'contain' }}
             component="img"
             src={MockupImagePng}
             alt="Mockup of CollegeMate"

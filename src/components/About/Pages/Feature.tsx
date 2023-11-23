@@ -73,10 +73,10 @@ function Feature(props: IFeatureProps): React.ReactElement {
       <Box
         sx={{ ...pictureWrapperStyle, pb: isLandscape ? undefined : '15px' }}
       >
-        <picture>
+        <picture style={PictureStyle}>
           <source srcSet={props.webpImage} type="image/webp" />
           <Box
-            sx={PictureStyle}
+            sx={{ ...PictureStyle, objectFit: 'contain' }}
             component="img"
             src={props.pngImage}
             alt={props.imageAlt}
