@@ -5,7 +5,11 @@
 // React
 import React, { useState, useEffect, useMemo } from 'react';
 // Material UI
-import { Box, Typography, Link } from '@mui/material';
+import { Box, Typography } from '@mui/material';
+// Import Statements
+import ContentModal from './ContentModal';
+import PrivacyPolicyContent from '../../../../assets/FooterContent/PrivacyPolicyContent';
+import TermsOfServiceContent from '../../../../assets/FooterContent/TermsOfServiceContent';
 /**
  * Interface for WindowSize
  */
@@ -13,6 +17,10 @@ interface WindowSize {
   width: number;
   height: number;
 }
+
+// Type for ModalType
+type ModalType = 'terms' | 'privacy';
+
 /**
  * React Functional Component for About page's last page
  * @return {React.ReactElement} Renders last page of about page
@@ -39,6 +47,24 @@ function Footer(): React.ReactElement {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // Modal state
+  const [openModal, setOpenModal] = useState<{
+    terms: boolean;
+    privacy: boolean;
+  }>({
+    terms: false,
+    privacy: false,
+  });
+
+  // Event Handlers
+  const handleOpenModal = (modalType: ModalType): void => {
+    setOpenModal({ ...openModal, [modalType]: true });
+  };
+
+  const handleCloseModal = (modalType: ModalType): void => {
+    setOpenModal({ ...openModal, [modalType]: false });
+  };
+
   const footerStyle = useMemo(
     () => ({
       position: 'absolute',
@@ -55,8 +81,8 @@ function Footer(): React.ReactElement {
   );
 
   const titleBoxStyle = {
-    maxWidth: 'calc(100% - 30px)', // Adjust the 40px based on the figma design
-    wordBreak: 'break-word', // Break the word to prevent overflow
+    maxWidth: 'calc(100% - 30px)', // Adjust the 30px based on the figma design
+    wordBreak: 'break-word',
   };
 
   const bottomLinksStyle = useMemo(
@@ -83,6 +109,10 @@ function Footer(): React.ReactElement {
 
   const linkStyle = {
     marginRight: 2,
+    cursor: 'pointer',
+    '&:hover': {
+      textDecoration: 'underline',
+    },
   };
 
   const contactStyle = {
@@ -100,12 +130,22 @@ function Footer(): React.ReactElement {
       </Box>
       <Box sx={bottomLinksStyle}>
         <Box sx={linksContainerStyle}>
-          <Link href="#" underline="hover" sx={linkStyle}>
+          <Typography
+            variant="body1"
+            color="red.main"
+            sx={linkStyle}
+            onClick={() => handleOpenModal('terms')}
+          >
             Terms of Service
-          </Link>
-          <Link href="#" underline="hover" sx={linkStyle}>
+          </Typography>
+          <Typography
+            variant="body1"
+            color="red.main"
+            sx={linkStyle}
+            onClick={() => handleOpenModal('privacy')}
+          >
             Privacy Policy
-          </Link>
+          </Typography>
         </Box>
         <Typography variant="body2" sx={contactStyle}>
           Contact: contact@collegemate.app
@@ -114,6 +154,20 @@ function Footer(): React.ReactElement {
           © 2023 CollegeMate. All Rights Reserved.
         </Typography>
       </Box>
+      <ContentModal
+        open={openModal.terms}
+        handleClose={() => handleCloseModal('terms')}
+        title="Terms of Service"
+      >
+        <TermsOfServiceContent />
+      </ContentModal>
+      <ContentModal
+        open={openModal.privacy}
+        handleClose={() => handleCloseModal('privacy')}
+        title="Privacy Policy"
+      >
+        <PrivacyPolicyContent />
+      </ContentModal>
     </>
   );
 }
