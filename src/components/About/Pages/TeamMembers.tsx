@@ -25,7 +25,6 @@ import Janice from '../../../../assets/Profile/Janice.png';
 import Jerry from '../../../../assets/Profile/Jerry.png';
 import Jihae from '../../../../assets/Profile/Jihae.png';
 import Steve from '../../../../assets/Profile/Steve.png';
-import Yongsang from '../../../../assets/Profile/Yongsang.png';
 import Jeonghyun from '../../../../assets/Profile/Jeonghyun.png';
 import Rachel from '../../../../assets/Profile/Rachel.png';
 
@@ -59,12 +58,6 @@ const TeamMembers: React.FC<TeamMembersProps> = ({ onBack }) => {
         title: 'Lead Engineer',
         linkedin: 'https://www.linkedin.com/in/seok-hee-han-2a2723a9/',
         image: Steve,
-      },
-      {
-        name: 'Yongsang Park',
-        title: 'Lead Engineer',
-        linkedin: 'https://www.linkedin.com/in/yongsang-park-57a4a3222/',
-        image: Yongsang,
       },
       {
         name: 'Jihyun Ahn',
@@ -114,25 +107,26 @@ const TeamMembers: React.FC<TeamMembersProps> = ({ onBack }) => {
       <Box
         sx={{
           display: 'flex',
-          justifyContent: 'space-between',
+          justifyContent: 'center',
           alignItems: 'center',
           width: '100%',
           mb: 4,
+          position: 'relative',
         }}
       >
-        <IconButton onClick={onBack} aria-label="back" sx={{ mr: 'auto' }}>
-          <ArrowBackIcon />
-        </IconButton>
+        <Box sx={{ position: 'absolute', left: -10 }}>
+          <IconButton onClick={onBack} aria-label="back">
+            <ArrowBackIcon />
+          </IconButton>
+        </Box>
         <Typography variant="h2" color="red.main" sx={{ textAlign: 'center' }}>
           Founding Team
         </Typography>
-        {/* Invisible spacer with the same dimensions as IconButton to balance the layout */}
-        <Box sx={{ width: 48, height: 48, mr: 'auto' }}></Box>
       </Box>
       <Box
         sx={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
           gap: 2,
           width: '100%',
         }}
