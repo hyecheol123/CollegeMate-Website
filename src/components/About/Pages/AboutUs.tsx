@@ -7,7 +7,7 @@
 import React, { useState } from 'react';
 import TeamMembers from './TeamMembers';
 // Material UI
-import { Box, Button, Typography, Dialog, DialogTitle, DialogContent } from '@mui/material';
+import { Box, Button, Typography, Dialog, DialogContent } from '@mui/material';
 
 // Global Styles
 const page3WrapperStyle = {
@@ -19,42 +19,39 @@ const page3WrapperStyle = {
   height: '100vh',
 };
 
-const dialogTitleStyle = {
-  textAlign: 'center',
-};
-
 /**
  * React Functional Component for About page's third page
  * @return {React.ReactElement} Renders third page of about page
  */
-function Page3(): React.ReactElement {
-
+function AboutUs(): React.ReactElement {
   // State for managing Dialog open/close
   const [open, setOpen] = useState(false);
 
-  // Event Handlers
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
-
-
-  // Back navigation handler
-  const handleBack = () => {
-    setOpen(false);
-  };
+  const handleOpen = (): void => setOpen(true);
+  const handleClose = (): void => setOpen(false);
+  const handleBack = (): void => setOpen(false);
 
   return (
     <Box sx={page3WrapperStyle}>
-      <Typography variant="h1" color="red.main" align="center" sx={{ position: 'absolute', top: '60px' }}>
+      <Typography
+        variant="h1"
+        color="red.main"
+        align="center"
+        sx={{ position: 'absolute', top: '45px' }}
+      >
         About Our Team
       </Typography>
       <Typography variant="body1" sx={{ mb: 5 }} align="center">
-        We are a passionate team dedicated to enhancing the college experience of University of
-        Wisconsin-Madison students.
+        We are a passionate team dedicated to enhancing the college experience
+        of University of Wisconsin-Madison students.
       </Typography>
-      <Button variant="contained" sx={{ textTransform: 'none' }} onClick={handleOpen}  >
+      <Button
+        variant="contained"
+        sx={{ textTransform: 'none' }}
+        onClick={handleOpen}
+      >
         Meet Our Team
       </Button>
-      {/* Dialog for TeamMembers */}
       <Dialog open={open} onClose={handleClose} fullWidth={true} maxWidth="lg">
         <DialogContent>
           <TeamMembers onBack={handleBack} />
@@ -64,4 +61,4 @@ function Page3(): React.ReactElement {
   );
 }
 
-export default React.memo(Page3);
+export default React.memo(AboutUs);

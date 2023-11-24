@@ -12,7 +12,7 @@ import { Box } from '@mui/material';
 import Slides from './components/About/Slides';
 import Welcome from './components/About/Pages/Welcome';
 import Feature from './components/About/Pages/Feature';
-import Page3 from './components/About/Pages/Page3';
+import AboutUs from './components/About/Pages/AboutUs';
 // Global Style
 // Assets
 import feature1Png from '../assets/thumbnail_Feature1.png';
@@ -59,7 +59,7 @@ function About(): React.ReactElement {
         featureData.map((data): React.ReactElement => {
           return <Feature {...data} />;
         }),
-        <Page3 />,
+        <AboutUs />,
         <Box
           sx={{
             backgroundColor: 'whiteGrey.light',
