@@ -12,6 +12,7 @@ import { Box } from '@mui/material';
 import Slides from './components/About/Slides';
 import Welcome from './components/About/Pages/Welcome';
 import Feature from './components/About/Pages/Feature';
+import Footer from './components/About/Pages/Footer';
 // Global Style
 // Assets
 import feature1Png from '../assets/thumbnail_Feature1.png';
@@ -65,13 +66,7 @@ function About(): React.ReactElement {
             height: '100%',
           }}
         />,
-        <Box
-          sx={{
-            backgroundColor: 'whiteGrey.light',
-            width: '100%',
-            height: '100%',
-          }}
-        />,
+        <Footer />,
       ]}
     />
   );
