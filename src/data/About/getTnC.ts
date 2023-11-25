@@ -28,7 +28,7 @@ export default function fetchTnC(): Promise<ApiResponse> {
           version: 'v1.0.2',
           createdAt: '2023-05-30T14:48:00.000Z',
           content: {
-            privacyAct: 'Some Privacy Agreement',
+            privacyAct: 'Some PrivacyAct',
             termsAndConditions: 'Some Terms and Conditions',
           },
         }),

@@ -38,7 +38,7 @@ function NavBar(props: INavBarProps): React.ReactElement {
       flexDirection: orientation === 'vertical' ? 'column' : 'row',
       alignItems: 'center',
       justifyContent: 'center',
-      gap: '10px',
+      gap: '30px',
       transform:
         orientation === 'vertical' ? 'translateY(-50%)' : 'translateX(-50%)',
       zIndex: 1000,
