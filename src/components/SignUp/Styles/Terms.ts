@@ -1,11 +1,14 @@
 const TermsStyle = {
+  display:'flex',
   margin: 'auto',
-  height: '100px',
+  height: '90%',
   width: 0,
   minWidth: '100%',
-  paddingLeft: '100px',
-  paddingRight: '100px',
+  paddingTop: '3%',
+  paddingLeft: '10%',
+  paddingRight: '10%',
   overflowY: 'auto',
+  alignItems: 'left',
 };
 
 export default TermsStyle;
