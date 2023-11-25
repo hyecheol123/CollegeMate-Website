@@ -199,6 +199,22 @@ function App(): React.ReactElement {
             </Typography>
           }
         />
+        <Route
+          path="/login"
+          element={
+            <Typography variant="h1" color="primary">
+              Login
+            </Typography>
+          }
+        />
+        <Route
+          path="/signup"
+          element={
+            <Typography variant="h1" color="primary">
+              Login
+            </Typography>
+          }
+        />
         <Route path="/about" element={<About />} />
       </Route>
     </Routes>
