@@ -31,6 +31,8 @@ const About = React.lazy(() => import('./About'));
 // const Login = React.lazy(() => import('./Login'));
 // const ChangePW = React.lazy(() => import('./ChangePW'));
 
+import SignUpTerms from './components/SignUp/Pages/SignUpTerms';
+
 // MUI Theme (Setup Font family and Palette Color)
 declare module '@mui/material/styles' {
   interface TypographyVariantsOptions {
@@ -207,14 +209,7 @@ function App(): React.ReactElement {
             </Typography>
           }
         />
-        <Route
-          path="/signup"
-          element={
-            <Typography variant="h1" color="primary">
-              Login
-            </Typography>
-          }
-        />
+        <Route path="/signup" element={<SignUpTerms />} />
         <Route path="/about" element={<About />} />
       </Route>
     </Routes>
