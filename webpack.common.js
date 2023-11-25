@@ -43,6 +43,19 @@ module.exports = {
               },
             },
           },
+          {
+            // You can apply generator using `?as=avif`, you can use any name and provide more options
+            preset: 'avif',
+            implementation: ImageMinimizerPlugin.sharpGenerate,
+            options: {
+              encodeOptions: {
+                // Please specify only one codec here, multiple codecs will not work
+                avif: {
+                  quality: 90,
+                },
+              },
+            },
+          },
         ],
         minimizer: {
           implementation: ImageMinimizerPlugin.sharpMinify,

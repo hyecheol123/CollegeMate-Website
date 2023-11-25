@@ -5,70 +5,19 @@
 
 // React
 import React from 'react';
-// Material UI
-import { Box } from '@mui/material';
-// Material UI Icons
 // Components
-import Slides from './components/About/Slides';
-import Welcome from './components/About/Pages/Welcome';
-import Feature from './components/About/Pages/Feature';
-import Footer from './components/About/Pages/Footer';
-// Global Style
-// Assets
-import feature1Png from '../assets/thumbnail_Feature1.png';
-import feature1Webp from '../assets/thumbnail_Feature1.png?as=webp';
-import feature2Png from '../assets/thumbnail_Feature2.png';
-import feature2Webp from '../assets/thumbnail_Feature2.png?as=webp';
-import feature3Png from '../assets/thumbnail_Feature3.png';
-import feature3Webp from '../assets/thumbnail_Feature3.png?as=webp';
+import AboutPage from './components/About/AboutPage';
+import { AboutContextProvider } from './components/About/AboutContext';
 
 /**
- * React Functional Component to generate About page
- * @return {React.ReactElement} Renders About page
+ * React functional component to render about page
+ * @return {React.ReactElement} the entry point for About page
  */
 function About(): React.ReactElement {
-  // Feature Data
-  const featureData = [
-    {
-      title: 'Customize Schedule',
-      body: "Customize your schedule effortlessly with CollegeMate - real-time data from UW's database at your fingertips. CollegeMate updates for you.",
-      pngImage: feature1Png,
-      webpImage: feature1Webp,
-      imageAlt: 'Mockup of Schedule Customization',
-    },
-    {
-      title: 'Share Schedule With Friends',
-      body: 'Eliminate the "What\'s your schedule?" dilemma. CollegeMate simplifies viewing friends\' timetables. No back-and-forth. Stay connected in a snap',
-      pngImage: feature2Png,
-      webpImage: feature2Webp,
-      imageAlt: "Mockup of Friend's Schedule",
-    },
-    {
-      title: 'Set Schedule as Wallpaper',
-      body: "Download your timetable to perfectly fit your phone's screen. Say goodbye to screenshots. Access your schedule whenever and wherever.",
-      pngImage: feature3Png,
-      webpImage: feature3Webp,
-      imageAlt: 'Mockup of Wallpaper Download',
-    },
-  ];
-
   return (
-    <Slides
-      components={[
-        <Welcome />,
-        featureData.map((data): React.ReactElement => {
-          return <Feature {...data} />;
-        }),
-        <Box
-          sx={{
-            backgroundColor: 'green.light',
-            width: '100%',
-            height: '100%',
-          }}
-        />,
-        <Footer />,
-      ]}
-    />
+    <AboutContextProvider>
+      <AboutPage />
+    </AboutContextProvider>
   );
 }
 

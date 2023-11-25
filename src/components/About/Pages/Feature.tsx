@@ -1,6 +1,7 @@
 /**
  * Component for the second page of about page (Feature List).
  * @author Daekyun Kim <daekyun97@gmail.com>
+ * @author Hyecheol (Jerry) Jang <hyecheol123@gmail.com>
  */
 
 // React
@@ -21,8 +22,18 @@ interface IFeatureProps {
   body: string;
   pngImage: any;
   webpImage: any;
+  avifImage: any;
   imageAlt: string;
 }
+
+const pictureWrapperStyle = { flex: 1, mx: '5%' };
+const textContainerStyle = {
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'center',
+  textAlign: 'center',
+  gap: '15px',
+};
 
 /**
  * React Functional Component for About page's second page
@@ -46,15 +57,6 @@ function Feature(props: IFeatureProps): React.ReactElement {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const pictureWrapperStyle = { flex: 1, mx: '5%' };
-  const textContainerStyle = {
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    textAlign: 'center',
-    gap: '15px',
-  };
-
   return (
     <Box
       sx={{
@@ -73,10 +75,11 @@ function Feature(props: IFeatureProps): React.ReactElement {
       <Box
         sx={{ ...pictureWrapperStyle, pb: isLandscape ? undefined : '15px' }}
       >
-        <picture>
+        <picture style={PictureStyle}>
+          <source srcSet={props.avifImage} type="image/avif" />
           <source srcSet={props.webpImage} type="image/webp" />
           <Box
-            sx={PictureStyle}
+            sx={{ ...PictureStyle, objectFit: 'contain' }}
             component="img"
             src={props.pngImage}
             alt={props.imageAlt}

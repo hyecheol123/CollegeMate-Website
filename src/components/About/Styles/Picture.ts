@@ -9,7 +9,6 @@ const PictureStyle = {
   minHeight: '100%',
   width: 0,
   minWidth: '100%',
-  objectFit: 'contain',
 };
 
 export default PictureStyle;

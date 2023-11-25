@@ -118,13 +118,13 @@ let theme = createTheme({
       fontSize: '14px',
       lineHeight: '18px',
       letterSpacing: 0,
-      opacity: 0.5,
     },
     body3: {
       fontWeight: 400,
       fontSize: '14px',
       lineHeight: '18px',
       letterSpacing: 0,
+      opacity: 0.5,
     },
     body4: {
       fontWeight: 400,
@@ -196,6 +196,22 @@ function App(): React.ReactElement {
           element={
             <Typography variant="h1" color="primary">
               Hello World
+            </Typography>
+          }
+        />
+        <Route
+          path="/login"
+          element={
+            <Typography variant="h1" color="primary">
+              Login
+            </Typography>
+          }
+        />
+        <Route
+          path="/signup"
+          element={
+            <Typography variant="h1" color="primary">
+              Login
             </Typography>
           }
         />
