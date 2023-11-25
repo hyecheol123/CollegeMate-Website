@@ -118,13 +118,13 @@ let theme = createTheme({
       fontSize: '14px',
       lineHeight: '18px',
       letterSpacing: 0,
-      opacity: 0.5,
     },
     body3: {
       fontWeight: 400,
       fontSize: '14px',
       lineHeight: '18px',
       letterSpacing: 0,
+      opacity: 0.5,
     },
     body4: {
       fontWeight: 400,

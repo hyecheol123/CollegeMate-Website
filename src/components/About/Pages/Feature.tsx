@@ -1,6 +1,7 @@
 /**
  * Component for the second page of about page (Feature List).
  * @author Daekyun Kim <daekyun97@gmail.com>
+ * @author Hyecheol (Jerry) Jang <hyecheol123@gmail.com>
  */
 
 // React
@@ -25,6 +26,15 @@ interface IFeatureProps {
   imageAlt: string;
 }
 
+const pictureWrapperStyle = { flex: 1, mx: '5%' };
+const textContainerStyle = {
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'center',
+  textAlign: 'center',
+  gap: '15px',
+};
+
 /**
  * React Functional Component for About page's second page
  * @param {IFeatureProps} props Properties that passed from the parent Component
@@ -46,15 +56,6 @@ function Feature(props: IFeatureProps): React.ReactElement {
     return () => window.removeEventListener('resize', getOrientation);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const pictureWrapperStyle = { flex: 1, mx: '5%' };
-  const textContainerStyle = {
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    textAlign: 'center',
-    gap: '15px',
-  };
 
   return (
     <Box
