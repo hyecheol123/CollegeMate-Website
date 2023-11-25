@@ -5,14 +5,7 @@
 // React
 import React from 'react';
 // Material UI
-import {
-  Modal,
-  Box,
-  Typography,
-  IconButton,
-  Backdrop,
-  Fade,
-} from '@mui/material';
+import { Modal, Box, Typography, IconButton } from '@mui/material';
 import ArrowIcon from '@mui/icons-material/ArrowBack';
 
 /**
@@ -52,18 +45,17 @@ function ContentModal(props: ContentModalProps): React.ReactElement {
     flexGrow: 1, // Allows the content to grow and fill the space
   };
 
-
   return (
-    <Modal
-      open={open}
-      onClose={handleClose}
-    >
+    <Modal open={open} onClose={handleClose}>
       <Box sx={modalStyle}>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <IconButton
-            aria-label="close"
-            onClick={handleClose}
-          >
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
+        >
+          <IconButton aria-label="close" onClick={handleClose}>
             <ArrowIcon />
           </IconButton>
           <Typography variant="h2" color="red.main" align="center">
@@ -75,7 +67,6 @@ function ContentModal(props: ContentModalProps): React.ReactElement {
         <Typography id="modal-description" sx={contentStyle}>
           {children}
         </Typography>
-
       </Box>
     </Modal>
   );
