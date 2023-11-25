@@ -157,7 +157,7 @@ function Footer(): React.ReactElement {
       <ContentModal
         open={openModal.terms}
         handleClose={() => handleCloseModal('terms')}
-        title="Terms of Service"
+        title="Terms and Conditions"
       >
         <TermsOfServiceContent />
       </ContentModal>

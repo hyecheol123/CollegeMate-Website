@@ -37,12 +37,12 @@ function ContentModal(props: ContentModalProps): React.ReactElement {
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: '70%', // Set width to 70% of the viewport
-    height: '70%', // Set height to 70% of the viewport
-    maxHeight: '70%', // Ensure the modal does not exceed 70% of the viewport height
+    width: '90%', // Set width to 90% of the viewport
+    height: '90%', // Set height to 90% of the viewport
+    maxHeight: '90%', // Ensure the modal does not exceed 90% of the viewport height
     overflowY: 'auto', // Enable scrolling for overflowing content
     borderRadius: '10px',
-    padding: '16px',
+    padding: '24px',
     background: '#ffffff',
     boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.15)',
   };
@@ -69,8 +69,8 @@ function ContentModal(props: ContentModalProps): React.ReactElement {
             onClick={handleClose}
             sx={{
               position: 'absolute',
-              left: '1px',
-              top: '10px',
+              left: '10px',
+              top: '19px',
             }}
           >
             <ArrowIcon />
