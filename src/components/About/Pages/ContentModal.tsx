@@ -52,37 +52,31 @@ function ContentModal(props: ContentModalProps): React.ReactElement {
     flexGrow: 1, // Allows the content to grow and fill the space
   };
 
+
   return (
     <Modal
       open={open}
       onClose={handleClose}
-      closeAfterTransition
-      BackdropComponent={Backdrop}
-      BackdropProps={{
-        timeout: 500,
-      }}
     >
-      <Fade in={open}>
-        <Box sx={modalStyle}>
+      <Box sx={modalStyle}>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <IconButton
             aria-label="close"
             onClick={handleClose}
-            sx={{
-              position: 'absolute',
-              left: '10px',
-              top: '19px',
-            }}
           >
             <ArrowIcon />
           </IconButton>
           <Typography variant="h2" color="red.main" align="center">
             {title}
           </Typography>
-          <Typography id="modal-description" sx={contentStyle}>
-            {children}
-          </Typography>
+          {/* Empty Box to balance the flex container */}
+          <Box style={{ width: '48px' }}></Box>
         </Box>
-      </Fade>
+        <Typography id="modal-description" sx={contentStyle}>
+          {children}
+        </Typography>
+
+      </Box>
     </Modal>
   );
 }

@@ -88,8 +88,8 @@ function Footer(): React.ReactElement {
   const bottomLinksStyle = useMemo(
     () => ({
       position: 'absolute',
-      bottom: 0,
-      left: 0,
+      bottom: '0px',
+      left: '0px',
       width: '100%',
       display: 'flex',
       flexDirection: 'column',
