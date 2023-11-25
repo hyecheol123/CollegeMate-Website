@@ -1,129 +1,31 @@
-import React from 'react';
-import Typography from '@mui/material/Typography';
+/**
+ * Component for the privacy policy for the last page (Footer).
+ * @author Daekyun Kim <daekyun97@gmail.com>
+ */
+import React, { useState, useEffect } from 'react';
+import { Box, Typography } from '@mui/material';
+import { fetchTermsAndConditions, ApiResponse } from './mockApi'; // adjust the path as needed
 
-const PrivacyPolicyContent: React.FC = () => {
+/**
+ * This component fetches and displays the privacy policy content.
+ * @return {React.ReactElement} A React element containing the privacy policy content.
+ */
+function PrivacyPolicyContent(): React.ReactElement {
+  const [privacyPolicy, setPrivacyPolicy] = useState<string>('');
+
+  useEffect(() => {
+    fetchTermsAndConditions().then((response: ApiResponse) => {
+      setPrivacyPolicy(response.content.privacyAct);
+    });
+  }, []);
+
   return (
-    <div>
-      <Typography variant="body1" color="red.main" mb="40">
-        Privacy Policy
+    <Box>
+      <Typography variant="body1" color="text.primary" mb={2}>
+        {privacyPolicy}
       </Typography>
-      <Typography variant="body1">
-        Last updated: July 04, 2023 This Privacy Policy describes Our policies
-        and procedures on the collection, use and disclosure of Your information
-        when You use the Service and tells You about Your privacy rights and how
-        the law protects Youhow the law protects Youhow the law protects Youhow
-        the law protects Youhow the law protects Youhow the law protects Youhow
-        the law protects Youhow the law protects Youhow the law protects
-        You.This Privacy Policy describes Our policies and procedures on the
-        collection, use and disclosure of Your information when You use the
-        Service and tells You about Your privacy rights and how the law protects
-        Youhow the law protects Youhow the law protects Youhow the law protects
-        Youhow the law protects Youhow the law protects Youhow the law protects
-        Youhow the law protects Youhow the law proteThis Privacy Policy
-        describes Our policies and procedures on the collection, use and
-        disclosure of Your information when You use the Service and tells You
-        about Your privacy rights and how the law protects Youhow the law
-        protects Youhow the law protects Youhow the law protects Youhow the law
-        protects Youhow the law protects Youhow the law protects Youhow the law
-        protects Youhow the law proteThis Privacy Policy describes Our policies
-        and procedures on the collection, use and disclosure of Your information
-        when You use the Service and tells You about Your privacy rights and how
-        the law protects Youhow the law protects Youhow the law protects Youhow
-        the law protects Youhow the law protects Youhow the law protects Youhow
-        the law protects Youhow the law protects Youhow the law proteThis
-        Privacy Policy describes Our policies and procedures on the collection,
-        use and disclosure of Your information when You use the Service and
-        tells You about Your privacy rights and how the law protects Youhow the
-        law protects Youhow the law protects Youhow the law protects Youhow the
-        law protects Youhow the law protects Youhow the law protects Youhow the
-        law protects Youhow the law proteThis Privacy Policy describes Our
-        policies and procedures on the collection, use and disclosure of Your
-        information when You use the Service and tells You about Your privacy
-        rights and how the law protects Youhow the law protects Youhow the law
-        protects Youhow the law protects Youhow the law protects Youhow the law
-        protects Youhow the law protects Youhow the law protects Youhow the law
-        proteThis Privacy Policy describes Our policies and procedures on the
-        collection, use and disclosure of Your information when You use the
-        Service and tells You about Your privacy rights and how the law protects
-        Youhow the law protects Youhow the law protects Youhow the law protects
-        Youhow the law protects Youhow the law protects Youhow the law protects
-        Youhow the law protects Youhow the law proteThis Privacy Policy
-        describes Our policies and procedures on the collection, use and
-        disclosure of Your information when You use the Service and tells You
-        about Your privacy rights and how the law protects Youhow the law
-        protects Youhow the law protects Youhow the law protects Youhow the law
-        protects Youhow the law protects Youhow the law protects Youhow the law
-        protects Youhow the law proteThis Privacy Policy describes Our policies
-        and procedures on the collection, use and disclosure of Your information
-        when You use the Service and tells You about Your privacy rights and how
-        the law protects Youhow the law protects Youhow the law protects Youhow
-        the law protects Youhow the law protects Youhow the law protects Youhow
-        the law protects Youhow the law protects Youhow the law proteThis
-        Privacy Policy describes Our policies and procedures on the collection,
-        use and disclosure of Your information when You use the Service and
-        tells You about Your privacy rights and how the law protects Youhow the
-        law protects Youhow the law protects Youhow the law protects Youhow the
-        law protects Youhow the law protects Youhow the law protects Youhow the
-        law protects Youhow the law proteThis Privacy Policy describes Our
-        policies and procedures on the collection, use and disclosure of Your
-        information when You use the Service and tells You about Your privacy
-        rights and how the law protects Youhow the law protects Youhow the law
-        protects Youhow the law protects Youhow the law protects Youhow the law
-        protects Youhow the law protects Youhow the law protects Youhow the law
-        proteThis Privacy Policy describes Our policies and procedures on the
-        collection, use and disclosure of Your information when You use the
-        Service and tells You about Your privacy rights and how the law protects
-        Youhow the law protects Youhow the law protects Youhow the law protects
-        Youhow the law protects Youhow the law protects Youhow the law protects
-        Youhow the law protects Youhow the law proteThis Privacy Policy
-        describes Our policies and procedures on the collection, use and
-        disclosure of Your information when You use the Service and tells You
-        about Your privacy rights and how the law protects Youhow the law
-        protects Youhow the law protects Youhow the law protects Youhow the law
-        protects Youhow the law protects Youhow the law protects Youhow the law
-        protects Youhow the law proteThis Privacy Policy describes Our policies
-        and procedures on the collection, use and disclosure of Your information
-        when You use the Service and tells You about Your privacy rights and how
-        the law protects Youhow the law protects Youhow the law protects Youhow
-        the law protects Youhow the law protects Youhow the law protects Youhow
-        the law protects Youhow the law protects Youhow the law proteThis
-        Privacy Policy describes Our policies and procedures on the collection,
-        use and disclosure of Your information when You use the Service and
-        tells You about Your privacy rights and how the law protects Youhow the
-        law protects Youhow the law protects Youhow the law protects Youhow the
-        law protects Youhow the law protects Youhow the law protects Youhow the
-        law protects Youhow the law proteThis Privacy Policy describes Our
-        policies and procedures on the collection, use and disclosure of Your
-        information when You use the Service and tells You about Your privacy
-        rights and how the law protects Youhow the law protects Youhow the law
-        protects Youhow the law protects Youhow the law protects Youhow the law
-        protects Youhow the law protects Youhow the law protects Youhow the law
-        proteThis Privacy Policy describes Our policies and procedures on the
-        collection, use and disclosure of Your information when You use the
-        Service and tells You about Your privacy rights and how the law protects
-        Youhow the law protects Youhow the law protects Youhow the law protects
-        Youhow the law protects Youhow the law protects Youhow the law protects
-        Youhow the law protects Youhow the law proteThis Privacy Policy
-        describes Our policies and procedures on the collection, use and
-        disclosure of Your information when You use the Service and tells You
-        about Your privacy rights and how the law protects Youhow the law
-        protects Youhow the law protects Youhow the law protects Youhow the law
-        protects Youhow the law protects Youhow the law protects Youhow the law
-        protects Youhow the law proteThis Privacy Policy describes Our policies
-        and procedures on the collection, use and disclosure of Your information
-        when You use the Service and tells You about Your privacy rights and how
-        the law protects Youhow the law protects Youhow the law protects Youhow
-        the law protects Youhow the law protects Youhow the law protects Youhow
-        the law protects Youhow the law protects Youhow the law proteThis
-        Privacy Policy describes Our policies and procedures on the collection,
-        use and disclosure of Your information when You use the Service and
-        tells You about Your privacy rights and how the law protects Youhow the
-        law protects Youhow the law protects Youhow the law protects Youhow the
-        law protects Youhow the law protects Youhow the law protects Youhow the
-        law protects Youhow the law prote
-      </Typography>
-    </div>
+    </Box>
   );
-};
+}
 
 export default PrivacyPolicyContent;

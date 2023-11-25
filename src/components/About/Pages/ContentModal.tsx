@@ -28,7 +28,7 @@ interface ContentModalProps {
 /**
  * Function component for content modal.
  * @param {ContentModalProps} props Properties that passed from the parent Component
- * @return The content modal as a React element for last page of About
+ * @return {React.ReactElement} The content modal as a React element for the last page of About.
  */
 function ContentModal(props: ContentModalProps): React.ReactElement {
   const { open, handleClose, title, children } = props;
