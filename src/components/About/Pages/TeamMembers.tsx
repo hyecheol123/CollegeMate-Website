@@ -12,20 +12,28 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import MemberCard from './MemberCard';
 import Daekyun from '../../../../assets/Profile/Daekyun.png';
 import DaekyunWebp from '../../../../assets/Profile/Daekyun.png?as=webp';
+import DaekyunAvif from '../../../../assets/Profile/Daekyun.png?as=avif';
 import Heewon from '../../../../assets/Profile/Heewon.png';
 import HeewonWebp from '../../../../assets/Profile/Heewon.png?as=webp';
+import HeewonAvif from '../../../../assets/Profile/Heewon.png?as=avif';
 import Janice from '../../../../assets/Profile/Janice.png';
 import JaniceWebp from '../../../../assets/Profile/Janice.png?as=webp';
+import JaniceAvif from '../../../../assets/Profile/Janice.png?as=avif';
 import Jerry from '../../../../assets/Profile/Jerry.png';
 import JerryWebp from '../../../../assets/Profile/Jerry.png?as=webp';
+import JerryAvif from '../../../../assets/Profile/Jerry.png?as=avif';
 import Jihae from '../../../../assets/Profile/Jihae.png';
 import JihaeWebp from '../../../../assets/Profile/Jihae.png?as=webp';
+import JihaeAvif from '../../../../assets/Profile/Jihae.png?as=avif';
 import Steve from '../../../../assets/Profile/Steve.png';
 import SteveWebp from '../../../../assets/Profile/Steve.png?as=webp';
+import SteveAvif from '../../../../assets/Profile/Steve.png?as=avif';
 import Jeonghyun from '../../../../assets/Profile/Jeonghyun.png';
 import JeonghyunWebp from '../../../../assets/Profile/Jeonghyun.png?as=webp';
+import JeonghyunAvif from '../../../../assets/Profile/Jeonghyun.png?as=avif';
 import Rachel from '../../../../assets/Profile/Rachel.png';
 import RachelWebp from '../../../../assets/Profile/Rachel.png?as=webp';
+import RachelAvif from '../../../../assets/Profile/Rachel.png?as=avif';
 
 interface TeamMembersProps {
   onBack: () => void;
@@ -46,6 +54,7 @@ const TeamMembers: React.FC<TeamMembersProps> = ({ onBack }) => {
         linkedin: 'https://www.linkedin.com/in/dkim97',
         image: Daekyun,
         imageWebp: DaekyunWebp,
+        imageAvif: DaekyunAvif,
       },
       {
         name: 'Hyechoel Jang',
@@ -53,6 +62,7 @@ const TeamMembers: React.FC<TeamMembersProps> = ({ onBack }) => {
         linkedin: 'https://www.linkedin.com/in/jhyecheol/',
         image: Jerry,
         imageWebp: JerryWebp,
+        imageAvif: JerryAvif,
       },
       {
         name: 'Seok-hee Han',
@@ -60,6 +70,7 @@ const TeamMembers: React.FC<TeamMembersProps> = ({ onBack }) => {
         linkedin: 'https://www.linkedin.com/in/seok-hee-han-2a2723a9/',
         image: Steve,
         imageWebp: SteveWebp,
+        imageAvif: SteveAvif,
       },
       {
         name: 'Jihyun Ahn',
@@ -67,6 +78,7 @@ const TeamMembers: React.FC<TeamMembersProps> = ({ onBack }) => {
         linkedin: 'https://www.linkedin.com/in/jihyun-ahn-4b6037225/',
         image: Janice,
         imageWebp: JaniceWebp,
+        imageAvif: JaniceAvif,
       },
       {
         name: 'Jeonghyeon Park',
@@ -74,6 +86,7 @@ const TeamMembers: React.FC<TeamMembersProps> = ({ onBack }) => {
         linkedin: 'https://www.linkedin.com/in/jeonghyeon-park-8116ab17b/',
         image: Jeonghyun,
         imageWebp: JeonghyunWebp,
+        imageAvif: JeonghyunAvif,
       },
       {
         name: 'Heewon Kim',
@@ -81,6 +94,7 @@ const TeamMembers: React.FC<TeamMembersProps> = ({ onBack }) => {
         linkedin: 'https://www.linkedin.com/in/heewon-kim-hkim/',
         image: Heewon,
         imageWebp: HeewonWebp,
+        imageAvif: HeewonAvif,
       },
       {
         name: 'Rachel Yun',
@@ -88,6 +102,7 @@ const TeamMembers: React.FC<TeamMembersProps> = ({ onBack }) => {
         linkedin: 'https://www.linkedin.com/in/rachelyyun/',
         image: Rachel,
         imageWebp: RachelWebp,
+        imageAvif: RachelAvif,
       },
       {
         name: 'Jihae Choi',
@@ -95,6 +110,7 @@ const TeamMembers: React.FC<TeamMembersProps> = ({ onBack }) => {
         linkedin: 'https://www.linkedin.com/in/jihae-choi/',
         image: Jihae,
         imageWebp: JihaeWebp,
+        imageAvif: JihaeAvif,
       },
     ],
     [],
@@ -144,7 +160,11 @@ const TeamMembers: React.FC<TeamMembersProps> = ({ onBack }) => {
             name={member.name}
             title={member.title}
             linkedin={member.linkedin}
-            image={{ imagePng: member.image, imageWebp: member.imageWebp }} // TO DO: Add imageAvif: member.imageAvif
+            image={{
+              imagePng: member.image,
+              imageWebp: member.imageWebp,
+              imageAvif: member.imageAvif,
+            }} // TO DO: Add imageAvif: member.imageAvif
           />
         ))}
       </Box>

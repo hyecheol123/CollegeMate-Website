@@ -24,7 +24,7 @@ interface TeamMemberCardProps {
   image: {
     imageWebp: string;
     imagePng: string;
-    imageAvif?: string; // TO DO: Remove the ? once get the pull from main
+    imageAvif: string;
   };
 }
 
@@ -39,8 +39,8 @@ function MemberCard(props: TeamMemberCardProps): React.ReactElement {
   return (
     <Card sx={{ elevation: 0 }}>
       <picture>
-        {/* <source srcSet={image.imageAvif} type="image/avif" /> */}
         <source srcSet={image.imageWebp} type="image/webp" />
+        <source srcSet={image.imageAvif} type="image/avif" />
         <CardMedia
           component="img"
           sx={{
@@ -61,7 +61,7 @@ function MemberCard(props: TeamMemberCardProps): React.ReactElement {
             alignItems: 'center',
           }}
         >
-          <Typography variant="body1" color="red.main" component="div">
+          <Typography variant="body1" color="red.main">
             {name}
           </Typography>
           <Link href={linkedin} target="_blank" rel="noopener noreferrer">
