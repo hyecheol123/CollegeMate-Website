@@ -15,6 +15,7 @@ import PictureStyle from '../Styles/Picture';
 // Assets
 import MockupImageWebp from '../../../../assets/landing_page_mockup.png?as=webp';
 import MockupImagePng from '../../../../assets/landing_page_mockup.png';
+import MockUpImageAvif from '../../../../assets/landing_page_mockup.png?as=avif';
 
 const pictureWrapperStyle = { flex: 1, mx: '5%', py: '15px' };
 const buttonWrapperStyle = {
@@ -37,10 +38,11 @@ function Welcome(): React.ReactElement {
         Boost college life with CollegeMate
       </Typography>
       <Box sx={pictureWrapperStyle}>
-        <picture>
+        <picture style={PictureStyle}>
+          <source srcSet={MockUpImageAvif} type="image/avif" />
           <source srcSet={MockupImageWebp} type="image/webp" />
           <Box
-            sx={PictureStyle}
+            sx={{ ...PictureStyle, objectFit: 'contain' }}
             component="img"
             src={MockupImagePng}
             alt="Mockup of CollegeMate"
