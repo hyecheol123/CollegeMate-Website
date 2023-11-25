@@ -23,9 +23,9 @@ import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 // Elements
-import Loading from './components/Loading/Loading';
+import Loading from './components/Common/Loading/Loading';
 // import { LoginContextProvider, useLoginContext } from './LoginData';
-// const Calendar = React.lazy(() => import('./Calendar'));
+const About = React.lazy(() => import('./About'));
 // const EventDetail = React.lazy(() => import('./EventDetail'));
 // const EventParticipants = React.lazy(() => import('./EventParticipants'));
 // const Login = React.lazy(() => import('./Login'));
@@ -70,11 +70,11 @@ declare module '@mui/material/Typography' {
     overline: false;
   }
 }
-// declare module '@mui/material/Button' {
-//   interface ButtonPropsColorOverrides {
-//     tertiary: true;
-//   }
-// }
+declare module '@mui/material/Button' {
+  interface ButtonPropsColorOverrides {
+    whiteGrey: true;
+  }
+}
 
 const breakpoints = {
   values: {
@@ -85,8 +85,7 @@ const breakpoints = {
     xl: 1536,
   },
 };
-const redColor = { main: '#B20000' };
-const theme = createTheme({
+let theme = createTheme({
   breakpoints,
   typography: {
     fontFamily: '"Roboto", sans-serif',
@@ -109,7 +108,7 @@ const theme = createTheme({
       letterSpacing: 0,
     },
     body1: {
-      fontWeight: 500,
+      fontWeight: 400,
       fontSize: '16px',
       lineHeight: '19px',
       letterSpacing: 0,
@@ -119,13 +118,13 @@ const theme = createTheme({
       fontSize: '14px',
       lineHeight: '18px',
       letterSpacing: 0,
-      opacity: 0.5,
     },
     body3: {
       fontWeight: 400,
       fontSize: '14px',
       lineHeight: '18px',
       letterSpacing: 0,
+      opacity: 0.5,
     },
     body4: {
       fontWeight: 400,
@@ -135,26 +134,39 @@ const theme = createTheme({
     },
   },
   palette: {
-    primary: redColor,
-    red: redColor,
-    yellow: {
-      main: '#FFC700',
-    },
-    darkGrey: {
-      main: '#494949',
-    },
-    defGrey: {
-      main: '#DEE3E5',
-    },
-    whiteGrey: {
-      main: '#f7f7f7',
-    },
-    white: {
-      main: '#ffffff',
-    },
-    green: {
-      main: '#1CC82D',
-    },
+    primary: { main: '#B20000' },
+  },
+});
+theme = createTheme(theme, {
+  palette: {
+    red: theme.palette.augmentColor({
+      color: { main: '#B20000' },
+      name: 'red',
+    }),
+    yellow: theme.palette.augmentColor({
+      color: { main: '#FFC700' },
+      name: 'yellow',
+    }),
+    darkGrey: theme.palette.augmentColor({
+      color: { main: '#494949' },
+      name: 'darkGrey',
+    }),
+    grey: theme.palette.augmentColor({
+      color: { main: '#DEE3E5' },
+      name: 'grey',
+    }),
+    whiteGrey: theme.palette.augmentColor({
+      color: { main: '#f7f7f7' },
+      name: 'whiteGray',
+    }),
+    white: theme.palette.augmentColor({
+      color: { main: '#ffffff' },
+      name: 'white',
+    }),
+    green: theme.palette.augmentColor({
+      color: { main: '#1CC82D' },
+      name: 'green',
+    }),
   },
 });
 
@@ -187,7 +199,7 @@ function App(): React.ReactElement {
             </Typography>
           }
         />
-        <Route path="/loading" element={<Loading />} />
+        <Route path="/about" element={<About />} />
       </Route>
     </Routes>
   );
