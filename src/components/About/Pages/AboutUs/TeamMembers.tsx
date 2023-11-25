@@ -58,7 +58,7 @@ const titleWrapperStyle = {
   position: 'relative',
 };
 const backIconStyle = { paddingLeft: 0 };
-const titleStyle = { textAlign: 'center', flex: 1, mr:4 };
+const titleStyle = { textAlign: 'center', flex: 1, mr: '40px' };
 const cardWrapperStyle = {
   display: 'grid',
   gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
