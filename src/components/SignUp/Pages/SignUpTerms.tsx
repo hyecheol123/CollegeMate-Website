@@ -8,8 +8,9 @@ import PageWrapperSignupStyle from '../Styles/PageWrapper';
 import TermsStyle from '../Styles/Terms';
 import CheckBoxStyle from '../Styles/Checkbox';
 import ButtonStyle from '../Styles/Button';
+import CollegeMateLogo from '../../../../assets/lg3 1.png'
+import TitleStyle from '../Styles/Title';
 
-const TitleStyle = { bgcolor: '#F7F7F7' };
 /**
  * React Functional Component for About page's first page
  * @return {React.ReactElement} Renders first page of about page
@@ -17,14 +18,14 @@ const TitleStyle = { bgcolor: '#F7F7F7' };
 function SignUpTerms(): React.ReactElement {
   return (
     <Box sx={PageWrapperSignupStyle}>
-        <Box sx={TitleStyle}>
-            <Typography variant="h1" color="red.main" align="center" mb="15px">
-                College Mate
-            </Typography>
+        <Box sx={TitleStyle}> 
+            <Box component="img"
+            src={CollegeMateLogo}
+            alt="Mockup of CollegeMateLogo"></Box>
         </Box>
         <Box sx={TermsStyle}>
             <Typography variant="h3" align="center" mb="15px">
-                기다려 하는 중이야.
+               {}
             </Typography>
         </Box>
         <Box sx={CheckBoxStyle}>
