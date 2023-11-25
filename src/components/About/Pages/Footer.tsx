@@ -115,7 +115,9 @@ function Footer(): React.ReactElement {
       <ContentModal
         open={isModalOpen}
         handleClose={closeModal}
-        title={modalType === 'terms' ? 'Terms and Conditions' : 'Privacy Act'}
+        title={
+          modalType === 'terms' ? 'Terms and Conditions' : 'Privacy Policy'
+        }
       >
         {isModalContentLoaded ? (
           <Typography variant="body1">
