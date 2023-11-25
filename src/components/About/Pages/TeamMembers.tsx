@@ -2,31 +2,30 @@
  * Component for the third page of about page.
  * @author Daekyun Kim <daekyun97@gmail.com>
  */
-
 // React
 import React, { useMemo } from 'react';
 // Material UI
-import {
-  Box,
-  Card,
-  CardContent,
-  Typography,
-  Link,
-  CardMedia,
-  IconButton,
-} from '@mui/material';
+import { Box, Typography, IconButton } from '@mui/material';
 // Material UI Icons
-import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-// Import statements for team profiles
+// Import statements
+import MemberCard from './MemberCard';
 import Daekyun from '../../../../assets/Profile/Daekyun.png';
+import DaekyunWebp from '../../../../assets/Profile/Daekyun.png?as=webp';
 import Heewon from '../../../../assets/Profile/Heewon.png';
+import HeewonWebp from '../../../../assets/Profile/Heewon.png?as=webp';
 import Janice from '../../../../assets/Profile/Janice.png';
+import JaniceWebp from '../../../../assets/Profile/Janice.png?as=webp';
 import Jerry from '../../../../assets/Profile/Jerry.png';
+import JerryWebp from '../../../../assets/Profile/Jerry.png?as=webp';
 import Jihae from '../../../../assets/Profile/Jihae.png';
+import JihaeWebp from '../../../../assets/Profile/Jihae.png?as=webp';
 import Steve from '../../../../assets/Profile/Steve.png';
+import SteveWebp from '../../../../assets/Profile/Steve.png?as=webp';
 import Jeonghyun from '../../../../assets/Profile/Jeonghyun.png';
+import JeonghyunWebp from '../../../../assets/Profile/Jeonghyun.png?as=webp';
 import Rachel from '../../../../assets/Profile/Rachel.png';
+import RachelWebp from '../../../../assets/Profile/Rachel.png?as=webp';
 
 interface TeamMembersProps {
   onBack: () => void;
@@ -46,48 +45,56 @@ const TeamMembers: React.FC<TeamMembersProps> = ({ onBack }) => {
         title: 'Product Manager & Software Engineer',
         linkedin: 'https://www.linkedin.com/in/dkim97',
         image: Daekyun,
+        imageWebp: DaekyunWebp,
       },
       {
         name: 'Hyechoel Jang',
         title: 'Tech Lead',
         linkedin: 'https://www.linkedin.com/in/jhyecheol/',
         image: Jerry,
+        imageWebp: JerryWebp,
       },
       {
         name: 'Seok-hee Han',
         title: 'Lead Engineer',
         linkedin: 'https://www.linkedin.com/in/seok-hee-han-2a2723a9/',
         image: Steve,
+        imageWebp: SteveWebp,
       },
       {
         name: 'Jihyun Ahn',
         title: 'Software Engineer',
         linkedin: 'https://www.linkedin.com/in/jihyun-ahn-4b6037225/',
         image: Janice,
+        imageWebp: JaniceWebp,
       },
       {
         name: 'Jeonghyeon Park',
         title: 'Software Engineer',
         linkedin: 'https://www.linkedin.com/in/jeonghyeon-park-8116ab17b/',
         image: Jeonghyun,
+        imageWebp: JeonghyunWebp,
       },
       {
         name: 'Heewon Kim',
         title: 'Software Engineer',
         linkedin: 'https://www.linkedin.com/in/heewon-kim-hkim/',
         image: Heewon,
+        imageWebp: HeewonWebp,
       },
       {
         name: 'Rachel Yun',
         title: 'UX/UI Designer',
         linkedin: 'https://www.linkedin.com/in/rachelyyun/',
         image: Rachel,
+        imageWebp: RachelWebp,
       },
       {
         name: 'Jihae Choi',
         title: 'Marketing Director',
         linkedin: 'https://www.linkedin.com/in/jihae-choi/',
         image: Jihae,
+        imageWebp: JihaeWebp,
       },
     ],
     [],
@@ -132,47 +139,13 @@ const TeamMembers: React.FC<TeamMembersProps> = ({ onBack }) => {
         }}
       >
         {teamMembers.map((member) => (
-          <Card
+          <MemberCard
             key={member.name}
-            sx={{
-              elevation: 0,
-            }}
-          >
-            <CardMedia
-              component="img"
-              sx={{
-                width: 156,
-                height: 156,
-                objectFit: 'cover',
-                margin: 'auto',
-              }}
-              image={member.image}
-              alt={`Image of ${member.name}`}
-            />
-            <CardContent>
-              <Box
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                }}
-              >
-                <Typography variant="body1" color="red.main" component="div">
-                  {member.name}
-                </Typography>
-                <Link
-                  href={member.linkedin}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <LinkedInIcon sx={{ color: 'red.main' }} />
-                </Link>
-              </Box>
-              <Typography variant="body3" color="#000000">
-                {member.title}
-              </Typography>
-            </CardContent>
-          </Card>
+            name={member.name}
+            title={member.title}
+            linkedin={member.linkedin}
+            image={{ imagePng: member.image, imageWebp: member.imageWebp }} // TO DO: Add imageAvif: member.imageAvif
+          />
         ))}
       </Box>
     </Box>
