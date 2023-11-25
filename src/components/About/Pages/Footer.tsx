@@ -8,8 +8,8 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Box, Typography } from '@mui/material';
 // Import Statements
 import ContentModal from './ContentModal';
-import PrivacyPolicyContent from '../../../../assets/FooterContent/PrivacyPolicyContent';
-import TermsOfServiceContent from '../../../../assets/FooterContent/TermsOfServiceContent';
+import fetchTnC from '../../../data/About/getTnC';
+
 /**
  * Interface for WindowSize
  */
@@ -31,6 +31,17 @@ function Footer(): React.ReactElement {
     width: window.innerWidth,
     height: window.innerHeight,
   });
+  // Set initial state for term of service and privacy policy
+  const [termsContent, setTermsContent] = useState('');
+  const [privacyContent, setPrivacyContent] = useState('');
+  // Modal state
+  const [openModal, setOpenModal] = useState<{
+    terms: boolean;
+    privacy: boolean;
+  }>({
+    terms: false,
+    privacy: false,
+  });
 
   const handleResize = (): void => {
     setWindowSize({
@@ -43,18 +54,16 @@ function Footer(): React.ReactElement {
     window.addEventListener('resize', handleResize);
     // Call handleResize immediately to set the initial size
     handleResize();
-
-    return () => window.removeEventListener('resize', handleResize);
+    // Fetch Terms and Conditions and Privacy Policy content
+    fetchTnC().then((response) => {
+      setTermsContent(response.content.termsAndConditions);
+      setPrivacyContent(response.content.privacyAct);
+    });
+    // Cleanup function for the effect
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
   }, []);
-
-  // Modal state
-  const [openModal, setOpenModal] = useState<{
-    terms: boolean;
-    privacy: boolean;
-  }>({
-    terms: false,
-    privacy: false,
-  });
 
   // Event Handlers
   const handleOpenModal = (modalType: ModalType): void => {
@@ -134,7 +143,7 @@ function Footer(): React.ReactElement {
             variant="body1"
             color="red.main"
             sx={linkStyle}
-            onClick={() => handleOpenModal('terms')}
+            onClick={(): void => handleOpenModal('terms')}
           >
             Terms of Service
           </Typography>
@@ -142,7 +151,7 @@ function Footer(): React.ReactElement {
             variant="body1"
             color="red.main"
             sx={linkStyle}
-            onClick={() => handleOpenModal('privacy')}
+            onClick={(): void => handleOpenModal('privacy')}
           >
             Privacy Policy
           </Typography>
@@ -156,17 +165,17 @@ function Footer(): React.ReactElement {
       </Box>
       <ContentModal
         open={openModal.terms}
-        handleClose={() => handleCloseModal('terms')}
+        handleClose={(): void => handleCloseModal('terms')}
         title="Terms and Conditions"
       >
-        <TermsOfServiceContent />
+        <Typography variant="body1">{termsContent}</Typography>
       </ContentModal>
       <ContentModal
         open={openModal.privacy}
-        handleClose={() => handleCloseModal('privacy')}
+        handleClose={(): void => handleCloseModal('privacy')}
         title="Privacy Policy"
       >
-        <PrivacyPolicyContent />
+        <Typography variant="body1">{privacyContent}</Typography>
       </ContentModal>
     </>
   );
