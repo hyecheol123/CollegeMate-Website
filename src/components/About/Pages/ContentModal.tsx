@@ -30,10 +30,10 @@ function ContentModal(props: ContentModalProps): React.ReactElement {
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: '90%', // Set width to 90% of the viewport
-    height: '90%', // Set height to 90% of the viewport
-    maxHeight: '90%', // Ensure the modal does not exceed 90% of the viewport height
-    overflowY: 'auto', // Enable scrolling for overflowing content
+    width: '90%',
+    height: '90%',
+    maxHeight: '90%',
+    overflowY: 'auto',
     borderRadius: '10px',
     padding: '24px',
     background: '#ffffff',
@@ -42,7 +42,7 @@ function ContentModal(props: ContentModalProps): React.ReactElement {
 
   const contentStyle = {
     mt: 2,
-    flexGrow: 1, // Allows the content to grow and fill the space
+    flexGrow: 1,
   };
 
   return (
