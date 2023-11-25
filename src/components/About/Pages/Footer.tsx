@@ -8,8 +8,10 @@ import React from 'react';
 // Material UI
 import { Box, Typography } from '@mui/material';
 // Component
-import ContentModal from './ContentModal';
+import ContentModal from './Footer/ContentModal';
 import Loading from '../../Common/Loading/Loading';
+// Custom Hook to Load AboutContext
+import { useAboutContext } from '../AboutContext';
 // API call
 import getTnC from '../../../data/About/getTnC';
 // Global Style
@@ -44,6 +46,8 @@ const linksContainerStyle = {
  * @return {React.ReactElement} Renders last page of about page
  */
 function Footer(): React.ReactElement {
+  // State
+  const aboutContext = useAboutContext();
   // Set initial state for term of service and privacy policy
   const [termsContent, setTermsContent] = React.useState<string>('');
   const [privacyContent, setPrivacyContent] = React.useState<string>('');
@@ -68,16 +72,19 @@ function Footer(): React.ReactElement {
     setModalType('terms');
     await loadModalContents();
     setIsModalOpen(true);
-  }, [loadModalContents]);
+    aboutContext.dispatch({ type: 'DISABLE_SCROLL' });
+  }, [aboutContext, loadModalContents]);
   const openPAModal = React.useCallback(async () => {
     setModalType('privacy');
     loadModalContents();
     setIsModalOpen(true);
-  }, [loadModalContents]);
+    aboutContext.dispatch({ type: 'DISABLE_SCROLL' });
+  }, [aboutContext, loadModalContents]);
   const closeModal = React.useCallback(() => {
     setIsModalOpen(false);
     setModalType(undefined);
-  }, []);
+    aboutContext.dispatch({ type: 'ENABLE_SCROLL' });
+  }, [aboutContext]);
 
   return (
     <Box sx={PageWrapperStyle}>
