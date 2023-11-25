@@ -41,7 +41,7 @@ function ContentModal(props: ContentModalProps): React.ReactElement {
   };
 
   const contentStyle = {
-    mt: 2,
+    mt: '20px',
     flexGrow: 1,
   };
 
