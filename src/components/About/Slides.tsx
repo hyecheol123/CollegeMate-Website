@@ -10,6 +10,8 @@ import { Box } from '@mui/material';
 // Material UI Icons
 // Components
 import NavBar from './Slides/NavBar';
+// Custom Hook to Load AboutContext
+import { useAboutContext } from './AboutContext';
 // Global Style
 
 /**
@@ -47,6 +49,7 @@ function Slides(props: ISlideProps): React.ReactElement {
     pastHIdx: [],
     isSwitching: false,
   });
+  const aboutContext = useAboutContext();
 
   // variable that is not a state (cleared after every re-render)
   // For scroll detection
@@ -150,29 +153,31 @@ function Slides(props: ISlideProps): React.ReactElement {
     e: React.SyntheticEvent<HTMLDivElement>,
   ): void => {
     if (acceptScroll) {
-      // Setup timer to detect end of wheel activity
-      if (scrollTimeout) {
-        clearTimeout(scrollTimeout);
-      }
-      scrollTimeout = window.setTimeout(scrollTimeoutEvent, 300);
-
-      // Calculate delta
-      if (e.type === 'wheel') {
-        deltaY += (e as unknown as React.WheelEvent).deltaY;
-        deltaX += (e as unknown as React.WheelEvent).deltaX;
-      } else {
-        const y = (e as unknown as React.TouchEvent).targetTouches[0].clientY;
-        const x = (e as unknown as React.TouchEvent).targetTouches[0].clientX;
-
-        // Not the first touch event - calculate delta
-        if (prevY !== -1 || prevX !== -1) {
-          deltaY += prevY - y;
-          deltaX += prevX - x;
+      if (aboutContext.isFullpageScrollEnabled) {
+        // Setup timer to detect end of wheel activity
+        if (scrollTimeout) {
+          clearTimeout(scrollTimeout);
         }
+        scrollTimeout = window.setTimeout(scrollTimeoutEvent, 300);
 
-        // Store current client coordinate as previous coordinate
-        prevY = y;
-        prevX = x;
+        // Calculate delta
+        if (e.type === 'wheel') {
+          deltaY += (e as unknown as React.WheelEvent).deltaY;
+          deltaX += (e as unknown as React.WheelEvent).deltaX;
+        } else {
+          const y = (e as unknown as React.TouchEvent).targetTouches[0].clientY;
+          const x = (e as unknown as React.TouchEvent).targetTouches[0].clientX;
+
+          // Not the first touch event - calculate delta
+          if (prevY !== -1 || prevX !== -1) {
+            deltaY += prevY - y;
+            deltaX += prevX - x;
+          }
+
+          // Store current client coordinate as previous coordinate
+          prevY = y;
+          prevX = x;
+        }
       }
     }
   };

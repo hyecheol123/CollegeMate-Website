@@ -1,6 +1,7 @@
 /**
  * Component for the first page of about page (Welcome).
  * @author Hyecheol (Jerry) Jang <hyecheol123@gmail.com>
+ * @author Hyecheol (Jerry) Jang <hyecheol123@gmail.com>
  */
 
 // React
@@ -12,20 +13,13 @@ import { Box, Button, Typography } from '@mui/material';
 // Global Styles
 import PageWrapperStyle from '../Styles/PageWrapper';
 import PictureStyle from '../Styles/Picture';
+import ButtonWrapperStyle from '../Styles/ButtonWrapper';
 // Assets
 import MockupImageWebp from '../../../../assets/landing_page_mockup.png?as=webp';
 import MockupImagePng from '../../../../assets/landing_page_mockup.png';
 import MockUpImageAvif from '../../../../assets/landing_page_mockup.png?as=avif';
 
 const pictureWrapperStyle = { flex: 1, mx: '5%', py: '15px' };
-const buttonWrapperStyle = {
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-  gap: '10px',
-  mt: '15px',
-  mb: '8px',
-};
 
 /**
  * React Functional Component for About page's first page
@@ -49,7 +43,7 @@ function Welcome(): React.ReactElement {
           />
         </picture>
       </Box>
-      <Box sx={buttonWrapperStyle}>
+      <Box sx={ButtonWrapperStyle}>
         <Button variant="contained">Log In</Button>
         <Button variant="contained" color="whiteGrey">
           Sign Up
