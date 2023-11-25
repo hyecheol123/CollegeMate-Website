@@ -6,13 +6,13 @@
 // React
 import React from 'react';
 // Material UI
-import { Box } from '@mui/material';
 // Material UI Icons
 // Components
 import Slides from './Slides';
 import Welcome from './Pages/Welcome';
 import Feature from './Pages/Feature';
 import AboutUs from './Pages/AboutUs';
+import Footer from './Pages/Footer';
 // Global Style
 // Assets
 import feature1Png from '../../../assets/thumbnail_Feature1.png';
@@ -66,13 +66,7 @@ function AboutPage(): React.ReactElement {
           return <Feature {...data} />;
         }),
         <AboutUs />,
-        <Box
-          sx={{
-            backgroundColor: 'whiteGrey.light',
-            width: '100%',
-            height: '100%',
-          }}
-        />,
+        <Footer />,
       ]}
     />
   );
