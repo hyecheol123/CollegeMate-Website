@@ -11,13 +11,14 @@
 import React from 'react';
 
 // Material UI
-import { Box, IconButton, List, ListItemButton, ListItemText, Divider, Typography} from '@mui/material';
+import { Box, IconButton, List, ListItemButton, ListItemText, Divider, Typography } from '@mui/material';
 import ArrowIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 
 
 // Global Styles
 import MenuStyle from '../Styles/Menu';
+import MenuBackStyle from '../Styles/MenuBackground';
 
 /**
  * Interface for ContentModalProps
@@ -40,50 +41,52 @@ function MenuVar(props: SettingMenuProps): React.ReactElement {
     const { open, handleClose, handleMyInfo, handleDelAcc, handleLogOut } = props;
 
     return (
-        <Box>
+        <Box >
             {open ?
-                <Box sx={MenuStyle}>
-                    <Box style={{
-                        display: "flex",
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        width: '100%'
-                    }}>
-                        <IconButton aria-label="close" onClick={handleClose} style={{alignSelf: "flex-start"}}>
-                            <ArrowIcon />
-                        </IconButton>
-                        <Typography variant="h2" color="red.main" align="center">Setting</Typography>
-                    </Box>
-                    <List
-                        sx={{ width: '90%', marginLeft: '10%' }}
-                        component="nav"
-                        aria-labelledby="nested-list-subheader"
-                    >
-                        <ListItemButton onClick={handleMyInfo}>
-                            <ListItemText primary="My Information" />
-                            <IconButton aria-label="close" onClick={handleMyInfo}>
-                                <ArrowForwardIosIcon />
+                <Box sx={MenuBackStyle} style={{ width: '100vw', }}>
+                    <Box sx={MenuStyle} style={{ width: '33vw', }}>
+                        <Box style={{
+                            display: "flex",
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            width: '100%'
+                        }}>
+                            <IconButton aria-label="close" onClick={handleClose} style={{ alignSelf: "flex-start" }}>
+                                <ArrowIcon />
                             </IconButton>
-                        </ListItemButton>
-                        <Divider />
-                        <ListItemButton onClick={handleDelAcc}>
+                            <Typography variant="h2" color="red.main" align="center">Setting</Typography>
+                        </Box>
+                        <List
+                            sx={{ width: '90%', marginLeft: '10%' }}
+                            component="nav"
+                            aria-labelledby="nested-list-subheader"
+                        >
+                            <ListItemButton onClick={handleMyInfo}>
+                                <ListItemText primary="My Information" />
+                                <IconButton aria-label="close" onClick={handleMyInfo}>
+                                    <ArrowForwardIosIcon />
+                                </IconButton>
+                            </ListItemButton>
+                            <Divider />
+                            <ListItemButton onClick={handleDelAcc}>
 
-                            <ListItemText primary="Delete Account" />
-                            <IconButton aria-label="close" onClick={handleDelAcc}>
-                                <ArrowForwardIosIcon />
-                            </IconButton>
-                        </ListItemButton>
-                        <Divider />
-                        <ListItemButton onClick={handleLogOut}>
-                            <ListItemText primary="Log Out" />
-                            <IconButton aria-label="close" onClick={handleLogOut}>
-                                <ArrowForwardIosIcon />
-                            </IconButton>
-                        </ListItemButton>
-                    </List>
-                </Box>
-                :  <Box style={{ height: '95vh', width: '0vw', backgroundColor: '#FFFFFF',display: 'flex', }}/>}
+                                <ListItemText primary="Delete Account" />
+                                <IconButton aria-label="close" onClick={handleDelAcc}>
+                                    <ArrowForwardIosIcon />
+                                </IconButton>
+                            </ListItemButton>
+                            <Divider />
+                            <ListItemButton onClick={handleLogOut}>
+                                <ListItemText primary="Log Out" />
+                                <IconButton aria-label="close" onClick={handleLogOut}>
+                                    <ArrowForwardIosIcon />
+                                </IconButton>
+                            </ListItemButton>
+                        </List>
+                    </Box></Box>
+                : <Box sx={MenuStyle} style={{ width: '0vw', }}>
+                    <Box sx={MenuStyle} style={{ width: '0vw' }} /></Box>}
         </Box>
     );
 }
