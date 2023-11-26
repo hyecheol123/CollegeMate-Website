@@ -18,6 +18,7 @@ import {
 import { useGlobalContext } from './GlobalContext';
 // API Calls
 import postInitiateOTPRequest from './data/Login/postInitiateOTPRequest';
+import postEnterOTPCode from './data/Login/postEnterOTPCode';
 // Input Validator
 import { emailFormatValidator } from './inputValidator/emailFormatValidator';
 // Global Style
@@ -83,17 +84,23 @@ function Login(): React.ReactElement {
 
   // Timeout for Timer
   React.useEffect(() => {
+    let timeout: any;
     if (secToExp > elapsedSec) {
-      setTimeout(() => {
+      timeout = setTimeout(() => {
         setElapsedSec(elapsedSec + 1);
       }, 1000);
     }
-    if (secToExp > 0 && secToExp === elapsedSec) {
+    if (secToExp > 0 && secToExp <= elapsedSec) {
       setErrorMsg('Code Expired');
     }
+
+    return () => clearTimeout(timeout);
   }, [secToExp, elapsedSec]);
 
   // Event Handlers for buttons
+  const logoClickHandler = React.useCallback(() => {
+    navigate('/');
+  }, [navigate]);
   const signUpClickHandler = React.useCallback(() => {
     navigate('/signup');
   }, [navigate]);
@@ -113,6 +120,7 @@ function Login(): React.ReactElement {
               1000,
           ),
         );
+        setCode('');
         setElapsedSec(0);
       } else {
         setErrorMsg('Unknown Error');
@@ -123,11 +131,31 @@ function Login(): React.ReactElement {
 
     setIsEditable(true);
   };
+  const submitCodeHandler = async (): Promise<void> => {
+    setIsEditable(false);
+    setErrorMsg('NONE');
+
+    const result = await postEnterOTPCode(otpRequestId, email, code);
+    if (result.responseCode === 499) {
+      setErrorMsg('Code Mismatch');
+    } else if (result.responseCode === 409) {
+      setElapsedSec(secToExp);
+      setErrorMsg('Code Expired');
+    } else if (result.responseCode === 201) {
+      globalContext.dispatch({ type: 'LOGIN' });
+      localStorage.setItem('LOGIN', 'yes');
+      navigate('/');
+    } else {
+      setErrorMsg('Unknown Error');
+    }
+
+    setIsEditable(true);
+  };
 
   // Change Event Handler for inputs
   const emailChangeHandler = React.useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      setEmail(event.target.value.trim().toLowerCase());
+      setEmail(event.target.value.trim());
     },
     [],
   );
@@ -143,13 +171,18 @@ function Login(): React.ReactElement {
       <Box sx={innerContentWrapperStyle}>
         <Box sx={imageOuterWrapperStyle}>
           <Box sx={imageInnerWrapperStyle}>
-            <picture style={FilledPictureStyle}>
+            <picture style={{ ...FilledPictureStyle, ...LinkStyle }}>
               <source srcSet={VerticalLogoAvif} type="image/avif" />
               <source srcSet={VerticalLogoWebp} type="image/webp" />
               <Box
                 component="img"
-                sx={{ ...FilledPictureStyle, objectFit: 'contain' }}
+                sx={{
+                  ...FilledPictureStyle,
+                  ...LinkStyle,
+                  objectFit: 'contain',
+                }}
                 src={VerticalLogoPng}
+                onClick={logoClickHandler}
                 alt="CollegeMate Logo"
               />
             </picture>
@@ -228,7 +261,7 @@ function Login(): React.ReactElement {
                 variant="contained"
                 disabled={secToExp > 0 && secToExp === elapsedSec}
                 sx={{ flex: 1 }}
-                onClick={() => {}}
+                onClick={submitCodeHandler}
               >
                 Submit
               </Button>
@@ -237,7 +270,7 @@ function Login(): React.ReactElement {
                   variant="contained"
                   color="whiteGrey"
                   sx={{ flex: 1 }}
-                  onClick={() => {}}
+                  onClick={sendCodeHandler}
                 >
                   Resend
                 </Button>

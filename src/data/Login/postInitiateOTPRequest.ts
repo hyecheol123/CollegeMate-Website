@@ -25,7 +25,7 @@ export default function postInitiateOTPRequest(
 ): Promise<IResponse> {
   console.log(`Sending OTP Request for ${email} with purpose of ${purpose}`);
 
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     if (email === 'notexisting@wisc.edu') {
       setTimeout(() => resolve({ responseCode: 401 }), 1000);
     } else if (email === 'alreadyexisting@wisc.edu' && purpose === 'signup') {
@@ -37,7 +37,10 @@ export default function postInitiateOTPRequest(
         () =>
           resolve({
             responseCode: 201,
-            content: { requestId: 'someId', codeExpireAt: expDate },
+            content: {
+              requestId: `${purpose}RequestId`,
+              codeExpireAt: expDate,
+            },
           }),
         1000,
       );
