@@ -26,12 +26,11 @@ import '@fontsource/roboto/700.css';
 import Loading from './components/Common/Loading/Loading';
 // import { LoginContextProvider, useLoginContext } from './LoginData';
 const About = React.lazy(() => import('./About'));
+const SignUp = React.lazy(() => import('./SignUp'));
 // const EventDetail = React.lazy(() => import('./EventDetail'));
 // const EventParticipants = React.lazy(() => import('./EventParticipants'));
 // const Login = React.lazy(() => import('./Login'));
 // const ChangePW = React.lazy(() => import('./ChangePW'));
-
-import SignUpTerms from './components/SignUp/Pages/SignUpTerms';
 
 // MUI Theme (Setup Font family and Palette Color)
 declare module '@mui/material/styles' {
@@ -209,7 +208,7 @@ function App(): React.ReactElement {
             </Typography>
           }
         />
-        <Route path="/signup" element={<SignUpTerms />} />
+        <Route path="/signup" element={<SignUp />} />
         <Route path="/about" element={<About />} />
       </Route>
     </Routes>

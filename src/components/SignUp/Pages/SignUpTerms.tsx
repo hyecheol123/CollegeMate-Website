@@ -1,20 +1,25 @@
+/**
+ * Component for the first page of signup page (SignUpTerms).
+ * @author Heewon Kim <khw0285@gmail.com>
+ */
+
 // React
 import React from 'react';
+
 // Material UI
-import { Box, Typography, Checkbox, FormControlLabel, Button } from '@mui/material';
+import { Box, Typography, Checkbox, FormControlLabel, Button, Alert } from '@mui/material';
 
 // Global Styles
 import PageWrapperSignupStyle from '../Styles/PageWrapper';
 import TermsStyle from '../Styles/Terms';
 import CheckBoxStyle from '../Styles/Checkbox';
 import ButtonStyle from '../Styles/Button';
-import TitleStyle from '../Styles/Title';
+
+// Components
+import Header from './Header/Header';
 
 // API call
 import getTnC from '../../../data/About/getTnC';
-
-// Assets
-import CollegeMateLogo from '../../../../assets/lg3 1.png'
 
 /**
  * React Functional Component for SignUp page's first page
@@ -27,51 +32,66 @@ function SignUpTerms(): React.ReactElement {
     const [content, setContent] = React.useState<string>('');
 
     // Function to load terms TnC
-    React.useEffect(() => {
-        const fetchData = async () => {
-            const json = await getTnC();
+    const fetchData = async () => {
+        const json = await getTnC();
+        if (!termsAgreed && !privacyAgreed) {
             setContent(json.content.termsAndConditions);
-        };
+        } else if (termsAgreed && !privacyAgreed) {
+            setContent(json.content.privacyAct);
+        }
+    };
+
+    React.useEffect(() => {
         fetchData();
     }, []);
 
     const handleNextClick = () => {
         if (termsAgreed && !privacyAgreed) {
-            // User has agreed terms, show privacy content
-            const fetchData = async () => {
-                const json = await getTnC();
-                setContent(json.content.privacyAct);
-            };
+            // first Next button clicked
             setPrivacyAgreed(true);
-            fetchData();
         } else if (termsAgreed && privacyAgreed) {
+            // Second Next button clicked
             console.log("User has agreed all!");
             // Need to navigate to the next step
         } else {
             // User has not agreed, show a message or handle accordingly
             console.log("User has not agreed!");
+            alert("You has not agreed!");
         }
+        fetchData();
     };
 
-    const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleTermsCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setTermsAgreed(event.target.checked);
+        console.log("User has agreed the terms and conditions!");
+    };
+
+    const handlePrivacyCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setPrivacyAgreed(event.target.checked);
+        console.log("User has agreed the the privacy policy!");
     };
 
     return (
         <Box sx={PageWrapperSignupStyle}>
-            <Box sx={TitleStyle}>
-                <Box component="img"
-                    src={CollegeMateLogo}
-                    alt="Mockup of CollegeMateLogo"></Box>
-            </Box>
+            <Header />
             <Box sx={TermsStyle}>
-                <Typography variant="h3" align="center" mb="15px">
+                <Typography variant="h3" align="left" mb="5px">
                     {content}
                 </Typography>
             </Box>
             <Box sx={CheckBoxStyle}>
-                {!privacyAgreed ? <FormControlLabel control={<Checkbox onChange={handleCheckboxChange} />} label="I agree to the terms and conditions." />
-                    : <FormControlLabel control={<Checkbox onChange={handleCheckboxChange} />} label="I agree to the privacy policy." />}
+                {!privacyAgreed && (
+                    <FormControlLabel
+                        control={<Checkbox onChange={handleTermsCheckboxChange} />}
+                        label="I agree to the terms and conditions."
+                    />
+                )}
+                {privacyAgreed && (
+                    <FormControlLabel
+                        control={<Checkbox onChange={handlePrivacyCheckboxChange} />}
+                        label="I agree to the privacy policy."
+                    />
+                )}
             </Box>
             <Box sx={ButtonStyle}>
                 <Button variant="contained" onClick={handleNextClick} sx={{ width: '30%', height: '90%' }}>Next</Button>
