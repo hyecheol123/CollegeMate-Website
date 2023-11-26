@@ -4,7 +4,7 @@
  */
 
 const TermsStyle = {
-  display:'flex',
+  display: 'flex',
   margin: 'auto',
   width: 0,
   maxHeight: '660px',
