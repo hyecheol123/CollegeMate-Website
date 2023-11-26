@@ -6,6 +6,7 @@
 
 // React
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 // Material UI
 import { Box, IconButton, Button } from '@mui/material';
@@ -20,12 +21,13 @@ import DeleteAccountPage from './DeleteAccPage';
 import LogOutAlert from './LogOutAlert';
 
 // Global Styles
+import PageWrapperStyle from '../../Common/Styles/PageWrapper';
 import HeaderIconContStyle from '../Styles/HeaderIconCont';
 import HeaderStyle from '../Styles/Header';
 import TitleStyle from '../Styles/Title';
 
 // API call
-import getTnC from '../../../data/About/getTnC';
+import getTnC from '../../../data/Common/getTnC';
 
 // Assets
 import CollegeMateLogo from '../../../../assets/lg3 1.png'
@@ -36,37 +38,11 @@ import CollegeMateLogo from '../../../../assets/lg3 1.png'
  * @return {React.ReactElement} Renders Setting Page
  */
 function SettingPage(): React.ReactElement {
-  // My Info Data
-  //   const myInfoData = [
-  //     {
-  //       name: ,
-  //       nickName: ,
-  //       school: ,
-  //       major: ,
-  //       classStanding: ,
-  //     },
-  //     {
-  //       name: ,
-  //       nickName: ,
-  //       school: ,
-  //       major: ,
-  //       classStanding: ,
-  //     },
-  //     {
-  //       name: ,
-  //       nickName: ,
-  //       school: ,
-  //       major: ,
-  //       classStanding: ,
-  //     },
-  //   ];
-
-
-
   const [menuClicked, setMenuClick] = React.useState<boolean>(false);
   const [myInfoClicked, setMyInfo] = React.useState<boolean>(false);
   const [delAccClicked, setDelAccClicked] = React.useState<boolean>(false);
   const [logOutClicked, setlogOutClicked] = React.useState<boolean>(false);
+  const navigate = useNavigate();
 
   const menuFunction = () => {
     setMenuClick(!menuClicked)
@@ -89,11 +65,14 @@ function SettingPage(): React.ReactElement {
     setlogOutClicked(!logOutClicked)
     setMenuClick(!menuClicked)
   };
+  const logoClickHandler = React.useCallback(() => {
+    navigate('/login');
+  }, [navigate]);
 
   return (
-    <Box>
+    <Box sx={PageWrapperStyle} style={{padding: 0, }}>
       <Box sx={HeaderStyle}>
-        <Box sx={HeaderIconContStyle}>
+        <Box sx={HeaderIconContStyle} >
           <IconButton onClick={menuFunction}>
             <MenuIcon style={{ color: '#B20000' }} /></IconButton>
           <IconButton>
@@ -121,97 +100,10 @@ function SettingPage(): React.ReactElement {
 
       <MyInfoPage open={myInfoClicked} handleClose={menuMyInfo} />
       <DeleteAccountPage open={delAccClicked} handleClose={menuDelAccClicked} />
-      <LogOutAlert open={logOutClicked} handleClose={menulogOutClicked} />
+      <LogOutAlert open={logOutClicked} handleClose={menulogOutClicked} logOut={logoClickHandler}/>
 
     </Box>
   );
 }
 
 export default SettingPage;
-
-
-
-
-/* 희원이 오빠 코드 참고
-// React
-import React from 'react';
-// Material UI
-import { Box, Typography, Checkbox, FormControlLabel, Button } from '@mui/material';
-
-// Global Styles
-import PageWrapperSignupStyle from '../Styles/PageWrapper';
-import TermsStyle from '../Styles/Terms';
-import CheckBoxStyle from '../Styles/Checkbox';
-import ButtonStyle from '../Styles/Button';
-import TitleStyle from '../Styles/Title';
-
-// API call
-import getTnC from '../../../data/About/getTnC';
-
-// Assets
-import CollegeMateLogo from '../../../../assets/lg3 1.png'
-
-
-function SignUpTerms(): React.ReactElement {
-  // Set initial state for term of service and privacy policy
-  const [termsAgreed, setTermsAgreed] = React.useState<boolean>(false);
-  const [privacyAgreed, setPrivacyAgreed] = React.useState<boolean>(false);
-  const [content, setContent] = React.useState<string>('');
-
-  // Function to load terms TnC
-  React.useEffect(() => {
-      const fetchData = async () => {
-          const json = await getTnC();
-          setContent(json.content.termsAndConditions);
-      };
-      fetchData();
-  }, []);
-
-  const handleNextClick = () => {
-      if (termsAgreed && !privacyAgreed) {
-          // User has agreed terms, show privacy content
-          const fetchData = async () => {
-              const json = await getTnC();
-              setContent(json.content.privacyAct);
-          };
-          setPrivacyAgreed(true);
-          fetchData();
-      } else if (termsAgreed && privacyAgreed) {
-          console.log("User has agreed all!");
-          // Need to navigate to the next step
-      } else {
-          // User has not agreed, show a message or handle accordingly
-          console.log("User has not agreed!");
-      }
-  };
-
-  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-      setTermsAgreed(event.target.checked);
-  };
-
-  return (
-      <Box sx={PageWrapperSignupStyle}>
-          <Box sx={TitleStyle}>
-              <Box component="img"
-                  src={CollegeMateLogo}
-                  alt="Mockup of CollegeMateLogo"></Box>
-          </Box>
-          <Box sx={TermsStyle}>
-              <Typography variant="h3" align="center" mb="15px">
-                  {content}
-              </Typography>
-          </Box>
-          <Box sx={CheckBoxStyle}>
-              {!privacyAgreed ? <FormControlLabel control={<Checkbox onChange={handleCheckboxChange} />} label="I agree to the terms and conditions." />
-                  : <FormControlLabel control={<Checkbox onChange={handleCheckboxChange} />} label="I agree to the privacy policy." />}
-          </Box>
-          <Box sx={ButtonStyle}>
-              <Button variant="contained" onClick={handleNextClick} sx={{ width: '30%', height: '90%' }}>Next</Button>
-          </Box>
-      </Box>
-  );
-}
-
-export default SignUpTerms;
-
-*/

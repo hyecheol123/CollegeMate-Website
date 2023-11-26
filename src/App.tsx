@@ -247,7 +247,12 @@ function App(): React.ReactElement {
         />
         <Route path="/about" element={<About />} />
         <Route path="/setting" element={<Setting />} />
+        <Route
+          path="/Setting"
+          element={globalContext.initialized ? <Setting /> : <Loading />}
+        />
       </Route>
+      
     </Routes>
   );
 }

@@ -1,3 +1,6 @@
+/**
+ * @author Jihyun (Janice) Ahn <jihyun.ahn.ai@gmail.com>
+ */
 const MenuBackStyle = { 
     backgroundColor: '#DADFE1',
     display: 'flex',
