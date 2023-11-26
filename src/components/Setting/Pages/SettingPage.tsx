@@ -109,6 +109,7 @@ function SettingPage(): React.ReactElement {
           </Box>
         </Box>
 
+        {/* Hidden Box to balance the flex container */}
         <Box sx={HeaderIconContStyle} style={{ visibility: 'hidden' }}>
           <IconButton><MenuIcon /></IconButton>
           <IconButton><PermIdentityIcon /></IconButton>

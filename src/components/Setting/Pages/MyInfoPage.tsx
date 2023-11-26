@@ -7,7 +7,7 @@
 import React from 'react';
 
 // Material UI
-import { Box, IconButton, List, ListItem, ListItemText, Divider, Typography } from '@mui/material';
+import { Box, IconButton, List, ListItem, ListItemText, Divider, Typography, Button } from '@mui/material';
 import ArrowIcon from '@mui/icons-material/ArrowBack';
 
 
@@ -19,6 +19,9 @@ interface SettingMenuProps {
     handleClose: () => void;
 }
 
+const buttonStyle = {
+    width: '30vw',
+};
 
 
 /**
@@ -30,43 +33,59 @@ function MyInfoPage(props: SettingMenuProps): React.ReactElement {
     const { open, handleClose } = props;
 
     return (
-        <Box>
+        <Box sx={{ marginLeft: '10vw', width: '80vw', }}>
             {open ?
-                <Box style={{ display: 'flex', flexDirection: 'column', position: 'absolute', top: '10vh', left: '10vw', zIndex: 1, backgroundColor: 'white' }}>
-                    <Box style={{ display: 'flex', flexDirection: 'row', }}>
+                <Box style={{
+                    display: 'flex', flexDirection: 'column',
+                    zIndex: 1, backgroundColor: 'white',
+                    alignItems: 'center',
+                }}>
+                    <Box sx={{ alignSelf: 'flex-start', height: '5vh', marginTop: '2vh', }}>
                         <IconButton aria-label="close" onClick={handleClose}>
                             <ArrowIcon />
                         </IconButton>
-                        <Typography variant="h2" color="red.main" align="center">My Information</Typography>
                     </Box>
+                    <Box sx={{
+                        display: 'flex', flexDirection: 'column',
+                        // justifyContent: '',
+                        alignItems: 'center',
+                        height: '80vh',
+                        marginTop: '0vh',
+                    }}>
+                        <Typography variant="h2" color="red.main" align="center">My Information</Typography>
+                        <List
+                            sx={{ width: '100%' }}
+                            component="nav"
+                            aria-labelledby="nested-list-subheader"
+                        >
+                            <ListItem >
+                                <ListItemText primary="Name" />
+                            </ListItem>
+                            <Divider />
+                            <ListItem >
+                                <ListItemText primary="Nick Name" />
+                            </ListItem>
+                            <Divider />
+                            <ListItem >
+                                <ListItemText primary="School" />
+                            </ListItem>
+                            <Divider />
+                            <ListItem >
+                                <ListItemText primary="Major" />
+                            </ListItem>
+                            <Divider />
+                            <ListItem >
+                                <ListItemText primary="Class Standing" />
+                            </ListItem>
+                        </List>
 
-                    <List
-                        sx={{ width: '90%', marginLeft: '10%' }}
-                        component="nav"
-                        aria-labelledby="nested-list-subheader"
-                    >
-                        <ListItem >
-                            <ListItemText primary="Name" />
-                        </ListItem>
-                        <Divider />
-                        <ListItem >
-                            <ListItemText primary="Nick Name" />
-                        </ListItem>
-                        <Divider />
-                        <ListItem >
-                            <ListItemText primary="School" />
-                        </ListItem>
-                        <Divider />
-                        <ListItem >
-                            <ListItemText primary="Major" />
-                        </ListItem>
-                        <Divider />
-                        <ListItem >
-                            <ListItemText primary="Class Standing" />
-                        </ListItem>
 
-                    </List>
-
+                        <Box sx={{ marginTop: 'auto',  }}>
+                            <Button variant="contained" onClick={handleClose} sx={buttonStyle}>
+                                Edit
+                            </Button>
+                        </Box>
+                    </Box>
                 </Box> : <></>}
 
         </Box>

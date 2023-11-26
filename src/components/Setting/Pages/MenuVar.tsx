@@ -49,13 +49,14 @@ function MenuVar(props: SettingMenuProps): React.ReactElement {
                             display: "flex",
                             flexDirection: 'row',
                             alignItems: 'center',
-                            justifyContent: 'center',
-                            width: '100%'
+                            width: '90%',
+                            marginLeft: '10%',
+                            marginTop: '5%',
                         }}>
                             <IconButton aria-label="close" onClick={handleClose} style={{ alignSelf: "flex-start" }}>
                                 <ArrowIcon />
                             </IconButton>
-                            <Typography variant="h2" color="red.main" align="center">Setting</Typography>
+                            <Typography variant="h2" color="red.main" align="center" style={{ marginLeft: '2%' }}>Setting</Typography>
                         </Box>
                         <List
                             sx={{ width: '90%', marginLeft: '10%' }}
@@ -64,7 +65,7 @@ function MenuVar(props: SettingMenuProps): React.ReactElement {
                         >
                             <ListItemButton onClick={handleMyInfo}>
                                 <ListItemText primary="My Information" />
-                                <IconButton aria-label="close" onClick={handleMyInfo}>
+                                <IconButton aria-label="close" onClick={handleMyInfo} >
                                     <ArrowForwardIosIcon />
                                 </IconButton>
                             </ListItemButton>
