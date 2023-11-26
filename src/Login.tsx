@@ -16,6 +16,10 @@ import {
 } from '@mui/material';
 // Custom Hook to use Context
 import { useGlobalContext } from './GlobalContext';
+// API Calls
+import postInitiateOTPRequest from './data/Login/postInitiateOTPRequest';
+// Input Validator
+import { emailFormatValidator } from './inputValidator/emailFormatValidator';
 // Global Style
 import PageWrapperStyle from './components/Common/Styles/PageWrapper';
 import LinkStyle from './components/Common/Styles/Link';
@@ -25,22 +29,50 @@ import VerticalLogoPng from '../assets/collegemate_logo_vertical.png';
 import VerticalLogoWebp from '../assets/collegemate_logo_vertical.png?as=webp';
 import VerticalLogoAvif from '../assets/collegemate_logo_vertical.png?as=avif';
 
+const innerContentWrapperStyle = {
+  ...PageWrapperStyle,
+  padding: 0,
+  maxWidth: '400px',
+  justifyContent: 'center',
+};
+const imageOuterWrapperStyle = {
+  flex: 1,
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+};
+const imageInnerWrapperStyle = {
+  height: '100%',
+  width: '100%',
+  maxWidth: '122px',
+  maxHeight: '160px',
+};
+const inputWrapperStyle = {
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+};
+
 /**
  * React Functional Component to generate Login Page
  * @return {React.ReactElement} Renders Login Page
  */
 function Login(): React.ReactElement {
   // States
+  const [isEditable, setIsEditable] = React.useState<boolean>(true);
   const [email, setEmail] = React.useState<string>('');
+  const [otpRequestId, setOtpRequestId] = React.useState<string>('');
+  const [secToExp, setSecToExp] = React.useState<number>(0);
+  const [elapsedSec, setElapsedSec] = React.useState<number>(0);
   const [code, setCode] = React.useState<string>('');
-  const [isCodeSent, setIsCodeSent] = React.useState<boolean>(false);
-  const [isResendable, setIsResendable] = React.useState<boolean>(false);
-  const [errorMsg, setErrorMsg] = React.useState<string>('TEST');
+  const [errorMsg, setErrorMsg] = React.useState<string>('NONE');
   const globalContext = useGlobalContext();
   const navigate = useNavigate();
 
   // Control variable
-  const secToExp = 0;
+  const formatSecond = (second: number): string => {
+    return `${Math.floor(second / 60)}:${String(second % 60).padStart(2, '0')}`;
+  };
 
   // If user already logged in, redirect to main page
   React.useEffect(() => {
@@ -49,10 +81,48 @@ function Login(): React.ReactElement {
     }
   }, [globalContext.login, navigate]);
 
+  // Timeout for Timer
+  React.useEffect(() => {
+    if (secToExp > elapsedSec) {
+      setTimeout(() => {
+        setElapsedSec(elapsedSec + 1);
+      }, 1000);
+    }
+    if (secToExp > 0 && secToExp === elapsedSec) {
+      setErrorMsg('Code Expired');
+    }
+  }, [secToExp, elapsedSec]);
+
   // Event Handlers for buttons
   const signUpClickHandler = React.useCallback(() => {
     navigate('/signup');
   }, [navigate]);
+  const sendCodeHandler = async (): Promise<void> => {
+    setIsEditable(false);
+    setErrorMsg('NONE');
+
+    if (emailFormatValidator(email)) {
+      const result = await postInitiateOTPRequest(email, 'signin');
+      if (result.responseCode === 401) {
+        setErrorMsg('Not Existing Email');
+      } else if (result.responseCode === 201 && result.content) {
+        setOtpRequestId(result.content.requestId);
+        setSecToExp(
+          Math.floor(
+            (result.content.codeExpireAt.getTime() - new Date().getTime()) /
+              1000,
+          ),
+        );
+        setElapsedSec(0);
+      } else {
+        setErrorMsg('Unknown Error');
+      }
+    } else {
+      setErrorMsg('Invalid Email');
+    }
+
+    setIsEditable(true);
+  };
 
   // Change Event Handler for inputs
   const emailChangeHandler = React.useCallback(
@@ -70,30 +140,9 @@ function Login(): React.ReactElement {
 
   return (
     <Box sx={{ ...PageWrapperStyle, alignItems: 'center' }}>
-      <Box
-        sx={{
-          ...PageWrapperStyle,
-          padding: 0,
-          maxWidth: '400px',
-          justifyContent: 'center',
-        }}
-      >
-        <Box
-          sx={{
-            flex: 1,
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-        >
-          <Box
-            sx={{
-              height: '100%',
-              width: '100%',
-              maxWidth: '122px',
-              maxHeight: '160px',
-            }}
-          >
+      <Box sx={innerContentWrapperStyle}>
+        <Box sx={imageOuterWrapperStyle}>
+          <Box sx={imageInnerWrapperStyle}>
             <picture style={FilledPictureStyle}>
               <source srcSet={VerticalLogoAvif} type="image/avif" />
               <source srcSet={VerticalLogoWebp} type="image/webp" />
@@ -106,52 +155,100 @@ function Login(): React.ReactElement {
             </picture>
           </Box>
         </Box>
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-          }}
-        >
+        <Box sx={inputWrapperStyle}>
+          {
+            // Dummy TextField for styling
+            otpRequestId === '' && (
+              <TextField
+                variant="standard"
+                label="DUMMY"
+                size="small"
+                margin="dense"
+                fullWidth
+                sx={{ visibility: 'hidden' }}
+              />
+            )
+          }
           <TextField
             variant="standard"
-            label="Email Address"
             size="small"
             margin="dense"
+            fullWidth
+            disabled={!isEditable || otpRequestId !== ''}
+            label="Email Address"
             value={email}
             onChange={emailChangeHandler}
             type="email"
-            fullWidth
           />
-          <Box sx={{ width: '100%', display: 'flex' }}>
-            <TextField
-              variant="standard"
-              label="Code"
-              size="small"
-              margin="dense"
-              value={code}
-              onChange={codeChangeHandler}
-              type="password"
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <Typography variant="body2">3:00</Typography>
-                  </InputAdornment>
-                ),
+          {otpRequestId !== '' && (
+            <Box sx={{ width: '100%', display: 'flex' }}>
+              <TextField
+                variant="standard"
+                size="small"
+                margin="dense"
+                fullWidth
+                disabled={
+                  !isEditable || (secToExp > 0 && secToExp === elapsedSec)
+                }
+                label="Code"
+                value={code}
+                onChange={codeChangeHandler}
+                type="password"
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <Typography variant="body2">
+                        {formatSecond(secToExp - elapsedSec)}
+                      </Typography>
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </Box>
+          )}
+          {otpRequestId === '' && (
+            <Button
+              variant="contained"
+              sx={{ width: '100%', marginTop: '10px' }}
+              onClick={sendCodeHandler}
+            >
+              Send Code
+            </Button>
+          )}
+          {otpRequestId !== '' && (
+            <Box
+              sx={{
+                width: '100%',
+                display: 'flex',
+                gap: '10px',
+                marginTop: '10px',
               }}
-              fullWidth
-            />
-          </Box>
-          <Button variant="contained" sx={{ width: '100%', marginTop: '10px' }}>
-            Send Code
-          </Button>
+            >
+              <Button
+                variant="contained"
+                disabled={secToExp > 0 && secToExp === elapsedSec}
+                sx={{ flex: 1 }}
+                onClick={() => {}}
+              >
+                Submit
+              </Button>
+              {elapsedSec > 30 && (
+                <Button
+                  variant="contained"
+                  color="whiteGrey"
+                  sx={{ flex: 1 }}
+                  onClick={() => {}}
+                >
+                  Resend
+                </Button>
+              )}
+            </Box>
+          )}
           <Typography
             variant="body2"
             color="red.main"
-            sx={{
-              marginTop: '8px',
-              visibility: errorMsg === 'NONE' ? 'hidden' : undefined,
-            }}
+            marginTop="8px"
+            visibility={errorMsg === 'NONE' ? 'hidden' : undefined}
           >
             {errorMsg}
           </Typography>

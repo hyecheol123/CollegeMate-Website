@@ -199,13 +199,13 @@ function App(): React.ReactElement {
       if (!globalContext.initialized) {
         // check whether admin token alive or not
         if (localStorage.getItem('LOGIN') === 'yes') {
-          try {
-            await getRenewToken();
-          } catch (e) {
+          const { responseCode } = await getRenewToken();
+          if (responseCode !== 200) {
             localStorage.removeItem('LOGIN');
             globalContext.dispatch({ type: 'INITIALIZE', login: false });
+          } else {
+            globalContext.dispatch({ type: 'INITIALIZE', login: true });
           }
-          globalContext.dispatch({ type: 'INITIALIZE', login: true });
         } else {
           localStorage.removeItem('LOGIN');
           globalContext.dispatch({ type: 'INITIALIZE', login: false });
