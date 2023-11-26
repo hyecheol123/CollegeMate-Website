@@ -50,8 +50,8 @@ function MenuVar(props: SettingMenuProps): React.ReactElement {
                             flexDirection: 'row',
                             alignItems: 'center',
                             width: '90%',
-                            marginLeft: '10%',
-                            marginTop: '5%',
+                            marginLeft: '5vw',
+                            marginTop: '2vh',
                         }}>
                             <IconButton aria-label="close" onClick={handleClose} style={{ alignSelf: "flex-start" }}>
                                 <ArrowIcon />
@@ -59,7 +59,7 @@ function MenuVar(props: SettingMenuProps): React.ReactElement {
                             <Typography variant="h2" color="red.main" align="center" style={{ marginLeft: '2%' }}>Setting</Typography>
                         </Box>
                         <List
-                            sx={{ width: '90%', marginLeft: '10%' }}
+                            sx={{ width: '28vw', marginLeft: '5vw', }}
                             component="nav"
                             aria-labelledby="nested-list-subheader"
                         >

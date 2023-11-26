@@ -33,7 +33,7 @@ function MyInfoPage(props: SettingMenuProps): React.ReactElement {
     const { open, handleClose } = props;
 
     return (
-        <Box sx={{ marginLeft: '10vw', width: '80vw', }}>
+        <Box sx={{ marginLeft: '5vw', width: '90vw', }}>
             {open ?
                 <Box style={{
                     display: 'flex', flexDirection: 'column',
