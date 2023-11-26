@@ -7,7 +7,7 @@
 import React from 'react';
 
 // Material UI
-import { Box, IconButton, Menu, MenuItem, Button } from '@mui/material';
+import { Box, IconButton, Typography, Button } from '@mui/material';
 import ArrowIcon from '@mui/icons-material/ArrowBack';
 
 /**
@@ -17,6 +17,11 @@ interface SettingMenuProps {
     open: boolean;
     handleClose: () => void;
 }
+
+const buttonStyle = {
+    marginTop: '20px',
+    width: '60%',
+};
 
 
 /**
@@ -30,12 +35,18 @@ function DeleteAccountPage(props: SettingMenuProps): React.ReactElement {
     return (
         <Box>
             {open ?
-                <Box style={{display: 'flex', position: 'absolute', top: '10vh', left: '10vw', zIndex: 1,}}>
-                    <IconButton aria-label="close" onClick={handleClose}>
-                        <ArrowIcon />
-                    </IconButton>
-                    <Box>DeleteAcocunt Page</Box>
+                <Box style={{ display: 'flex', flexDirection: 'column', position: 'absolute', top: '10vh', left: '10vw', zIndex: 1, backgroundColor: 'white' }}>
+                    <Box style={{ display: 'flex', flexDirection: 'row', }}>
+                        <IconButton aria-label="close" onClick={handleClose}>
+                            <ArrowIcon />
+                        </IconButton>
+                        <Typography variant="h2" color="red.main" align="center">Delete Account</Typography>
+                    </Box>
+                    <Box>Send Code</Box>
 
+                    <Button variant="contained" onClick={handleClose} sx={buttonStyle}>
+                        Next
+                    </Button>
                 </Box> : <></>}
 
         </Box>

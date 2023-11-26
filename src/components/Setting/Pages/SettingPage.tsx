@@ -17,6 +17,7 @@ import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
 import MenuVar from './MenuVar';
 import MyInfoPage from './MyInfoPage';
 import DeleteAccountPage from './DeleteAccPage';
+import LogOutAlert from './LogOutAlert';
 
 // Global Styles
 import HeaderIconContStyle from '../Styles/HeaderIconCont';
@@ -35,31 +36,28 @@ import CollegeMateLogo from '../../../../assets/lg3 1.png'
  * @return {React.ReactElement} Renders Setting Page
  */
 function SettingPage(): React.ReactElement {
-  // Feature Data
-  //   const featureData = [
+  // My Info Data
+  //   const myInfoData = [
   //     {
-  //       title: 'Customize Schedule',
-  //       body: "Customize your schedule effortlessly with CollegeMate - real-time data from UW's database at your fingertips. CollegeMate updates for you.",
-  //       pngImage: feature1Png,
-  //       webpImage: feature1Webp,
-  //       avifImage: feature1Avif,
-  //       imageAlt: 'Mockup of Schedule Customization',
+  //       name: ,
+  //       nickName: ,
+  //       school: ,
+  //       major: ,
+  //       classStanding: ,
   //     },
   //     {
-  //       title: 'Share Schedule With Friends',
-  //       body: 'Eliminate the "What\'s your schedule?" dilemma. CollegeMate simplifies viewing friends\' timetables. No back-and-forth. Stay connected in a snap',
-  //       pngImage: feature2Png,
-  //       webpImage: feature2Webp,
-  //       avifImage: feature2Avif,
-  //       imageAlt: "Mockup of Friend's Schedule",
+  //       name: ,
+  //       nickName: ,
+  //       school: ,
+  //       major: ,
+  //       classStanding: ,
   //     },
   //     {
-  //       title: 'Set Schedule as Wallpaper',
-  //       body: "Download your timetable to perfectly fit your phone's screen. Say goodbye to screenshots. Access your schedule whenever and wherever.",
-  //       pngImage: feature3Png,
-  //       webpImage: feature3Webp,
-  //       avifImage: feature3Avif,
-  //       imageAlt: 'Mockup of Wallpaper Download',
+  //       name: ,
+  //       nickName: ,
+  //       school: ,
+  //       major: ,
+  //       classStanding: ,
   //     },
   //   ];
 
@@ -78,7 +76,7 @@ function SettingPage(): React.ReactElement {
     setDelAccClicked(false)
     setlogOutClicked(false)
     setMenuClick(!menuClicked)
-  };  
+  };
   const menuDelAccClicked = () => {
     setMyInfo(false)
     setDelAccClicked(true)
@@ -88,20 +86,20 @@ function SettingPage(): React.ReactElement {
   const menulogOutClicked = () => {
     setMyInfo(false)
     setDelAccClicked(false)
-    setlogOutClicked(true)
+    setlogOutClicked(!logOutClicked)
     setMenuClick(!menuClicked)
   };
-  
+
   return (
-    <Box style={{ width: '100vw', height: '100vh', backgroundColor: '#DADFE1'}}>
+    <Box>
       <Box sx={HeaderStyle}>
         <Box sx={HeaderIconContStyle}>
           <IconButton onClick={menuFunction}>
-            <MenuIcon style={{ color: 'red' }} /></IconButton>
+            <MenuIcon style={{ color: '#B20000' }} /></IconButton>
           <IconButton>
-            <PermIdentityIcon style={{ color: 'red' }} /></IconButton>
+            <PermIdentityIcon style={{ color: '#B20000' }} /></IconButton>
           <IconButton>
-            <NotificationsNoneIcon style={{ color: 'red' }} /></IconButton>
+            <NotificationsNoneIcon style={{ color: '#B20000' }} /></IconButton>
         </Box>
 
         <Box sx={TitleStyle}>
@@ -122,6 +120,8 @@ function SettingPage(): React.ReactElement {
 
       <MyInfoPage open={myInfoClicked} handleClose={menuMyInfo} />
       <DeleteAccountPage open={delAccClicked} handleClose={menuDelAccClicked} />
+      <LogOutAlert open={logOutClicked} handleClose={menulogOutClicked} />
+
     </Box>
   );
 }
