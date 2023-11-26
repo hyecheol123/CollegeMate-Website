@@ -5,7 +5,7 @@ const HeaderIconContStyle = {
     justifyContent: 'center',
     flexDirection: 'row',
     alignSelf: 'flex-start',
-    marginLeft: 'auto',
+    marginLeft: '10%',
     marginRight: 'auto'
 };
 

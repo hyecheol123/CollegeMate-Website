@@ -19,8 +19,7 @@ interface SettingMenuProps {
 }
 
 const buttonStyle = {
-    marginTop: '20px',
-    width: '60%',
+    width: '30vw',
 };
 
 
@@ -33,20 +32,33 @@ function DeleteAccountPage(props: SettingMenuProps): React.ReactElement {
     const { open, handleClose } = props;
 
     return (
-        <Box>
+        <Box sx={{marginLeft:'10vw', width: '80vw',}}>
             {open ?
-                <Box style={{ display: 'flex', flexDirection: 'column', position: 'absolute', top: '10vh', left: '10vw', zIndex: 1, backgroundColor: 'white' }}>
-                    <Box style={{ display: 'flex', flexDirection: 'row', }}>
+                <Box sx={{
+                    display: 'flex', flexDirection: 'column',
+                    zIndex: 1, backgroundColor: 'white',
+                    alignItems: 'center', 
+                }}>
+                    <Box sx={{ alignSelf: 'flex-start', height: '10vh' }}>
                         <IconButton aria-label="close" onClick={handleClose}>
                             <ArrowIcon />
                         </IconButton>
-                        <Typography variant="h2" color="red.main" align="center">Delete Account</Typography>
                     </Box>
+                    <Box sx={{
+                        display: 'flex', flexDirection: 'column',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        height:'80vh',
+                        paddingBottom: '10vh',
+                    }}>
+                    <Typography variant="h2" color="red.main" align="center">Delete Account</Typography>
+
                     <Box>Send Code</Box>
 
                     <Button variant="contained" onClick={handleClose} sx={buttonStyle}>
                         Next
                     </Button>
+                    </Box>
                 </Box> : <></>}
 
         </Box>
