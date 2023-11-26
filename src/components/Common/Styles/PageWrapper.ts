@@ -1,6 +1,6 @@
 /**
  * Globally used style for page wrapper to show page in entire screen
- * @author Hyecheol (Jerry) Jang
+ * @author Hyecheol (Jerry) Jang <hyecheol123@gmail.com>
  */
 const PageWrapperStyle = {
   width: '100%',

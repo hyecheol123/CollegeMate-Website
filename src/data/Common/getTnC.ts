@@ -20,7 +20,7 @@ export type ApiResponse = {
  * Simulates an API call to fetch terms and conditions.
  * @return {Promise<ApiResponse>} A promise that resolves with the terms and conditions data.
  */
-export default function fetchTnC(): Promise<ApiResponse> {
+export default function getTnC(): Promise<ApiResponse> {
   return new Promise((resolve) => {
     setTimeout(
       () =>

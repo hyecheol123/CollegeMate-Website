@@ -41,7 +41,7 @@ function AboutPage(): React.ReactElement {
       imageAlt: 'Mockup of Schedule Customization',
     },
     {
-      title: 'Share Schedule With Friends',
+      title: 'Share Schedule with Friends',
       body: 'Eliminate the "What\'s your schedule?" dilemma. CollegeMate simplifies viewing friends\' timetables. No back-and-forth. Stay connected in a snap',
       pngImage: feature2Png,
       webpImage: feature2Webp,

@@ -8,23 +8,20 @@ import React from 'react';
 // Material UI
 import { Box, Typography } from '@mui/material';
 // Component
-import ContentModal from './ContentModal';
+import ContentModal from './Footer/ContentModal';
 import Loading from '../../Common/Loading/Loading';
+// Custom Hook to Load AboutContext
+import { useAboutContext } from '../AboutContext';
 // API call
-import getTnC from '../../../data/About/getTnC';
+import getTnC from '../../../data/Common/getTnC';
 // Global Style
-import PageWrapperStyle from '../Styles/PageWrapper';
+import PageWrapperStyle from '../../Common/Styles/PageWrapper';
+import LinkStyle from '../../Common/Styles/Link';
 
 // Type for ModalType
 type ModalType = 'terms' | 'privacy';
 
-const linkStyle = {
-  marginRight: '20px',
-  cursor: 'pointer',
-  '&:hover': {
-    textDecoration: 'underline',
-  },
-};
+const linkStyle = { ...LinkStyle, marginRight: '20px' };
 const titleBoxStyle = {
   flex: 1,
   display: 'flex',
@@ -44,6 +41,8 @@ const linksContainerStyle = {
  * @return {React.ReactElement} Renders last page of about page
  */
 function Footer(): React.ReactElement {
+  // State
+  const aboutContext = useAboutContext();
   // Set initial state for term of service and privacy policy
   const [termsContent, setTermsContent] = React.useState<string>('');
   const [privacyContent, setPrivacyContent] = React.useState<string>('');
@@ -68,16 +67,19 @@ function Footer(): React.ReactElement {
     setModalType('terms');
     await loadModalContents();
     setIsModalOpen(true);
-  }, [loadModalContents]);
+    aboutContext.dispatch({ type: 'DISABLE_SCROLL' });
+  }, [aboutContext, loadModalContents]);
   const openPAModal = React.useCallback(async () => {
     setModalType('privacy');
     loadModalContents();
     setIsModalOpen(true);
-  }, [loadModalContents]);
+    aboutContext.dispatch({ type: 'DISABLE_SCROLL' });
+  }, [aboutContext, loadModalContents]);
   const closeModal = React.useCallback(() => {
     setIsModalOpen(false);
     setModalType(undefined);
-  }, []);
+    aboutContext.dispatch({ type: 'ENABLE_SCROLL' });
+  }, [aboutContext]);
 
   return (
     <Box sx={PageWrapperStyle}>
@@ -115,7 +117,9 @@ function Footer(): React.ReactElement {
       <ContentModal
         open={isModalOpen}
         handleClose={closeModal}
-        title={modalType === 'terms' ? 'Terms and Conditions' : 'Privacy Act'}
+        title={
+          modalType === 'terms' ? 'Terms and Conditions' : 'Privacy Policy'
+        }
       >
         {isModalContentLoaded ? (
           <Typography variant="body1">

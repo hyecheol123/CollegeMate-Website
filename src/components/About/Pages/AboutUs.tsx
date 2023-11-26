@@ -6,13 +6,14 @@
 
 // React
 import React, { useState } from 'react';
-import TeamMembers from './AboutUs/TeamMembers';
 // Material UI
 import { Box, Button, Typography, Dialog, DialogContent } from '@mui/material';
+// Component
+import TeamMembers from './AboutUs/TeamMembers';
 // Custom Hook to Load AboutContext
 import { useAboutContext } from './../AboutContext';
 // Global Style
-import PageWrapperStyle from '../Styles/PageWrapper';
+import PageWrapperStyle from '../../Common/Styles/PageWrapper';
 
 const contentWrapperStyle = {
   flex: 1,
@@ -23,7 +24,8 @@ const contentWrapperStyle = {
   mx: '15px',
 };
 const buttonStyle = {
-  marginTop: '20px',
+  marginTop: '30px',
+  textTransform: 'none',
 };
 
 /**
