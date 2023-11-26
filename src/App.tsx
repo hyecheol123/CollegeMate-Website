@@ -26,6 +26,8 @@ import '@fontsource/roboto/700.css';
 import Loading from './components/Common/Loading/Loading';
 // import { LoginContextProvider, useLoginContext } from './LoginData';
 const About = React.lazy(() => import('./About'));
+const Setting = React.lazy(() => import('./Setting'));
+
 // const EventDetail = React.lazy(() => import('./EventDetail'));
 // const EventParticipants = React.lazy(() => import('./EventParticipants'));
 // const Login = React.lazy(() => import('./Login'));
@@ -216,6 +218,7 @@ function App(): React.ReactElement {
           }
         />
         <Route path="/about" element={<About />} />
+        <Route path="/setting" element={<Setting />} />
       </Route>
     </Routes>
   );
