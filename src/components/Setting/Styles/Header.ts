@@ -4,8 +4,7 @@ const HeaderStyle = {
     alignItems: 'center', 
     justifyContent: 'center',
     flexDirection: 'row',
-    paddingTop: '10px', 
-    paddingBottom: '10px',
+    height: '5vh',
 };
 
 export default HeaderStyle;

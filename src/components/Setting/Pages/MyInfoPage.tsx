@@ -19,7 +19,6 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 interface SettingMenuProps {
     open: boolean;
     handleClose: () => void;
-    children: React.ReactNode;
 }
 
 
@@ -27,18 +26,15 @@ interface SettingMenuProps {
 /**
  * React Functional Component to generate Setting Page
  * @param {SettingMenuProps} props Properties that passed from the parent Component
-
  * @return {React.ReactElement} Renders Setting Page
  */
 function MyInfoPage(props: SettingMenuProps): React.ReactElement {
-    const { open, handleClose, children } = props;
-
-    const [menuClicked, setMenuClick] = React.useState<boolean>(false);
+    const { open, handleClose } = props;
 
     return (
         <Box>
             {open ?
-                <Box>
+                <Box style={{display: 'flex', position: 'absolute', top: '10vh', left: '10vw'}}>
                     <IconButton aria-label="close" onClick={handleClose}>
                         <ArrowIcon />
                     </IconButton>

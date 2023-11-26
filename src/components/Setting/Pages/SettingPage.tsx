@@ -75,16 +75,19 @@ function SettingPage(): React.ReactElement {
   };
   const menuMyInfo = () => {
     setMyInfo(!myInfoClicked)
+    setMenuClick(!menuClicked)
   };  
   const menuDelAccClicked = () => {
     setDelAccClicked(!delAccClicked)
+    setMenuClick(!menuClicked)
   };
   const menulogOutClicked = () => {
     setlogOutClicked(!logOutClicked)
+    setMenuClick(!menuClicked)
   };
   
   return (
-    <Box style={{ width: '100%', height: '100%'}}>
+    <Box style={{ width: '100vw', height: '100vh', backgroundColor: '#DADFE1'}}>
       <Box sx={HeaderStyle}>
         <Box sx={HeaderIconContStyle}>
           <IconButton onClick={menuFunction}>
@@ -102,7 +105,6 @@ function SettingPage(): React.ReactElement {
           </Box>
         </Box>
 
-
         <Box sx={HeaderIconContStyle} style={{ visibility: 'hidden' }}>
           <IconButton><MenuIcon /></IconButton>
           <IconButton><PermIdentityIcon /></IconButton>
@@ -111,9 +113,9 @@ function SettingPage(): React.ReactElement {
       </Box>
 
       <MenuVar open={menuClicked} handleClose={menuFunction} handleMyInfo={menuMyInfo} handleDelAcc={menuDelAccClicked} handleLogOut={menulogOutClicked} />
-      <MyInfoPage open={myInfoClicked} handleClose={menuMyInfo} children={undefined} />
-      <DeleteAccountPage open={delAccClicked} handleClose={menuDelAccClicked} children={undefined} />
-
+      
+      <MyInfoPage open={myInfoClicked} handleClose={menuMyInfo} />
+      <DeleteAccountPage open={delAccClicked} handleClose={menuDelAccClicked} />
     </Box>
   );
 }
