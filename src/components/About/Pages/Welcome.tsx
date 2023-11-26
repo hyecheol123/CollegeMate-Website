@@ -54,10 +54,19 @@ function Welcome(): React.ReactElement {
         </picture>
       </Box>
       <Box sx={ButtonWrapperStyle}>
-        <Button variant="contained" onClick={onLoginClick}>
+        <Button
+          variant="contained"
+          onClick={onLoginClick}
+          sx={{ textTransform: 'none' }}
+        >
           Log In
         </Button>
-        <Button variant="contained" color="whiteGrey" onClick={onSignupClick}>
+        <Button
+          variant="contained"
+          color="whiteGrey"
+          onClick={onSignupClick}
+          sx={{ textTransform: 'none' }}
+        >
           Sign Up
         </Button>
       </Box>
