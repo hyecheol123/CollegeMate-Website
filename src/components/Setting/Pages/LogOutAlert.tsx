@@ -8,8 +8,9 @@ import React from 'react';
 
 // Material UI
 import { Modal, Box, Button, IconButton } from '@mui/material';
-// import ArrowIcon from '@mui/icons-material/ArrowBack';
 import CloseIcon from '@mui/icons-material/Close';
+// Style
+import ModalStyle from '../Styles/Modal';
 
 /**
  * Interface for ContentModalProps
@@ -17,6 +18,7 @@ import CloseIcon from '@mui/icons-material/Close';
 interface SettingMenuProps {
     open: boolean;
     handleClose: () => void;
+    logOut: () => void;
 }
 
 const buttonStyle = {
@@ -30,41 +32,23 @@ const buttonStyle = {
  * @return {React.ReactElement} Renders Setting Page
  */
 function LogOutAlert(props: SettingMenuProps): React.ReactElement {
-    const { open, handleClose } = props;
-
-    const modalStyle = {
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        width: '40%',
-        height: '30%',
-        maxHeight: '90%',
-        borderRadius: '10px',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        padding: '24px',
-        justifyContent: 'space-between',
-        background: '#ffffff',
-        boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.15)',
-    };
+    const { open, handleClose, logOut} = props;
 
     return (
         <Box>
-            {open ?
+            {open &&
                 <Modal open={open} onClose={handleClose}>
-                    <Box sx={modalStyle}>
+                    <Box sx={ModalStyle}>
                         <IconButton aria-label="close" onClick={handleClose} style={{ alignSelf: 'flex-end' }}>
                             <CloseIcon />
                         </IconButton>
                         <Box sx={{ aligh: 'center', }}>Are you sure you want to log out?</Box>
-                        <Button variant="contained" onClick={handleClose} sx={buttonStyle}>
+                        <Button variant="contained" onClick={logOut} sx={buttonStyle}>
                             Log Out
                         </Button>
                     </Box>
                 </Modal>
-                : <></>}
+                }
 
         </Box>
     );

@@ -1,12 +1,12 @@
+/**
+ * @author Jihyun (Janice) Ahn <jihyun.ahn.ai@gmail.com>
+ */
 const HeaderIconContStyle = { 
-    // bgcolor: 'grey', 
     display: 'flex', 
     alignItems: 'center', 
-    justifyContent: 'space-between',
     flexDirection: 'row',
-    alignSelf: 'flex-start',
     marginLeft: '5vw',
-    marginRight: 'auto'
+    marginRight: 'auto',
 };
 
 export default HeaderIconContStyle;
