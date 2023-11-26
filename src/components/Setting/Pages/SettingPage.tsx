@@ -15,7 +15,7 @@ import PermIdentityIcon from '@mui/icons-material/PermIdentity';
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
 
 // Childe Pages
-import MenuVar from './MenuVar';
+import MenuBar from './MenuBar';
 import MyInfoPage from './MyInfoPage';
 import DeleteAccountPage from './DeleteAccPage';
 import LogOutAlert from './LogOutAlert';
@@ -70,7 +70,7 @@ function SettingPage(): React.ReactElement {
   }, [navigate]);
 
   return (
-    <Box sx={PageWrapperStyle} style={{padding: 0, }}>
+    <Box sx={PageWrapperStyle} style={{ padding: 0, }}>
       <Box sx={HeaderStyle}>
         <Box sx={HeaderIconContStyle} >
           <IconButton onClick={menuFunction}>
@@ -96,11 +96,11 @@ function SettingPage(): React.ReactElement {
         </Box>
       </Box>
 
-      <MenuVar open={menuClicked} handleClose={menuFunction} handleMyInfo={menuMyInfo} handleDelAcc={menuDelAccClicked} handleLogOut={menulogOutClicked} />
+      <MenuBar open={menuClicked} handleClose={menuFunction} handleMyInfo={menuMyInfo} handleDelAcc={menuDelAccClicked} handleLogOut={menulogOutClicked} />
 
       <MyInfoPage open={myInfoClicked} handleClose={menuMyInfo} />
       <DeleteAccountPage open={delAccClicked} handleClose={menuDelAccClicked} />
-      <LogOutAlert open={logOutClicked} handleClose={menulogOutClicked} logOut={logoClickHandler}/>
+      <LogOutAlert open={logOutClicked} handleClose={menulogOutClicked} logOut={logoClickHandler} />
 
     </Box>
   );
