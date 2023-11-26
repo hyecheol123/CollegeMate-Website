@@ -6,7 +6,7 @@
 // React
 import React from 'react';
 // Components
-import SettingPage from './components/Setting/SettingPage';
+import SettingPage from './components/Setting/Pages/SettingPage';
 
 /**
  * React functional component to render about page
