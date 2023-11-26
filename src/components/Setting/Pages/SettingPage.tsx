@@ -74,15 +74,21 @@ function SettingPage(): React.ReactElement {
     setMenuClick(!menuClicked)
   };
   const menuMyInfo = () => {
-    setMyInfo(!myInfoClicked)
+    setMyInfo(true)
+    setDelAccClicked(false)
+    setlogOutClicked(false)
     setMenuClick(!menuClicked)
   };  
   const menuDelAccClicked = () => {
-    setDelAccClicked(!delAccClicked)
+    setMyInfo(false)
+    setDelAccClicked(true)
+    setlogOutClicked(false)
     setMenuClick(!menuClicked)
   };
   const menulogOutClicked = () => {
-    setlogOutClicked(!logOutClicked)
+    setMyInfo(false)
+    setDelAccClicked(false)
+    setlogOutClicked(true)
     setMenuClick(!menuClicked)
   };
   
@@ -113,7 +119,7 @@ function SettingPage(): React.ReactElement {
       </Box>
 
       <MenuVar open={menuClicked} handleClose={menuFunction} handleMyInfo={menuMyInfo} handleDelAcc={menuDelAccClicked} handleLogOut={menulogOutClicked} />
-      
+
       <MyInfoPage open={myInfoClicked} handleClose={menuMyInfo} />
       <DeleteAccountPage open={delAccClicked} handleClose={menuDelAccClicked} />
     </Box>

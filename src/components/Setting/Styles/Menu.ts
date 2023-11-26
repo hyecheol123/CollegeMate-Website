@@ -6,8 +6,9 @@ const MenuStyle = {
     justifyContent: 'center',
     height: '95vh',
     width: '33vw',
-    top: 10,
     transition: '350ms',
+    zIndex: 3,
+    position: 'absolute'
 };
 
 export default MenuStyle;
