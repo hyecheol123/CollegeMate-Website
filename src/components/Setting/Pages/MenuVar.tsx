@@ -18,8 +18,6 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 
 // Global Styles
 import MenuStyle from '../Styles/Menu';
-import MenuSubStyle from '../Styles/MenuSub';
-import MenuContentStyle from '../Styles/MenuContent';
 
 /**
  * Interface for ContentModalProps

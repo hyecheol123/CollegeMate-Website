@@ -9,9 +9,6 @@ import React from 'react';
 // Material UI
 import { Box, IconButton, Menu, MenuItem, Button } from '@mui/material';
 import ArrowIcon from '@mui/icons-material/ArrowBack';
-import LabelIcon from '@mui/icons-material/Label';
-import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
-
 
 /**
  * Interface for ContentModalProps
@@ -20,7 +17,6 @@ interface SettingMenuProps {
     open: boolean;
     handleClose: () => void;
 }
-
 
 
 /**
@@ -34,7 +30,7 @@ function DeleteAccountPage(props: SettingMenuProps): React.ReactElement {
     return (
         <Box>
             {open ?
-                <Box style={{display: 'flex', position: 'absolute', top: '10vh', left: '10vw'}}>
+                <Box style={{display: 'flex', position: 'absolute', top: '10vh', left: '10vw', zIndex: 1,}}>
                     <IconButton aria-label="close" onClick={handleClose}>
                         <ArrowIcon />
                     </IconButton>
