@@ -28,6 +28,7 @@ import { GlobalContextProvider, useGlobalContext } from './GlobalContext';
 import getRenewToken from './data/Common/getRenewToken';
 const About = React.lazy(() => import('./About'));
 const Login = React.lazy(() => import('./Login'));
+const SignUp = React.lazy(() => import('./SignUp'));
 
 // MUI Theme (Setup Font family and Palette Color)
 declare module '@mui/material/styles' {
@@ -236,15 +237,7 @@ function App(): React.ReactElement {
         />
         <Route
           path="/signup"
-          element={
-            globalContext.initialized ? (
-              <Typography variant="h1" color="primary">
-                Sign Up
-              </Typography>
-            ) : (
-              <Loading />
-            )
-          }
+          element={globalContext.initialized ? <SignUp /> : <Loading />}
         />
         <Route
           path="/about"
