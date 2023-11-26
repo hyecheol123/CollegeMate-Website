@@ -13,7 +13,7 @@ import Loading from '../../Common/Loading/Loading';
 // Custom Hook to Load AboutContext
 import { useAboutContext } from '../AboutContext';
 // API call
-import getTnC from '../../../data/About/getTnC';
+import getTnC from '../../../data/Common/getTnC';
 // Global Style
 import PageWrapperStyle from '../Styles/PageWrapper';
 
