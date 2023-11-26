@@ -72,14 +72,13 @@ const buttonStyle = {
  */
 function MyInfoPage(props: SettingMenuProps): React.ReactElement {
 
-    // const globalContext = useGlobalContext();
-    const navigate = useNavigate();
+
     const { open, handleClose } = props;
 
     // Event Handlers for buttons
-    const editClickHandler = React.useCallback(() => {
-        navigate('/signup');    // will update this part to edit page
-    }, [navigate]);
+    const editInfoHandler = (() =>
+        handleClose
+    );
 
     return (
         <Box style={{ marginLeft: 'auto', marginRight: 'auto', width: '90vw', alignSelf: 'slef-start' }}>
@@ -128,7 +127,7 @@ function MyInfoPage(props: SettingMenuProps): React.ReactElement {
 
 
                         <Box sx={{ marginTop: 'auto', }}>
-                            <Button variant="contained" onClick={editClickHandler} sx={buttonStyle}>
+                            <Button variant="contained" onClick={editInfoHandler} sx={buttonStyle}>
                                 Edit
                             </Button>
                         </Box>

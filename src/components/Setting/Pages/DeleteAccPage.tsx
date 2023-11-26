@@ -1,5 +1,6 @@
 /**
- * Setting Page
+ * Delete Account Page
+ * Refered Login.tsx for timer and API call
  * @author Jihyun (Janice) Ahn <jihyun.ahn.ai@gmail.com>
  * @author Hyecheol (Jerry) Jang <hyecheol123@gmail.com>
  */
@@ -149,7 +150,7 @@ function DeleteAccountPage(props: SettingMenuProps): React.ReactElement {
     );
     return (
         <Box style={{ marginLeft: 'auto', marginRight: 'auto', width: '90vw', alignSelf: 'slef-start' }}>
-            {/* Delete PopUp */}
+            {/* 1. Delete PopUp */}
             {isModalOpen &&
                 <Modal open={open} onClose={modalHandler}>
                     <Box sx={ModalStyle}>
@@ -157,16 +158,19 @@ function DeleteAccountPage(props: SettingMenuProps): React.ReactElement {
                             <CloseIcon />
                         </IconButton>
                         <Box sx={{ aligh: 'center', }}>Are you sure you want to delete the account?</Box>
-                        <Button variant="contained" onClick={modalHandler} sx={buttonStyle}>
-                            cancle
-                        </Button>
-                        <Button variant="contained" onClick={deleteHandler} sx={buttonStyle}>
-                            Delete
-                        </Button>
+                        <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', width: '60%' }}>
+                            <Button variant="contained" onClick={modalHandler} sx={{ width: '42%' }}>
+                                cancle
+                            </Button>
+                            <Button variant="contained" onClick={deleteHandler} sx={{ width: '42%' }}>
+                                Delete
+                            </Button>
+
+                        </Box>
                     </Box>
                 </Modal>
             }
-            {/* Account Delete Main Page */}
+            {/* 2. Account Delete Main Page */}
             <Box>
                 {open &&
                     <Box sx={outerWrapperStyle}>
@@ -177,7 +181,7 @@ function DeleteAccountPage(props: SettingMenuProps): React.ReactElement {
                         </Box>
                         <Box>
                             {!isDelete ?
-                                // Initial Delete Account Page
+                                // 2-1. Initial Delete Account Page
                                 <Box sx={innerWrapperStyle}>
                                     <Typography variant="h2" color="red.main" align="center">Delete Account</Typography>
 
@@ -225,7 +229,7 @@ function DeleteAccountPage(props: SettingMenuProps): React.ReactElement {
                                     </Button>
 
                                 </Box> :
-                                //Post Delete Account Page  
+                                // 2-2. Post Delete Account Page  
                                 <Box sx={innerWrapperStyle} style={{ justifyContent: 'center', }}>
                                     <VerifiedIcon style={{ color: '#1CC82D', fontSize: '4rem', marginBottom: '3vh' }} />
                                     <Typography variant="h3" fontWeight='bold'>Account deleted</Typography>
@@ -233,10 +237,6 @@ function DeleteAccountPage(props: SettingMenuProps): React.ReactElement {
                             }
                         </Box></Box>
                 }
-                {/* Post Delete Account Page */}
-                {/* {isDelete && <Box sx={outerWrapperStyle}>
-            </Box>
-            } */}
             </Box>
         </Box>
     );

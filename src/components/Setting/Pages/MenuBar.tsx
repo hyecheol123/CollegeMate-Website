@@ -37,7 +37,7 @@ interface SettingMenuProps {
  * @param {SettingMenuProps} props Properties that passed from the parent Component
  * @return {React.ReactElement} Renders Setting Page
  */
-function MenuVar(props: SettingMenuProps): React.ReactElement {
+function MenuBar(props: SettingMenuProps): React.ReactElement {
     const { open, handleClose, handleMyInfo, handleDelAcc, handleLogOut } = props;
 
     return (
@@ -92,4 +92,4 @@ function MenuVar(props: SettingMenuProps): React.ReactElement {
     );
 }
 
-export default MenuVar;
+export default MenuBar;
