@@ -6,13 +6,14 @@
 
 // React
 import React, { useState } from 'react';
-import TeamMembers from './AboutUs/TeamMembers';
 // Material UI
 import { Box, Button, Typography, Dialog, DialogContent } from '@mui/material';
+// Component
+import TeamMembers from './AboutUs/TeamMembers';
 // Custom Hook to Load AboutContext
 import { useAboutContext } from './../AboutContext';
 // Global Style
-import PageWrapperStyle from '../Styles/PageWrapper';
+import PageWrapperStyle from '../../Common/Styles/PageWrapper';
 
 const contentWrapperStyle = {
   flex: 1,

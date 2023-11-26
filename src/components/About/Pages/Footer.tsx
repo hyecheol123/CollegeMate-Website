@@ -13,20 +13,15 @@ import Loading from '../../Common/Loading/Loading';
 // Custom Hook to Load AboutContext
 import { useAboutContext } from '../AboutContext';
 // API call
-import getTnC from '../../../data/About/getTnC';
+import getTnC from '../../../data/Common/getTnC';
 // Global Style
-import PageWrapperStyle from '../Styles/PageWrapper';
+import PageWrapperStyle from '../../Common/Styles/PageWrapper';
+import LinkStyle from '../../Common/Styles/Link';
 
 // Type for ModalType
 type ModalType = 'terms' | 'privacy';
 
-const linkStyle = {
-  marginRight: '20px',
-  cursor: 'pointer',
-  '&:hover': {
-    textDecoration: 'underline',
-  },
-};
+const linkStyle = { ...LinkStyle, marginRight: '20px' };
 const titleBoxStyle = {
   flex: 1,
   display: 'flex',
