@@ -11,10 +11,12 @@ import { Box } from '@mui/material';
 // Components
 import SignUpTerms from './components/SignUp/Pages/SignUpTerms';
 import Header from './components/SignUp/Header';
+import FooterButton from './components/SignUp/FooterButton';
 // API call
 import getTnC from './data/Common/getTnC';
 // Global Styles
 import PageWrapperStyle from './components/SignUp/Styles/PageWrapper';
+import ButtonWrapperStyle from './components/About/Styles/ButtonWrapper';
 
 /**
  * React functional component to render signUp page
@@ -75,6 +77,14 @@ function SignUp(): React.ReactElement {
           setAccepted={setIsPrivacyAgreed}
         />
       )}
+      <Box sx={ButtonWrapperStyle}>
+        <FooterButton
+          onClick={moveStep}
+          disabled={
+            step === 0 ? !isTnCAgreed : step === 1 ? !isPrivacyAgreed : false
+          }
+        />
+      </Box>
     </Box>
   );
 }

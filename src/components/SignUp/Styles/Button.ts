@@ -8,10 +8,10 @@ const ButtonStyle = {
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center',
-  gap: '10px',
-  mt: '15px',
-  mb: '8px',
-  paddingBottom: '3%',
+  width: '80%',
+  maxWidth: '400px',
+  mb: '4%',
+  textTransform: 'none',
 };
 
 export default ButtonStyle;
