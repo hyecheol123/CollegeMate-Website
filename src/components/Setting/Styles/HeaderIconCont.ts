@@ -2,10 +2,10 @@ const HeaderIconContStyle = {
     // bgcolor: 'grey', 
     display: 'flex', 
     alignItems: 'center', 
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     flexDirection: 'row',
     alignSelf: 'flex-start',
-    marginLeft: '10%',
+    marginLeft: '5vw',
     marginRight: 'auto'
 };
 
