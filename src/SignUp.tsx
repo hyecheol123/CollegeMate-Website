@@ -10,7 +10,7 @@ import React from 'react';
 import { Box } from '@mui/material';
 // Components
 import SignUpTerms from './components/SignUp/Pages/SignUpTerms';
-import Header from './components/SignUp/Header/Header';
+import Header from './components/SignUp/Header';
 // API call
 import getTnC from './data/Common/getTnC';
 // Global Styles
