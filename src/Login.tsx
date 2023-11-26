@@ -242,7 +242,7 @@ function Login(): React.ReactElement {
           {otpRequestId === '' && (
             <Button
               variant="contained"
-              sx={{ width: '100%', marginTop: '10px' }}
+              sx={{ width: '100%', marginTop: '10px', textTransform: 'none' }}
               onClick={sendCodeHandler}
             >
               Send Code
@@ -260,7 +260,7 @@ function Login(): React.ReactElement {
               <Button
                 variant="contained"
                 disabled={secToExp > 0 && secToExp === elapsedSec}
-                sx={{ flex: 1 }}
+                sx={{ flex: 1, textTransform: 'none' }}
                 onClick={submitCodeHandler}
               >
                 Submit
@@ -269,7 +269,7 @@ function Login(): React.ReactElement {
                 <Button
                   variant="contained"
                   color="whiteGrey"
-                  sx={{ flex: 1 }}
+                  sx={{ flex: 1, textTransform: 'none' }}
                   onClick={sendCodeHandler}
                 >
                   Resend
