@@ -11,8 +11,8 @@ import { Box, Typography } from '@mui/material';
 // Material UI Icons
 // Components
 // Global Styles
-import PageWrapperStyle from '../Styles/PageWrapper';
-import PictureStyle from '../Styles/Picture';
+import PageWrapperStyle from '../../Common/Styles/PageWrapper';
+import PictureStyle from '../../Common/Styles/FilledPicture';
 
 /**
  * Interface for feature props

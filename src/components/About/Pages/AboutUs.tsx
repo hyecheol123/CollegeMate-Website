@@ -13,7 +13,7 @@ import TeamMembers from './AboutUs/TeamMembers';
 // Custom Hook to Load AboutContext
 import { useAboutContext } from './../AboutContext';
 // Global Style
-import PageWrapperStyle from '../Styles/PageWrapper';
+import PageWrapperStyle from '../../Common/Styles/PageWrapper';
 
 const contentWrapperStyle = {
   flex: 1,

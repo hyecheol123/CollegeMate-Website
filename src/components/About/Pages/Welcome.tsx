@@ -12,8 +12,8 @@ import { Box, Button, Typography } from '@mui/material';
 // Material UI Icons
 // Components
 // Global Styles
-import PageWrapperStyle from '../Styles/PageWrapper';
-import PictureStyle from '../Styles/Picture';
+import PageWrapperStyle from '../../Common/Styles/PageWrapper';
+import PictureStyle from '../../Common/Styles/FilledPicture';
 import ButtonWrapperStyle from '../Styles/ButtonWrapper';
 // Assets
 import MockupImageWebp from '../../../../assets/landing_page_mockup.png?as=webp';

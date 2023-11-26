@@ -1,8 +1,8 @@
 /**
- * Globally used style for picture in About Page
+ * Globally used style for filled picture
  * @author Hyecheol (Jerry) Jang
  */
-const PictureStyle = {
+const FilledPictureStyle = {
   margin: 'auto',
   display: 'block',
   height: 0,
@@ -11,4 +11,4 @@ const PictureStyle = {
   minWidth: '100%',
 };
 
-export default PictureStyle;
+export default FilledPictureStyle;
