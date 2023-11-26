@@ -23,7 +23,8 @@ const contentWrapperStyle = {
   mx: '15px',
 };
 const buttonStyle = {
-  marginTop: '20px',
+  marginTop: '30px',
+  textTransform: 'none',
 };
 
 /**
