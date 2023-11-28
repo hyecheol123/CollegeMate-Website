@@ -11,6 +11,7 @@ import { Box } from '@mui/material';
 // Components
 import SignUpTerms from './components/SignUp/Pages/SignUpTerms';
 import Header from './components/SignUp/Header';
+import CreateAccount from './components/SignUp/Pages/CreateAccount';
 // API call
 import getTnC from './data/Common/getTnC';
 // Global Styles
@@ -74,6 +75,9 @@ function SignUp(): React.ReactElement {
           accepted={isPrivacyAgreed}
           setAccepted={setIsPrivacyAgreed}
         />
+      )}
+      {step === 3 && (
+        <CreateAccount/>
       )}
     </Box>
   );
