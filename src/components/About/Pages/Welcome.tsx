@@ -53,7 +53,7 @@ function Welcome(): React.ReactElement {
           />
         </picture>
       </Box>
-      <Box sx={ButtonWrapperStyle}>
+      <Box sx={{ ...ButtonWrapperStyle, visibility: 'hidden' }}>
         <Button
           variant="contained"
           onClick={onLoginClick}

@@ -8,7 +8,7 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 // Material UI
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import { CssBaseline, Typography } from '@mui/material';
+import { CssBaseline } from '@mui/material';
 // Router
 import {
   Routes,
@@ -24,10 +24,7 @@ import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 // Elements
 import Loading from './components/Common/Loading/Loading';
-import { GlobalContextProvider, useGlobalContext } from './GlobalContext';
-import getRenewToken from './data/Common/getRenewToken';
 const About = React.lazy(() => import('./About'));
-const Login = React.lazy(() => import('./Login'));
 
 // MUI Theme (Setup Font family and Palette Color)
 declare module '@mui/material/styles' {
@@ -186,70 +183,10 @@ function Layout(): React.ReactElement {
  * @return {React.ReactElement} The content of the application
  */
 function App(): React.ReactElement {
-  // State
-  const globalContext = useGlobalContext();
-
-  // Initialize Application
-  React.useEffect(() => {
-    /**
-     * Helper method to initiate the application
-     */
-    async function init(): Promise<void> {
-      // When application not initialized
-      if (!globalContext.initialized) {
-        // check whether admin token alive or not
-        if (localStorage.getItem('LOGIN') === 'yes') {
-          const { responseCode } = await getRenewToken();
-          if (responseCode !== 200) {
-            localStorage.removeItem('LOGIN');
-            globalContext.dispatch({ type: 'INITIALIZE', login: false });
-          } else {
-            globalContext.dispatch({ type: 'INITIALIZE', login: true });
-          }
-        } else {
-          localStorage.removeItem('LOGIN');
-          globalContext.dispatch({ type: 'INITIALIZE', login: false });
-        }
-      }
-    }
-    init();
-  }, [globalContext]);
-
   return (
     <Routes>
       <Route element={<Layout />}>
-        <Route
-          path="/"
-          element={
-            globalContext.initialized ? (
-              <Typography variant="h1" color="primary">
-                Hello World
-              </Typography>
-            ) : (
-              <Loading />
-            )
-          }
-        />
-        <Route
-          path="/login"
-          element={globalContext.initialized ? <Login /> : <Loading />}
-        />
-        <Route
-          path="/signup"
-          element={
-            globalContext.initialized ? (
-              <Typography variant="h1" color="primary">
-                Sign Up
-              </Typography>
-            ) : (
-              <Loading />
-            )
-          }
-        />
-        <Route
-          path="/about"
-          element={globalContext.initialized ? <About /> : <Loading />}
-        />
+        <Route path="/" element={<About />} />
       </Route>
     </Routes>
   );
@@ -265,9 +202,7 @@ function AppWrapper(): React.ReactElement {
   return (
     <React.StrictMode>
       <React.Suspense fallback={<Loading />}>
-        <GlobalContextProvider>
-          <RouterProvider router={router} />
-        </GlobalContextProvider>
+        <RouterProvider router={router} />
       </React.Suspense>
     </React.StrictMode>
   );
