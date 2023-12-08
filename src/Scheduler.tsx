@@ -3,7 +3,9 @@
  * @author Daekyun Kim <daekyun97@gmail.com>
  */
 
+// React
 import React from 'react';
+// Material UI
 import {
   Paper,
   Table,
@@ -12,68 +14,89 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Box,
 } from '@mui/material';
 
-// 이벤트 데이터 타입 정의
+// Event data type definition
 interface EventData {
   id: string;
   title: string;
   day: string;
-  startTime: number; // 24-hour format
-  endTime: number; // 24-hour format
+  startTime: number; // This should be changed as a right format
+  endTime: number;   // This should be changed as a right format
   color: string;
 }
 
-interface SchedulerProps {
-  events: EventData[]; // 이벤트 목록을 props으로 받음
-}
+const Scheduler: React.FC = () => {
+  const defaultStartTime = 9; // Default start time (9 AM in 24-hour format)
+  const defaultEndTime = 17; // Default end time (5 PM in 24-hour format)
+  let maxEndTime = defaultEndTime; // Initialize max end time with default end time
 
-const Scheduler: React.FC<SchedulerProps> = ({ events }) => {
-  const times = ['9', '10', '11', '12', '13', '14', '15', '16', '17']; // Use 24-hour format for times
+  // Define time labels in the desired format (without minutes)
+  const hours = [
+    '12 AM', '1 AM', '2 AM', '3 AM', '4 AM', '5 AM', '6 AM', '7 AM', '8 AM', '9 AM', '10 AM', '11 AM',
+    '12 PM', '1 PM', '2 PM', '3 PM', '4 PM', '5 PM', '6 PM', '7 PM', '8 PM', '9 PM', '10 PM', '11 PM'
+  ];
+
   const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
 
-  // 주어진 시간에 해당하는 이벤트가 있는지 확인.
-  const isEventInTimeRange = (event: EventData, hour: number) => {
-    return event.startTime <= hour && hour < event.endTime;
-  };
+  // Sample event data (테스팅용, 근데 api 따라가야함 )
+  const myEvents: EventData[] = [
+    {
+      id: '1',
+      title: 'Event 1',
+      day: 'Mon',
+      startTime: 9, // 9 AM
+      endTime: 11, // 11 AM
+      color: 'blue',
+    },
+    {
+      id: '2',
+      title: 'Event 2',
+      day: 'Mon',
+      startTime: 14, // 2 PM
+      endTime: 16, // 4 PM
+      color: 'green',
+    },
+    {
+      id: '3',
+      title: 'Event 3',
+      day: 'Sat',
+      startTime: 10,
+      endTime: 12,
+      color: 'red',
+    },
+    {
+      id: '4',
+      title: 'Event 4',
+      day: 'Tue',
+      startTime: 18,
+      endTime: 20,
+      color: 'purple',
+    },
+  ];
 
-  // 주어진 시간에 해당하는 이벤트의 시간 범위에 맞는 높이를 계산
-  const calculateEventHeight = (event: EventData) => {
-    return `${(event.endTime - event.startTime) * 100}%`; // Each hour corresponds to 100% height
-  };
-
-  // 이벤트 렌더링
-  const renderEvent = (event: EventData, time: string) => {
-    const hour = parseInt(time);
-    if (hour === event.startTime) {
-      // Only start the event box at the starting hour
-      return (
-        <Box
-          key={event.id}
-          bgcolor={event.color}
-          position="absolute"
-          top={`${(hour - 9) * 52}px`} // Example: each hour block has a height of 52px
-          height={calculateEventHeight(event)}
-          width="100%"
-          zIndex="1"
-          borderRadius={1}
-        >
-          {event.title}
-        </Box>
-      );
+  // Find the latest end time of all events
+  myEvents.forEach((event) => {
+    if (event.endTime > maxEndTime) {
+      maxEndTime = event.endTime;
     }
+  });
+
+  // Check if there are weekend events, and add Sat and Sun if needed
+  const hasWeekendEvent = (events: EventData[]) => {
+    return events.some((event) => event.day === 'Sat' || event.day === 'Sun');
   };
+
+  if (hasWeekendEvent(myEvents)) {
+    days.push('Sat', 'Sun');
+  }
 
   return (
-    <TableContainer component={Paper}>
-      <Table
-        sx={{ minWidth: 650, position: 'relative' }}
-        aria-label="simple table"
-      >
+    <TableContainer component={Paper} sx={{ maxWidth: '100%' }}>
+      <Table sx={{ minWidth: 650 }} aria-label="scheduler table">
         <TableHead>
           <TableRow>
-            <TableCell />
+            <TableCell>Time</TableCell>
             {days.map((day) => (
               <TableCell key={day} align="center">
                 {day}
@@ -82,28 +105,45 @@ const Scheduler: React.FC<SchedulerProps> = ({ events }) => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {times.map((time) => (
-            <TableRow key={time}>
-              <TableCell component="th" scope="row">
-                {time}
-              </TableCell>
-              {days.map((day) => (
-                <TableCell
-                  key={day}
-                  align="center"
-                  sx={{ position: 'relative', height: '52px' }}
-                >
-                  {' '}
-                  {/* 필요에따라 Adjust height (일단 하드코딩)  */}
-                  {events
-                    .filter((event) => event.day === day)
-                    .map((event) => {
-                      return renderEvent(event, time);
-                    })}
+          {hours.map((hourLabel, hourIndex) => {
+            // Map hour labels to 24-hour time for comparison with event times
+            const hour24 = hourIndex % 12 + (hourLabel.includes('PM') ? 12 : 0);
+
+            return (
+              <TableRow key={hourLabel}>
+                <TableCell component="th" scope="row">
+                  {hourLabel}
                 </TableCell>
-              ))}
-            </TableRow>
-          ))}
+                {days.map((day) => {
+                  // Find an event for this day and time
+                  const event = myEvents.find(
+                    (e) => e.day === day && e.startTime <= hour24 && e.endTime > hour24
+                  );
+
+                  // Calculate rowSpan if this is the start of an event
+                  const rowSpan = event && event.startTime === hour24
+                    ? event.endTime - event.startTime
+                    : 1;
+
+                  // Only render a cell if there's an event or if this is the first hour for empty slots
+                  if (!event || event.startTime === hour24) {
+                    return (
+                      <TableCell
+                        key={`${day}-${hour24}`}
+                        align="center"
+                        sx={{ backgroundColor: event ? event.color : undefined }}
+                        rowSpan={event ? rowSpan : undefined}
+                      >
+                        {event ? event.title : ''}
+                      </TableCell>
+                    );
+                  }
+                  // If this hour is within an event's duration, don't render a cell
+                  return null;
+                })}
+              </TableRow>
+            );
+          })}
         </TableBody>
       </Table>
     </TableContainer>

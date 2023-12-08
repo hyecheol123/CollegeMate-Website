@@ -195,8 +195,8 @@ function App(): React.ReactElement {
       id: '1',
       title: 'COMP SCI 354',
       day: 'Mon',
-      startTime: 12,
-      endTime: 14,
+      startTime: 11,
+      endTime: 12,
       color: 'pink',
     },
   ];
@@ -265,7 +265,7 @@ function App(): React.ReactElement {
           path="/Scheduler"
           element={
             globalContext.initialized ? (
-              <Scheduler events={myEvents} />
+              <Scheduler/>
             ) : (
               <Loading />
             )
