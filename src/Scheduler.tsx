@@ -16,81 +16,51 @@ import {
   TableRow,
 } from '@mui/material';
 
-// Event data type definition
 interface EventData {
   id: string;
   title: string;
   day: string;
-  startTime: number; // This should be changed as a right format
-  endTime: number;   // This should be changed as a right format
+  startTime: { hour: number; minute: number };
+  endTime: { hour: number; minute: number };
   color: string;
 }
 
 const Scheduler: React.FC = () => {
-  const defaultStartTime = 9; // Default start time (9 AM in 24-hour format)
-  const defaultEndTime = 17; // Default end time (5 PM in 24-hour format)
-  let maxEndTime = defaultEndTime; // Initialize max end time with default end time
-
-  // Define time labels in the desired format (without minutes)
-  const hours = [
-    '12 AM', '1 AM', '2 AM', '3 AM', '4 AM', '5 AM', '6 AM', '7 AM', '8 AM', '9 AM', '10 AM', '11 AM',
-    '12 PM', '1 PM', '2 PM', '3 PM', '4 PM', '5 PM', '6 PM', '7 PM', '8 PM', '9 PM', '10 PM', '11 PM'
-  ];
-
+  // 주중의 요일을 나타내는 배열 
+  // TODO: 토,일에 이벤트가 하나라도 추가되면 토,일 셀 만들기
   const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
+  // 24시간을 나타내는 배열
+  const majorHours = Array.from({ length: 24 }, (_, i) => `${i}:00`);
 
-  // Sample event data (테스팅용, 근데 api 따라가야함 )
   const myEvents: EventData[] = [
+    // TODO: API 맞게
     {
       id: '1',
       title: 'Event 1',
       day: 'Mon',
-      startTime: 9, // 9 AM
-      endTime: 11, // 11 AM
+      startTime: { hour: 9, minute: 15 },
+      endTime: { hour: 11, minute: 5 },
       color: 'blue',
     },
     {
       id: '2',
       title: 'Event 2',
-      day: 'Mon',
-      startTime: 14, // 2 PM
-      endTime: 16, // 4 PM
-      color: 'green',
-    },
-    {
-      id: '3',
-      title: 'Event 3',
-      day: 'Sat',
-      startTime: 10,
-      endTime: 12,
-      color: 'red',
-    },
-    {
-      id: '4',
-      title: 'Event 4',
       day: 'Tue',
-      startTime: 18,
-      endTime: 20,
-      color: 'purple',
+      startTime: { hour: 10, minute: 30 },
+      endTime: { hour: 11, minute: 5 },
+      color: 'blue',
     },
   ];
 
-  // Find the latest end time of all events
-  myEvents.forEach((event) => {
-    if (event.endTime > maxEndTime) {
-      maxEndTime = event.endTime;
-    }
-  });
-
-  // Check if there are weekend events, and add Sat and Sun if needed
-  const hasWeekendEvent = (events: EventData[]) => {
-    return events.some((event) => event.day === 'Sat' || event.day === 'Sun');
+  // 이벤트의 시간 계산해서 rowSpan을 결정하는 함수
+  const calculateRowSpan = (event: EventData) => {
+    const start = event.startTime.hour * 60 + event.startTime.minute;
+    const end = event.endTime.hour * 60 + event.endTime.minute;
+    return Math.ceil((end - start) / 5); // 5분 간격으로 rowSpan 계산
   };
 
-  if (hasWeekendEvent(myEvents)) {
-    days.push('Sat', 'Sun');
-  }
-
+  // TODO: 세로선 없애기 (요일만)
+  // TODO: 시간 단위 바꾸기
   return (
     <TableContainer component={Paper} sx={{ maxWidth: '100%' }}>
       <Table sx={{ minWidth: 650 }} aria-label="scheduler table">
@@ -98,51 +68,79 @@ const Scheduler: React.FC = () => {
           <TableRow>
             <TableCell>Time</TableCell>
             {days.map((day) => (
-              <TableCell key={day} align="center">
-                {day}
-              </TableCell>
+              <TableCell key={day} align="center">{day}</TableCell>
             ))}
           </TableRow>
         </TableHead>
         <TableBody>
-          {hours.map((hourLabel, hourIndex) => {
-            // Map hour labels to 24-hour time for comparison with event times
-            const hour24 = hourIndex % 12 + (hourLabel.includes('PM') ? 12 : 0);
+          {majorHours.map((hourLabel, hourIndex) => {
+            const hourRows = [];
+            for (let i = 0; i < 12; i++) { // 각 시간별로 12개의 5분 간격 셀 생성함
+              const timeSlotIndex = hourIndex * 12 + i;
+              hourRows.push(
+                <TableRow key={`${hourLabel}-${i * 5}`}>
+                  {i === 0 && (
+                    <TableCell
+                      rowSpan={12}
+                      sx={{
+                        height: '10px',
+                        padding: '3px 0',
+                        borderRight: '1px solid rgba(224, 224, 224, 1)',
+                        borderBottom: '1px solid rgba(224, 224, 224, 1)'
+                      }}
+                    >
+                      {hourLabel}
+                    </TableCell>
+                  )}
+                  {days.map((day) => {
+                    // 해당 요일의 이벤트를 필터링함
+                    const eventsForDay = myEvents.filter(e => e.day === day);
+                    // 현재 셀에 해당하는이벤트를 찾음
+                    const event = eventsForDay.find(e => {
+                      const eventStartIndex = e.startTime.hour * 12 + e.startTime.minute / 5;
+                      const eventEndIndex = e.endTime.hour * 12 + e.endTime.minute / 5;
+                      return timeSlotIndex >= eventStartIndex && timeSlotIndex < eventEndIndex;
+                    });
 
-            return (
-              <TableRow key={hourLabel}>
-                <TableCell component="th" scope="row">
-                  {hourLabel}
-                </TableCell>
-                {days.map((day) => {
-                  // Find an event for this day and time
-                  const event = myEvents.find(
-                    (e) => e.day === day && e.startTime <= hour24 && e.endTime > hour24
-                  );
-
-                  // Calculate rowSpan if this is the start of an event
-                  const rowSpan = event && event.startTime === hour24
-                    ? event.endTime - event.startTime
-                    : 1;
-
-                  // Only render a cell if there's an event or if this is the first hour for empty slots
-                  if (!event || event.startTime === hour24) {
-                    return (
-                      <TableCell
-                        key={`${day}-${hour24}`}
-                        align="center"
-                        sx={{ backgroundColor: event ? event.color : undefined }}
-                        rowSpan={event ? rowSpan : undefined}
-                      >
-                        {event ? event.title : ''}
-                      </TableCell>
-                    );
-                  }
-                  // If this hour is within an event's duration, don't render a cell
-                  return null;
-                })}
-              </TableRow>
-            );
+                    // 이벤트가 시작하는셀에 대한 로직
+                    if (event && timeSlotIndex === event.startTime.hour * 12 + event.startTime.minute / 5) {
+                      const rowSpan = calculateRowSpan(event);
+                      return (
+                        <TableCell
+                          key={`${day}-${hourLabel}-${i * 5}`}
+                          align="center"
+                          sx={{
+                            backgroundColor: event.color,
+                            height: '10px',
+                            padding: '3px 0',
+                            borderRight: '1px solid rgba(224, 224, 224, 1)',
+                            borderBottom: i === 11 ? '1px solid rgba(224, 224, 224, 1)' : 'none'
+                          }}
+                          rowSpan={rowSpan}
+                        >
+                          {event.title}
+                        </TableCell>
+                      );
+                    } else if (!event || timeSlotIndex < event.startTime.hour * 12 + event.startTime.minute / 5) {
+                      // 이벤트가 없는셀에 대한 로직
+                      return (
+                        <TableCell
+                          key={`${day}-${hourLabel}-${i * 5}`}
+                          sx={{
+                            height: '10px',
+                            padding: '3px 0',
+                            borderRight: '1px solid rgba(224, 224, 224, 1)',
+                            borderBottom: i === 11 ? '1px solid rgba(224, 224, 224, 1)' : 'none'
+                          }}
+                        />
+                      );
+                    }
+                    return null;
+                  })}
+                </TableRow>
+              );
+            }
+            return hourRows;
           })}
         </TableBody>
       </Table>
