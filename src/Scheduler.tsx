@@ -3,9 +3,7 @@
  * @author Daekyun Kim <daekyun97@gmail.com>
  */
 
-// React
-import React from 'react';
-// Material UI
+import React, { useMemo } from 'react';
 import {
   Paper,
   Table,
@@ -26,41 +24,64 @@ interface EventData {
 }
 
 const Scheduler: React.FC = () => {
-  // 주중의 요일을 나타내는 배열 
-  // TODO: 토,일에 이벤트가 하나라도 추가되면 토,일 셀 만들기
-  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
-  // 24시간을 나타내는 배열
-  const majorHours = Array.from({ length: 24 }, (_, i) => `${i}:00`);
-
   const myEvents: EventData[] = [
-    // TODO: API 맞게
     {
       id: '1',
       title: 'Event 1',
       day: 'Mon',
-      startTime: { hour: 9, minute: 15 },
+      startTime: { hour: 3, minute: 15 },
       endTime: { hour: 11, minute: 5 },
       color: 'blue',
     },
     {
       id: '2',
       title: 'Event 2',
-      day: 'Tue',
+      day: 'Fri',
       startTime: { hour: 10, minute: 30 },
-      endTime: { hour: 11, minute: 5 },
+      endTime: { hour: 12, minute: 45 },
       color: 'blue',
     },
   ];
 
-  // 이벤트의 시간 계산해서 rowSpan을 결정하는 함수
+  const getHourLabel = (hour: number) => {
+    const hour12 = hour % 12 === 0 ? 12 : hour % 12;
+    return `${hour12} ${hour < 12 ? 'AM' : 'PM'}`;
+  };
+  // Set the default time for the scheduler.
+  const { minHour, maxHour } = useMemo(() => {
+    let min = 9; 
+    let max = 17;
+    myEvents.forEach(event => {
+      min = Math.min(min, event.startTime.hour);
+      max = Math.max(max, event.endTime.hour);
+    });
+    return { minHour: min, maxHour: max };
+  }, [myEvents]);
+
+  const majorHours = useMemo(() => {
+    return Array.from({ length: maxHour - minHour + 1 }, (_, i) => getHourLabel(minHour + i));
+  }, [minHour, maxHour]);
+
   const calculateRowSpan = (event: EventData) => {
     const start = event.startTime.hour * 60 + event.startTime.minute;
     const end = event.endTime.hour * 60 + event.endTime.minute;
-    return Math.ceil((end - start) / 5); // 5분 간격으로 rowSpan 계산
+    return Math.ceil((end - start) / 5); // Calculate the row span by 5min
   };
 
-  // TODO: 세로선 없애기 (요일만)
-  // TODO: 시간 단위 바꾸기
+  // Case for adding the weekend.
+  const days = useMemo(() => {
+    const baseDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
+    let includesWeekend = false;
+
+    myEvents.forEach(event => {
+      if (event.day === 'Sat' || event.day === 'Sun') {
+        includesWeekend = true;
+      }
+    });
+
+    return includesWeekend ? [...baseDays, 'Sat', 'Sun'] : baseDays;
+  }, [myEvents]);
+
   return (
     <TableContainer component={Paper} sx={{ maxWidth: '100%' }}>
       <Table sx={{ minWidth: 650 }} aria-label="scheduler table">
@@ -74,9 +95,11 @@ const Scheduler: React.FC = () => {
         </TableHead>
         <TableBody>
           {majorHours.map((hourLabel, hourIndex) => {
+            const hour = minHour + hourIndex;
             const hourRows = [];
-            for (let i = 0; i < 12; i++) { // 각 시간별로 12개의 5분 간격 셀 생성함
-              const timeSlotIndex = hourIndex * 12 + i;
+            for (let i = 0; i < 12; i++) { // 5min slot for each time freame.
+              const minute = i * 5;
+              const timeSlotIndex = hour * 60 + minute;
               hourRows.push(
                 <TableRow key={`${hourLabel}-${i * 5}`}>
                   {i === 0 && (
@@ -85,7 +108,7 @@ const Scheduler: React.FC = () => {
                       sx={{
                         height: '10px',
                         padding: '3px 0',
-                        borderRight: '1px solid rgba(224, 224, 224, 1)',
+                        borderRight: '1px solid rgba(224, 224, 224, 1)', 
                         borderBottom: '1px solid rgba(224, 224, 224, 1)'
                       }}
                     >
@@ -93,17 +116,14 @@ const Scheduler: React.FC = () => {
                     </TableCell>
                   )}
                   {days.map((day) => {
-                    // 해당 요일의 이벤트를 필터링함
                     const eventsForDay = myEvents.filter(e => e.day === day);
-                    // 현재 셀에 해당하는이벤트를 찾음
                     const event = eventsForDay.find(e => {
-                      const eventStartIndex = e.startTime.hour * 12 + e.startTime.minute / 5;
-                      const eventEndIndex = e.endTime.hour * 12 + e.endTime.minute / 5;
+                      const eventStartIndex = e.startTime.hour * 60 + e.startTime.minute;
+                      const eventEndIndex = e.endTime.hour * 60 + e.endTime.minute;
                       return timeSlotIndex >= eventStartIndex && timeSlotIndex < eventEndIndex;
                     });
 
-                    // 이벤트가 시작하는셀에 대한 로직
-                    if (event && timeSlotIndex === event.startTime.hour * 12 + event.startTime.minute / 5) {
+                    if (event && timeSlotIndex === event.startTime.hour * 60 + event.startTime.minute) {
                       const rowSpan = calculateRowSpan(event);
                       return (
                         <TableCell
@@ -121,8 +141,7 @@ const Scheduler: React.FC = () => {
                           {event.title}
                         </TableCell>
                       );
-                    } else if (!event || timeSlotIndex < event.startTime.hour * 12 + event.startTime.minute / 5) {
-                      // 이벤트가 없는셀에 대한 로직
+                    } else if (!event || timeSlotIndex < event.startTime.hour * 60 + event.startTime.minute) {
                       return (
                         <TableCell
                           key={`${day}-${hourLabel}-${i * 5}`}
