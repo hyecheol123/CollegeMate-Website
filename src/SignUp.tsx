@@ -61,6 +61,7 @@ function SignUp(): React.ReactElement {
       {step === 0 && (
         <SignUpTerms
           isLoaded={isTermsLoaded}
+          title="Terms and Conditions"
           content={termsContent}
           checkboxHelperText="I agree to the terms and conditions."
           accepted={isTnCAgreed}
@@ -70,13 +71,14 @@ function SignUp(): React.ReactElement {
       {step === 1 && (
         <SignUpTerms
           isLoaded={isTermsLoaded}
+          title="Privacy Policy"
           content={privacyContent}
           checkboxHelperText="I agree to the privacy policy."
           accepted={isPrivacyAgreed}
           setAccepted={setIsPrivacyAgreed}
         />
       )}
-      {step === 3 && (
+      {step === 2 && (
         <CreateAccount/>
       )}
     </Box>
