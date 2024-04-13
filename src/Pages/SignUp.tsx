@@ -13,6 +13,7 @@ import Header from '../components/SignUp/Header';
 import FooterButton from '../components/SignUp/FooterButton';
 import SignUpTerms from '../components/SignUp/View/SignUpTerms';
 import SignUpEmail from '../components/SignUp/View/SignUpEmail';
+import CreatAccount from '../components/SignUp/View/CreatAccount';
 // API call
 import getTnC from '../data/Common/getTnC';
 // Global Styles
@@ -125,7 +126,9 @@ function SignUp(): React.ReactElement {
           setTokenExpiresAfterSec={setTokenExpiresAfterSec}
         />
       )}
-      {step === 3 && <Box>TODO</Box>}
+      {step === 3 && (
+        <CreatAccount/>
+      )}
       <Box sx={footerButtonWrapperStyle}>
         <FooterButton onClick={moveStep} disabled={!ableToAdvanceStep()} />
       </Box>
