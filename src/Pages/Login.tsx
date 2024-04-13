@@ -15,20 +15,20 @@ import {
   Typography,
 } from '@mui/material';
 // Custom Hook to use Context
-import { useGlobalContext } from './GlobalContext';
+import { useGlobalContext } from '../GlobalContext';
 // API Calls
-import postInitiateOTPRequest from './data/Login/postInitiateOTPRequest';
-import postEnterOTPCode from './data/Login/postEnterOTPCode';
+import postInitiateOTPRequest from '../data/Login/postInitiateOTPRequest';
+import postEnterOTPCode from '../data/Login/postEnterOTPCode';
 // Input Validator
-import { emailFormatValidator } from './inputValidator/emailFormatValidator';
+import { emailFormatValidator } from '../inputValidator/emailFormatValidator';
 // Global Style
-import PageWrapperStyle from './components/Common/Styles/PageWrapper';
-import LinkStyle from './components/Common/Styles/Link';
-import FilledPictureStyle from './components/Common/Styles/FilledPicture';
+import PageWrapperStyle from '../components/Common/Styles/PageWrapper';
+import LinkStyle from '../components/Common/Styles/Link';
+import FilledPictureStyle from '../components/Common/Styles/FilledPicture';
 // Assets
-import VerticalLogoPng from '../assets/collegemate_logo_vertical.png';
-import VerticalLogoWebp from '../assets/collegemate_logo_vertical.png?as=webp';
-import VerticalLogoAvif from '../assets/collegemate_logo_vertical.png?as=avif';
+import VerticalLogoPng from '../../assets/collegemate_logo_vertical.png';
+import VerticalLogoWebp from '../../assets/collegemate_logo_vertical.png?as=webp';
+import VerticalLogoAvif from '../../assets/collegemate_logo_vertical.png?as=avif';
 
 const innerContentWrapperStyle = {
   ...PageWrapperStyle,

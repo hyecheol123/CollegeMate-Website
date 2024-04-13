@@ -2,6 +2,7 @@
  * Sign Up Page where manages the process of
  * sending the verification code to the user's email
  * @author Daekyun Kim <daekyun97@gmail.com>
+ * @author Hyecheol (Jerry) Jang <hyecheol123@gmail.com>
  */
 // React
 import React from 'react';
@@ -16,15 +17,14 @@ import {
 } from '@mui/material';
 // Material UI Icons
 // Components
-import PageWrapperStyle from '../../Common/Styles/PageWrapper';
+import PageWrapperStyle from '../components/Common/Styles/PageWrapper';
 
 // Global Style
 // Assets
-import { emailFormatValidator } from '../../../inputValidator/emailFormatValidator';
-import postInitiateOTPRequest from '../../../data/SignUp/postInitiateOTPRequest';
-import postEnterOTPCode from '../../../data/SignUp/postEnterOTPCode';
-import { useGlobalContext } from '../../../GlobalContext';
-
+import { emailFormatValidator } from '../inputValidator/emailFormatValidator';
+import postInitiateOTPRequest from '../data/SignUp/postInitiateOTPRequest';
+import postEnterOTPCode from '../data/SignUp/postEnterOTPCode';
+import { useGlobalContext } from '../GlobalContext';
 
 const innerContentWrapperStyle = {
   ...PageWrapperStyle,
@@ -33,7 +33,7 @@ const innerContentWrapperStyle = {
   justifyContent: 'center',
   display: 'flex',
   flexDirection: 'column',
-  flexGrow: 1,  // This will make the container expand to fill available space
+  flexGrow: 1, // This will make the container expand to fill available space
 };
 
 const inputWrapperStyle = {
@@ -42,14 +42,12 @@ const inputWrapperStyle = {
   alignItems: 'center',
 };
 
-
-
 /**
  * React Functional Component to generate the Sign Up page
  * which manages the verification code to user's email
- * @return {React.ReactElement} Renders Sing Up Page (Email)
+ * @return {React.ReactElement} Renders Sing Up Page
  */
-function SignUpEmail(): React.ReactElement {
+function SignUp(): React.ReactElement {
   const [isEditable, setIsEditable] = React.useState<boolean>(true);
   const [email, setEmail] = React.useState<string>('');
   const [otpRequestId, setOtpRequestId] = React.useState<string>('');
@@ -59,14 +57,12 @@ function SignUpEmail(): React.ReactElement {
   const [errorMsg, setErrorMsg] = React.useState<string>('NONE');
   const navigate = useNavigate();
 
-  // const globalContext = useGlobalContext();
-
+  const globalContext = useGlobalContext();
 
   // Control variable
   const formatSecond = (second: number): string => {
     return `${Math.floor(second / 60)}:${String(second % 60).padStart(2, '0')}`;
   };
-
 
   // Timeout for Timer
   React.useEffect(() => {
@@ -88,7 +84,7 @@ function SignUpEmail(): React.ReactElement {
     setErrorMsg('NONE');
 
     if (emailFormatValidator(email)) {
-      const result = await postInitiateOTPRequest(email, 'signup'); //Changed by dk
+      const result = await postInitiateOTPRequest(email, 'signup'); // Changed by dk
       if (result.responseCode === 401) {
         setErrorMsg('Not Existing Email');
       } else if (result.responseCode === 201 && result.content) {
@@ -96,7 +92,7 @@ function SignUpEmail(): React.ReactElement {
         setSecToExp(
           Math.floor(
             (result.content.codeExpireAt.getTime() - new Date().getTime()) /
-            1000,
+              1000,
           ),
         );
         setElapsedSec(0);
@@ -120,10 +116,10 @@ function SignUpEmail(): React.ReactElement {
     } else if (result.responseCode === 409) {
       setElapsedSec(secToExp);
       setErrorMsg('Code Expired');
-    // } else if (result.responseCode === 201) {
-    //   globalContext.dispatch({ type: 'LOGIN' });
-    //   localStorage.setItem('LOGIN', 'yes');
-    //   navigate('/');
+    } else if (result.responseCode === 201) {
+      globalContext.dispatch({ type: 'LOGIN' });
+      localStorage.setItem('LOGIN', 'yes');
+      navigate('/');
     } else {
       setErrorMsg('Unknown Error');
     }
@@ -145,9 +141,14 @@ function SignUpEmail(): React.ReactElement {
     [],
   );
 
-
   return (
-    <Box sx={{ ...PageWrapperStyle, alignContent: 'space-around', flexWrap: 'wrap' }}>
+    <Box
+      sx={{
+        ...PageWrapperStyle,
+        alignContent: 'space-around',
+        flexWrap: 'wrap',
+      }}
+    >
       <Box sx={innerContentWrapperStyle}>
         <Box sx={inputWrapperStyle}>
           {
@@ -252,5 +253,4 @@ function SignUpEmail(): React.ReactElement {
   );
 }
 
-export default SignUpEmail;
-
+export default SignUp;
