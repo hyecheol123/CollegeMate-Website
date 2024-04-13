@@ -9,12 +9,21 @@ import React from 'react';
 // Material UI
 import { Box } from '@mui/material';
 // Components
-import SignUpTerms from './components/SignUp/Pages/SignUpTerms';
-import Header from './components/SignUp/Header';
+import Header from '../components/SignUp/Header';
+import FooterButton from '../components/SignUp/FooterButton';
+import SignUpTerms from '../components/SignUp/View/SignUpTerms';
+import SignUpEmail from '../components/SignUp/View/SignUpEmail';
 // API call
-import getTnC from './data/Common/getTnC';
+import getTnC from '../data/Common/getTnC';
 // Global Styles
-import PageWrapperStyle from './components/SignUp/Styles/PageWrapper';
+import PageWrapperStyle from '../components/SignUp/Styles/PageWrapper';
+
+const footerButtonWrapperStyle = {
+  width: '100%',
+  paddingLeft: '15px',
+  paddingRight: '15px',
+  paddingBottom: '10px',
+};
 
 /**
  * React functional component to render signUp page
@@ -22,18 +31,18 @@ import PageWrapperStyle from './components/SignUp/Styles/PageWrapper';
  */
 function SignUp(): React.ReactElement {
   // State
-  // For Terms
-  const [isTnCAgreed, setIsTnCAgreed] = React.useState<boolean>(false);
-  const [isPrivacyAgreed, setIsPrivacyAgreed] = React.useState<boolean>(false);
-  const [termsContent, setTermsContent] = React.useState<string>('');
-  const [privacyContent, setPrivacyContent] = React.useState<string>('');
-  const [isTermsLoaded, setIsTermsLoaded] = React.useState<boolean>(false);
+  const [step, setStep] = React.useState<number>(0);
   // Step 0 - Terms and Conditions
+  const [isTnCAgreed, setIsTnCAgreed] = React.useState<boolean>(false);
+  const [termsContent, setTermsContent] = React.useState<string>('');
+  const [isTermsLoaded, setIsTermsLoaded] = React.useState<boolean>(false);
   // Step 1 - Privacy Act
+  const [isPrivacyAgreed, setIsPrivacyAgreed] = React.useState<boolean>(false);
+  const [privacyContent, setPrivacyContent] = React.useState<string>('');
   // Step 2 - Email Verification
+  const [verifiedEmail, setVerifiedEmail] = React.useState<string>('');
   // Step 3 - Add Information
   // Step 4 - Success
-  const [step, setStep] = React.useState<number>(0);
 
   // Load Terms
   React.useEffect(() => {
@@ -49,13 +58,26 @@ function SignUp(): React.ReactElement {
   }, [isTermsLoaded]);
 
   // Helper method to advance step
+  const ableToAdvanceStep = React.useCallback((): boolean => {
+    switch (step) {
+      case 0:
+        return isTermsLoaded && isTnCAgreed;
+      case 1:
+        return isTermsLoaded && isPrivacyAgreed;
+      case 2:
+        return verifiedEmail !== '';
+      default:
+        return false;
+    }
+  }, [isPrivacyAgreed, isTermsLoaded, isTnCAgreed, step, verifiedEmail]);
   const moveStep = React.useCallback(() => {
-    // TODO: Validation Check
-    setStep(step + 1);
-  }, [step]);
+    if (ableToAdvanceStep()) {
+      setStep(step + 1);
+    }
+  }, [ableToAdvanceStep, step]);
 
   return (
-    <Box sx={{ ...PageWrapperStyle }}>
+    <Box sx={PageWrapperStyle}>
       <Header />
       {step === 0 && (
         <SignUpTerms
@@ -77,6 +99,15 @@ function SignUp(): React.ReactElement {
           setAccepted={setIsPrivacyAgreed}
         />
       )}
+      {step === 2 && (
+        <SignUpEmail
+          verifiedEmail={verifiedEmail}
+          setVerifiedEmail={setVerifiedEmail}
+        />
+      )}
+      <Box sx={footerButtonWrapperStyle}>
+        <FooterButton onClick={moveStep} disabled={!ableToAdvanceStep()} />
+      </Box>
     </Box>
   );
 }
