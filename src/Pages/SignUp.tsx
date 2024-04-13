@@ -126,9 +126,7 @@ function SignUp(): React.ReactElement {
           setTokenExpiresAfterSec={setTokenExpiresAfterSec}
         />
       )}
-      {step === 3 && (
-        <CreatAccount/>
-      )}
+      {step === 3 && <CreatAccount />}
       <Box sx={footerButtonWrapperStyle}>
         <FooterButton onClick={moveStep} disabled={!ableToAdvanceStep()} />
       </Box>
