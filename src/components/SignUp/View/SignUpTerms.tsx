@@ -80,4 +80,4 @@ function SignUpTerms(props: ISignUpTermsProps): React.ReactElement {
   );
 }
 
-export default React.memo(SignUpTerms);
+export default SignUpTerms;

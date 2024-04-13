@@ -7,7 +7,6 @@
 const PageWrapperStyle = {
   width: '100%',
   height: '100%',
-  paddingBottom: '10px',
   display: 'flex',
   flexDirection: 'column',
 };
