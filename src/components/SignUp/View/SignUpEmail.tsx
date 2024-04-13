@@ -46,6 +46,7 @@ const inputWrapperStyle = {
 interface ISignUpEmailProps {
   verifiedEmail: string;
   setVerifiedEmail: React.Dispatch<React.SetStateAction<string>>;
+  setTokenExpiresAfterSec: React.Dispatch<React.SetStateAction<number>>;
 }
 
 /**
@@ -55,7 +56,7 @@ interface ISignUpEmailProps {
  * @return {React.ReactElement} Renders Sing Up Page (Email)
  */
 function SignUpEmail(props: ISignUpEmailProps): React.ReactElement {
-  const { verifiedEmail, setVerifiedEmail } = props;
+  const { verifiedEmail, setVerifiedEmail, setTokenExpiresAfterSec } = props;
   const [email, setEmail] = React.useState<string>('');
   const [isEditable, setIsEditable] = React.useState<boolean>(true);
   const [otpRequestId, setOtpRequestId] = React.useState<string>('');
@@ -123,6 +124,7 @@ function SignUpEmail(props: ISignUpEmailProps): React.ReactElement {
       setErrorMsg('Code Expired');
     } else if (result.responseCode === 201) {
       setVerifiedEmail(email);
+      setTokenExpiresAfterSec(58 * 60);
     } else {
       setErrorMsg('Unknown Error');
     }

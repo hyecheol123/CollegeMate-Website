@@ -42,6 +42,8 @@ function SignUp(): React.ReactElement {
   // Step 2 - Email Verification
   const [verifiedEmail, setVerifiedEmail] = React.useState<string>('');
   // Step 3 - Add Information
+  const [tokenExpiresAfterSec, setTokenExpiresAfterSec] =
+    React.useState<number>(-1);
   // Step 4 - Success
 
   // Load Terms
@@ -56,6 +58,17 @@ function SignUp(): React.ReactElement {
     };
     loadData();
   }, [isTermsLoaded]);
+
+  // Timeout for Token
+  React.useEffect(() => {
+    let timeout: any;
+    if (tokenExpiresAfterSec > 0) {
+      timeout = setTimeout(() => {
+        setTokenExpiresAfterSec(tokenExpiresAfterSec - 1);
+      }, 1000);
+    }
+    return () => clearTimeout(timeout);
+  }, [tokenExpiresAfterSec]);
 
   // Helper method to advance step
   const ableToAdvanceStep = React.useCallback((): boolean => {
@@ -103,6 +116,7 @@ function SignUp(): React.ReactElement {
         <SignUpEmail
           verifiedEmail={verifiedEmail}
           setVerifiedEmail={setVerifiedEmail}
+          setTokenExpiresAfterSec={setTokenExpiresAfterSec}
         />
       )}
       <Box sx={footerButtonWrapperStyle}>
