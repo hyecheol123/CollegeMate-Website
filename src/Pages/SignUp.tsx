@@ -13,9 +13,11 @@ import Header from '../components/SignUp/Header';
 import FooterButton from '../components/SignUp/FooterButton';
 import SignUpTerms from '../components/SignUp/View/SignUpTerms';
 import SignUpEmail from '../components/SignUp/View/SignUpEmail';
-import CreatAccount from '../components/SignUp/View/CreatAccount';
+import SignUpCreatAccount from '../components/SignUp/View/SignUpCreatAccount';
 // API call
-import getTnC from '../data/Common/getTnC';
+import getTnC from '../data/Miscellaneous/getTnC';
+import getMajorList from '../data/Miscellaneous/getMajorList';
+import postCreateUser from '../data/User/postCreateUser';
 // Global Styles
 import PageWrapperStyle from '../components/SignUp/Styles/PageWrapper';
 
@@ -36,6 +38,7 @@ function SignUp(): React.ReactElement {
   // Step 0 - Terms and Conditions
   const [isTnCAgreed, setIsTnCAgreed] = React.useState<boolean>(false);
   const [termsContent, setTermsContent] = React.useState<string>('');
+  const [termsVersion, setTermsVersion] = React.useState<string>('');
   const [isTermsLoaded, setIsTermsLoaded] = React.useState<boolean>(false);
   // Step 1 - Privacy Act
   const [isPrivacyAgreed, setIsPrivacyAgreed] = React.useState<boolean>(false);
@@ -45,21 +48,34 @@ function SignUp(): React.ReactElement {
   // Step 3 - Add Information
   const [tokenExpiresAfterSec, setTokenExpiresAfterSec] =
     React.useState<number>(-1);
-  const [full, setFull] = React.useState<boolean>(false);
+  const [nickname, setNickname] = React.useState<string>('');
+  const [major, setMajor] = React.useState<string>('');
+  const [gradYear, setGradYear] = React.useState<number>(-1);
+  const [majorList, setMajorList] = React.useState<string[]>([]);
+  const [isMajorListLoaded, setIsMajorListLoaded] =
+    React.useState<boolean>(false);
   // Step 4 - Success
 
   // Load Terms
   React.useEffect(() => {
     const loadData = async (): Promise<void> => {
       if (!isTermsLoaded) {
-        const json = await getTnC();
-        setTermsContent(json.content.termsAndConditions);
-        setPrivacyContent(json.content.privacyAct);
+        const jsonTnC = await getTnC();
+        setTermsContent(jsonTnC.content.termsAndConditions);
+        setPrivacyContent(jsonTnC.content.privacyAct);
+        setTermsVersion(jsonTnC.version);
         setIsTermsLoaded(true);
+      }
+      if (!isMajorListLoaded) {
+        const jsonMajorList = await getMajorList('wisc.edu');
+        if (jsonMajorList.content?.majorList !== undefined) {
+          setMajorList(jsonMajorList.content?.majorList);
+        }
+        setIsMajorListLoaded(true);
       }
     };
     loadData();
-  }, [isTermsLoaded]);
+  }, [isMajorListLoaded, isTermsLoaded]);
 
   // Timeout for Token
   React.useEffect(() => {
@@ -82,19 +98,55 @@ function SignUp(): React.ReactElement {
       case 2:
         return verifEmail !== '';
       case 3:
-        return full;
+        return (
+          isMajorListLoaded &&
+          nickname !== '' &&
+          major !== '' &&
+          gradYear !== -1
+        );
       default:
         return false;
     }
-  }, [isPrivacyAgreed, isTermsLoaded, isTnCAgreed, step, full, verifEmail]);
+  }, [
+    step,
+    isTermsLoaded,
+    isTnCAgreed,
+    isPrivacyAgreed,
+    verifEmail,
+    isMajorListLoaded,
+    nickname,
+    major,
+    gradYear,
+  ]);
   const moveStep = React.useCallback(async () => {
     if (ableToAdvanceStep()) {
       if (step === 3) {
-        // TODO: API Call
+        // API Call
+        const postCreateUserResponse = await postCreateUser(
+          verifEmail,
+          nickname,
+          major,
+          gradYear,
+          termsVersion,
+        );
+        if (postCreateUserResponse.responseCode === 201) {
+          setStep(step + 1);
+        } else {
+          // TODO: Error Pop-Up
+        }
+      } else {
+        setStep(step + 1);
       }
-      setStep(step + 1);
     }
-  }, [ableToAdvanceStep, step]);
+  }, [
+    ableToAdvanceStep,
+    gradYear,
+    major,
+    nickname,
+    step,
+    termsVersion,
+    verifEmail,
+  ]);
 
   return (
     <Box sx={PageWrapperStyle}>
@@ -127,7 +179,15 @@ function SignUp(): React.ReactElement {
         />
       )}
       {step === 3 && (
-        <CreatAccount/>
+        <SignUpCreatAccount
+          majorList={majorList}
+          nickname={nickname}
+          setNickname={setNickname}
+          major={major}
+          setMajor={setMajor}
+          gradYear={gradYear}
+          setGradYear={setGradYear}
+        />
       )}
       <Box sx={footerButtonWrapperStyle}>
         <FooterButton onClick={moveStep} disabled={!ableToAdvanceStep()} />

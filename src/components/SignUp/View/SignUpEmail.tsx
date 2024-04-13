@@ -23,8 +23,8 @@ import { emailFormatValidator } from '../../../inputValidator/emailFormatValidat
 // Helper Functions
 import formatSecond from '../Function/formatSecond';
 // API Calls
-import postInitiateOTPRequest from '../../../data/SignUp/postInitiateOTPRequest';
-import postEnterOTPCode from '../../../data/SignUp/postEnterOTPCode';
+import postInitiateOTPRequest from '../../../data/User/postInitiateOTPRequest';
+import postEnterOTPCode from '../../../data/User/postEnterOTPCode';
 
 const innerContentWrapperStyle = {
   ...PageWrapperStyle,
