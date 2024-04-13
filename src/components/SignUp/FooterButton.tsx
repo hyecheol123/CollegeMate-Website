@@ -1,6 +1,7 @@
 /**
  * Globally used style for footer button in UI
  * @author Daekyun Kim <daekyun97@gmail.com>
+ * @author Hyecheol (Jerry) Jang <hyecheol123@gmail.com>
  */
 
 import React from 'react';
@@ -14,22 +15,17 @@ interface FooterButtonProps {
 
 /**
  * FooterButton is a React component that renders a styled button.
- * @param {object} props - The props for the FooterButton component.
- * @param {Function} props.onClick - Function to be called when the button is clicked.
- * @param {boolean} props.disabled - Indicates if the button should be disabled.
+ * @param {FooterButtonProps} props - The props for the FooterButton component.
  * @return {React.ReactElement} A React Element representing the FooterButton.
  */
-function FooterButton({
-  onClick,
-  disabled = false,
-}: FooterButtonProps): React.ReactElement {
+function FooterButton(props: FooterButtonProps): React.ReactElement {
   return (
     <Button
       variant="contained"
       color="primary"
       sx={ButtonStyle}
-      onClick={onClick}
-      disabled={disabled}
+      onClick={props.onClick}
+      disabled={props.disabled}
     >
       Next
     </Button>
