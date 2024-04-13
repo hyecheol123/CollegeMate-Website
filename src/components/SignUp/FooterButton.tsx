@@ -5,8 +5,15 @@
  */
 
 import React from 'react';
-import Button from '@mui/material/Button';
-import ButtonStyle from './Styles/Button';
+import { Box, Button } from '@mui/material';
+
+const buttonWrapperBoxStyle = {
+  width: '100%',
+  alignItems: 'center',
+  display: 'flex',
+  flexDirection: 'column',
+  flexGrow: 1,
+};
 
 interface FooterButtonProps {
   onClick: () => void; // Function to be called when the button is clicked
@@ -20,15 +27,17 @@ interface FooterButtonProps {
  */
 function FooterButton(props: FooterButtonProps): React.ReactElement {
   return (
-    <Button
-      variant="contained"
-      color="primary"
-      sx={ButtonStyle}
-      onClick={props.onClick}
-      disabled={props.disabled}
-    >
-      Next
-    </Button>
+    <Box sx={buttonWrapperBoxStyle}>
+      <Button
+        variant="contained"
+        color="primary"
+        sx={{ width: '100%', maxWidth: '400px' }}
+        onClick={props.onClick}
+        disabled={props.disabled}
+      >
+        Next
+      </Button>
+    </Box>
   );
 }
 

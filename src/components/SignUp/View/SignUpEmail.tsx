@@ -44,6 +44,7 @@ const inputWrapperStyle = {
  * Properties sent from this parents
  */
 interface ISignUpEmailProps {
+  verifiedEmail: string;
   setVerifiedEmail: React.Dispatch<React.SetStateAction<string>>;
 }
 
@@ -54,7 +55,7 @@ interface ISignUpEmailProps {
  * @return {React.ReactElement} Renders Sing Up Page (Email)
  */
 function SignUpEmail(props: ISignUpEmailProps): React.ReactElement {
-  const { setVerifiedEmail } = props;
+  const { verifiedEmail, setVerifiedEmail } = props;
   const [email, setEmail] = React.useState<string>('');
   const [isEditable, setIsEditable] = React.useState<boolean>(true);
   const [otpRequestId, setOtpRequestId] = React.useState<string>('');
@@ -71,7 +72,7 @@ function SignUpEmail(props: ISignUpEmailProps): React.ReactElement {
   // Timeout for Timer
   React.useEffect(() => {
     let timeout: any;
-    if (secToExp > elapsedSec) {
+    if (secToExp > elapsedSec && verifiedEmail === '') {
       timeout = setTimeout(() => {
         setElapsedSec(elapsedSec + 1);
       }, 1000);
@@ -81,7 +82,7 @@ function SignUpEmail(props: ISignUpEmailProps): React.ReactElement {
     }
 
     return () => clearTimeout(timeout);
-  }, [secToExp, elapsedSec]);
+  }, [secToExp, elapsedSec, verifiedEmail]);
 
   const sendCodeHandler = async (): Promise<void> => {
     setIsEditable(false);
@@ -194,7 +195,10 @@ function SignUpEmail(props: ISignUpEmailProps): React.ReactElement {
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position="end">
-                      <Typography variant="body2">
+                      <Typography
+                        variant="body2"
+                        visibility={verifiedEmail !== '' ? 'hidden' : 'visible'}
+                      >
                         {formatSecond(secToExp - elapsedSec)}
                       </Typography>
                     </InputAdornment>
@@ -223,7 +227,10 @@ function SignUpEmail(props: ISignUpEmailProps): React.ReactElement {
             >
               <Button
                 variant="contained"
-                disabled={secToExp > 0 && secToExp === elapsedSec}
+                disabled={
+                  secToExp > 0 &&
+                  (secToExp === elapsedSec || verifiedEmail !== '')
+                }
                 sx={{ flex: 1 }}
                 onClick={submitCodeHandler}
               >
