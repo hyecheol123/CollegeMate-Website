@@ -40,10 +40,11 @@ function SignUp(): React.ReactElement {
   const [isPrivacyAgreed, setIsPrivacyAgreed] = React.useState<boolean>(false);
   const [privacyContent, setPrivacyContent] = React.useState<string>('');
   // Step 2 - Email Verification
-  const [verifiedEmail, setVerifiedEmail] = React.useState<string>('');
+  const [verifEmail, setVerifEmail] = React.useState<string>('');
   // Step 3 - Add Information
   const [tokenExpiresAfterSec, setTokenExpiresAfterSec] =
     React.useState<number>(-1);
+  const [full, setFull] = React.useState<boolean>(false);
   // Step 4 - Success
 
   // Load Terms
@@ -78,13 +79,18 @@ function SignUp(): React.ReactElement {
       case 1:
         return isTermsLoaded && isPrivacyAgreed;
       case 2:
-        return verifiedEmail !== '';
+        return verifEmail !== '';
+      case 3:
+        return full;
       default:
         return false;
     }
-  }, [isPrivacyAgreed, isTermsLoaded, isTnCAgreed, step, verifiedEmail]);
-  const moveStep = React.useCallback(() => {
+  }, [isPrivacyAgreed, isTermsLoaded, isTnCAgreed, step, full, verifEmail]);
+  const moveStep = React.useCallback(async () => {
     if (ableToAdvanceStep()) {
+      if (step === 3) {
+        // TODO: API Call
+      }
       setStep(step + 1);
     }
   }, [ableToAdvanceStep, step]);
@@ -114,11 +120,12 @@ function SignUp(): React.ReactElement {
       )}
       {step === 2 && (
         <SignUpEmail
-          verifiedEmail={verifiedEmail}
-          setVerifiedEmail={setVerifiedEmail}
+          verifiedEmail={verifEmail}
+          setVerifiedEmail={setVerifEmail}
           setTokenExpiresAfterSec={setTokenExpiresAfterSec}
         />
       )}
+      {step === 3 && <Box>TODO</Box>}
       <Box sx={footerButtonWrapperStyle}>
         <FooterButton onClick={moveStep} disabled={!ableToAdvanceStep()} />
       </Box>

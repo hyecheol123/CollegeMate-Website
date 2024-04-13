@@ -20,6 +20,8 @@ import PageWrapperStyle from '../../Common/Styles/PageWrapper';
 // Global Style
 // Input Validators
 import { emailFormatValidator } from '../../../inputValidator/emailFormatValidator';
+// Helper Functions
+import formatSecond from '../Function/formatSecond';
 // API Calls
 import postInitiateOTPRequest from '../../../data/SignUp/postInitiateOTPRequest';
 import postEnterOTPCode from '../../../data/SignUp/postEnterOTPCode';
@@ -64,11 +66,6 @@ function SignUpEmail(props: ISignUpEmailProps): React.ReactElement {
   const [elapsedSec, setElapsedSec] = React.useState<number>(0);
   const [code, setCode] = React.useState<string>('');
   const [errorMsg, setErrorMsg] = React.useState<string>('NONE');
-
-  // Control variable
-  const formatSecond = (second: number): string => {
-    return `${Math.floor(second / 60)}:${String(second % 60).padStart(2, '0')}`;
-  };
 
   // Timeout for Timer
   React.useEffect(() => {
