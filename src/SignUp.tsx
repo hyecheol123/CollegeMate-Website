@@ -11,7 +11,6 @@ import { Box } from '@mui/material';
 // Components
 import SignUpTerms from './components/SignUp/Pages/SignUpTerms';
 import Header from './components/SignUp/Header';
-import CreateAccount from './components/SignUp/Pages/CreateAccount';
 // API call
 import getTnC from './data/Common/getTnC';
 // Global Styles
@@ -61,7 +60,6 @@ function SignUp(): React.ReactElement {
       {step === 0 && (
         <SignUpTerms
           isLoaded={isTermsLoaded}
-          title="Terms and Conditions"
           content={termsContent}
           checkboxHelperText="I agree to the terms and conditions."
           accepted={isTnCAgreed}
@@ -71,15 +69,11 @@ function SignUp(): React.ReactElement {
       {step === 1 && (
         <SignUpTerms
           isLoaded={isTermsLoaded}
-          title="Privacy Policy"
           content={privacyContent}
           checkboxHelperText="I agree to the privacy policy."
           accepted={isPrivacyAgreed}
           setAccepted={setIsPrivacyAgreed}
         />
-      )}
-      {step === 2 && (
-        <CreateAccount/>
       )}
     </Box>
   );
