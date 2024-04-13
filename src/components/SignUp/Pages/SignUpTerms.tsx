@@ -16,7 +16,7 @@ import PageWrapperStyle from '../Styles/PageWrapper';
 const termsStyle = {
   flex: 1,
   overflow: 'auto',
-  mt: '1rem',
+  mt: '16px',
 };
 const contentStyle = {
   display: 'flex',
@@ -31,8 +31,8 @@ const checkBoxStyle = {
   justifyContent: 'center',
   alignItems: 'center',
   paddingX: '5px',
-  mt: '1rem',
-  mb: '1rem',
+  mt: '16px',
+  mb: '16px',
 };
 
 /**
@@ -70,7 +70,7 @@ function SignUpTerms(props: ISignUpTermsProps): React.ReactElement {
 
   return (
     <Box sx={{ overflow: 'hidden', ...PageWrapperStyle }}>
-      <Typography mt={'1rem'} variant="h2" color="red.main" align="center">
+      <Typography mt={'16px'} variant="h2" color="red.main" align="center">
         {title}
       </Typography>
       <Box sx={{ ...termsStyle }}>
@@ -105,4 +105,4 @@ function SignUpTerms(props: ISignUpTermsProps): React.ReactElement {
   );
 }
 
-export default React.memo(SignUpTerms);
+export default SignUpTerms;
