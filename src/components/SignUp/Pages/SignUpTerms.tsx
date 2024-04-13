@@ -16,13 +16,13 @@ import PageWrapperStyle from '../Styles/PageWrapper';
 const termsStyle = {
   flex: 1,
   overflow: 'auto',
-  mt: '1rem'
+  mt: '1rem',
 };
 const contentStyle = {
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center',
-  overflowY: 'auto'
+  overflowY: 'auto',
 };
 const checkBoxStyle = {
   display: 'flex',
@@ -32,7 +32,7 @@ const checkBoxStyle = {
   alignItems: 'center',
   paddingX: '5px',
   mt: '1rem',
-  mb: '1rem'
+  mb: '1rem',
 };
 
 /**
@@ -53,10 +53,15 @@ interface ISignUpTermsProps {
  * @return {React.ReactElement} Renders first page of about page
  */
 function SignUpTerms(props: ISignUpTermsProps): React.ReactElement {
-
   // Destructuring props to extract required values
-  const { isLoaded, title, content, checkboxHelperText, accepted, setAccepted } =
-    props;
+  const {
+    isLoaded,
+    title,
+    content,
+    checkboxHelperText,
+    accepted,
+    setAccepted,
+  } = props;
 
   // Function to handle the change event of the checkbox
   const handleCheckboxChange = (): void => {
@@ -71,7 +76,12 @@ function SignUpTerms(props: ISignUpTermsProps): React.ReactElement {
       <Box sx={{ ...termsStyle }}>
         {isLoaded ? (
           <Box sx={{ ...contentStyle }}>
-            <Typography variant='body1' align='left' minHeight={0} maxWidth={'80%'}>
+            <Typography
+              variant="body1"
+              align="left"
+              minHeight={0}
+              maxWidth={'80%'}
+            >
               {content}
             </Typography>
           </Box>
