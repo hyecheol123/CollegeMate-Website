@@ -12,9 +12,9 @@ import { Box, IconButton } from '@mui/material';
 // Material UI Icon
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 // Assets
-import CollegeMateLogoPng from '../../../assets/lg3 1.png';
-import CollegeMateLogoWebp from '../../../assets/lg3 1.png?as=webp';
-import CollegeMateLogAvif from '../../../assets/lg3 1.png?as=avif';
+import CollegeMateLogoPng from '../../../assets/logo.png';
+import CollegeMateLogoWebp from '../../../assets/logo.png?as=webp';
+import CollegeMateLogAvif from '../../../assets/logo.png?as=avif';
 
 const titleStyle = {
   bgcolor: 'whiteGrey.main',
