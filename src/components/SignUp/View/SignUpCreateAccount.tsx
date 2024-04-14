@@ -5,12 +5,14 @@
  */
 
 // React
-import React from 'react';
+import React, { useState } from 'react';
 // Material UI
 import { Box, Typography, TextField, Button, MenuItem } from '@mui/material';
 import { Check as CheckIcon, Clear as ClearIcon } from '@mui/icons-material';
 // Global Styles
 import PageWrapperStyle from '../Styles/PageWrapper';
+import getNickname, { NicknameResponse } from '../../../data/Miscellaneous/getNickname';
+import Modal from '../../../components/Common/Modal/Modal';
 
 interface IProps {
   majorList: string[];
@@ -26,6 +28,7 @@ const titleStyle = {
   variant: 'body1',
   fontWeight: 'bold',
   align: 'left',
+  color: 'darkGrey'
 };
 
 const subWrapper = {
@@ -61,6 +64,10 @@ const isNicknameSpace = (value: string): boolean => {
  * @return {React.ReactElement} Renders first page of about page
  */
 function SignUpCreateAccount(props: IProps): React.ReactElement {
+  const [nicknameExists, setNicknameExists] = useState<boolean>(false);
+  const [isModalOpen, setIsModalOpen] = React.useState<boolean>(false);
+  const [modalMsg, setModalMsg] = React.useState<string>('');
+
   const currentYear = new Date().getFullYear();
 
   const graduationYears = Array.from(
@@ -89,6 +96,40 @@ function SignUpCreateAccount(props: IProps): React.ReactElement {
     [props],
   );
 
+  const handleVerify = async (): Promise<void> => {
+    try {
+      const response: NicknameResponse = await getNickname();
+      if (isNicknameLength(props.nickname) && isNicknameChar(props.nickname) && !isNicknameSpace(props.nickname)) {
+        if (response.content?.nickname === props.nickname) {
+          console.log('Nickname Exists');
+          setIsModalOpen(true);
+          setModalMsg(
+            'Bad Input. Nickname Exists. Try Again.',
+          );
+          setNicknameExists(true);
+        } else {
+          console.log('Nickname Not Exists');
+          setIsModalOpen(true);
+          setModalMsg(
+            'Great. You can use this nickname.',
+          );
+          setNicknameExists(false);
+        }
+      } else {
+        setIsModalOpen(true);
+        setModalMsg(
+          'Error: Need to check all statements.',
+        );
+      }
+    } catch (error) {
+      console.error('Error verifying nickname:', error);
+    }
+  };
+  // Modal Close
+  const handleModalClose = React.useCallback(() => {
+    setIsModalOpen(false);
+  }, []);
+
   return (
     <Box mt={'16px'} sx={{ ...PageWrapperStyle, alignItems: 'center' }}>
       <Box sx={subWrapper}>
@@ -109,12 +150,21 @@ function SignUpCreateAccount(props: IProps): React.ReactElement {
               onChange={handleNicknameChange}
               required
             />
-            <Button>Verify</Button>
+            <Button onClick={handleVerify}>Verify</Button>
+            <Modal
+              isOpen={isModalOpen}
+              handleClose={handleModalClose}
+              message={modalMsg}
+            />
           </Box>
-          <Box mb="12px">
-            <Box display={'flex'} flexDirection={'row'}>
-              {isNicknameLength(props.nickname) && props.nickname !== null ? (
-                <CheckIcon color="success" />
+          <Box>
+            <Box mb="12px" display={'flex'} flexDirection={'row'}>
+              {props.nickname ? (
+                isNicknameLength(props.nickname) ? (
+                  <CheckIcon color="success" />
+                ) : (
+                  <ClearIcon color="error" />
+                )
               ) : (
                 <ClearIcon color="error" />
               )}
@@ -122,20 +172,27 @@ function SignUpCreateAccount(props: IProps): React.ReactElement {
                 Must be between 4 and 20 characters.
               </Typography>
             </Box>
-            <Box display={'flex'} flexDirection={'row'}>
-              {isNicknameChar(props.nickname) && props.nickname !== null ? (
-                <CheckIcon color="success" />
+            <Box mb="12px" display={'flex'} flexDirection={'row'}>
+              {props.nickname ? (
+                isNicknameChar(props.nickname) ? (
+                  <CheckIcon color="success" />
+                ) : (
+                  <ClearIcon color="error" />
+                )
               ) : (
                 <ClearIcon color="error" />
               )}
               <Typography variant="body2">
-                May include only upper case, lower case, number, dash, or
-                underscore.
+                May include only upper case, lower case, number, dash, or underscore.
               </Typography>
             </Box>
-            <Box display={'flex'} flexDirection={'row'}>
-              {!isNicknameSpace(props.nickname) && props.nickname !== null ? (
-                <CheckIcon color="success" />
+            <Box mb="16px" display={'flex'} flexDirection={'row'}>
+              {props.nickname ? (
+                !isNicknameSpace(props.nickname) ? (
+                  <CheckIcon color="success" />
+                ) : (
+                  <ClearIcon color="error" />
+                )
               ) : (
                 <ClearIcon color="error" />
               )}
