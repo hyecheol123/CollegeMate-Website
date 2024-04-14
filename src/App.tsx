@@ -26,9 +26,10 @@ import '@fontsource/roboto/700.css';
 import Loading from './components/Common/Loading/Loading';
 import { GlobalContextProvider, useGlobalContext } from './GlobalContext';
 import getRenewToken from './data/Common/getRenewToken';
-const About = React.lazy(() => import('./About'));
-const Login = React.lazy(() => import('./Login'));
-const Scheduler = React.lazy(() => import('./Scheduler'));
+const About = React.lazy(() => import('./Pages/About'));
+const Login = React.lazy(() => import('./Pages/Login'));
+const SignUp = React.lazy(() => import('./Pages/SignUp'));
+const Home = React.lazy(() => import('./Pages/Home'));
 
 // MUI Theme (Setup Font family and Palette Color)
 declare module '@mui/material/styles' {
@@ -189,17 +190,7 @@ function Layout(): React.ReactElement {
 function App(): React.ReactElement {
   // State
   const globalContext = useGlobalContext();
-  // Define by Daekyun for testing the scheduler UI
-  const myEvents = [
-    {
-      id: '1',
-      title: 'COMP SCI 354',
-      day: 'Mon',
-      startTime: 11,
-      endTime: 12,
-      color: 'pink',
-    },
-  ];
+
   // Initialize Application
   React.useEffect(() => {
     /**
@@ -247,29 +238,15 @@ function App(): React.ReactElement {
         />
         <Route
           path="/signup"
-          element={
-            globalContext.initialized ? (
-              <Typography variant="h1" color="primary">
-                Sign Up
-              </Typography>
-            ) : (
-              <Loading />
-            )
-          }
+          element={globalContext.initialized ? <SignUp /> : <Loading />}
         />
         <Route
           path="/about"
           element={globalContext.initialized ? <About /> : <Loading />}
         />
         <Route
-          path="/Scheduler"
-          element={
-            globalContext.initialized ? (
-              <Scheduler/>
-            ) : (
-              <Loading />
-            )
-          }
+          path="/Home"
+          element={globalContext.initialized ? <Home /> : <Loading />}
         />
       </Route>
     </Routes>
