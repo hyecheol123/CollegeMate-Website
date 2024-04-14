@@ -17,7 +17,7 @@ const titleStyle = {
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center',
-  py: '30px',
+  py: '1.95em',
 };
 const logoStyle = {
   left: '50%',
