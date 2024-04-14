@@ -94,7 +94,6 @@ function SignUp(): React.ReactElement {
   // Modal Close
   const handleModalClose = React.useCallback(() => {
     setIsModalOpen(false);
-    setModalMsg('');
   }, []);
 
   // Helper method to advance step

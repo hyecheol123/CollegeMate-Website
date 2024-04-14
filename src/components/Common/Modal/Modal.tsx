@@ -27,8 +27,9 @@ const modalStyle = {
   left: '50%',
   transform: 'translate(-50%, -50%)',
   width: '90%',
-  maxWidth: '500px',
-  p: 1,
+  maxWidth: '400px',
+  p: '16px',
+  bgcolor: 'white.main',
   border: '2px solid black',
   borderRadius: '5px',
   boxShadow: 24,
@@ -51,11 +52,13 @@ function Modal(props: ModalProps): React.ReactElement {
       slots={{ backdrop: Backdrop }}
     >
       <Fade in={props.isOpen}>
-        <Box sx={modalStyle}>
+        <Box sx={modalStyle} onClick={props.handleClose}>
           <Typography variant="body1" align="center">
             {props.message}
           </Typography>
-          <Button>Close</Button>
+          <Button sx={{ mt: '16px' }} variant="contained" color="primary">
+            Close
+          </Button>
         </Box>
       </Fade>
     </MUIModal>
