@@ -18,10 +18,10 @@ import SchedulerTitle from '../components/Scheduler/SchedulerTitle';
  */
 function Home(): React.ReactElement {
   return (
-    <Box>
-      <MainHeader></MainHeader>
-      <SchedulerTitle></SchedulerTitle>
-      <Scheduler></Scheduler>
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      <MainHeader />
+      <SchedulerTitle />
+      <Scheduler />
     </Box>
   );
 }

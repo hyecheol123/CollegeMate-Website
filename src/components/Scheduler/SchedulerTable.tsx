@@ -3,8 +3,9 @@
  * @author Daekyun Kim <daekyun97@gmail.com>
  */
 
-import React, { useMemo } from 'react';
-
+// React
+import React, { useState, useMemo, useEffect } from 'react';
+// Material UI
 import {
   Table,
   TableBody,
@@ -30,7 +31,7 @@ interface EventData {
  * @return {React.ReactElement} Renders scheduler table
  */
 function SchedulerTable(): React.ReactElement {
-  // const [errors, setErrors] = useState<string[]>([]); // Temporality implemented in order to cover edge case
+  const [errors, setErrors] = useState<string[]>([]); // Temporality implemented in order to cover edge case
 
   const myEvents = useMemo(
     () => [
@@ -48,7 +49,7 @@ function SchedulerTable(): React.ReactElement {
         day: 'Tue',
         startTime: { hour: 9, minute: 15 },
         endTime: { hour: 11, minute: 55 },
-        color: 'red',
+        color: 'blue',
       },
       {
         id: '3',
@@ -70,23 +71,28 @@ function SchedulerTable(): React.ReactElement {
     [],
   );
 
-  // // Temporality implemented in order to cover edge case
-  // useEffect(() => {
-  //   const validationErrors: string[] = [];
+  // Function to determine the color based on the hour index
+  const getColorForHourIndex = (hourLabel: number): string => {
+    return hourLabel % 2 === 0 ? 'whiteGrey.main' : 'white.main';
+  };
 
-  //   myEvents.forEach((event) => {
-  //     const startTime = event.startTime.hour * 60 + event.startTime.minute;
-  //     const endTime = event.endTime.hour * 60 + event.endTime.minute;
+  // Temporality implemented in order to cover edge case
+  useEffect(() => {
+    const validationErrors: string[] = [];
 
-  //     if (startTime >= endTime) {
-  //       validationErrors.push(
-  //         `Error: "${event.title}" has a start time later than or equal to its end time.`,
-  //       );
-  //     }
-  //   });
+    myEvents.forEach((event) => {
+      const startTime = event.startTime.hour * 60 + event.startTime.minute;
+      const endTime = event.endTime.hour * 60 + event.endTime.minute;
 
-  //   setErrors(validationErrors);
-  // }, [myEvents]);
+      if (startTime >= endTime) {
+        validationErrors.push(
+          `Error: "${event.title}" has a start time later than or equal to its end time.`,
+        );
+      }
+    });
+
+    setErrors(validationErrors);
+  }, [myEvents]);
 
   const getHourLabel = (hour: number): string => {
     const hour12 = hour % 12 === 0 ? 12 : hour % 12;
@@ -113,57 +119,93 @@ function SchedulerTable(): React.ReactElement {
   const calculateRowSpan = (event: EventData): number => {
     const start = event.startTime.hour * 60 + event.startTime.minute;
     const end = event.endTime.hour * 60 + event.endTime.minute;
-    return Math.ceil((end - start) / 5); // Calculate the row span by 5 minutes
+    return Math.ceil((end - start) / 5); // calculate the row span by 5 minutes
   };
 
   const days = useMemo(() => {
     const baseDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
-    let includesWeekend = false;
+    let hasSaturdayEvent = false;
+    let hasSundayEvent = false;
 
+    // check for events on Saturday and Sunday
     myEvents.forEach((event) => {
-      if (event.day === 'Sat' || event.day === 'Sun') {
-        includesWeekend = true;
-      }
+      if (event.day === 'Sat') hasSaturdayEvent = true;
+      if (event.day === 'Sun') hasSundayEvent = true;
     });
 
-    return includesWeekend ? [...baseDays, 'Sat', 'Sun'] : baseDays;
+    // logic to conditionally include Saturday
+    if (hasSaturdayEvent || hasSundayEvent) {
+      baseDays.push('Sat');
+    }
+
+    // logic to conditionally include Sunday
+    if (hasSundayEvent) {
+      baseDays.push('Sun');
+    }
+
+    return baseDays;
   }, [myEvents]);
 
   return (
-    <Box>
+    <Box sx={{ height: '100%', flexGrow: 1 }}>
       {/* start of the biggest box */}
-      <Box sx={{ display: 'flex', width: '100%', flexDirection: 'column' }}>
-        {' '}
+      <Box
+        sx={{
+          display: 'flex',
+          width: '100%',
+          height: '90%',
+          flexDirection: 'column',
+        }}
+      >
         {/* start of the scheduler box */}
-        <Table>
+        <Table
+          sx={{
+            width: '90%',
+            margin: 'auto',
+            tableLayout: 'fixed',
+            height: '100%',
+          }}
+        >
           <TableHead>
             {/* Start of the table header row */}
             <TableRow sx={{ bgcolor: 'red.main' }}>
-              <TableCell>
+              <TableCell
+                sx={{
+                  paddingLeft: 0,
+                  paddingRight: 0,
+                  width: '50px',
+                  border: '0',
+                }}
+              >
                 <Typography variant="body2" color="white.main" align="center">
-                  Time
+                  {}
                 </Typography>
               </TableCell>
+
               {days.map((day) => (
-                <TableCell key={day}>
+                <TableCell
+                  key={day}
+                  sx={{ paddingLeft: 0, paddingRight: 0, border: '0' }}
+                >
                   <Typography variant="body2" color="white.main" align="center">
                     {day}
                   </Typography>
                 </TableCell>
               ))}
             </TableRow>
-          </TableHead>{' '}
+          </TableHead>
           {/* End of the table header row */}
           <TableBody>
             {/* Start of the table body */}
             {majorHours.map((hourLabel, hourIndex) => {
+              const hourColor = getColorForHourIndex(hourIndex);
               const hour = minHour + hourIndex;
               const hourRows = [];
               for (let i = 0; i < 12; i++) {
                 const minute = i * 5;
                 const timeSlotIndex = hour * 60 + minute;
                 hourRows.push(
-                  <TableRow sx={{ border: 0 }} key={`${hourLabel}-${i * 5}`}>
+                  <TableRow key={`${hourLabel}-${i * 5}`}>
                     {i === 0 && (
                       <TableCell
                         rowSpan={12}
@@ -171,6 +213,7 @@ function SchedulerTable(): React.ReactElement {
                           align: 'center',
                           bgcolor: 'red.main',
                           border: 0,
+                          padding: 0,
                         }}
                       >
                         <Typography
@@ -209,7 +252,6 @@ function SchedulerTable(): React.ReactElement {
                             align="center"
                             sx={{
                               backgroundColor: event.color,
-                              padding: '3px',
                             }}
                             rowSpan={rowSpan}
                           >
@@ -225,7 +267,8 @@ function SchedulerTable(): React.ReactElement {
                           <TableCell
                             key={`${day}-${hourLabel}-${i * 5}`}
                             sx={{
-                              padding: '3px',
+                              backgroundColor: hourColor,
+                              padding: '2px',
                               borderTop: '0px',
                               borderLeft: '0px',
                               borderBottom: '0px',
