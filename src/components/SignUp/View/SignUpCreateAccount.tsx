@@ -39,7 +39,7 @@ const titleStyle = {
 const subWrapper = {
   width: '90%',
   maxWidth: '800px',
-  overflow:'auto',
+  overflow: 'auto',
   display: 'flex',
   flexDirection: 'column',
   flexGrow: 1, // This will make the container expand to fill available space
@@ -65,6 +65,13 @@ const isNicknameSpace = (value: string): boolean => {
   return pattern.test(value);
 };
 
+// Function to format time
+const formatTime = (seconds: number): string => {
+  const min = String(Math.floor(seconds / 60)).padStart(2, '0');
+  const sec = String(seconds % 60).padStart(2, '0');
+  return `${min}:${sec}`;
+};
+
 /**
  * React Functional Component for SignUp page's first page
  * @param {IProps} props properties sent from this parents
@@ -75,7 +82,6 @@ function SignUpCreateAccount(props: IProps): React.ReactElement {
   const [isModalOpen, setIsModalOpen] = React.useState<boolean>(false);
   const [isTimeout, setIsTimeout] = React.useState<boolean>(false);
   const [modalMsg, setModalMsg] = React.useState<string>('');
-  const [remainingTimeSec, setRemainingTimeSec] = React.useState<number>(props.remainingTimeSec * -3600);
   const navigate = useNavigate();
   // Variables
   const currentYear = new Date().getFullYear();
@@ -94,7 +100,7 @@ function SignUpCreateAccount(props: IProps): React.ReactElement {
       !isNicknameSpace(props.nickname) &&
       props.major !== '' &&
       props.gradYear !== -1 &&
-      remainingTimeSec > 0
+      props.remainingTimeSec <= 0
     ) {
       props.setCanSend(true);
     }
@@ -102,30 +108,12 @@ function SignUpCreateAccount(props: IProps): React.ReactElement {
 
   // Checking time limit
   React.useEffect(() => {
-    if (remainingTimeSec <= 0) {
+    if (props.remainingTimeSec <= 0) {
       setIsTimeout(true);
       setModalMsg('Timeout! Please restart');
       setIsModalOpen(true);
     }
-  }, [remainingTimeSec]);
-
-  React.useEffect(() => {
-    // Set up the timer to update remaining time every second
-    const timer = setInterval(() => {
-      setRemainingTimeSec(prevTime => {
-        // Decrease remaining time by 1 second if it's not already 0
-        return prevTime > 0 ? prevTime - 1 : prevTime;
-      });
-    }, 1000);
-  
-    return () => clearInterval(timer);
-  }, []);
-
-  const formatTime = (seconds: number): string => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;;
-    return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
-  };
+  }, [props.remainingTimeSec]);
 
   // TextField change handlers
   const handleMajorChange = React.useCallback(
@@ -302,7 +290,7 @@ function SignUpCreateAccount(props: IProps): React.ReactElement {
           </TextField>
         </Box>
         <Typography textAlign={'center'} color={'gray'} variant="body1">
-          {formatTime(remainingTimeSec)}
+          {formatTime(props.remainingTimeSec)}
         </Typography>
       </Box>
       <Modal
