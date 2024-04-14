@@ -87,13 +87,13 @@ function SignUp(): React.ReactElement {
   // Timeout for Token
   React.useEffect(() => {
     let timeout: any;
-    if (tokenExpiresAfterSec > 0) {
+    if (tokenExpiresAfterSec > 0 && step !== 4) {
       timeout = setTimeout(() => {
         setTokenExpiresAfterSec(tokenExpiresAfterSec - 1);
       }, 1000);
     }
     return () => clearTimeout(timeout);
-  }, [tokenExpiresAfterSec]);
+  }, [step, tokenExpiresAfterSec]);
 
   // Modal Close
   const handleModalClose = React.useCallback(() => {
@@ -226,7 +226,15 @@ function SignUp(): React.ReactElement {
       )}
       {step === 4 && <AccountCreated />}
       <Box sx={footerButtonWrapperStyle}>
-        <FooterButton onClick={moveStep} disabled={!ableToAdvanceStep()} />
+        <FooterButton
+          onClick={moveStep}
+          disabled={!ableToAdvanceStep()}
+          remainingTimeSec={
+            tokenExpiresAfterSec > -1 && step === 3
+              ? tokenExpiresAfterSec
+              : undefined
+          }
+        />
       </Box>
       <Modal
         isOpen={isModalOpen}

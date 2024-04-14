@@ -73,13 +73,6 @@ const isNicknameSpace = (value: string): boolean => {
   return pattern.test(value);
 };
 
-// Function to format time
-const formatTime = (seconds: number): string => {
-  const min = String(Math.floor(seconds / 60)).padStart(2, '0');
-  const sec = String(seconds % 60).padStart(2, '0');
-  return `${min}:${sec}`;
-};
-
 /**
  * React Functional Component for SignUp page's first page
  * @param {IProps} props properties sent from this parents
@@ -108,7 +101,7 @@ function SignUpCreateAccount(props: IProps): React.ReactElement {
       !isNicknameSpace(props.nickname) &&
       props.major !== '' &&
       props.gradYear !== -1 &&
-      props.remainingTimeSec <= 0
+      props.remainingTimeSec > 0
     ) {
       props.setCanSend(true);
     }
@@ -298,9 +291,6 @@ function SignUpCreateAccount(props: IProps): React.ReactElement {
               ))}
             </TextField>
           </Box>
-          <Typography textAlign={'center'} color={'gray'} variant="body1">
-            {formatTime(props.remainingTimeSec)}
-          </Typography>
         </Box>
         <Modal
           isOpen={isModalOpen}
