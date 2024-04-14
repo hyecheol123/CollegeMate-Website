@@ -207,8 +207,8 @@ function SignUpCreateAccount(props: IProps): React.ReactElement {
                 Verify
               </Button>
             </Box>
-            <Box>
-              <Box mb="12px" display={'flex'} flexDirection={'row'}>
+            <Box flex={1}>
+              <Box alignItems="center" display="flex">
                 {props.nickname ? (
                   isNicknameLength(props.nickname) ? (
                     <CheckIcon color="success" />
@@ -218,11 +218,11 @@ function SignUpCreateAccount(props: IProps): React.ReactElement {
                 ) : (
                   <ClearIcon color="error" />
                 )}
-                <Typography variant="body2">
+                <Typography variant="body2" color={'darkGrey'}>
                   Must be between 4 and 20 characters.
                 </Typography>
               </Box>
-              <Box mb="12px" display={'flex'} flexDirection={'row'}>
+              <Box alignItems="center" display="flex">
                 {props.nickname ? (
                   isNicknameChar(props.nickname) ? (
                     <CheckIcon color="success" />
@@ -232,12 +232,12 @@ function SignUpCreateAccount(props: IProps): React.ReactElement {
                 ) : (
                   <ClearIcon color="error" />
                 )}
-                <Typography variant="body2">
+                <Typography variant="body2" color={'darkGrey'}>
                   May include only upper case, lower case, number, dash, or
                   underscore.
                 </Typography>
               </Box>
-              <Box mb="16px" display={'flex'} flexDirection={'row'}>
+              <Box alignItems="center" display="flex">
                 {props.nickname ? (
                   !isNicknameSpace(props.nickname) ? (
                     <CheckIcon color="success" />
@@ -247,12 +247,16 @@ function SignUpCreateAccount(props: IProps): React.ReactElement {
                 ) : (
                   <ClearIcon color="error" />
                 )}
-                <Typography variant="body2">Cannot contain a space.</Typography>
+                <Typography variant="body2" color={'darkGrey'}>
+                  Cannot contain a space.
+                </Typography>
               </Box>
             </Box>
           </Box>
           <Box flex={1}>
-            <Typography sx={titleStyle}>Major</Typography>
+            <Typography mt={'12px'} sx={titleStyle}>
+              Major
+            </Typography>
             <TextField
               select
               placeholder="Select your major"
