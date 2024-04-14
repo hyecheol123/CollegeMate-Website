@@ -29,6 +29,7 @@ import getRenewToken from './data/Authentication/getRenewToken';
 const About = React.lazy(() => import('./Pages/About'));
 const Login = React.lazy(() => import('./Pages/Login'));
 const SignUp = React.lazy(() => import('./Pages/SignUp'));
+const NotFound = React.lazy(() => import('./Pages/NotFound'));
 
 // MUI Theme (Setup Font family and Palette Color)
 declare module '@mui/material/styles' {
@@ -242,6 +243,10 @@ function App(): React.ReactElement {
         <Route
           path="/about"
           element={globalContext.initialized ? <About /> : <Loading />}
+        />
+        <Route
+          path="/*"
+          element={globalContext.initialized ? <NotFound /> : <Loading />}
         />
       </Route>
     </Routes>
