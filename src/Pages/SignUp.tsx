@@ -17,6 +17,8 @@ import TermsConsent from '../components/Common/TermsConsent/TermsConsent';
 import SignUpEmail from '../components/SignUp/View/SignUpEmail';
 import SignUpCreatAccount from '../components/SignUp/View/SignUpCreateAccount';
 import AccountCreated from '../components/SignUp/View/AccountCreated';
+// Custom Hook for Context API
+import { useGlobalContext } from '../GlobalContext';
 // API call
 import getTnC from '../data/Miscellaneous/getTnC';
 import getMajorList from '../data/Miscellaneous/getMajorList';
@@ -38,6 +40,8 @@ const footerButtonWrapperStyle = {
 function SignUp(): React.ReactElement {
   // State
   const [step, setStep] = React.useState<number>(0);
+  const [initiated, setInitiated] = React.useState<boolean>(false);
+  const globalContext = useGlobalContext();
   // Step 0 - Terms and Conditions
   const [isTnCAgreed, setIsTnCAgreed] = React.useState<boolean>(false);
   const [termsContent, setTermsContent] = React.useState<string>('');
@@ -63,26 +67,38 @@ function SignUp(): React.ReactElement {
   // Step 4 - Success
   const navigate = useNavigate();
 
+  // If user already logged in, redirect to main page
+  React.useEffect(() => {
+    if (!initiated) {
+      if (globalContext.login) {
+        navigate('/');
+      }
+      setInitiated(false);
+    }
+  }, [globalContext.login, initiated, navigate]);
+
   // Load Terms
   React.useEffect(() => {
     const loadData = async (): Promise<void> => {
-      if (!isTermsLoaded) {
-        const jsonTnC = await getTnC();
-        setTermsContent(jsonTnC.content.termsAndConditions);
-        setPrivacyContent(jsonTnC.content.privacyAct);
-        setTermsVersion(jsonTnC.version);
-        setIsTermsLoaded(true);
-      }
-      if (!isMajorListLoaded) {
-        const jsonMajorList = await getMajorList('wisc.edu');
-        if (jsonMajorList.content?.majorList !== undefined) {
-          setMajorList(jsonMajorList.content?.majorList);
+      if (initiated) {
+        if (!isTermsLoaded) {
+          const jsonTnC = await getTnC();
+          setTermsContent(jsonTnC.content.termsAndConditions);
+          setPrivacyContent(jsonTnC.content.privacyAct);
+          setTermsVersion(jsonTnC.version);
+          setIsTermsLoaded(true);
         }
-        setIsMajorListLoaded(true);
+        if (!isMajorListLoaded) {
+          const jsonMajorList = await getMajorList('wisc.edu');
+          if (jsonMajorList.content?.majorList !== undefined) {
+            setMajorList(jsonMajorList.content?.majorList);
+          }
+          setIsMajorListLoaded(true);
+        }
       }
     };
     loadData();
-  }, [isMajorListLoaded, isTermsLoaded]);
+  }, [initiated, isMajorListLoaded, isTermsLoaded]);
 
   // Timeout for Token
   React.useEffect(() => {
