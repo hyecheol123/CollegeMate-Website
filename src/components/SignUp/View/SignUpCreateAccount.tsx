@@ -5,13 +5,13 @@
  */
 
 // React
-import React, { useState } from 'react';
+import React from 'react';
 // Material UI
 import { Box, Typography, TextField, Button, MenuItem } from '@mui/material';
 import { Check as CheckIcon, Clear as ClearIcon } from '@mui/icons-material';
 // Global Styles
 import PageWrapperStyle from '../Styles/PageWrapper';
-import getNickname, { NicknameResponse } from '../../../data/Miscellaneous/getNickname';
+import getVerifyNickname from '../../../data/User/getVerifyNickname';
 import Modal from '../../../components/Common/Modal/Modal';
 
 interface IProps {
@@ -28,7 +28,7 @@ const titleStyle = {
   variant: 'body1',
   fontWeight: 'bold',
   align: 'left',
-  color: 'darkGrey'
+  color: 'darkGrey',
 };
 
 const subWrapper = {
@@ -64,7 +64,7 @@ const isNicknameSpace = (value: string): boolean => {
  * @return {React.ReactElement} Renders first page of about page
  */
 function SignUpCreateAccount(props: IProps): React.ReactElement {
-  const [nicknameExists, setNicknameExists] = useState<boolean>(false);
+  const [nicknameAvail, setIsNicknameAvail] = React.useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = React.useState<boolean>(false);
   const [modalMsg, setModalMsg] = React.useState<string>('');
 
@@ -97,32 +97,24 @@ function SignUpCreateAccount(props: IProps): React.ReactElement {
   );
 
   const handleVerify = async (): Promise<void> => {
-    try {
-      const response: NicknameResponse = await getNickname();
-      if (isNicknameLength(props.nickname) && isNicknameChar(props.nickname) && !isNicknameSpace(props.nickname)) {
-        if (response.content?.nickname === props.nickname) {
-          console.log('Nickname Exists');
-          setIsModalOpen(true);
-          setModalMsg(
-            'Bad Input. Nickname Exists. Try Again.',
-          );
-          setNicknameExists(true);
-        } else {
-          console.log('Nickname Not Exists');
-          setIsModalOpen(true);
-          setModalMsg(
-            'Great. You can use this nickname.',
-          );
-          setNicknameExists(false);
-        }
-      } else {
+    if (
+      isNicknameLength(props.nickname) &&
+      isNicknameChar(props.nickname) &&
+      !isNicknameSpace(props.nickname)
+    ) {
+      const response = await getVerifyNickname(props.nickname);
+      if (response.content?.isAvailable) {
+        setModalMsg('Great. You can use this nickname.');
         setIsModalOpen(true);
-        setModalMsg(
-          'Error: Need to check all statements.',
-        );
+        setIsNicknameAvail(true);
+      } else {
+        setModalMsg('Nickname Exists. Try different nickname.');
+        setIsModalOpen(true);
+        setIsNicknameAvail(false);
       }
-    } catch (error) {
-      console.error('Error verifying nickname:', error);
+    } else {
+      setIsModalOpen(true);
+      setModalMsg('Error: Does not meet criteria');
     }
   };
   // Modal Close
@@ -183,7 +175,8 @@ function SignUpCreateAccount(props: IProps): React.ReactElement {
                 <ClearIcon color="error" />
               )}
               <Typography variant="body2">
-                May include only upper case, lower case, number, dash, or underscore.
+                May include only upper case, lower case, number, dash, or
+                underscore.
               </Typography>
             </Box>
             <Box mb="16px" display={'flex'} flexDirection={'row'}>
