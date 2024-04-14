@@ -17,8 +17,8 @@ import {
 // Custom Hook to use Context
 import { useGlobalContext } from '../GlobalContext';
 // API Calls
-import postInitiateOTPRequest from '../data/Login/postInitiateOTPRequest';
-import postEnterOTPCode from '../data/Login/postEnterOTPCode';
+import postInitiateOTPRequest from '../data/Authentication/postInitiateOTPRequest';
+import postEnterOTPCode from '../data/Authentication/postEnterOTPCode';
 // Input Validator
 import { emailFormatValidator } from '../inputValidator/emailFormatValidator';
 // Global Style

@@ -25,7 +25,7 @@ import '@fontsource/roboto/700.css';
 // Elements
 import Loading from './components/Common/Loading/Loading';
 import { GlobalContextProvider, useGlobalContext } from './GlobalContext';
-import getRenewToken from './data/Common/getRenewToken';
+import getRenewToken from './data/Authentication/getRenewToken';
 const About = React.lazy(() => import('./Pages/About'));
 const Login = React.lazy(() => import('./Pages/Login'));
 const SignUp = React.lazy(() => import('./Pages/SignUp'));

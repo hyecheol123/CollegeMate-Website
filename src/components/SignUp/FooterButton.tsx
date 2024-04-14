@@ -5,7 +5,7 @@
  */
 
 import React from 'react';
-import { Box, Button } from '@mui/material';
+import { Box, Button, Typography } from '@mui/material';
 
 const buttonWrapperBoxStyle = {
   width: '100%',
@@ -18,7 +18,15 @@ const buttonWrapperBoxStyle = {
 interface FooterButtonProps {
   onClick: () => void; // Function to be called when the button is clicked
   disabled: boolean; // disabled state
+  remainingTimeSec?: number;
 }
+
+// Function to format time
+const formatTime = (seconds: number): string => {
+  const min = String(Math.floor(seconds / 60)).padStart(2, '0');
+  const sec = String(seconds % 60).padStart(2, '0');
+  return `${min}:${sec}`;
+};
 
 /**
  * FooterButton is a React component that renders a styled button.
@@ -28,6 +36,11 @@ interface FooterButtonProps {
 function FooterButton(props: FooterButtonProps): React.ReactElement {
   return (
     <Box sx={buttonWrapperBoxStyle}>
+      {props.remainingTimeSec !== undefined && (
+        <Typography textAlign={'center'} color={'gray'} variant="body1">
+          {formatTime(props.remainingTimeSec)}
+        </Typography>
+      )}
       <Button
         variant="contained"
         color="primary"
