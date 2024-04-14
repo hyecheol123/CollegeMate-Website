@@ -31,7 +31,7 @@ const modalStyle = {
   p: '16px',
   bgcolor: 'white.main',
   border: '2px solid black',
-  borderRadius: '5px',
+  borderRadius: 0,
   boxShadow: 24,
   display: 'flex',
   flexDirection: 'column',
