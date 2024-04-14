@@ -12,16 +12,21 @@ import { Box } from '@mui/material';
 // Custom Hook to use Context
 import { useGlobalContext } from '../GlobalContext';
 // Components
-import TermsConsent from '../components/Common/TermsConsent/TermsConsent';
+import TermsConsentView from '../components/Common/TermsConsentView/TermsConsentView';
 import Header from '../components/NewTnC/Header';
-import AgreedNewTnC from '../components/NewTnC/AgreedNewTnC';
+import ConfirmationView from '../components/Common/ConfirmationView/ConfirmationView';
 import Modal from '../components/Common/Modal/Modal';
 import FooterButton from '../components/Common/FooterButton/FooterButton';
 // API call
 import getTnC from '../data/Miscellaneous/getTnC';
 import postAcceptNewTnC from '../data/User/postAcceptNewTnC';
-// Global Styles
-import PageWrapperStyle from '../components/NewTnC/Styles/PageWrapperStyle';
+
+const pageWrapperStyle = {
+  width: '100%',
+  height: '100%',
+  display: 'flex',
+  flexDirection: 'column',
+};
 
 const footerButtonWrapperStyle = {
   width: '100%',
@@ -119,10 +124,10 @@ function NewTnC(): React.ReactElement {
   }, [navigate]);
 
   return (
-    <Box sx={PageWrapperStyle}>
+    <Box sx={pageWrapperStyle}>
       <Header />
       {step === 0 && (
-        <TermsConsent
+        <TermsConsentView
           isLoaded={isTermsLoaded}
           title="Terms and Conditions"
           content={termsContent}
@@ -132,7 +137,7 @@ function NewTnC(): React.ReactElement {
         />
       )}
       {step === 1 && (
-        <TermsConsent
+        <TermsConsentView
           isLoaded={isTermsLoaded}
           title="Privacy Policy"
           content={privacyContent}
@@ -141,7 +146,9 @@ function NewTnC(): React.ReactElement {
           setAccepted={setIsPrivacyAgreed}
         />
       )}
-      {step === 2 && <AgreedNewTnC />}
+      {step === 2 && (
+        <ConfirmationView message="Completed All Terms and Condition" />
+      )}
       <Box sx={footerButtonWrapperStyle}>
         <FooterButton onClick={moveStep} disabled={!ableToAdvanceStep()} />
       </Box>

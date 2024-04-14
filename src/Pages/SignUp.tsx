@@ -13,10 +13,10 @@ import { Box } from '@mui/material';
 import Header from '../components/SignUp/Header';
 import FooterButton from '../components/Common/FooterButton/FooterButton';
 import Modal from '../components/Common/Modal/Modal';
-import TermsConsent from '../components/Common/TermsConsent/TermsConsent';
+import TermsConsentView from '../components/Common/TermsConsentView/TermsConsentView';
 import SignUpEmail from '../components/SignUp/View/SignUpEmail';
 import SignUpCreatAccount from '../components/SignUp/View/SignUpCreateAccount';
-import AccountCreated from '../components/SignUp/View/AccountCreated';
+import ConfirmationView from '../components/Common/ConfirmationView/ConfirmationView';
 // Custom Hook for Context API
 import { useGlobalContext } from '../GlobalContext';
 // API call
@@ -201,7 +201,7 @@ function SignUp(): React.ReactElement {
     <Box sx={PageWrapperStyle}>
       <Header />
       {step === 0 && (
-        <TermsConsent
+        <TermsConsentView
           isLoaded={isTermsLoaded}
           title="Terms and Conditions"
           content={termsContent}
@@ -211,7 +211,7 @@ function SignUp(): React.ReactElement {
         />
       )}
       {step === 1 && (
-        <TermsConsent
+        <TermsConsentView
           isLoaded={isTermsLoaded}
           title="Privacy Policy"
           content={privacyContent}
@@ -240,7 +240,7 @@ function SignUp(): React.ReactElement {
           remainingTimeSec={tokenExpiresAfterSec}
         />
       )}
-      {step === 4 && <AccountCreated />}
+      {step === 4 && <ConfirmationView message="Account created" />}
       <Box sx={footerButtonWrapperStyle}>
         <FooterButton
           onClick={moveStep}
