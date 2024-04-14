@@ -144,7 +144,13 @@ function Login(): React.ReactElement {
     } else if (result.responseCode === 201) {
       globalContext.dispatch({ type: 'LOGIN' });
       localStorage.setItem('LOGIN', 'yes');
-      navigate('/');
+      if (result.content?.needNewTNCAccpet) {
+        globalContext.dispatch({ type: 'SET_NEW_TNC' });
+        localStorage.setItem('SET_NEW_TNC', 'yes');
+        navigate('/newTnC');
+      } else {
+        navigate('/');
+      }
     } else {
       setErrorMsg('Unknown Error');
     }

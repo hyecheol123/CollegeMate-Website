@@ -28,6 +28,7 @@ import { GlobalContextProvider, useGlobalContext } from './GlobalContext';
 import getRenewToken from './data/Authentication/getRenewToken';
 const About = React.lazy(() => import('./Pages/About'));
 const Login = React.lazy(() => import('./Pages/Login'));
+const NewTnC = React.lazy(() => import('./Pages/NewTnC'));
 const SignUp = React.lazy(() => import('./Pages/SignUp'));
 
 // MUI Theme (Setup Font family and Palette Color)
@@ -203,13 +204,34 @@ function App(): React.ReactElement {
           const { responseCode } = await getRenewToken();
           if (responseCode !== 200) {
             localStorage.removeItem('LOGIN');
-            globalContext.dispatch({ type: 'INITIALIZE', login: false });
+            globalContext.dispatch({
+              type: 'INITIALIZE',
+              login: false,
+              newTnC: false,
+            });
           } else {
-            globalContext.dispatch({ type: 'INITIALIZE', login: true });
+            if (localStorage.getItem('SET_NEW_TNC') === 'yes') {
+              globalContext.dispatch({
+                type: 'INITIALIZE',
+                login: true,
+                newTnC: true,
+              });
+            } else {
+              localStorage.removeItem('SET_NEW_TNC');
+              globalContext.dispatch({
+                type: 'INITIALIZE',
+                login: true,
+                newTnC: false,
+              });
+            }
           }
         } else {
           localStorage.removeItem('LOGIN');
-          globalContext.dispatch({ type: 'INITIALIZE', login: false });
+          globalContext.dispatch({
+            type: 'INITIALIZE',
+            login: false,
+            newTnC: false,
+          });
         }
       }
     }
@@ -237,7 +259,7 @@ function App(): React.ReactElement {
         />
         <Route
           path="/newtnc"
-          element={globalContext.initialized ? <></> : <Loading />}
+          element={globalContext.initialized ? <NewTnC /> : <Loading />}
         />
         <Route
           path="/signup"
