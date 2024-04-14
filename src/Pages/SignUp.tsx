@@ -13,13 +13,14 @@ import Header from '../components/SignUp/Header';
 import FooterButton from '../components/SignUp/FooterButton';
 import SignUpTerms from '../components/SignUp/View/SignUpTerms';
 import SignUpEmail from '../components/SignUp/View/SignUpEmail';
-import SignUpCreatAccount from '../components/SignUp/View/SignUpCreatAccount';
+import SignUpCreatAccount from '../components/SignUp/View/SignUpCreateAccount';
 // API call
 import getTnC from '../data/Miscellaneous/getTnC';
 import getMajorList from '../data/Miscellaneous/getMajorList';
 import postCreateUser from '../data/User/postCreateUser';
 // Global Styles
 import PageWrapperStyle from '../components/SignUp/Styles/PageWrapper';
+import Modal from '../components/Common/Modal/Modal';
 
 const footerButtonWrapperStyle = {
   width: '100%',
@@ -54,6 +55,8 @@ function SignUp(): React.ReactElement {
   const [majorList, setMajorList] = React.useState<string[]>([]);
   const [isMajorListLoaded, setIsMajorListLoaded] =
     React.useState<boolean>(false);
+  const [isModalOpen, setIsModalOpen] = React.useState<boolean>(false);
+  const [modalMsg, setModalMsg] = React.useState<string>('');
   // Step 4 - Success
 
   // Load Terms
@@ -87,6 +90,12 @@ function SignUp(): React.ReactElement {
     }
     return () => clearTimeout(timeout);
   }, [tokenExpiresAfterSec]);
+
+  // Modal Close
+  const handleModalClose = React.useCallback(() => {
+    setIsModalOpen(false);
+    setModalMsg('');
+  }, []);
 
   // Helper method to advance step
   const ableToAdvanceStep = React.useCallback((): boolean => {
@@ -132,7 +141,28 @@ function SignUp(): React.ReactElement {
         if (postCreateUserResponse.responseCode === 201) {
           setStep(step + 1);
         } else {
-          // TODO: Error Pop-Up
+          setIsModalOpen(true);
+          switch (postCreateUserResponse.responseCode) {
+            case 409:
+              setModalMsg(
+                'New Version of Terms and Condition detected. Please refresh the page and start again.',
+              );
+              break;
+            case 400:
+              setModalMsg(
+                'Bad Input. Might be due to duplicated nickname or missing field. Try Again.',
+              );
+              break;
+            case 401:
+            case 403:
+              setModalMsg('Timeout. Please refresh the page and start again.');
+              break;
+            default:
+              setModalMsg(
+                'Unknown Errr Occurred. Please refresh the page and start again.',
+              );
+              break;
+          }
         }
       } else {
         setStep(step + 1);
@@ -192,6 +222,11 @@ function SignUp(): React.ReactElement {
       <Box sx={footerButtonWrapperStyle}>
         <FooterButton onClick={moveStep} disabled={!ableToAdvanceStep()} />
       </Box>
+      <Modal
+        isOpen={isModalOpen}
+        handleClose={handleModalClose}
+        message={modalMsg}
+      />
     </Box>
   );
 }

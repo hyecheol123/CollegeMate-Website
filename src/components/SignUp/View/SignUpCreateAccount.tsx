@@ -1,17 +1,26 @@
 /**
- * Component for the first page of signup page (SignUpTerms).
+ * Component for the information gathering page of signup page (SignUpCreateAccount).
  * @author Heewon Kim <khw0285@gmail.com>
+ * @author Hyecheol (Jerry) Jang <hyecheol123@gmail.com>
  */
 
 // React
 import React from 'react';
 // Material UI
-import { Box, Typography, TextField, Button } from '@mui/material';
+import { Box, Typography, TextField, Button, MenuItem } from '@mui/material';
 import { Check as CheckIcon, Clear as ClearIcon } from '@mui/icons-material';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
 // Global Styles
 import PageWrapperStyle from '../Styles/PageWrapper';
+
+interface IProps {
+  majorList: string[];
+  nickname: string;
+  setNickname: React.Dispatch<React.SetStateAction<string>>;
+  major: string;
+  setMajor: React.Dispatch<React.SetStateAction<string>>;
+  gradYear: number;
+  setGradYear: React.Dispatch<React.SetStateAction<number>>;
+}
 
 const titleStyle = {
   variant: 'body1',
@@ -32,12 +41,26 @@ const inputStyle = {
   my: '16px',
 };
 
+// Function to check if the nickname follows the rules
+const isNicknameLength = (value: string): boolean => {
+  const pattern = /^.{4,20}$/;
+  return pattern.test(value);
+};
+const isNicknameChar = (value: string): boolean => {
+  const pattern = /^[a-zA-Z0-9_-]*$/;
+  return pattern.test(value);
+};
+const isNicknameSpace = (value: string): boolean => {
+  const pattern = /\s/;
+  return pattern.test(value);
+};
+
 /**
  * React Functional Component for SignUp page's first page
- * @param {ISignUpTermsProps} props properties sent from this parents
+ * @param {IProps} props properties sent from this parents
  * @return {React.ReactElement} Renders first page of about page
  */
-function SignUpCreateAccount(): React.ReactElement {
+function SignUpCreateAccount(props: IProps): React.ReactElement {
   const currentYear = new Date().getFullYear();
 
   const graduationYears = Array.from(
@@ -45,50 +68,26 @@ function SignUpCreateAccount(): React.ReactElement {
     (_, index) => 2015 + index,
   );
 
-  // Function to check if the nickname follows the rules
-  const isNicknameLength = (value: string) => {
-    const pattern = /^.{4,20}$/;
-    return pattern.test(value);
-  };
-  const isNicknameChar = (value: string) => {
-    const pattern = /^[a-zA-Z0-9_-]*$/;
-    return pattern.test(value);
-  };
-  const isNicknameSpace = (value: string) => {
-    const pattern = /\s/;
-    return pattern.test(value);
-  };
-
-  // Fetch major options when the component mounts
-  React.useEffect(() => {
-    // Define an async function to fetch data from getCU
-    const fetchOptions = async () => {
-      try {
-        const apiResponse: ApiResponse = await postCreateUser();
-        // Assuming that the major options are in the 'major' field of the API response
-        setMajorOptions(apiResponse.major);
-      } catch (error) {
-        console.error('Error fetching major options:', error);
-      }
-    };
-
-    // Call the async function
-    fetchOptions();
-  }, []);
-
-  const handleMajor = (event: SelectChangeEvent<typeof major>) => {
-    const {
-      target: { value },
-    } = event;
-    setMajor(typeof value === 'string' ? value.split(',') : value);
-  };
-
-  const handleGraduation = (event: SelectChangeEvent<typeof gradOptions>) => {
-    const {
-      target: { value },
-    } = event;
-    setGradOptions(value);
-  };
+  // TextField change handlers
+  const handleMajorChange = React.useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>): void => {
+      props.setMajor(event.target.value);
+    },
+    [props],
+  );
+  const handleGradYearChange = React.useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>): void => {
+      const year = parseInt(event.target.value);
+      props.setGradYear(year);
+    },
+    [props],
+  );
+  const handleNicknameChange = React.useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>): void => {
+      props.setNickname(event.target.value);
+    },
+    [props],
+  );
 
   return (
     <Box mt={'16px'} sx={{ ...PageWrapperStyle, alignItems: 'center' }}>
@@ -106,15 +105,15 @@ function SignUpCreateAccount(): React.ReactElement {
                 pattern: '[a-zA-Z0-9_-]{4,20}',
               }}
               placeholder="Enter your nickname"
-              value={nickname}
-              onChange={(e) => setNickname(e.target.value)}
+              value={props.nickname}
+              onChange={handleNicknameChange}
               required
             />
             <Button>Verify</Button>
           </Box>
           <Box mb="12px">
             <Box display={'flex'} flexDirection={'row'}>
-              {isNicknameLength(nickname) && nickname !== null ? (
+              {isNicknameLength(props.nickname) && props.nickname !== null ? (
                 <CheckIcon color="success" />
               ) : (
                 <ClearIcon color="error" />
@@ -124,7 +123,7 @@ function SignUpCreateAccount(): React.ReactElement {
               </Typography>
             </Box>
             <Box display={'flex'} flexDirection={'row'}>
-              {isNicknameChar(nickname) && nickname !== null ? (
+              {isNicknameChar(props.nickname) && props.nickname !== null ? (
                 <CheckIcon color="success" />
               ) : (
                 <ClearIcon color="error" />
@@ -135,7 +134,7 @@ function SignUpCreateAccount(): React.ReactElement {
               </Typography>
             </Box>
             <Box display={'flex'} flexDirection={'row'}>
-              {!isNicknameSpace(nickname) && nickname !== null ? (
+              {!isNicknameSpace(props.nickname) && props.nickname !== null ? (
                 <CheckIcon color="success" />
               ) : (
                 <ClearIcon color="error" />
@@ -146,47 +145,37 @@ function SignUpCreateAccount(): React.ReactElement {
         </Box>
         <Box flex={1}>
           <Typography sx={titleStyle}>Major</Typography>
-          <Select
+          <TextField
+            select
+            placeholder="Select your major"
+            value={props.major}
+            onChange={handleMajorChange}
+            required
             sx={inputStyle}
-            value={major}
-            onChange={handleMajor}
-            // set the size of list
-            MenuProps={{
-              PaperProps: {
-                style: {
-                  maxHeight: '200px',
-                },
-              },
-            }}
           >
-            {majorOptions.map((option) => (
+            {props.majorList.map((option) => (
               <MenuItem key={option} value={option}>
                 {option}
               </MenuItem>
             ))}
-          </Select>
+          </TextField>
         </Box>
         <Box flex={1}>
           <Typography sx={titleStyle}>Expected Graduation Year</Typography>
-          <Select
+          <TextField
+            select
+            placeholder="Select your (estimated) graduation year"
+            value={props.gradYear}
+            onChange={handleGradYearChange}
+            required
             sx={inputStyle}
-            value={gradOptions}
-            onChange={handleGraduation}
-            // set the size of list
-            MenuProps={{
-              PaperProps: {
-                style: {
-                  maxHeight: '200px',
-                },
-              },
-            }}
           >
-            {graduationYears.map((year) => (
-              <MenuItem key={year} value={year}>
-                {year}
+            {graduationYears.map((option) => (
+              <MenuItem key={option} value={option}>
+                {option}
               </MenuItem>
             ))}
-          </Select>
+          </TextField>
         </Box>
       </Box>
     </Box>

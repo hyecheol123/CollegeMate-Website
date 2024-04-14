@@ -32,7 +32,7 @@ export default function postCreatUser(
   );
 
   return new Promise((resolve) => {
-    if (nickname === 'bad') {
+    if (nickname === 'badbad') {
       // Bad Request
       setTimeout(() => resolve({ responseCode: 400 }), 1000);
     } else if (nickname === 'exist') {
