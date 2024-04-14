@@ -37,7 +37,8 @@ const titleStyle = {
 };
 
 const subWrapper = {
-  width: '60%',
+  width: '90%',
+  maxWidth: '500px',
   display: 'flex',
   flexDirection: 'column',
   justifyContent: 'center',
@@ -166,11 +167,13 @@ function SignUpCreateAccount(props: IProps): React.ReactElement {
             placeholder="Enter your name"
             disabled={isTimeout}
             required
+            margin="dense"
+            size="small"
           />
         </Box>
         <Box flex={1}>
           <Typography sx={titleStyle}>Nickname</Typography>
-          <Box display={'flex'} flexDirection={'row'}>
+          <Box display="flex" flexDirection="row" gap="12px">
             <TextField
               sx={{ flex: '1', align: 'center', my: '16px' }}
               inputProps={{
@@ -181,8 +184,16 @@ function SignUpCreateAccount(props: IProps): React.ReactElement {
               onChange={handleNicknameChange}
               disabled={isTimeout}
               required
+              margin="dense"
+              size="small"
             />
-            <Button onClick={handleVerify} disabled={isTimeout}>
+            <Button
+              sx={{ my: '16px' }}
+              onClick={handleVerify}
+              disabled={isTimeout}
+              variant="outlined"
+              size="small"
+            >
               Verify
             </Button>
           </Box>
@@ -240,6 +251,8 @@ function SignUpCreateAccount(props: IProps): React.ReactElement {
             required
             sx={inputStyle}
             disabled={isTimeout}
+            margin="dense"
+            size="small"
           >
             {props.majorList.map((option) => (
               <MenuItem key={option} value={option}>
@@ -258,6 +271,8 @@ function SignUpCreateAccount(props: IProps): React.ReactElement {
             required
             sx={inputStyle}
             disabled={isTimeout}
+            margin="dense"
+            size="small"
           >
             {graduationYears.map((option) => (
               <MenuItem key={option} value={option}>
