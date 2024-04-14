@@ -6,21 +6,23 @@
 
 // React
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 // Material UI
 import { Box } from '@mui/material';
 // Components
 import Header from '../components/SignUp/Header';
 import FooterButton from '../components/SignUp/FooterButton';
+import Modal from '../components/Common/Modal/Modal';
 import SignUpTerms from '../components/SignUp/View/SignUpTerms';
 import SignUpEmail from '../components/SignUp/View/SignUpEmail';
 import SignUpCreatAccount from '../components/SignUp/View/SignUpCreateAccount';
+import AccountCreated from '../components/SignUp/View/AccountCreated';
 // API call
 import getTnC from '../data/Miscellaneous/getTnC';
 import getMajorList from '../data/Miscellaneous/getMajorList';
 import postCreateUser from '../data/User/postCreateUser';
 // Global Styles
 import PageWrapperStyle from '../components/SignUp/Styles/PageWrapper';
-import Modal from '../components/Common/Modal/Modal';
 
 const footerButtonWrapperStyle = {
   width: '100%',
@@ -58,6 +60,7 @@ function SignUp(): React.ReactElement {
   const [isModalOpen, setIsModalOpen] = React.useState<boolean>(false);
   const [modalMsg, setModalMsg] = React.useState<string>('');
   // Step 4 - Success
+  const navigate = useNavigate();
 
   // Load Terms
   React.useEffect(() => {
@@ -112,6 +115,8 @@ function SignUp(): React.ReactElement {
           major !== '' &&
           gradYear !== -1
         );
+      case 4:
+        return true;
       default:
         return false;
     }
@@ -163,6 +168,10 @@ function SignUp(): React.ReactElement {
               break;
           }
         }
+      } else if (step === 4) {
+        // Completed sign up
+        // Redirect to /signin
+        navigate('/login');
       } else {
         setStep(step + 1);
       }
@@ -171,6 +180,7 @@ function SignUp(): React.ReactElement {
     ableToAdvanceStep,
     gradYear,
     major,
+    navigate,
     nickname,
     step,
     termsVersion,
@@ -218,6 +228,7 @@ function SignUp(): React.ReactElement {
           setGradYear={setGradYear}
         />
       )}
+      {step === 4 && <AccountCreated />}
       <Box sx={footerButtonWrapperStyle}>
         <FooterButton onClick={moveStep} disabled={!ableToAdvanceStep()} />
       </Box>
