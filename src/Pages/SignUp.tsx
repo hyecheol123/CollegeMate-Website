@@ -57,6 +57,7 @@ function SignUp(): React.ReactElement {
   const [majorList, setMajorList] = React.useState<string[]>([]);
   const [isMajorListLoaded, setIsMajorListLoaded] =
     React.useState<boolean>(false);
+  const [canSend, setCanSend] = React.useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = React.useState<boolean>(false);
   const [modalMsg, setModalMsg] = React.useState<string>('');
   // Step 4 - Success
@@ -109,12 +110,7 @@ function SignUp(): React.ReactElement {
       case 2:
         return verifEmail !== '';
       case 3:
-        return (
-          isMajorListLoaded &&
-          nickname !== '' &&
-          major !== '' &&
-          gradYear !== -1
-        );
+        return isMajorListLoaded && canSend;
       case 4:
         return true;
       default:
@@ -127,9 +123,7 @@ function SignUp(): React.ReactElement {
     isPrivacyAgreed,
     verifEmail,
     isMajorListLoaded,
-    nickname,
-    major,
-    gradYear,
+    canSend,
   ]);
   const moveStep = React.useCallback(async () => {
     if (ableToAdvanceStep()) {
@@ -226,6 +220,8 @@ function SignUp(): React.ReactElement {
           setMajor={setMajor}
           gradYear={gradYear}
           setGradYear={setGradYear}
+          setCanSend={setCanSend}
+          remainingTimeSec={tokenExpiresAfterSec}
         />
       )}
       {step === 4 && <AccountCreated />}

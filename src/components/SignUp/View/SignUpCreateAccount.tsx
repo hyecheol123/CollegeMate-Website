@@ -6,13 +6,16 @@
 
 // React
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 // Material UI
 import { Box, Typography, TextField, Button, MenuItem } from '@mui/material';
 import { Check as CheckIcon, Clear as ClearIcon } from '@mui/icons-material';
+// Component
+import Modal from '../../../components/Common/Modal/Modal';
+// API Call
+import getVerifyNickname from '../../../data/User/getVerifyNickname';
 // Global Styles
 import PageWrapperStyle from '../Styles/PageWrapper';
-import getVerifyNickname from '../../../data/User/getVerifyNickname';
-import Modal from '../../../components/Common/Modal/Modal';
 
 interface IProps {
   majorList: string[];
@@ -22,6 +25,8 @@ interface IProps {
   setMajor: React.Dispatch<React.SetStateAction<string>>;
   gradYear: number;
   setGradYear: React.Dispatch<React.SetStateAction<number>>;
+  setCanSend: React.Dispatch<React.SetStateAction<boolean>>;
+  remainingTimeSec: number;
 }
 
 const titleStyle = {
@@ -66,14 +71,40 @@ const isNicknameSpace = (value: string): boolean => {
 function SignUpCreateAccount(props: IProps): React.ReactElement {
   const [nicknameAvail, setIsNicknameAvail] = React.useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = React.useState<boolean>(false);
+  const [isTimeout, setIsTimeout] = React.useState<boolean>(false);
   const [modalMsg, setModalMsg] = React.useState<string>('');
-
+  const navigate = useNavigate();
+  // Variables
   const currentYear = new Date().getFullYear();
-
   const graduationYears = Array.from(
     { length: currentYear - 2015 + 5 },
     (_, index) => 2015 + index,
   );
+
+  // Checking form send eligibility
+  React.useEffect(() => {
+    if (
+      props.nickname !== '' &&
+      nicknameAvail &&
+      isNicknameLength(props.nickname) &&
+      isNicknameChar(props.nickname) &&
+      !isNicknameSpace(props.nickname) &&
+      props.major !== '' &&
+      props.gradYear !== -1 &&
+      props.remainingTimeSec > 0
+    ) {
+      props.setCanSend(true);
+    }
+  }, [nicknameAvail, props]);
+
+  // Checking time limit
+  React.useEffect(() => {
+    if (props.remainingTimeSec <= 0) {
+      setIsTimeout(true);
+      setModalMsg('Timeout! Please restart');
+      setIsModalOpen(true);
+    }
+  }, [props.remainingTimeSec]);
 
   // TextField change handlers
   const handleMajorChange = React.useCallback(
@@ -120,14 +151,22 @@ function SignUpCreateAccount(props: IProps): React.ReactElement {
   // Modal Close
   const handleModalClose = React.useCallback(() => {
     setIsModalOpen(false);
-  }, []);
+    if (isTimeout) {
+      navigate(0);
+    }
+  }, [isTimeout, navigate]);
 
   return (
     <Box mt={'16px'} sx={{ ...PageWrapperStyle, alignItems: 'center' }}>
       <Box sx={subWrapper}>
         <Box flex={1}>
           <Typography sx={titleStyle}>Name</Typography>
-          <TextField sx={inputStyle} placeholder="Enter your name"></TextField>
+          <TextField
+            sx={inputStyle}
+            placeholder="Enter your name"
+            disabled={isTimeout}
+            required
+          />
         </Box>
         <Box flex={1}>
           <Typography sx={titleStyle}>Nickname</Typography>
@@ -140,14 +179,12 @@ function SignUpCreateAccount(props: IProps): React.ReactElement {
               placeholder="Enter your nickname"
               value={props.nickname}
               onChange={handleNicknameChange}
+              disabled={isTimeout}
               required
             />
-            <Button onClick={handleVerify}>Verify</Button>
-            <Modal
-              isOpen={isModalOpen}
-              handleClose={handleModalClose}
-              message={modalMsg}
-            />
+            <Button onClick={handleVerify} disabled={isTimeout}>
+              Verify
+            </Button>
           </Box>
           <Box>
             <Box mb="12px" display={'flex'} flexDirection={'row'}>
@@ -202,6 +239,7 @@ function SignUpCreateAccount(props: IProps): React.ReactElement {
             onChange={handleMajorChange}
             required
             sx={inputStyle}
+            disabled={isTimeout}
           >
             {props.majorList.map((option) => (
               <MenuItem key={option} value={option}>
@@ -219,6 +257,7 @@ function SignUpCreateAccount(props: IProps): React.ReactElement {
             onChange={handleGradYearChange}
             required
             sx={inputStyle}
+            disabled={isTimeout}
           >
             {graduationYears.map((option) => (
               <MenuItem key={option} value={option}>
@@ -228,6 +267,11 @@ function SignUpCreateAccount(props: IProps): React.ReactElement {
           </TextField>
         </Box>
       </Box>
+      <Modal
+        isOpen={isModalOpen}
+        handleClose={handleModalClose}
+        message={modalMsg}
+      />
     </Box>
   );
 }
