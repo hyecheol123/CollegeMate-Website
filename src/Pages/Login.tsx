@@ -17,8 +17,8 @@ import {
 // Custom Hook to use Context
 import { useGlobalContext } from '../GlobalContext';
 // API Calls
-import postInitiateOTPRequest from '../data/Login/postInitiateOTPRequest';
-import postEnterOTPCode from '../data/Login/postEnterOTPCode';
+import postInitiateOTPRequest from '../data/Authentication/postInitiateOTPRequest';
+import postEnterOTPCode from '../data/Authentication/postEnterOTPCode';
 // Input Validator
 import { emailFormatValidator } from '../inputValidator/emailFormatValidator';
 // Global Style
@@ -142,9 +142,16 @@ function Login(): React.ReactElement {
       setElapsedSec(secToExp);
       setErrorMsg('Code Expired');
     } else if (result.responseCode === 201) {
-      globalContext.dispatch({ type: 'LOGIN' });
+      globalContext.dispatch({ type: 'LOGIN', email: email });
       localStorage.setItem('LOGIN', 'yes');
-      navigate('/');
+      if (result.content?.needNewTNCAccpet) {
+        globalContext.dispatch({ type: 'SET_NEW_TNC' });
+        localStorage.setItem('SET_NEW_TNC', 'yes');
+        navigate('/newTnC');
+      } else {
+        localStorage.removeItem('SET_NEW_TNC');
+        navigate('/');
+      }
     } else {
       setErrorMsg('Unknown Error');
     }
