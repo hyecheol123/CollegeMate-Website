@@ -6,8 +6,8 @@
 // React
 import React from 'react';
 // Components
-import AboutPage from './components/About/AboutPage';
-import { AboutContextProvider } from './components/About/AboutContext';
+import AboutPage from '../components/About/AboutPage';
+import { AboutContextProvider } from '../components/About/AboutContext';
 
 /**
  * React functional component to render about page

@@ -25,9 +25,10 @@ import '@fontsource/roboto/700.css';
 // Elements
 import Loading from './components/Common/Loading/Loading';
 import { GlobalContextProvider, useGlobalContext } from './GlobalContext';
-import getRenewToken from './data/Common/getRenewToken';
-const About = React.lazy(() => import('./About'));
-const Login = React.lazy(() => import('./Login'));
+import getRenewToken from './data/Authentication/getRenewToken';
+const About = React.lazy(() => import('./Pages/About'));
+const Login = React.lazy(() => import('./Pages/Login'));
+const SignUp = React.lazy(() => import('./Pages/SignUp'));
 
 // MUI Theme (Setup Font family and Palette Color)
 declare module '@mui/material/styles' {
@@ -236,15 +237,7 @@ function App(): React.ReactElement {
         />
         <Route
           path="/signup"
-          element={
-            globalContext.initialized ? (
-              <Typography variant="h1" color="primary">
-                Sign Up
-              </Typography>
-            ) : (
-              <Loading />
-            )
-          }
+          element={globalContext.initialized ? <SignUp /> : <Loading />}
         />
         <Route
           path="/about"

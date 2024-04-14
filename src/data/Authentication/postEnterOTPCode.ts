@@ -30,7 +30,7 @@ export default function postEnterOTPCode(
   );
 
   return new Promise((resolve) => {
-    if (requestId === 'signinRequestId') {
+    if (requestId === 'signinRequestId' || requestId === 'signupRequestId') {
       if (passcode === '000000') {
         // Mismatch code
         setTimeout(() => resolve({ responseCode: 499 }), 1000);
