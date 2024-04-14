@@ -1,5 +1,5 @@
 /**
- * Component for the first page of signup page (SignUpTerms).
+ * Component for the first page of signup/newTnC page (TermsConsent).
  * @author Heewon Kim <khw0285@gmail.com>
  * @author Hyecheol (Jerry) Jang <hyecheol123@gmail.com>
  */
@@ -9,9 +9,9 @@ import React from 'react';
 // Material UI
 import { Box, Typography, Checkbox, FormControlLabel } from '@mui/material';
 // Components
-import Loading from '../../Common/Loading/Loading';
+import Loading from '../Loading/Loading';
 // Global Styles
-import PageWrapperStyle from '../Styles/PageWrapper';
+import PageWrapperStyle from '../../SignUp/Styles/PageWrapper';
 
 const termsStyle = {
   flex: 1,
@@ -38,7 +38,7 @@ const checkBoxStyle = {
 /**
  * Properties sent from this parents
  */
-interface ISignUpTermsProps {
+interface ITermsConsent {
   isLoaded: boolean;
   title: string;
   content: string;
@@ -49,10 +49,10 @@ interface ISignUpTermsProps {
 
 /**
  * React Functional Component for SignUp page's first page
- * @param {ISignUpTermsProps} props properties sent from this parents
+ * @param {ITermsConsent} props properties sent from this parents
  * @return {React.ReactElement} Renders first page of about page
  */
-function SignUpTerms(props: ISignUpTermsProps): React.ReactElement {
+function TermsConsent(props: ITermsConsent): React.ReactElement {
   // Destructuring props to extract required values
   const {
     isLoaded,
@@ -105,4 +105,4 @@ function SignUpTerms(props: ISignUpTermsProps): React.ReactElement {
   );
 }
 
-export default SignUpTerms;
+export default TermsConsent;

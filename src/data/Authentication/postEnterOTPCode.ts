@@ -37,6 +37,13 @@ export default function postEnterOTPCode(
       } else if (passcode === '111111') {
         // Expired Code
         setTimeout(() => resolve({ responseCode: 409 }), 1000);
+      } else if (passcode === '222222') {
+        // Correct code & Need to accept new terms and condition
+        setTimeout(
+          () =>
+            resolve({ responseCode: 201, content: { needNewTNCAccpet: true } }),
+          1000,
+        );
       } else {
         // Correct code
         setTimeout(() => resolve({ responseCode: 201 }), 1000);

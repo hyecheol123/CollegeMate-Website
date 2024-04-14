@@ -28,6 +28,7 @@ import { GlobalContextProvider, useGlobalContext } from './GlobalContext';
 import getRenewToken from './data/Authentication/getRenewToken';
 const About = React.lazy(() => import('./Pages/About'));
 const Login = React.lazy(() => import('./Pages/Login'));
+const NewTnC = React.lazy(() => import('./Pages/NewTnC'));
 const SignUp = React.lazy(() => import('./Pages/SignUp'));
 const NotFound = React.lazy(() => import('./Pages/NotFound'));
 
@@ -197,20 +198,48 @@ function App(): React.ReactElement {
      * Helper method to initiate the application
      */
     async function init(): Promise<void> {
+      // TODO: Naviage based on init result
       // When application not initialized
       if (!globalContext.initialized) {
         // check whether admin token alive or not
         if (localStorage.getItem('LOGIN') === 'yes') {
-          const { responseCode } = await getRenewToken();
-          if (responseCode !== 200) {
+          const response = await getRenewToken();
+          if (response.responseCode !== 200) {
             localStorage.removeItem('LOGIN');
-            globalContext.dispatch({ type: 'INITIALIZE', login: false });
+            localStorage.removeItem('SET_NEW_TNC');
+            globalContext.dispatch({
+              type: 'INITIALIZE',
+              login: false,
+              email: '',
+              newTnC: false,
+            });
           } else {
-            globalContext.dispatch({ type: 'INITIALIZE', login: true });
+            if (localStorage.getItem('SET_NEW_TNC') === 'yes') {
+              globalContext.dispatch({
+                type: 'INITIALIZE',
+                login: true,
+                email: response.content.email,
+                newTnC: true,
+              });
+            } else {
+              localStorage.removeItem('SET_NEW_TNC');
+              globalContext.dispatch({
+                type: 'INITIALIZE',
+                login: true,
+                email: response.content.email,
+                newTnC: false,
+              });
+            }
           }
         } else {
           localStorage.removeItem('LOGIN');
-          globalContext.dispatch({ type: 'INITIALIZE', login: false });
+          localStorage.removeItem('SET_NEW_TNC');
+          globalContext.dispatch({
+            type: 'INITIALIZE',
+            login: false,
+            email: '',
+            newTnC: false,
+          });
         }
       }
     }
@@ -235,6 +264,10 @@ function App(): React.ReactElement {
         <Route
           path="/login"
           element={globalContext.initialized ? <Login /> : <Loading />}
+        />
+        <Route
+          path="/newtnc"
+          element={globalContext.initialized ? <NewTnC /> : <Loading />}
         />
         <Route
           path="/signup"
