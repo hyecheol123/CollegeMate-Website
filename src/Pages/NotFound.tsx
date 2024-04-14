@@ -11,11 +11,13 @@ import { useNavigate } from 'react-router-dom';
 import { Box, Button, Typography } from '@mui/material';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 
-const PageWrapperStyle = {
+const pageWrapperStyle = {
   width: '100%',
   height: '100%',
   display: 'flex',
   flexDirection: 'column',
+  justifyContent: 'center',
+  alignItems: 'center',
 };
 
 /**
@@ -32,25 +34,12 @@ function NotFound(): React.ReactElement {
   }, [navigate]);
 
   return (
-    <Box
-      sx={{
-        ...PageWrapperStyle,
-        justifyContent: 'center',
-        alignItems: 'center',
-        display: 'flex',
-      }}
-    >
-      <Box
-        sx={{
-          textAlign: 'center',
-          pt: '32px',
-          pb: '16px',
-        }}
-      >
+    <Box sx={pageWrapperStyle}>
+      <Box sx={{ textAlign: 'center', pt: '32px', pb: '16px' }}>
         <WarningAmberIcon
           color={'error'}
           fontSize="large"
-          sx={{ fontSize: '8em' }}
+          sx={{ fontSize: '128px' }}
         />
         <Typography variant="h1" color={'darkgrey'}>
           We could not find this page.
