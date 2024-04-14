@@ -36,13 +36,21 @@ const titleStyle = {
   color: 'darkGrey',
 };
 
-const subWrapper = {
-  width: '90%',
-  maxWidth: '800px',
-  overflow: 'auto',
+const subWrapperStyle = {
+  width: '100%',
   display: 'flex',
   flexDirection: 'column',
-  flexGrow: 1, // This will make the container expand to fill available space
+  alignItems: 'center',
+  justifyContent: 'center',
+  flexGrow: 1,
+};
+
+const inputWrapperStyle = {
+  ...PageWrapperStyle,
+  padding: 0,
+  justiftContent: 'center',
+  display: 'flex',
+  flexDirection: 'column',
 };
 
 const inputStyle = {
@@ -166,138 +174,140 @@ function SignUpCreateAccount(props: IProps): React.ReactElement {
   }, [isTimeout, navigate]);
 
   return (
-    <Box mt={'16px'} sx={{ ...PageWrapperStyle, alignItems: 'center' }}>
-      <Box sx={subWrapper}>
-        <Box flex={1}>
-          <Typography sx={titleStyle}>Name</Typography>
-          <TextField
-            sx={inputStyle}
-            placeholder="Enter your name"
-            disabled={isTimeout}
-            required
-            margin="dense"
-            size="small"
-          />
-        </Box>
-        <Box flex={1}>
-          <Typography sx={titleStyle}>Nickname</Typography>
-          <Box display="flex" flexDirection="row" gap="12px">
+    <Box sx={subWrapperStyle}>
+      <Box mt={'16px'} sx={{ width: '90%', maxWidth: '600px' }}>
+        <Box sx={inputWrapperStyle}>
+          <Box flex={1}>
+            <Typography sx={titleStyle}>Name</Typography>
             <TextField
-              sx={{ flex: '1', align: 'center', my: '16px' }}
-              inputProps={{
-                pattern: '[a-zA-Z0-9_-]{4,20}',
-              }}
-              placeholder="Enter your nickname"
-              value={props.nickname}
-              onChange={handleNicknameChange}
+              sx={inputStyle}
+              placeholder="Enter your name"
               disabled={isTimeout}
               required
               margin="dense"
               size="small"
             />
-            <Button
-              sx={{ my: '16px' }}
-              onClick={handleVerify}
+          </Box>
+          <Box flex={1}>
+            <Typography sx={titleStyle}>Nickname</Typography>
+            <Box display="flex" flexDirection="row" gap="12px">
+              <TextField
+                sx={{ flex: '1', align: 'center', my: '16px' }}
+                inputProps={{
+                  pattern: '[a-zA-Z0-9_-]{4,20}',
+                }}
+                placeholder="Enter your nickname"
+                value={props.nickname}
+                onChange={handleNicknameChange}
+                disabled={isTimeout}
+                required
+                margin="dense"
+                size="small"
+              />
+              <Button
+                sx={{ my: '16px' }}
+                onClick={handleVerify}
+                disabled={isTimeout}
+                variant="outlined"
+                size="small"
+              >
+                Verify
+              </Button>
+            </Box>
+            <Box>
+              <Box mb="12px" display={'flex'} flexDirection={'row'}>
+                {props.nickname ? (
+                  isNicknameLength(props.nickname) ? (
+                    <CheckIcon color="success" />
+                  ) : (
+                    <ClearIcon color="error" />
+                  )
+                ) : (
+                  <ClearIcon color="error" />
+                )}
+                <Typography variant="body2">
+                  Must be between 4 and 20 characters.
+                </Typography>
+              </Box>
+              <Box mb="12px" display={'flex'} flexDirection={'row'}>
+                {props.nickname ? (
+                  isNicknameChar(props.nickname) ? (
+                    <CheckIcon color="success" />
+                  ) : (
+                    <ClearIcon color="error" />
+                  )
+                ) : (
+                  <ClearIcon color="error" />
+                )}
+                <Typography variant="body2">
+                  May include only upper case, lower case, number, dash, or
+                  underscore.
+                </Typography>
+              </Box>
+              <Box mb="16px" display={'flex'} flexDirection={'row'}>
+                {props.nickname ? (
+                  !isNicknameSpace(props.nickname) ? (
+                    <CheckIcon color="success" />
+                  ) : (
+                    <ClearIcon color="error" />
+                  )
+                ) : (
+                  <ClearIcon color="error" />
+                )}
+                <Typography variant="body2">Cannot contain a space.</Typography>
+              </Box>
+            </Box>
+          </Box>
+          <Box flex={1}>
+            <Typography sx={titleStyle}>Major</Typography>
+            <TextField
+              select
+              placeholder="Select your major"
+              value={props.major}
+              onChange={handleMajorChange}
+              required
+              sx={inputStyle}
               disabled={isTimeout}
-              variant="outlined"
+              margin="dense"
               size="small"
             >
-              Verify
-            </Button>
+              {props.majorList.map((option) => (
+                <MenuItem key={option} value={option}>
+                  {option}
+                </MenuItem>
+              ))}
+            </TextField>
           </Box>
-          <Box>
-            <Box mb="12px" display={'flex'} flexDirection={'row'}>
-              {props.nickname ? (
-                isNicknameLength(props.nickname) ? (
-                  <CheckIcon color="success" />
-                ) : (
-                  <ClearIcon color="error" />
-                )
-              ) : (
-                <ClearIcon color="error" />
-              )}
-              <Typography variant="body2">
-                Must be between 4 and 20 characters.
-              </Typography>
-            </Box>
-            <Box mb="12px" display={'flex'} flexDirection={'row'}>
-              {props.nickname ? (
-                isNicknameChar(props.nickname) ? (
-                  <CheckIcon color="success" />
-                ) : (
-                  <ClearIcon color="error" />
-                )
-              ) : (
-                <ClearIcon color="error" />
-              )}
-              <Typography variant="body2">
-                May include only upper case, lower case, number, dash, or
-                underscore.
-              </Typography>
-            </Box>
-            <Box mb="16px" display={'flex'} flexDirection={'row'}>
-              {props.nickname ? (
-                !isNicknameSpace(props.nickname) ? (
-                  <CheckIcon color="success" />
-                ) : (
-                  <ClearIcon color="error" />
-                )
-              ) : (
-                <ClearIcon color="error" />
-              )}
-              <Typography variant="body2">Cannot contain a space.</Typography>
-            </Box>
+          <Box flex={1}>
+            <Typography sx={titleStyle}>Expected Graduation Year</Typography>
+            <TextField
+              select
+              placeholder="Select your (estimated) graduation year"
+              value={props.gradYear}
+              onChange={handleGradYearChange}
+              required
+              sx={inputStyle}
+              disabled={isTimeout}
+              margin="dense"
+              size="small"
+            >
+              {graduationYears.map((option) => (
+                <MenuItem key={option} value={option}>
+                  {option}
+                </MenuItem>
+              ))}
+            </TextField>
           </Box>
+          <Typography textAlign={'center'} color={'gray'} variant="body1">
+            {formatTime(props.remainingTimeSec)}
+          </Typography>
         </Box>
-        <Box flex={1}>
-          <Typography sx={titleStyle}>Major</Typography>
-          <TextField
-            select
-            placeholder="Select your major"
-            value={props.major}
-            onChange={handleMajorChange}
-            required
-            sx={inputStyle}
-            disabled={isTimeout}
-            margin="dense"
-            size="small"
-          >
-            {props.majorList.map((option) => (
-              <MenuItem key={option} value={option}>
-                {option}
-              </MenuItem>
-            ))}
-          </TextField>
-        </Box>
-        <Box flex={1}>
-          <Typography sx={titleStyle}>Expected Graduation Year</Typography>
-          <TextField
-            select
-            placeholder="Select your (estimated) graduation year"
-            value={props.gradYear}
-            onChange={handleGradYearChange}
-            required
-            sx={inputStyle}
-            disabled={isTimeout}
-            margin="dense"
-            size="small"
-          >
-            {graduationYears.map((option) => (
-              <MenuItem key={option} value={option}>
-                {option}
-              </MenuItem>
-            ))}
-          </TextField>
-        </Box>
-        <Typography textAlign={'center'} color={'gray'} variant="body1">
-          {formatTime(props.remainingTimeSec)}
-        </Typography>
+        <Modal
+          isOpen={isModalOpen}
+          handleClose={handleModalClose}
+          message={modalMsg}
+        />
       </Box>
-      <Modal
-        isOpen={isModalOpen}
-        handleClose={handleModalClose}
-        message={modalMsg}
-      />
     </Box>
   );
 }
