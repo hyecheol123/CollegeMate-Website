@@ -73,7 +73,7 @@ function SignUp(): React.ReactElement {
       if (globalContext.login) {
         navigate('/');
       }
-      setInitiated(false);
+      setInitiated(true);
     }
   }, [globalContext.login, initiated, navigate]);
 
