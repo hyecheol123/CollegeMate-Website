@@ -11,9 +11,9 @@ import { useNavigate } from 'react-router-dom';
 import { Box } from '@mui/material';
 // Components
 import Header from '../components/SignUp/Header';
-import FooterButton from '../components/SignUp/FooterButton';
+import FooterButton from '../components/Common/FooterButton/FooterButton';
 import Modal from '../components/Common/Modal/Modal';
-import SignUpTerms from '../components/SignUp/View/SignUpTerms';
+import TermsConsent from '../components/Common/TermsConsent/TermsConsent';
 import SignUpEmail from '../components/SignUp/View/SignUpEmail';
 import SignUpCreatAccount from '../components/SignUp/View/SignUpCreateAccount';
 import AccountCreated from '../components/SignUp/View/AccountCreated';
@@ -185,7 +185,7 @@ function SignUp(): React.ReactElement {
     <Box sx={PageWrapperStyle}>
       <Header />
       {step === 0 && (
-        <SignUpTerms
+        <TermsConsent
           isLoaded={isTermsLoaded}
           title="Terms and Conditions"
           content={termsContent}
@@ -195,7 +195,7 @@ function SignUp(): React.ReactElement {
         />
       )}
       {step === 1 && (
-        <SignUpTerms
+        <TermsConsent
           isLoaded={isTermsLoaded}
           title="Privacy Policy"
           content={privacyContent}

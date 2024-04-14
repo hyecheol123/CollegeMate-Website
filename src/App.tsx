@@ -236,6 +236,10 @@ function App(): React.ReactElement {
           element={globalContext.initialized ? <Login /> : <Loading />}
         />
         <Route
+          path="/newtnc"
+          element={globalContext.initialized ? <></> : <Loading />}
+        />
+        <Route
           path="/signup"
           element={globalContext.initialized ? <SignUp /> : <Loading />}
         />
