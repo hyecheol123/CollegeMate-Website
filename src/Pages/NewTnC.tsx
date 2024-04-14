@@ -15,12 +15,13 @@ import { useGlobalContext } from '../GlobalContext';
 import TermsConsent from '../components/Common/TermsConsent/TermsConsent';
 import Header from '../components/NewTnC/Header';
 import AgreedNewTnC from '../components/NewTnC/AgreedNewTnC';
+import Modal from '../components/Common/Modal/Modal';
+import FooterButton from '../components/Common/FooterButton/FooterButton';
 // API call
 import getTnC from '../data/Miscellaneous/getTnC';
 import postAcceptNewTnC from '../data/User/postAcceptNewTnC';
 // Global Styles
 import PageWrapperStyle from '../components/NewTnC/Styles/PageWrapperStyle';
-import FooterButton from '../components/Common/FooterButton/FooterButton';
 
 const footerButtonWrapperStyle = {
   width: '100%',
@@ -37,9 +38,9 @@ function NewTnC(): React.ReactElement {
   // States
   const [step, setStep] = React.useState<number>(0);
   const [initiated, setInitiated] = React.useState<boolean>(false);
+  const [modalIsOpen, setModalIsOpen] = React.useState<boolean>(false);
   const navigate = useNavigate();
   const globalContext = useGlobalContext();
-  // const result = postEnterOTPCode();
   // Step 0 - Terms and Conditions
   const [isTnCAgreed, setIsTnCAgreed] = React.useState<boolean>(false);
   const [termsContent, setTermsContent] = React.useState<string>('');
@@ -93,14 +94,16 @@ function NewTnC(): React.ReactElement {
       if (step === 1) {
         // Completed sign up
         const postAcceptNewTnCResponse = await postAcceptNewTnC(
-          'some@gmail.com',
+          globalContext.email,
           termsVersion,
         );
         if (postAcceptNewTnCResponse.responseCode === 200) {
           setStep(step + 1);
+          globalContext.dispatch({ type: 'UNSET_NEW_TNC' });
+          localStorage.removeItem('SET_NEW_TNC');
+        } else {
+          setModalIsOpen(true);
         }
-        globalContext.dispatch({ type: 'UNSET_NEW_TNC' });
-        localStorage.removeItem('SET_NEW_TNC');
       } else if (step === 2) {
         // Completed New TnC Accept
         navigate('/');
@@ -109,6 +112,11 @@ function NewTnC(): React.ReactElement {
       }
     }
   }, [ableToAdvanceStep, navigate, termsVersion, step, globalContext]);
+
+  const handleModalClose = React.useCallback(() => {
+    setModalIsOpen(false);
+    navigate('/');
+  }, [navigate]);
 
   return (
     <Box sx={PageWrapperStyle}>
@@ -137,6 +145,11 @@ function NewTnC(): React.ReactElement {
       <Box sx={footerButtonWrapperStyle}>
         <FooterButton onClick={moveStep} disabled={!ableToAdvanceStep()} />
       </Box>
+      <Modal
+        isOpen={modalIsOpen}
+        handleClose={handleModalClose}
+        message={'Something went wrong. Please retry or contact admin.'}
+      />
     </Box>
   );
 }

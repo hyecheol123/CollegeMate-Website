@@ -32,7 +32,7 @@ function AgreedNewTnC(): React.ReactElement {
         <picture>
           <source srcSet={CompletedAvif} type="image/avif" />
           <source srcSet={CompletedWebp} type="image/webp" />
-          <Box component="img" src={CompletedPng} alt="Completed png" />
+          <Box component="img" src={CompletedPng} alt="Completed Image" />
         </picture>
         <Typography mt={'16px'} variant="h2" color="darkGrey" align="center">
           Completed All Terms and Condition

@@ -197,16 +197,19 @@ function App(): React.ReactElement {
      * Helper method to initiate the application
      */
     async function init(): Promise<void> {
+      // TODO: Naviage based on init result
       // When application not initialized
       if (!globalContext.initialized) {
         // check whether admin token alive or not
         if (localStorage.getItem('LOGIN') === 'yes') {
-          const { responseCode } = await getRenewToken();
-          if (responseCode !== 200) {
+          const response = await getRenewToken();
+          if (response.responseCode !== 200) {
             localStorage.removeItem('LOGIN');
+            localStorage.removeItem('SET_NEW_TNC');
             globalContext.dispatch({
               type: 'INITIALIZE',
               login: false,
+              email: '',
               newTnC: false,
             });
           } else {
@@ -214,6 +217,7 @@ function App(): React.ReactElement {
               globalContext.dispatch({
                 type: 'INITIALIZE',
                 login: true,
+                email: response.content.email,
                 newTnC: true,
               });
             } else {
@@ -221,15 +225,18 @@ function App(): React.ReactElement {
               globalContext.dispatch({
                 type: 'INITIALIZE',
                 login: true,
+                email: response.content.email,
                 newTnC: false,
               });
             }
           }
         } else {
           localStorage.removeItem('LOGIN');
+          localStorage.removeItem('SET_NEW_TNC');
           globalContext.dispatch({
             type: 'INITIALIZE',
             login: false,
+            email: '',
             newTnC: false,
           });
         }

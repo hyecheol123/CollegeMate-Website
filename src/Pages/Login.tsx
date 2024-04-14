@@ -142,13 +142,14 @@ function Login(): React.ReactElement {
       setElapsedSec(secToExp);
       setErrorMsg('Code Expired');
     } else if (result.responseCode === 201) {
-      globalContext.dispatch({ type: 'LOGIN' });
+      globalContext.dispatch({ type: 'LOGIN', email: email });
       localStorage.setItem('LOGIN', 'yes');
       if (result.content?.needNewTNCAccpet) {
         globalContext.dispatch({ type: 'SET_NEW_TNC' });
         localStorage.setItem('SET_NEW_TNC', 'yes');
         navigate('/newTnC');
       } else {
+        localStorage.removeItem('SET_NEW_TNC');
         navigate('/');
       }
     } else {

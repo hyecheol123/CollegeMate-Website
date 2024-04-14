@@ -10,15 +10,16 @@ type GlobalContextProviderProps = { children: React.ReactNode };
 
 // Type for all actions
 type Action =
-  | { type: 'LOGIN' }
+  | { type: 'LOGIN'; email: string }
   | { type: 'LOGOUT' }
   | { type: 'SET_NEW_TNC' }
   | { type: 'UNSET_NEW_TNC' }
-  | { type: 'INITIALIZE'; login: boolean; newTnC: boolean };
+  | { type: 'INITIALIZE'; login: boolean; email: string; newTnC: boolean };
 
 // Type definition for state
 type State = {
   login: boolean;
+  email: string;
   newTnC: boolean;
   initialized: boolean;
   dispatch: React.Dispatch<Action>;
@@ -27,6 +28,7 @@ type State = {
 // Initial Data of reducer
 const initialData: State = {
   login: false,
+  email: '',
   newTnC: false,
   initialized: false,
   dispatch: () => {},
@@ -41,7 +43,7 @@ const initialData: State = {
 function reducer(state: State, action: Action): State {
   switch (action.type) {
     case 'LOGIN':
-      return { ...state, login: true };
+      return { ...state, login: true, email: action.email };
     case 'LOGOUT':
       return { ...state, login: false };
     case 'SET_NEW_TNC':
@@ -52,6 +54,7 @@ function reducer(state: State, action: Action): State {
       return {
         ...state,
         login: action.login,
+        email: action.email,
         newTnC: action.newTnC,
         initialized: true,
       };

@@ -17,11 +17,11 @@ const titleStyle = {
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center',
-  py: '1.95em',
+  py: '30px',
 };
 const logoStyle = {
   left: '50%',
-  top: '0.75em',
+  top: '12px',
   transform: 'translateX(-50%)',
 };
 
