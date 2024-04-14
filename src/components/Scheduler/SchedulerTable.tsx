@@ -15,6 +15,8 @@ import {
   Box,
   Typography,
 } from '@mui/material';
+// elements
+import Modal from '../Common/Modal/Modal';
 
 // define the interface for EventData
 interface EventData {
@@ -31,8 +33,29 @@ interface EventData {
  * @return {React.ReactElement} Renders scheduler table
  */
 function SchedulerTable(): React.ReactElement {
-  const [errors, setErrors] = useState<string[]>([]); // Temporality implemented in order to cover edge case
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState('');
+
+
+  useEffect(() => {
+    // Function to handle window resize event
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+
+    // Add window resize event listener
+    window.addEventListener('resize', handleResize);
+
+    // Cleanup function to remove the event listener
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
+  const [errors, setErrors] = useState<string[]>([]); // Temporality implemented in order to cover edge case
+  // Dummy event data define
   const myEvents = useMemo(
     () => [
       {
@@ -63,8 +86,8 @@ function SchedulerTable(): React.ReactElement {
         id: '4',
         title: 'Event 4',
         day: 'Sun',
-        startTime: { hour: 9, minute: 15 },
-        endTime: { hour: 11, minute: 30 },
+        startTime: { hour: 22, minute: 15 },
+        endTime: { hour: 23, minute: 30 },
         color: 'blue',
       },
     ],
@@ -153,10 +176,16 @@ function SchedulerTable(): React.ReactElement {
         sx={{
           display: 'flex',
           width: '100%',
-          height: '90%',
+          height: '100%',
           flexDirection: 'column',
         }}
       >
+        <Box
+          sx={{
+            width: '90%',
+            margin: 'auto',
+          }}
+        ></Box>
         {/* start of the scheduler box */}
         <Table
           sx={{
@@ -173,12 +202,12 @@ function SchedulerTable(): React.ReactElement {
                 sx={{
                   paddingLeft: 0,
                   paddingRight: 0,
-                  width: '50px',
+                  width: windowWidth < 300 ? '20px' : '40px', 
                   border: '0',
                 }}
               >
                 <Typography variant="body2" color="white.main" align="center">
-                  {}
+                  { }
                 </Typography>
               </TableCell>
 
@@ -210,7 +239,7 @@ function SchedulerTable(): React.ReactElement {
                       <TableCell
                         rowSpan={12}
                         sx={{
-                          align: 'center',
+                          verticalAlign: "top",
                           bgcolor: 'red.main',
                           border: 0,
                           padding: 0,
@@ -243,7 +272,7 @@ function SchedulerTable(): React.ReactElement {
                       if (
                         event &&
                         timeSlotIndex ===
-                          event.startTime.hour * 60 + event.startTime.minute
+                        event.startTime.hour * 60 + event.startTime.minute
                       ) {
                         const rowSpan = calculateRowSpan(event);
                         return (
@@ -252,16 +281,24 @@ function SchedulerTable(): React.ReactElement {
                             align="center"
                             sx={{
                               backgroundColor: event.color,
+                              padding: 0
                             }}
                             rowSpan={rowSpan}
                           >
+                            <Typography
+                          variant="body2"
+                          color="white.main"
+                          align="center"
+                          style={{ wordWrap: "break-word" }}
+                        >
                             {event.title}
+                            </Typography>
                           </TableCell>
                         );
                       } else if (
                         !event ||
                         timeSlotIndex <
-                          event.startTime.hour * 60 + event.startTime.minute
+                        event.startTime.hour * 60 + event.startTime.minute
                       ) {
                         return (
                           <TableCell

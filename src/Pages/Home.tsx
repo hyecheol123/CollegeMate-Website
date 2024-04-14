@@ -11,6 +11,7 @@ import { Box } from '@mui/material';
 import MainHeader from '../components/Scheduler/MainHeader';
 import Scheduler from '../components/Scheduler/SchedulerTable';
 import SchedulerTitle from '../components/Scheduler/SchedulerTitle';
+import InfoFooter from '../components/Scheduler/InfoFooter';
 
 /**
  * React Functional Component for About page's third page
@@ -18,10 +19,11 @@ import SchedulerTitle from '../components/Scheduler/SchedulerTitle';
  */
 function Home(): React.ReactElement {
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
       <MainHeader />
       <SchedulerTitle />
       <Scheduler />
+      <InfoFooter />
     </Box>
   );
 }
