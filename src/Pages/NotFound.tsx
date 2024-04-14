@@ -1,5 +1,6 @@
 /**
  * NotFound Page
+ * @author Heewon Kim <khw0285@gmail.com>
  * @author Hyecheol (Jerry) Jang <hyecheol123@gmail.com>
  */
 
@@ -8,6 +9,9 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 // Material UI
 import { Box, Button, Typography } from '@mui/material';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
+// Components
+import PageWrapperStyle from '../components/Common/Styles/PageWrapper';
 
 /**
  * React functional component to render NotFound page
@@ -23,15 +27,32 @@ function NotFound(): React.ReactElement {
   }, [navigate]);
 
   return (
-    <Box>
-      <Typography variant="h1">404 Icon placeholder</Typography>
-      <Typography variant="h1">We could not find this page.</Typography>
-      <Typography variant="h3">
-        But you can find plenty of other things in our homepage.
-      </Typography>
-      <Button onClick={handleButtonClick} variant="contained">
-        Go to Homepage
-      </Button>
+    <Box
+      sx={{
+        ...PageWrapperStyle,
+        justifyContent: 'center',
+        alignItems: 'center',
+        display: 'flex',
+      }}
+    >
+      <Box sx={{ textAlign: 'center' }}>
+        <WarningAmberIcon
+          color={'error'}
+          fontSize="large"
+          sx={{ fontSize: '10em' }}
+        />
+        <Typography variant="h1" color={'darkgrey'}>
+          We could not find this page.
+        </Typography>
+        <Typography mt={'20px'} variant="h3" color={'darkgrey'}>
+          But you can find plenty of other things in our homepage.
+        </Typography>
+        <Box mt={'36px'}>
+          <Button onClick={handleButtonClick} variant="contained">
+            Go to Homepage
+          </Button>
+        </Box>
+      </Box>
     </Box>
   );
 }
