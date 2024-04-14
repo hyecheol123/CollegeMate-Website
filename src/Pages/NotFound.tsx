@@ -10,8 +10,13 @@ import { useNavigate } from 'react-router-dom';
 // Material UI
 import { Box, Button, Typography } from '@mui/material';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
-// Components
-import PageWrapperStyle from '../components/Common/Styles/PageWrapper';
+
+const PageWrapperStyle = {
+  width: '100%',
+  height: '100%',
+  display: 'flex',
+  flexDirection: 'column',
+};
 
 /**
  * React functional component to render NotFound page
@@ -35,11 +40,17 @@ function NotFound(): React.ReactElement {
         display: 'flex',
       }}
     >
-      <Box sx={{ textAlign: 'center' }}>
+      <Box
+        sx={{
+          textAlign: 'center',
+          pt: '32px',
+          pb: '16px',
+        }}
+      >
         <WarningAmberIcon
           color={'error'}
           fontSize="large"
-          sx={{ fontSize: '10em' }}
+          sx={{ fontSize: '8em' }}
         />
         <Typography variant="h1" color={'darkgrey'}>
           We could not find this page.
