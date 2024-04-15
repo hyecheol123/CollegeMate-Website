@@ -280,7 +280,6 @@ function App(): React.ReactElement {
           element={globalContext.initialized ? <About /> : <Loading />}
         />
       </Route>
-      
     </Routes>
   );
 }

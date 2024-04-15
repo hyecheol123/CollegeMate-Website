@@ -9,7 +9,14 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 // Material UI
-import { Box, Typography, IconButton, TextField, Button, MenuItem } from '@mui/material';
+import {
+  Box,
+  Typography,
+  IconButton,
+  TextField,
+  Button,
+  MenuItem,
+} from '@mui/material';
 import { Check as CheckIcon, Clear as ClearIcon } from '@mui/icons-material';
 import ArrowIcon from '@mui/icons-material/ArrowBack';
 // Component
@@ -51,7 +58,6 @@ const contextStyle = {
   align: 'left',
   color: 'darkGrey',
 };
-
 
 const subWrapperStyle = {
   width: '100%',
@@ -101,7 +107,8 @@ const isNicknameSpace = (value: string): boolean => {
  */
 function MyInfoPageEdit(props: IProps): React.ReactElement {
   const [nicknameAvail, setIsNicknameAvail] = React.useState<boolean>(false);
-  const [nickNameRemainedTime, setNickNameRemainedTime] = React.useState<number>(0)
+  const [nickNameRemainedTime, setNickNameRemainedTime] =
+    React.useState<number>(0);
   const [notChangeable, setNotChangeable] = React.useState<boolean>(false);
   const [isSavable, SetIsSavable] = React.useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = React.useState<boolean>(false);
@@ -109,13 +116,17 @@ function MyInfoPageEdit(props: IProps): React.ReactElement {
   const navigate = useNavigate();
 
   /* Temperal variable that stores changes in edit page */
-  const [tempNickName, setTempNickName] = React.useState<string>(props.nickname);
+  const [tempNickName, setTempNickName] = React.useState<string>(
+    props.nickname,
+  );
   const [tempSchool, setTempSchool] = React.useState<string>(props.school);
   const [tempMajor, setTempMajor] = React.useState<string>(props.major);
-  const [tempExpGradYear, setTempExpGradYear] = React.useState<number>(props.gradYear);
-  const [tempNickChangedDate, setNicknameChangedDate] = React.useState<string>(props.nicknameChanged);
-
-
+  const [tempExpGradYear, setTempExpGradYear] = React.useState<number>(
+    props.gradYear,
+  );
+  const [tempNickChangedDate, setNicknameChangedDate] = React.useState<string>(
+    props.nicknameChanged,
+  );
 
   /* Starts: Variables regards Time */
   const currentDate = new Date();
@@ -136,14 +147,18 @@ function MyInfoPageEdit(props: IProps): React.ReactElement {
   let totalDaysDiff = 0;
 
   if (currentYear - changedYear > 0) {
-    totalDaysDiff = 31
+    totalDaysDiff = 31;
   } else if (currentMonth - changedMonth > 0) {
-    const changedMonthLastDay = new Date(changedYear, changedMonth, 0).getDate();
-    totalDaysDiff = currentDay + (changedMonthLastDay - changedDay)
+    const changedMonthLastDay = new Date(
+      changedYear,
+      changedMonth,
+      0,
+    ).getDate();
+    totalDaysDiff = currentDay + (changedMonthLastDay - changedDay);
   } else {
-    totalDaysDiff = currentDay - changedDay
-  };
-  const remainTime = Math.max(30 - totalDaysDiff, 0)
+    totalDaysDiff = currentDay - changedDay;
+  }
+  const remainTime = Math.max(30 - totalDaysDiff, 0);
   /* End: Variables regards Time */
 
   const editInfoHandlerHelper = async () => {
@@ -156,11 +171,12 @@ function MyInfoPageEdit(props: IProps): React.ReactElement {
         tempExpGradYear,
         tempNickChangedDate,
       );
-      if (postUpdateUserResponse.responseCode === 200) {  // success
-        props.setNickname(tempNickName)
-        props.setMajor(tempMajor)
-        props.setGradYear(tempExpGradYear)
-        props.setNicknameChanged(tempNickChangedDate)
+      if (postUpdateUserResponse.responseCode === 200) {
+        // success
+        props.setNickname(tempNickName);
+        props.setMajor(tempMajor);
+        props.setGradYear(tempExpGradYear);
+        props.setNicknameChanged(tempNickChangedDate);
         props.editInfoHandler();
       } else {
         setIsModalOpen(true);
@@ -201,7 +217,7 @@ function MyInfoPageEdit(props: IProps): React.ReactElement {
   const handleMajorChange = React.useCallback(
     (event: React.ChangeEvent<HTMLInputElement>): void => {
       setTempMajor(event.target.value);
-      SetIsSavable(true)
+      SetIsSavable(true);
     },
     [props],
   );
@@ -209,26 +225,24 @@ function MyInfoPageEdit(props: IProps): React.ReactElement {
     (event: React.ChangeEvent<HTMLInputElement>): void => {
       const year = parseInt(event.target.value);
       setTempExpGradYear(year);
-      SetIsSavable(true)
+      SetIsSavable(true);
     },
     [props],
   );
   const handleNicknameChange = React.useCallback(
     (event: React.ChangeEvent<HTMLInputElement>): void => {
       setTempNickName(event.target.value);
-      SetIsSavable(false)
+      SetIsSavable(false);
     },
     [props],
   );
-
 
   const handleVerify = async (): Promise<void> => {
     setNickNameRemainedTime(remainTime);
     if (remainTime > 0) {
       setNotChangeable(true);
       return;
-    }
-    else if (
+    } else if (
       isNicknameLength(tempNickName) &&
       isNicknameChar(tempNickName) &&
       !isNicknameSpace(tempNickName)
@@ -239,7 +253,6 @@ function MyInfoPageEdit(props: IProps): React.ReactElement {
         setNicknameChangedDate(today);
         setIsNicknameAvail(true);
         SetIsSavable(true);
-
       } else {
         setModalMsg('Nickname Exists. Try different nickname.');
         setIsNicknameAvail(false);
@@ -259,38 +272,52 @@ function MyInfoPageEdit(props: IProps): React.ReactElement {
 
   return (
     <Box sx={subWrapperStyle}>
-      <Box sx={{ alignSelf: 'flex-start', height: '5vh', marginTop: '2vh', marginLeft: '5vw' }}>
+      <Box
+        sx={{
+          alignSelf: 'flex-start',
+          height: '5vh',
+          marginTop: '2vh',
+          marginLeft: '5vw',
+        }}
+      >
         <IconButton aria-label="close" onClick={props.handleClose}>
           <ArrowIcon />
         </IconButton>
       </Box>
       <Box mt={'16px'} sx={{ width: '90%', maxWidth: '600px' }}>
         <Box sx={inputWrapperStyle}>
-          <Box sx={{
-            height: '80vh',
-          }}>
-            <Typography variant="h2" color="red.main" align="center">My Information</Typography>
-            <Box >
+          <Box
+            sx={{
+              height: '80vh',
+            }}
+          >
+            <Typography variant="h2" color="red.main" align="center">
+              My Information
+            </Typography>
+            <Box>
               <Typography sx={titleStyle}>Name</Typography>
               <TextField
                 sx={inputStyle}
                 value={tempNickName}
-                disabled={true} // We won't consider changing this for now 
+                disabled={true} // We won't consider changing this for now
                 required
                 margin="dense"
                 size="small"
               />
             </Box>
-            <Box >
+            <Box>
               <Typography sx={titleStyle}>Nickname</Typography>
               <Typography variant="body2" color={'darkGrey'}></Typography>
               {notChangeable ? (
                 <Typography variant="body2" align="left" color="error.main">
-                  You can change the nickname every 30 days. Remaining days: {nickNameRemainedTime}
+                  You can change the nickname every 30 days. Remaining days:{' '}
+                  {nickNameRemainedTime}
                 </Typography>
               ) : (
                 <Typography variant="body2" align="left" color="initial">
-                  You can change your nickname every 30 days. Last Updated: {changedYear}/{changedMonth}/{changedDay}. Changes Remain: {remainTime}
+                  You can change your nickname every 30 days. Last Updated:{' '}
+                  {changedYear}/{changedMonth}/{changedDay}. Changes Remain:{' '}
+                  {remainTime}
                 </Typography>
               )}
               <Box display="flex" flexDirection="row" gap="12px">
@@ -321,7 +348,7 @@ function MyInfoPageEdit(props: IProps): React.ReactElement {
                   {modalMsg}
                 </Typography>
               </Box>
-              <Box >
+              <Box>
                 <Box alignItems="center" display="flex">
                   {tempNickName ? (
                     isNicknameLength(tempNickName) ? (
@@ -367,7 +394,7 @@ function MyInfoPageEdit(props: IProps): React.ReactElement {
                 </Box>
               </Box>
             </Box>
-            <Box >
+            <Box>
               <Typography mt={'12px'} sx={titleStyle}>
                 School
               </Typography>
@@ -377,13 +404,13 @@ function MyInfoPageEdit(props: IProps): React.ReactElement {
                   pattern: '[a-zA-Z0-9_-]{4,20}',
                 }}
                 value={tempSchool}
-                disabled={true} // We won't consider changing this for now 
+                disabled={true} // We won't consider changing this for now
                 required
                 margin="dense"
                 size="small"
               />
             </Box>
-            <Box >
+            <Box>
               <Typography mt={'12px'} sx={titleStyle}>
                 Major
               </Typography>
@@ -404,7 +431,7 @@ function MyInfoPageEdit(props: IProps): React.ReactElement {
                 ))}
               </TextField>
             </Box>
-            <Box >
+            <Box>
               <Typography sx={titleStyle}>Expected Graduation Year</Typography>
               <TextField
                 select
@@ -423,8 +450,18 @@ function MyInfoPageEdit(props: IProps): React.ReactElement {
                 ))}
               </TextField>
             </Box>
-            <Box sx={{ marginTop: 'auto', display: 'flex', justifyContent: 'center' }}>
-              <Button variant="contained" onClick={editInfoHandlerHelper} sx={buttonStyle}>
+            <Box
+              sx={{
+                marginTop: 'auto',
+                display: 'flex',
+                justifyContent: 'center',
+              }}
+            >
+              <Button
+                variant="contained"
+                onClick={editInfoHandlerHelper}
+                sx={buttonStyle}
+              >
                 {props.buttonString}
               </Button>
             </Box>
@@ -436,7 +473,7 @@ function MyInfoPageEdit(props: IProps): React.ReactElement {
           message={modalMsg}
         />
       </Box>
-    </Box >
+    </Box>
   );
 }
 

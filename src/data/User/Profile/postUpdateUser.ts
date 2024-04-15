@@ -1,6 +1,6 @@
 /**
  * This file defines a TypeScript type for an API response,
- * provides a mock API response for user update and exports 
+ * provides a mock API response for user update and exports
  * a functions.
  * @author  Jihyun (Janice) Ahn <jihyun.ahn.ai@gmail.com>
  */
