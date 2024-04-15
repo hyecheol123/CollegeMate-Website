@@ -25,8 +25,8 @@ import VerifiedIcon from '@mui/icons-material/Verified';
 import ModalStyle from '../Styles/Modal';
 
 // API Calls
-import postInitiateOTPRequest from '../../../data/Login/postInitiateOTPRequest';
-import postEnterOTPCode from '../../../data/Login/postEnterOTPCode';
+import postInitiateOTPRequest from '../../../data/Authentication/postInitiateOTPRequest';
+import postEnterOTPCode from '../../../data/Authentication/postEnterOTPCode';
 
 
 /**
@@ -54,6 +54,7 @@ const innerWrapperStyle = {
     margin: 0,
 };
 
+
 /**
  * React Functional Component to generate Setting Page
  * @param {SettingMenuProps} props Properties that passed from the parent Component
@@ -74,7 +75,6 @@ function DeleteAccountPage(props: SettingMenuProps): React.ReactElement {
     // const globalContext = useGlobalContext();
     const navigate = useNavigate();
     const { open, handleClose } = props;
-
     // Control variable
     const formatSecond = (second: number): string => {
         return `${Math.floor(second / 60)}:${String(second % 60).padStart(2, '0')}`;
@@ -102,7 +102,9 @@ function DeleteAccountPage(props: SettingMenuProps): React.ReactElement {
         setErrorMsg('NONE');
         if (!codeSent) {  // Code not Sent yet
             // set Email here by getting user information
+            // TODO: Have to change this to get user email
             setEmail('ahn58@wisc.edu'); // Testing Email
+
             const result = await postInitiateOTPRequest(email, 'sudo'); // Testing Purpose 'sudo'
             if (result.responseCode === 201 && result.content) {
                 setOtpRequestId(result.content.requestId);
@@ -122,6 +124,8 @@ function DeleteAccountPage(props: SettingMenuProps): React.ReactElement {
         } else {    // Code sent already
             if (code == '') { // Code not Entered
                 setErrorMsg('Code Already Sent. Please type the code');
+                setCodeSent(true);
+                setIsEditable(true);
             } else if (code == otpRequestId.toUpperCase()) {
                 // Code Correct (Test code: sudoRequestId)
                 setErrorMsg('NONE');
@@ -130,9 +134,30 @@ function DeleteAccountPage(props: SettingMenuProps): React.ReactElement {
                 setisModalOpen(true);
             } else { // Code Wrong
                 setErrorMsg('Code does not match');
+                setCodeSent(true);
+                setIsEditable(true);
             }
         }
     };
+
+
+    const submitCodeHandler = async (): Promise<void> => {
+
+        const result = await postEnterOTPCode(otpRequestId, email, code);
+        if (result.responseCode === 499) {
+            setErrorMsg('Code Mismatch');
+        } else if (result.responseCode === 409) {
+            setElapsedSec(secToExp);
+            setErrorMsg('Code Expired');
+        } else if (result.responseCode === 201) {
+
+        } else {
+            setErrorMsg('Unknown Error');
+        }
+
+        setIsEditable(true);
+    };
+
     const modalHandler = (() =>
         setisModalOpen(!isModalOpen)
     );

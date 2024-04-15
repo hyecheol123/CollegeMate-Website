@@ -6,7 +6,9 @@
 // React
 import React from 'react';
 // Components
-import SettingPage from './components/Setting/Pages/SettingPage';
+import SettingPage from '../components/Setting/View/SettingPage';
+// API call
+import getUserProfile from '../data/User/Profile/getUserProfile';
 
 /**
  * React functional component to render about page

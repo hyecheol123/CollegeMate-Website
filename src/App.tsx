@@ -30,7 +30,7 @@ import getRenewToken from './data/Authentication/getRenewToken';
 const About = React.lazy(() => import('./Pages/About'));
 const Login = React.lazy(() => import('./Pages/Login'));
 const SignUp = React.lazy(() => import('./Pages/SignUp'));
-const Setting = React.lazy(() => import('./Setting'));
+const Setting = React.lazy(() => import('./Pages/Setting'));
 
 // MUI Theme (Setup Font family and Palette Color)
 declare module '@mui/material/styles' {
