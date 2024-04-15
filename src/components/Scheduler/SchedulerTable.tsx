@@ -28,94 +28,85 @@ interface EventData {
   color: string;
 }
 
+// Dummy Data
+const myEvents = [
+  {
+    id: '1',
+    title: 'Event 1',
+    day: 'Mon',
+    startTime: { hour: 9, minute: 15 },
+    endTime: { hour: 11, minute: 5 },
+    color: 'pink',
+  },
+  {
+    id: '2',
+    title: 'Event 2',
+    day: 'Tue',
+    startTime: { hour: 9, minute: 15 },
+    endTime: { hour: 11, minute: 55 },
+    color: 'blue',
+  },
+  {
+    id: '3',
+    title: 'Event 3',
+    day: 'Wed',
+    startTime: { hour: 9, minute: 15 },
+    endTime: { hour: 11, minute: 20 },
+    color: 'blue',
+  },
+  {
+    id: '4',
+    title: 'Event 4',
+    day: 'Sun',
+    startTime: { hour: 22, minute: 15 },
+    endTime: { hour: 23, minute: 30 },
+    color: 'blue',
+  },
+];
+
 /**
  * React Functional Component for the Scheduler Table
  * @return {React.ReactElement} Renders scheduler table
  */
 function SchedulerTable(): React.ReactElement {
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
-
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
 
-
   useEffect(() => {
     // Function to handle window resize event
-    const handleResize = () => {
+    const handleResize = (): void => {
       setWindowWidth(window.innerWidth);
     };
 
-    // Add window resize event listener
     window.addEventListener('resize', handleResize);
 
-    // Cleanup function to remove the event listener
+    // Event time validation
+    myEvents.forEach((event) => {
+      const startTime = event.startTime.hour * 60 + event.startTime.minute;
+      const endTime = event.endTime.hour * 60 + event.endTime.minute;
+      if (startTime >= endTime) {
+        setIsModalOpen(true);
+        setModalMessage(
+          `"${event.title}" start time must be earlier than end time.`,
+        );
+      }
+    });
+
+    // Cleanup function
     return () => {
       window.removeEventListener('resize', handleResize);
     };
-  }, []);
+  }, [myEvents]); // Dependency array for useEffect
 
-  const [errors, setErrors] = useState<string[]>([]); // Temporality implemented in order to cover edge case
-  // Dummy event data define
-  const myEvents = useMemo(
-    () => [
-      {
-        id: '1',
-        title: 'Event 1',
-        day: 'Mon',
-        startTime: { hour: 9, minute: 15 },
-        endTime: { hour: 11, minute: 5 },
-        color: 'pink',
-      },
-      {
-        id: '2',
-        title: 'Event 2',
-        day: 'Tue',
-        startTime: { hour: 9, minute: 15 },
-        endTime: { hour: 11, minute: 55 },
-        color: 'blue',
-      },
-      {
-        id: '3',
-        title: 'Event 3',
-        day: 'Wed',
-        startTime: { hour: 9, minute: 15 },
-        endTime: { hour: 11, minute: 20 },
-        color: 'blue',
-      },
-      {
-        id: '4',
-        title: 'Event 4',
-        day: 'Sun',
-        startTime: { hour: 22, minute: 15 },
-        endTime: { hour: 23, minute: 30 },
-        color: 'blue',
-      },
-    ],
-    [],
-  );
+  const handleCloseModal = (): void => {
+    setIsModalOpen(false);
+  };
 
   // Function to determine the color based on the hour index
   const getColorForHourIndex = (hourLabel: number): string => {
     return hourLabel % 2 === 0 ? 'whiteGrey.main' : 'white.main';
   };
-
-  // Temporality implemented in order to cover edge case
-  useEffect(() => {
-    const validationErrors: string[] = [];
-
-    myEvents.forEach((event) => {
-      const startTime = event.startTime.hour * 60 + event.startTime.minute;
-      const endTime = event.endTime.hour * 60 + event.endTime.minute;
-
-      if (startTime >= endTime) {
-        validationErrors.push(
-          `Error: "${event.title}" has a start time later than or equal to its end time.`,
-        );
-      }
-    });
-
-    setErrors(validationErrors);
-  }, [myEvents]);
 
   const getHourLabel = (hour: number): string => {
     const hour12 = hour % 12 === 0 ? 12 : hour % 12;
@@ -171,6 +162,11 @@ function SchedulerTable(): React.ReactElement {
 
   return (
     <Box sx={{ height: '100%', flexGrow: 1 }}>
+      <Modal
+        isOpen={isModalOpen}
+        handleClose={handleCloseModal}
+        message={modalMessage}
+      />
       {/* start of the biggest box */}
       <Box
         sx={{
@@ -202,12 +198,12 @@ function SchedulerTable(): React.ReactElement {
                 sx={{
                   paddingLeft: 0,
                   paddingRight: 0,
-                  width: windowWidth < 300 ? '20px' : '40px', 
+                  width: windowWidth < 300 ? '20px' : '40px',
                   border: '0',
                 }}
               >
                 <Typography variant="body2" color="white.main" align="center">
-                  { }
+                  {}
                 </Typography>
               </TableCell>
 
@@ -239,7 +235,7 @@ function SchedulerTable(): React.ReactElement {
                       <TableCell
                         rowSpan={12}
                         sx={{
-                          verticalAlign: "top",
+                          verticalAlign: 'top',
                           bgcolor: 'red.main',
                           border: 0,
                           padding: 0,
@@ -272,7 +268,7 @@ function SchedulerTable(): React.ReactElement {
                       if (
                         event &&
                         timeSlotIndex ===
-                        event.startTime.hour * 60 + event.startTime.minute
+                          event.startTime.hour * 60 + event.startTime.minute
                       ) {
                         const rowSpan = calculateRowSpan(event);
                         return (
@@ -281,24 +277,24 @@ function SchedulerTable(): React.ReactElement {
                             align="center"
                             sx={{
                               backgroundColor: event.color,
-                              padding: 0
+                              padding: 0,
                             }}
                             rowSpan={rowSpan}
                           >
                             <Typography
-                          variant="body2"
-                          color="white.main"
-                          align="center"
-                          style={{ wordWrap: "break-word" }}
-                        >
-                            {event.title}
+                              variant="body2"
+                              color="white.main"
+                              align="center"
+                              style={{ wordWrap: 'break-word' }}
+                            >
+                              {event.title}
                             </Typography>
                           </TableCell>
                         );
                       } else if (
                         !event ||
                         timeSlotIndex <
-                        event.startTime.hour * 60 + event.startTime.minute
+                          event.startTime.hour * 60 + event.startTime.minute
                       ) {
                         return (
                           <TableCell

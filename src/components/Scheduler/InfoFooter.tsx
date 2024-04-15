@@ -1,3 +1,8 @@
+/**
+ * Component for the Footer which contains
+ * Classes, Credits and view exam options
+ * @author Daekyun Kim <daekyun97@gmail.com>
+ */
 // React
 import { Typography, Box } from '@mui/material';
 import React from 'react';
@@ -8,7 +13,7 @@ const footerStyle = {
   py: '0.7em',
   px: '0.5em',
   width: '91%', // Make sure it takes the full width of its parent if needed
-  margin: 'auto'
+  margin: 'auto',
 };
 
 /**

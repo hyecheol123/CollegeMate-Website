@@ -30,35 +30,36 @@ const logoStyle = {
   transform: 'translateX(-50%)',
 };
 
-const IconComponents = ({ 
-    size, 
-    isFold = false // Pass isFold directly
-  }: { 
-    size: SvgIconProps['fontSize'], 
-    isFold?: boolean 
-  }): React.ReactElement => (
-    <>
-      <Tooltip title="Friends">
-        <IconButton 
-          sx={{ 
-            color: 'red.main', 
-            mr: isFold ? '0em' : '0.5em' // Conditional margin based on isFold
-          }} 
-          aria-label="Friend">
-          <Badge badgeContent={4} color="error">
-            <PersonOutlineOutlinedIcon fontSize={size} />
-          </Badge>
-        </IconButton>
-      </Tooltip>
-      <Tooltip title="Notifications">
-        <IconButton sx={{ color: 'red.main' }} aria-label="Notification">
-          <Badge badgeContent={4} color="error">
-            <NotificationNoneSharpIcon fontSize={size} />
-          </Badge>
-        </IconButton>
-      </Tooltip>
-    </>
-  );
+const IconComponents = ({
+  size,
+  isFold = false, // Pass isFold directly
+}: {
+  size: SvgIconProps['fontSize'];
+  isFold?: boolean;
+}): React.ReactElement => (
+  <>
+    <Tooltip title="Friends">
+      <IconButton
+        sx={{
+          color: 'red.main',
+          mr: isFold ? '0em' : '0.5em', // Conditional margin based on isFold
+        }}
+        aria-label="Friend"
+      >
+        <Badge badgeContent={4} color="error">
+          <PersonOutlineOutlinedIcon fontSize={size} />
+        </Badge>
+      </IconButton>
+    </Tooltip>
+    <Tooltip title="Notifications">
+      <IconButton sx={{ color: 'red.main' }} aria-label="Notification">
+        <Badge badgeContent={4} color="error">
+          <NotificationNoneSharpIcon fontSize={size} />
+        </Badge>
+      </IconButton>
+    </Tooltip>
+  </>
+);
 
 /**
  * React Functional Component Main Header for Home Page
@@ -79,7 +80,7 @@ function MainHeader(): React.ReactElement {
     <Box sx={titleStyle}>
       <Tooltip title="Menu">
         <IconButton sx={{ color: 'red.main', mr: '0.3em' }} aria-label="Menu">
-        <Menusharp fontSize={isFold ? 'small' : 'medium'} />
+          <Menusharp fontSize={isFold ? 'small' : 'medium'} />
         </IconButton>
       </Tooltip>
       <Box
@@ -89,7 +90,9 @@ function MainHeader(): React.ReactElement {
           justifyContent: isMobile ? 'space-between' : 'initial',
         }}
       >
-        {!isMobile && <IconComponents size={isFold ? 'small' : 'medium'} isFold={isFold} />}
+        {!isMobile && (
+          <IconComponents size={isFold ? 'small' : 'medium'} isFold={isFold} />
+        )}
 
         <picture style={{ ...logoStyle, position: 'absolute' }}>
           <source srcSet={CollegeMateLogAvif} type="image/avif" />
@@ -103,7 +106,10 @@ function MainHeader(): React.ReactElement {
 
         {isMobile && (
           <Box ml="auto">
-           <IconComponents size={isFold ? 'small' : 'medium'} isFold={isFold} />
+            <IconComponents
+              size={isFold ? 'small' : 'medium'}
+              isFold={isFold}
+            />
           </Box>
         )}
       </Box>
