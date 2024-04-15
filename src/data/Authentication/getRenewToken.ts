@@ -5,6 +5,9 @@
 
 interface IResponse {
   responseCode: number;
+  content: {
+    email: string;
+  };
 }
 
 /**
@@ -20,6 +23,13 @@ export default function getRenewToken(isSignup?: boolean): Promise<IResponse> {
       : 'Renewing general purpose token',
   );
   return new Promise((resolve) => {
-    setTimeout(() => resolve({ responseCode: 200 }), 1000);
+    setTimeout(
+      () =>
+        resolve({
+          responseCode: 200,
+          content: { email: 'dummyemail@dummy.com' },
+        }),
+      1000,
+    );
   });
 }
