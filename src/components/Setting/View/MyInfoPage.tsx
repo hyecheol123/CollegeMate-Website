@@ -33,6 +33,8 @@ interface SettingMenuProps {
     handleClose: () => void;
     nickname: string;
     setNickname: React.Dispatch<React.SetStateAction<string>>;
+    nicknameChanged: string;
+    setNicknameChanged: React.Dispatch<React.SetStateAction<string>>;
     major: string;
     setMajor: React.Dispatch<React.SetStateAction<string>>;
     gradYear: number;
@@ -83,16 +85,19 @@ function MyInfoPage(props: SettingMenuProps): React.ReactElement {
     const [isMajorListLoaded, setIsMajorListLoaded] =
         React.useState<boolean>(false);
 
-    const editInfoHandler = (): void => {
+    const editInfoHandler = () => {
         if (buttonString === 'Edit') {
             setButtonString('Save');
             setEditing(true);
         } else if (buttonString === 'Save') {
-            // Save functionality goes here
-            // Once saved, revert to initial state
             setButtonString('Edit');
             setEditing(false);
         }
+    };
+
+    const backToInfoPage = (): void => {
+        setButtonString('Edit');
+        setEditing(false);
     };
 
     // Load Terms
@@ -117,9 +122,11 @@ function MyInfoPage(props: SettingMenuProps): React.ReactElement {
                 (editing ? (
                     <MyInfoPageEdit
                         open={props.open}
-                        handleClose={props.handleClose}
+                        handleClose={backToInfoPage}
                         nickname={props.nickname}
                         setNickname={props.setNickname}
+                        nicknameChanged = {props.nicknameChanged}
+                        setNicknameChanged = {props.setNicknameChanged}
                         school={school}
                         major={props.major}
                         setMajor={props.setMajor}

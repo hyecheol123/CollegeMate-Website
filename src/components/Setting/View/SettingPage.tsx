@@ -39,6 +39,7 @@ function SettingPage(): React.ReactElement {
     const [delAccClicked, setDelAccClicked] = useState<boolean>(false);
     const [logOutClicked, setlogOutClicked] = useState<boolean>(false);
     const [nickname, setNickname] = useState<string>('');
+    const [nicknameChanged, setNicknameChanged] = useState<string>('');
     const [major, setMajor] = useState<string>('');
     const [gradYear, setGradYear] = useState<number>(-1);
     const [canSend, setCanSend] = useState<boolean>(true);
@@ -51,6 +52,7 @@ function SettingPage(): React.ReactElement {
                 setNickname(userInfo.content.nickname);
                 setMajor(userInfo.content.major);
                 setGradYear(userInfo.content.graduationYear);
+                setNicknameChanged(userInfo.content.nicknameChanged);
             }
         };
         loadData();
@@ -102,7 +104,7 @@ function SettingPage(): React.ReactElement {
                 </Box>
             </Box>
             <MenuBar open={menuClicked} handleClose={menuFunction} handleMyInfo={menuMyInfo} handleDelAcc={menuDelAccClicked} handleLogOut={menulogOutClicked} />
-            <MyInfoPage open={myInfoClicked} handleClose={menuMyInfo} nickname={nickname} setNickname={setNickname} major={major} setMajor={setMajor} gradYear={gradYear} setGradYear={setGradYear} setCanSend={setCanSend} />
+            <MyInfoPage open={myInfoClicked} handleClose={menuMyInfo} nickname={nickname} nicknameChanged={nicknameChanged} setNicknameChanged={setNicknameChanged} setNickname={setNickname} major={major} setMajor={setMajor} gradYear={gradYear} setGradYear={setGradYear} setCanSend={setCanSend} />
             <DeleteAccountPage open={delAccClicked} handleClose={menuDelAccClicked} />
             <LogOutAlert open={logOutClicked} handleClose={menulogOutClicked} logOut={logoClickHandler} />
         </Box>

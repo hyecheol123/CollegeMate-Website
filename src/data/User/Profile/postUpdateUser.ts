@@ -12,10 +12,11 @@ interface IResponse {
 
 /**
  * Simulates an API call to post create user.
- * @param {string} email new user's email
- * @param {string} nickname new user's nickname
- * @param {string} major new user's major
- * @param {number} graduationYear new user's graduation year
+ * @param {string} email user's email
+ * @param {string} nickname user's nickname
+ * @param {string} major user's major
+ * @param {number} graduationYear user's graduation year
+ * @param {string} NickNameUpdate user's nickname updated date
  * @return {Promise<IResponse>} A promise that resolves with responseCode.
  */
 export default function postUpdateUser(
@@ -23,9 +24,10 @@ export default function postUpdateUser(
   nickname: string,
   major: string,
   graduationYear: number,
+  NickNameUpdate: string,
 ): Promise<IResponse> {
   console.log(
-    `Sending update user profile request with ${email} of nickname ${nickname}. His/her major is ${major} and class of ${graduationYear}.`,
+    `Sending update user profile request with ${email} of nickname ${nickname} updated on ${NickNameUpdate}. His/her major is ${major} and class of ${graduationYear}.`,
   );
 
   return new Promise((resolve) => {
