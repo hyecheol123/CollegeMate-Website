@@ -1,5 +1,5 @@
 /**
- * friends Page
+ * Friends Request Page
  * @author Heewon Kim <khw0285@gmail.com>
  */
 
@@ -53,10 +53,10 @@ function FriendRequests(props: IProps): React.ReactElement {
             if (response.responseCode === 200) {
                 // Update UI or state to reflect successful acceptance
             } else {
-                // Handle error or display error message
+                console.log("Error: API does not response")
             }
         } catch (error) {
-            // Handle network error
+            console.log("Error: API does not response")
         }
     }
 

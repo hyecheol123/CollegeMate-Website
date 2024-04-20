@@ -1,5 +1,5 @@
 /**
- * friends Page
+ * Friends side menu Page
  * @author Heewon Kim <khw0285@gmail.com>
  */
 
@@ -14,8 +14,11 @@ import SearchIcon from '@mui/icons-material/Search';
 // Components
 import MyFriends from '../components/Friends/View/MyFriends';
 import FriendRequests from '../components/Friends/View/FriendRequests';
+import MyRequests from '../components/Friends/View/MyRequest';
 // API call
 import getReceivedFriendRequests from '../data/Friend/getReceivedFriendRequests';
+import getSentFriendRequests from '../data/Friend/getSentFriendRequests';
+import postSendFriendRequest from '../data/Friend/postSendFriendRequest';
 
 const pageWrapperStyle = {
     flex: 1,
@@ -37,6 +40,8 @@ function Friends({ open }: { open: boolean }): React.ReactElement {
     const [friendRequests, setFriendRequests] = useState(false);
     const [receivedRequests, setReceivedRequests] = React.useState<{ requestId: string; from: string; }[]>([]);
     const [myRequests, setMyRequests] = useState(false);
+    const [sentRequests, setSentRequests] = React.useState<{ requestId: string; from: string; }[]>([]);
+    const [email, setEmail] = useState('');
 
     const handleGoBack = () => {
         // Add logic to go back when clicked
@@ -52,19 +57,44 @@ function Friends({ open }: { open: boolean }): React.ReactElement {
         setMyRequests(true);
     };
 
+    // Search exact email
+    const handleSearch = async () => {
+        try {
+            const response = await postSendFriendRequest(email);
+            if (response.responseCode === 201) {
+                console.log('Friend request sent successfully');
+            } else if (response.responseCode === 404) {
+                console.log('User not found');
+            } else if (response.responseCode === 409) {
+                console.log('User is already a friend');
+            }
+        } catch (error) {
+            console.error('Error sending friend request:', error);
+        }
+    };
+
+    const handleEnter = (event: { key: string; }) => {
+        if (event.key === 'Enter') {
+            handleSearch();
+        }
+    };
+
     // Load friends list
     React.useEffect(() => {
         const loadData = async (): Promise<void> => {
             try {
                 const jsonRequestList = await getReceivedFriendRequests();
+                const jsonSentList = await getSentFriendRequests();
                 if (jsonRequestList.content?.friendRequests !== undefined) {
                     setReceivedRequests(jsonRequestList.content?.friendRequests);
+                }
+                if (jsonSentList.content?.friendRequests !== undefined) {
+                    setSentRequests(jsonSentList.content?.friendRequests);
                 }
             } catch (error) {
                 console.error('Error loading received friend requests:', error);
             }
         };
-    
         loadData();
     }, []);
 
@@ -88,6 +118,8 @@ function Friends({ open }: { open: boolean }): React.ReactElement {
                 </Box>
                 <Box alignItems="center" display="flex" justifyContent={'center'} >
                     <List sx={{ width: '340px' }}>
+
+                        {/* My Friends */}
                         <ListItem onClick={handleMyFriends} sx={{ margin: '10px', width: '100%' }}>
                             <Box alignItems="center" display="flex" justifyContent="space-between" width="100%">
                                 <Typography variant='h3' fontWeight={500} color={'red.main'}>My Friends</Typography>
@@ -101,6 +133,8 @@ function Friends({ open }: { open: boolean }): React.ReactElement {
                         </ListItem>
                         {<MyFriends myFriends={myFriends} setMyFriends={setMyFriends} />}
                         <Divider />
+
+                        {/* Friend Requests */}
                         <ListItem onClick={handleFriendRequests} sx={{ margin: '10px', width: '100%' }}>
                             <Box display="flex" justifyContent="space-between" flexDirection={'column'} width="100%">
                                 <Typography variant='h3' fontWeight={500} color={'red.main'}>Friend Requests</Typography>
@@ -111,28 +145,43 @@ function Friends({ open }: { open: boolean }): React.ReactElement {
                                 )}
                             </Box>
                         </ListItem>
-                        {<FriendRequests friendRequests={friendRequests} setFriendRequests={setFriendRequests} receivedRequests={receivedRequests}/>}
+                        {<FriendRequests friendRequests={friendRequests} setFriendRequests={setFriendRequests} receivedRequests={receivedRequests} />}
                         <Divider />
+
+                        {/* My Requests */}
                         <ListItem onClick={handleMyRequests} sx={{ margin: '10px', width: '100%' }}>
-                            <Box alignItems="center" display="flex" justifyContent="space-between" width="100%">
+                            <Box display="flex" justifyContent="space-between" flexDirection={'column'} width="100%">
                                 <Typography variant='h3' fontWeight={500} color={'red.main'}>My Requests</Typography>
+                                {sentRequests.length === 0 ? (
+                                    <Typography variant='body2'>No request found</Typography>
+                                ) : (
+                                    <Typography variant='body2'>{`You have sent ${sentRequests.length} requests`}</Typography>
+                                )}
                             </Box>
                         </ListItem>
+                        {<MyRequests myRequests={myRequests} setMyRequests={setMyRequests} receivedRequests={receivedRequests} />}
                         <Divider />
+
+                        {/* Add Friends */}
                         <ListItem sx={{ margin: '10px', width: '100%' }}>
-                            <Box display="flex" flexDirection={"column"} width="100%">
-                                <Typography variant='h3' fontWeight={500} color={'red.main'}>Add Friends</Typography>
+                            <Box display="flex" flexDirection="column" width="100%">
+                                <Typography variant="h3" fontWeight={500} color="red.main">Add Friends</Typography>
                                 <Box alignItems="center" display="flex" justifyContent="space-between" width="100%">
                                     <TextField
                                         label="Search by Friend Name"
                                         InputProps={{
                                             endAdornment: (
-                                                <InputAdornment position='end'>
-                                                    <SearchIcon />
+                                                <InputAdornment position="end">
+                                                    <IconButton onClick={handleSearch}>
+                                                        <SearchIcon />
+                                                    </IconButton>
                                                 </InputAdornment>
                                             ),
                                         }}
                                         variant="standard"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        onKeyPress={handleEnter}
                                     />
                                 </Box>
                             </Box>

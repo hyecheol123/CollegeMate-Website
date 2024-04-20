@@ -31,6 +31,9 @@ export default function deleteFriendRequest(friendRequestId: string): Promise<IR
                 // Successfully delete friend reuqest
                 setTimeout(() => resolve({ responseCode: 200 }), 1000);
               }
+              
+              // Need to add 403 Forbidden 
+
         }, 1000); // Simulate a 1s delay
     });
 }
