@@ -23,9 +23,11 @@ import VerifiedIcon from '@mui/icons-material/Verified';
 // style
 import ModalStyle from '../Styles/Modal';
 
+import { GlobalContextProvider, useGlobalContext } from '../../../GlobalContext';
+
 // API Calls
 import postInitiateOTPRequest from '../../../data/Authentication/postInitiateOTPRequest';
-import postEnterOTPCode from '../../../data/Authentication/postEnterOTPCode';
+import PostDeleteUser from '../../../data/User/postDeleteUser';
 
 /**
  * Interface for ContentModalProps
@@ -73,6 +75,8 @@ function DeleteAccountPage(props: SettingMenuProps): React.ReactElement {
   const [codeSent, setCodeSent] = React.useState<boolean>(false);
   const [errorMsg, setErrorMsg] = React.useState<string>('NONE');
   const { open, handleClose } = props;
+  const globalContext = useGlobalContext();
+
   // Control variable
   const formatSecond = (second: number): string => {
     return `${Math.floor(second / 60)}:${String(second % 60).padStart(2, '0')}`;
@@ -101,8 +105,7 @@ function DeleteAccountPage(props: SettingMenuProps): React.ReactElement {
     if (!codeSent) {
       // Code not Sent yet
       // set Email here by getting user information
-      // TODO: Have to change this to get user email
-      setEmail('ahn58@wisc.edu'); // Testing Email
+      setEmail(globalContext.email); 
 
       const result = await postInitiateOTPRequest(email, 'sudo'); // Testing Purpose 'sudo'
       if (result.responseCode === 201 && result.content) {
@@ -143,9 +146,16 @@ function DeleteAccountPage(props: SettingMenuProps): React.ReactElement {
   };
 
   const modalHandler = () => setisModalOpen(!isModalOpen);
-  const deleteHandler = () => {
-    setisDelete(true);
-    setisModalOpen(!isModalOpen);
+  const deleteHandler = async () => {
+    // API call
+    const postUpdateUserResponse = await PostDeleteUser(
+      globalContext.email
+    );
+    if (postUpdateUserResponse.responseCode === 200) {
+      // success
+      setisDelete(true);
+      setisModalOpen(!isModalOpen);
+    }
   };
 
   // Change Event Handler for inputs
@@ -155,6 +165,8 @@ function DeleteAccountPage(props: SettingMenuProps): React.ReactElement {
     },
     [],
   );
+
+
   return (
     <Box
       style={{

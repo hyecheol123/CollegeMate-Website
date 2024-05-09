@@ -24,6 +24,8 @@ import Modal from '../../Common/Modal/Modal';
 // API Call
 import getVerifyNickname from '../../../data/User/getVerifyNickname';
 import postUpdateUser from '../../../data/User/Profile/postUpdateUser';
+import { GlobalContextProvider, useGlobalContext } from '../../../GlobalContext';
+
 
 // Global Styles
 import PageWrapperStyle from '../Styles/PageWrapper';
@@ -32,6 +34,7 @@ interface IProps {
   open: boolean;
   handleClose: () => void;
   majorList: string[];
+  email: string;
   nickname: string;
   setNickname: React.Dispatch<React.SetStateAction<string>>;
   nicknameChanged: string;
@@ -116,6 +119,9 @@ function MyInfoPageEdit(props: IProps): React.ReactElement {
   const navigate = useNavigate();
 
   /* Temperal variable that stores changes in edit page */
+  const [tempEmail, setEmail] = React.useState<string>(
+    props.email,
+  );
   const [tempNickName, setTempNickName] = React.useState<string>(
     props.nickname,
   );
@@ -165,7 +171,7 @@ function MyInfoPageEdit(props: IProps): React.ReactElement {
     if (isSavable == true) {
       // API Call
       const postUpdateUserResponse = await postUpdateUser(
-        tempNickName,
+        tempEmail,
         tempNickName,
         tempMajor,
         tempExpGradYear,

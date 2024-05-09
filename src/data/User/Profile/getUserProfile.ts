@@ -14,7 +14,6 @@ export interface IProfileResponse {
 }
 
 /**
- *
  * @param {string} email get user email when this API called
  * @return {Promise<IProfileResponse>} returns user information that matches the email
  */
@@ -22,7 +21,7 @@ export default function getUserProfile(
   email: string,
 ): Promise<IProfileResponse> {
   return new Promise((resolve) => {
-    if (email === "exist@wisc.edu") {
+    if (email === "") { // currently set this as blank
       setTimeout(() => {
         resolve({
           responseCode: 200,

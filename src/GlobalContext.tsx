@@ -45,7 +45,7 @@ function reducer(state: State, action: Action): State {
     case 'LOGIN':
       return { ...state, login: true, email: action.email };
     case 'LOGOUT':
-      return { ...state, login: false };
+      return { ...state, login: false, email: "" };
     case 'SET_NEW_TNC':
       return { ...state, newTnC: true };
     case 'UNSET_NEW_TNC':

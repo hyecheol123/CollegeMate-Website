@@ -25,6 +25,7 @@ import ArrowIcon from '@mui/icons-material/ArrowBack';
 import PageWrapperStyle from '../Styles/PageWrapper';
 // Calling other files
 import MyInfoPageEdit from './MyInfoPageEdit';
+
 // API Call
 import getMajorList from '../../../data/Miscellaneous/getMajorList';
 /**
@@ -33,6 +34,7 @@ import getMajorList from '../../../data/Miscellaneous/getMajorList';
 interface SettingMenuProps {
   open: boolean;
   handleClose: () => void;
+  email: string;
   nickname: string;
   setNickname: React.Dispatch<React.SetStateAction<string>>;
   nicknameChanged: string;
@@ -123,6 +125,7 @@ function MyInfoPage(props: SettingMenuProps): React.ReactElement {
           <MyInfoPageEdit
             open={props.open}
             handleClose={backToInfoPage}
+            email = {props.email}
             nickname={props.nickname}
             setNickname={props.setNickname}
             nicknameChanged={props.nicknameChanged}

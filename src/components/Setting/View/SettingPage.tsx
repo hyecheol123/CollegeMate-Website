@@ -20,6 +20,7 @@ import MenuBar from './MenuBar';
 import MyInfoPage from './MyInfoPage';
 import DeleteAccountPage from './DeleteAccPage';
 import LogOutAlert from './LogOutAlert';
+import { GlobalContextProvider, useGlobalContext } from '../../../GlobalContext';
 
 import PageWrapperStyle from '../../Common/Styles/PageWrapper';
 import HeaderIconContStyle from '../Styles/HeaderIconCont';
@@ -36,7 +37,8 @@ import getUserProfile, {
  */
 async function fetchData(): Promise<IProfileResponse | undefined> {
   try {
-    const response = await getUserProfile('exist@wisc.edu');
+    const globalContext = useGlobalContext();
+    const response = await getUserProfile(globalContext.email);
     return response;
   } catch (error) {
     console.error('Error fetching user profile:', error);
@@ -53,17 +55,20 @@ function SettingPage(): React.ReactElement {
   const [myInfoClicked, setMyInfo] = useState<boolean>(false);
   const [delAccClicked, setDelAccClicked] = useState<boolean>(false);
   const [logOutClicked, setlogOutClicked] = useState<boolean>(false);
+  const [email, setEmail] = useState<string>('');
   const [nickname, setNickname] = useState<string>('');
   const [nicknameChanged, setNicknameChanged] = useState<string>('');
   const [major, setMajor] = useState<string>('');
   const [gradYear, setGradYear] = useState<number>(-1);
   const [canSend, setCanSend] = useState<boolean>(true);
   const navigate = useNavigate();
+  const globalContext = useGlobalContext();
 
   useEffect(() => {
     const loadData = async (): Promise<void> => {
       const userInfo = await fetchData();
       if (userInfo && userInfo.responseCode === 200 && userInfo.content) {
+        setEmail(globalContext.email);
         setNickname(userInfo.content.nickname);
         setMajor(userInfo.content.major);
         setGradYear(userInfo.content.graduationYear);
@@ -91,6 +96,9 @@ function SettingPage(): React.ReactElement {
     setDelAccClicked(false);
     setlogOutClicked(!logOutClicked);
     setMenuClick(!menuClicked);
+    globalContext.dispatch({
+      type: 'LOGOUT'
+    });
   };
   const logoClickHandler = () => navigate('/login');
 
@@ -138,6 +146,7 @@ function SettingPage(): React.ReactElement {
       <MyInfoPage
         open={myInfoClicked}
         handleClose={menuMyInfo}
+        email={email}
         nickname={nickname}
         nicknameChanged={nicknameChanged}
         setNicknameChanged={setNicknameChanged}
