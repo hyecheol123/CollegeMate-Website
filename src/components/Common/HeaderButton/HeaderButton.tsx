@@ -12,9 +12,9 @@ import Menusharp from '@mui/icons-material/Menusharp';
 import NotificationNoneSharpIcon from '@mui/icons-material/NotificationsNoneSharp';
 import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined';
 // Assets
-import CollegeMateLogoPng from '../../../assets/logo.png';
-import CollegeMateLogoWebp from '../../../assets/logo.png?as=webp';
-import CollegeMateLogAvif from '../../../assets/logo.png?as=avif';
+import CollegeMateLogoPng from '../../../../assets/logo.png';
+import CollegeMateLogoWebp from '../../../../assets/logo.png?as=webp';
+import CollegeMateLogAvif from '../../../../assets/logo.png?as=avif';
 
 const titleStyle = {
   bgcolor: 'whiteGrey.main',
