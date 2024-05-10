@@ -21,7 +21,7 @@ export default function getUserProfile(
   email: string,
 ): Promise<IProfileResponse> {
   return new Promise((resolve) => {
-    if (email === "") { // currently set this as blank
+    if (email === "dummyemail@dummy.com") { // currently set this as blank
       setTimeout(() => {
         resolve({
           responseCode: 200,

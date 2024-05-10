@@ -16,6 +16,7 @@ import CollegeMateLogoPng from '../../../../assets/logo.png';
 import CollegeMateLogoWebp from '../../../../assets/logo.png?as=webp';
 import CollegeMateLogAvif from '../../../../assets/logo.png?as=avif';
 
+
 const titleStyle = {
   bgcolor: 'whiteGrey.main',
   display: 'flex',
@@ -61,11 +62,19 @@ const IconComponents = ({
   </>
 );
 
+
+/**
+ * Interface for ContentModalProps
+ */
+interface SettingMenuProps {
+  settingOpen:() => void;
+}
+
 /**
  * React Functional Component Main Header for Home Page
  * @return {React.ReactElement} Renders Main Header for Home Page
  */
-function MainHeader(): React.ReactElement {
+function MainHeader(props: SettingMenuProps): React.ReactElement {
   const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth);
 
   useEffect(() => {
@@ -79,7 +88,7 @@ function MainHeader(): React.ReactElement {
   return (
     <Box sx={titleStyle}>
       <Tooltip title="Menu">
-        <IconButton sx={{ color: 'red.main', mr: '0.3em' }} aria-label="Menu">
+        <IconButton sx={{ color: 'red.main', mr: '0.3em' }} aria-label="Menu" onClick={props.settingOpen}>
           <Menusharp fontSize={isFold ? 'small' : 'medium'} />
         </IconButton>
       </Tooltip>

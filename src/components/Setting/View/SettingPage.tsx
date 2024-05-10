@@ -1,10 +1,11 @@
 /**
  * Setting Page that are being called by Pages/Setting.tsx.
  * Calls 4 sub pages in the /Setting/View/ directory including:
- *      1. MenuBar
- *      2. MyInfoPage
- *      3. DeleteAccountPage
- *      4. LogOutAlert
+ *      1. MainHeader
+ *      2. MenuBar
+ *      3. MyInfoPage
+ *      4. DeleteAccountPage
+ *      5. LogOutAlert
  * Directly interacts with getUserProfile API.
  * @author Jihyun (Janice) Ahn <jihyun.ahn.ai@gmail.com>
  */
@@ -12,10 +13,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, IconButton } from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
-import PermIdentityIcon from '@mui/icons-material/PermIdentity';
-import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
 
+import MainHeader from '../../Common/HeaderButton/HeaderButton';
 import MenuBar from './MenuBar';
 import MyInfoPage from './MyInfoPage';
 import DeleteAccountPage from './DeleteAccPage';
@@ -23,11 +22,7 @@ import LogOutAlert from './LogOutAlert';
 import { GlobalContextProvider, useGlobalContext } from '../../../GlobalContext';
 
 import PageWrapperStyle from '../../Common/Styles/PageWrapper';
-import HeaderIconContStyle from '../Styles/HeaderIconCont';
-import HeaderStyle from '../Styles/Header';
-import TitleStyle from '../Styles/Title';
 
-import CollegeMateLogo from '../../../../assets/lg3 1.png';
 import getUserProfile, {
   IProfileResponse,
 } from '../../../data/User/Profile/getUserProfile';
@@ -35,10 +30,9 @@ import getUserProfile, {
 /**
  *
  */
-async function fetchData(): Promise<IProfileResponse | undefined> {
+async function fetchData(email: string): Promise<IProfileResponse | undefined> {
   try {
-    const globalContext = useGlobalContext();
-    const response = await getUserProfile(globalContext.email);
+    const response = await getUserProfile(email);
     return response;
   } catch (error) {
     console.error('Error fetching user profile:', error);
@@ -66,7 +60,7 @@ function SettingPage(): React.ReactElement {
 
   useEffect(() => {
     const loadData = async (): Promise<void> => {
-      const userInfo = await fetchData();
+      const userInfo = await fetchData(globalContext.email);
       if (userInfo && userInfo.responseCode === 200 && userInfo.content) {
         setEmail(globalContext.email);
         setNickname(userInfo.content.nickname);
@@ -76,9 +70,9 @@ function SettingPage(): React.ReactElement {
       }
     };
     loadData();
-  }, []);
+  }, [globalContext.email]); // Depend on the email from globalContext
 
-  const menuFunction = () => setMenuClick(!menuClicked);
+  const menuFunction = () => setMenuClick(prev => !prev);
   const menuMyInfo = () => {
     setMyInfo(true);
     setDelAccClicked(false);
@@ -104,38 +98,9 @@ function SettingPage(): React.ReactElement {
 
   return (
     <Box sx={PageWrapperStyle} style={{ padding: 0 }}>
-      <Box sx={HeaderStyle}>
-        <Box sx={HeaderIconContStyle}>
-          <IconButton onClick={menuFunction}>
-            <MenuIcon style={{ color: '#B20000' }} />
-          </IconButton>
-          <IconButton>
-            <PermIdentityIcon style={{ color: '#B20000' }} />
-          </IconButton>
-          <IconButton>
-            <NotificationsNoneIcon style={{ color: '#B20000' }} />
-          </IconButton>
-        </Box>
-        <Box sx={TitleStyle}>
-          <Box
-            component="img"
-            src={CollegeMateLogo}
-            alt="Mockup of CollegeMateLogo"
-          />
-        </Box>
-        {/* Hidden Box to balance the flex container */}
-        <Box sx={HeaderIconContStyle} style={{ visibility: 'hidden' }}>
-          <IconButton>
-            <MenuIcon />
-          </IconButton>
-          <IconButton>
-            <PermIdentityIcon />
-          </IconButton>
-          <IconButton>
-            <NotificationsNoneIcon />
-          </IconButton>
-        </Box>
-      </Box>
+      <MainHeader
+        settingOpen = {menuFunction}
+      />
       <MenuBar
         open={menuClicked}
         handleClose={menuFunction}

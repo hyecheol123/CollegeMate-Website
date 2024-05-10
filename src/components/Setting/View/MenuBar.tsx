@@ -48,7 +48,7 @@ function MenuBar(props: SettingMenuProps): React.ReactElement {
   return (
     <Box>
       {open ? (
-        <Box sx={MenuBackStyle} style={{ width: '100vw' }}>
+        // <Box sx={MenuBackStyle} style={{ width: '100vw' }}>
           <Box sx={MenuStyle} style={{ width: '33vw' }}>
             <Box
               style={{
@@ -103,7 +103,7 @@ function MenuBar(props: SettingMenuProps): React.ReactElement {
               </ListItemButton>
             </List>
           </Box>
-        </Box>
+        // </Box>
       ) : (
         <Box sx={MenuStyle} style={{ width: '0vw' }}>
           <Box sx={MenuStyle} style={{ width: '0vw' }} />
