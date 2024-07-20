@@ -11,7 +11,6 @@ import { Box } from '@mui/material';
 import HeaderButton from '../components/Common/HeaderButton/HeaderButton';
 import Scheduler from '../components/Scheduler/SchedulerTable';
 import SchedulerTitle from '../components/Scheduler/SchedulerTitle';
-import InfoFooter from '../components/Scheduler/InfoFooter';
 
 /**
  * React Functional Component for About page's third page
@@ -23,7 +22,6 @@ function Home(): React.ReactElement {
       <HeaderButton />
       <SchedulerTitle />
       <Scheduler />
-      <InfoFooter />
     </Box>
   );
 }

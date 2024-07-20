@@ -17,6 +17,7 @@ import {
 } from '@mui/material';
 // elements
 import Modal from '../Common/Modal/Modal';
+import InfoFooter from './InfoFooter';
 
 // define the interface for EventData
 interface EventData {
@@ -320,6 +321,7 @@ function SchedulerTable(): React.ReactElement {
           </TableBody>
         </Table>
       </Box>
+      <InfoFooter></InfoFooter>
     </Box>
   );
 }
