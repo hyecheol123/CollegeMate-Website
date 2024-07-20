@@ -16,6 +16,8 @@ import CollegeMateLogoPng from '../../../../assets/logo.png';
 import CollegeMateLogoWebp from '../../../../assets/logo.png?as=webp';
 import CollegeMateLogAvif from '../../../../assets/logo.png?as=avif';
 
+import MenuBar from '../MenuBar/MenuBar';
+
 const titleStyle = {
   bgcolor: 'whiteGrey.main',
   display: 'flex',
@@ -67,6 +69,7 @@ const IconComponents = ({
  */
 function MainHeader(): React.ReactElement {
   const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth);
+  const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
 
   useEffect(() => {
     const handleResize = (): void => setWindowWidth(window.innerWidth);
@@ -76,44 +79,65 @@ function MainHeader(): React.ReactElement {
 
   const isMobile = windowWidth <= 480;
   const isFold = windowWidth < 300;
+
+  const handleMenuToggle = (): void => {
+    setIsMenuOpen((prev) => !prev);
+  };
+
   return (
-    <Box sx={titleStyle}>
-      <Tooltip title="Menu">
-        <IconButton sx={{ color: 'red.main', mr: '0.3em' }} aria-label="Menu">
-          <Menusharp fontSize={isFold ? 'small' : 'medium'} />
-        </IconButton>
-      </Tooltip>
-      <Box
-        sx={{
-          flex: 1,
-          display: 'flex',
-          justifyContent: isMobile ? 'space-between' : 'initial',
-        }}
-      >
-        {!isMobile && (
-          <IconComponents size={isFold ? 'small' : 'medium'} isFold={isFold} />
-        )}
-
-        <picture style={{ ...logoStyle, position: 'absolute' }}>
-          <source srcSet={CollegeMateLogAvif} type="image/avif" />
-          <source srcSet={CollegeMateLogoWebp} type="image/webp" />
-          <img
-            style={{ ...logoStyle, position: 'absolute' }}
-            src={CollegeMateLogoPng}
-            alt="CollegeMate Logo"
-          />
-        </picture>
-
-        {isMobile && (
-          <Box ml="auto">
+    <>
+      <Box sx={titleStyle}>
+        <Tooltip title="Menu">
+          <IconButton
+            sx={{ color: 'red.main', mr: '0.3em' }}
+            aria-label="Menu"
+            onClick={handleMenuToggle}
+          >
+            <Menusharp fontSize={isFold ? 'small' : 'medium'} />
+          </IconButton>
+        </Tooltip>
+        <Box
+          sx={{
+            flex: 1,
+            display: 'flex',
+            justifyContent: isMobile ? 'space-between' : 'initial',
+          }}
+        >
+          {!isMobile && (
             <IconComponents
               size={isFold ? 'small' : 'medium'}
               isFold={isFold}
             />
-          </Box>
-        )}
+          )}
+
+          <picture style={{ ...logoStyle, position: 'absolute' }}>
+            <source srcSet={CollegeMateLogAvif} type="image/avif" />
+            <source srcSet={CollegeMateLogoWebp} type="image/webp" />
+            <img
+              style={{ ...logoStyle, position: 'absolute' }}
+              src={CollegeMateLogoPng}
+              alt="CollegeMate Logo"
+            />
+          </picture>
+
+          {isMobile && (
+            <Box ml="auto">
+              <IconComponents
+                size={isFold ? 'small' : 'medium'}
+                isFold={isFold}
+              />
+            </Box>
+          )}
+        </Box>
       </Box>
-    </Box>
+      <MenuBar
+        open={isMenuOpen}
+        handleClose={handleMenuToggle}
+        handleMyInfo={() => console.log('My Info')}
+        handleDelAcc={() => console.log('Delete Account')}
+        handleLogOut={() => console.log('Log Out')}
+      />
+    </>
   );
 }
 
