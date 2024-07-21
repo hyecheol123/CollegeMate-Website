@@ -1,4 +1,3 @@
-// React
 import React from 'react';
 
 // Material UI
@@ -11,7 +10,6 @@ import {
   Divider,
   Typography,
 } from '@mui/material';
-import ArrowIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 
 /**
@@ -30,10 +28,11 @@ const MenuStyle = {
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
-  height: '95vh',
+  height:'100vh',
   transition: '300ms',
   zIndex: 3,
   position: 'absolute',
+  overflow: 'hidden',
 };
 
 /**
@@ -44,66 +43,67 @@ const MenuStyle = {
 function MenuBar(props: SettingMenuProps): React.ReactElement {
   const { open, handleClose, handleMyInfo, handleDelAcc, handleLogOut } = props;
 
+  const barWidth = window.innerWidth <= 480 ? '100vw' : '400px';
+
   return (
     <Box>
       {open ? (
-        <Box sx={MenuStyle} style={{ width: '33vw' }}>
+        <Box sx={MenuStyle} style={{ width: barWidth }}>
           <Box
             style={{
               display: 'flex',
-              flexDirection: 'row',
-              alignItems: 'center',
-              width: '90%',
-              marginLeft: '5vw',
-              marginTop: '2vh',
-            }}
+              flexDirection: 'column',
+              alignItems: 'flex-start',
+              width: '100%',
+              padding: '10px 30px'
+            }} 
           >
-            <IconButton
-              aria-label="close"
-              onClick={handleClose}
-              style={{ alignSelf: 'flex-start' }}
-            >
-              <ArrowIcon />
-            </IconButton>
             <Typography
               variant="h2"
               color="red.main"
-              align="center"
-              style={{ marginLeft: '2%' }}
+              style={{ alignSelf: 'flex-start', marginTop: '10px' }}
             >
-              Setting
+              Hello, Andy!
             </Typography>
           </Box>
           <List
-            sx={{ width: '28vw', marginLeft: '5vw' }}
+            sx={{ width: barWidth ? '360px' : '120px' }}
             component="nav"
             aria-labelledby="nested-list-subheader"
           >
             <ListItemButton onClick={handleMyInfo}>
-              <ListItemText primary="My Information" />
-              <IconButton aria-label="close" onClick={handleMyInfo}>
+              <ListItemText primary="My Schedules" />
+              <IconButton aria-label="navigate" onClick={handleMyInfo}>
                 <ArrowForwardIosIcon />
               </IconButton>
             </ListItemButton>
             <Divider />
             <ListItemButton onClick={handleDelAcc}>
-              <ListItemText primary="Delete Account" />
-              <IconButton aria-label="close" onClick={handleDelAcc}>
+              <ListItemText primary="My Friends" />
+              <IconButton aria-label="navigate" onClick={handleDelAcc}>
                 <ArrowForwardIosIcon />
               </IconButton>
             </ListItemButton>
             <Divider />
             <ListItemButton onClick={handleLogOut}>
-              <ListItemText primary="Log Out" />
-              <IconButton aria-label="close" onClick={handleLogOut}>
+              <ListItemText primary="My Uw" />
+              <IconButton aria-label="navigate" onClick={handleLogOut}>
                 <ArrowForwardIosIcon />
               </IconButton>
             </ListItemButton>
+            <Divider />
+            <ListItemButton onClick={handleLogOut}>
+              <ListItemText primary="Settings" />
+              <IconButton aria-label="navigate" onClick={handleLogOut}>
+                <ArrowForwardIosIcon />
+              </IconButton>
+            </ListItemButton>
+
           </List>
         </Box>
       ) : (
-        <Box sx={MenuStyle} style={{ width: '0vw' }}>
-          <Box sx={MenuStyle} style={{ width: '0vw' }} />
+        <Box sx={MenuStyle} style={{ width: '0px' }}>
+          <Box sx={MenuStyle} style={{ width: '0px' }} />
         </Box>
       )}
     </Box>

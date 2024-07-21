@@ -1,4 +1,4 @@
-/**
+ /**
  * Component for the Main Header for Home
  * @author Daekyun Kim <daekyun97@gmail.com>
  */
@@ -141,4 +141,4 @@ function MainHeader(): React.ReactElement {
   );
 }
 
-export default MainHeader;
+export default MainHeader; 
