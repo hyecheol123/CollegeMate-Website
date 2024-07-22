@@ -15,7 +15,7 @@ interface INicknameResponse {
 /**
  * Simulates an API call to check nickname.
  * @param {string} nickname nickname to be checked
- * @return {Promise<INicknameResponse>} A promise that resolves with API response.
+ * @returns {Promise<INicknameResponse>} A promise that resolves with API response.
  */
 export default function getNickname(
   nickname: string,

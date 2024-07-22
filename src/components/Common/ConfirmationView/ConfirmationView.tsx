@@ -29,7 +29,7 @@ const pageWrapperStyle = {
 /**
  * Functional component representing the account creation confirmation.
  * @param {IConfirmationViewProps} props message that will be shown
- * @return {React.ReactElement} React component
+ * @returns {React.ReactElement} React component
  */
 function ConfirmationView(props: IConfirmationViewProps): React.ReactElement {
   return (

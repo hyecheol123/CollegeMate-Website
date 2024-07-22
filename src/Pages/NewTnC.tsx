@@ -37,7 +37,7 @@ const footerButtonWrapperStyle = {
 
 /**
  * React functional component to render newTnC page
- * @return {React.ReactElement} the entry point for NewTnC page
+ * @returns {React.ReactElement} the entry point for NewTnC page
  */
 function NewTnC(): React.ReactElement {
   // States

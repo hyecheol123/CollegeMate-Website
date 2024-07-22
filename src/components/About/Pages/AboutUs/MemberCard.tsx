@@ -46,7 +46,7 @@ const nameWrapperStyle = {
  *   and a link to their LinkedIn profile.
  * @param {ITeamMemberCardProps} props The props containing
  *   the team member's information.
- * @return {React.ReactElement} Renders the profile card of a single team member
+ * @returns {React.ReactElement} Renders the profile card of a single team member
  */
 function MemberCard(props: ITeamMemberCardProps): React.ReactElement {
   const { name, title, linkedinUrl, image } = props;

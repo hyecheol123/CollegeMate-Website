@@ -24,7 +24,7 @@ interface INavBarCircleProps {
 /**
  * React Functional Component for Slide's NavBarCircle
  * @param {INavBarCircleProps} props Properties that passed from the parent
- * @return {React.ReactElement} Renders NavBar for scroll
+ * @returns {React.ReactElement} Renders NavBar for scroll
  */
 function NavBarCircle(props: INavBarCircleProps): React.ReactElement {
   const { isCurrent, thisIdx, clickHandler } = props;

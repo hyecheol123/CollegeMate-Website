@@ -30,7 +30,7 @@ const buttonStyle = {
 
 /**
  * React Functional Component for About page's third page
- * @return {React.ReactElement} Renders third page of about page
+ * @returns {React.ReactElement} Renders third page of about page
  */
 function AboutUs(): React.ReactElement {
   // State for managing Dialog open/close

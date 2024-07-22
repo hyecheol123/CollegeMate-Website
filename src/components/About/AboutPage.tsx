@@ -27,7 +27,7 @@ import feature3Avif from '../../../assets/thumbnail_Feature3.png?as=avif';
 
 /**
  * React Functional Component to generate About page
- * @return {React.ReactElement} Renders About page
+ * @returns {React.ReactElement} Renders About page
  */
 function AboutPage(): React.ReactElement {
   // Feature Data
@@ -61,12 +61,12 @@ function AboutPage(): React.ReactElement {
   return (
     <Slides
       components={[
-        <Welcome />,
-        featureData.map((data): React.ReactElement => {
-          return <Feature {...data} />;
+        <Welcome key={'welcome'} />,
+        featureData.map((data, idx): React.ReactElement => {
+          return <Feature {...data} key={`feature-${idx}`} />;
         }),
-        <AboutUs />,
-        <Footer />,
+        <AboutUs key={'aboutus'} />,
+        <Footer key={'footer'} />,
       ]}
     />
   );

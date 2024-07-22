@@ -50,7 +50,7 @@ interface ITermsConsent {
 /**
  * React Functional Component for SignUp page's first page
  * @param {ITermsConsent} props properties sent from this parents
- * @return {React.ReactElement} Renders first page of about page
+ * @returns {React.ReactElement} Renders first page of about page
  */
 function TermsConsent(props: ITermsConsent): React.ReactElement {
   // Destructuring props to extract required values

@@ -16,7 +16,7 @@ interface IResponse {
  * Simulates an API call to initiate OTP Request.
  * @param {string} email email address
  * @param {'signup'|'signin'|'sudo'} purpose purpose of this OTP request
- * @return {Promise<IResponse>} A promise that resolves to response of initiate
+ * @returns {Promise<IResponse>} A promise that resolves to response of initiate
  *   OTP Request API call.
  */
 export default function postInitiateOTPRequest(

@@ -26,7 +26,7 @@ interface INavBarProps {
 /**
  * React Functional Component for Slide's NavBar
  * @param {INavBarProps} props Properties that passed from the parent Component
- * @return {React.ReactElement} Renders NavBar for scroll
+ * @returns {React.ReactElement} Renders NavBar for scroll
  */
 function NavBar(props: INavBarProps): React.ReactElement {
   const { orientation, length, currIdx, clickHandler } = props;

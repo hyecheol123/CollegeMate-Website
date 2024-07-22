@@ -38,7 +38,7 @@ const initialData: State = {
  * Reducer to modify the state
  * @param {State} state Current State
  * @param {Action} action Action to modify the State
- * @return {State} New State
+ * @returns {State} New State
  */
 function reducer(state: State, action: Action): State {
   switch (action.type) {
@@ -70,7 +70,7 @@ const GlobalContext = React.createContext<State>(initialData);
  * React Functional Component for GlobalContext
  * @param {GlobalContextProviderProps} props Properties that passed from the
  *   parent Component.
- * @return {React.ReactElement} Renders GlobalContextProvider
+ * @returns {React.ReactElement} Renders GlobalContextProvider
  */
 export function GlobalContextProvider(
   props: GlobalContextProviderProps,
@@ -90,7 +90,7 @@ export function GlobalContextProvider(
 
 /**
  * React Custom Hooks to use the Global Context
- * @return {State} current global state (Global Context)
+ * @returns {State} current global state (Global Context)
  */
 export function useGlobalContext(): State {
   const state = React.useContext(GlobalContext);

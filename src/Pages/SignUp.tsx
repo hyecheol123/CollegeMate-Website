@@ -35,7 +35,7 @@ const footerButtonWrapperStyle = {
 
 /**
  * React functional component to render signUp page
- * @return {React.ReactElement} the entry point for About page
+ * @returns {React.ReactElement} the entry point for About page
  */
 function SignUp(): React.ReactElement {
   // State
@@ -102,13 +102,13 @@ function SignUp(): React.ReactElement {
 
   // Timeout for Token
   React.useEffect(() => {
-    let timeout: any;
+    let timeout: undefined | number;
     if (tokenExpiresAfterSec > 0 && step !== 4) {
       timeout = setTimeout(() => {
         setTokenExpiresAfterSec(tokenExpiresAfterSec - 1);
       }, 1000);
     }
-    return () => clearTimeout(timeout);
+    return (): void => clearTimeout(timeout);
   }, [step, tokenExpiresAfterSec]);
 
   // Modal Close

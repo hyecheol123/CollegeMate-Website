@@ -41,7 +41,7 @@ const modalStyle = {
 /**
  * General modal component for CollegeMate
  * @param {ModalProps} props Props for this modal
- * @return {React.ReactElement} Modal/Pop-ups
+ * @returns {React.ReactElement} Modal/Pop-ups
  */
 function Modal(props: ModalProps): React.ReactElement {
   return (

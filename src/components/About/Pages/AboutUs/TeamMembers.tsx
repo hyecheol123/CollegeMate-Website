@@ -72,7 +72,7 @@ const cardWrapperStyle = {
  *   and LinkedIn links.
  * @param {ITeamMembersProps} props Properties passed from the parent component,
  *   including a function to handle the 'back' action.
- * @return {React.ReactElement} Renders the pop up of third page of the About
+ * @returns {React.ReactElement} Renders the pop up of third page of the About
  *   page with team members' profiles.
  */
 function TeamMembers(props: ITeamMembersProps): React.ReactElement {

@@ -38,7 +38,7 @@ const linksContainerStyle = {
 
 /**
  * React Functional Component for About page's last page
- * @return {React.ReactElement} Renders last page of about page
+ * @returns {React.ReactElement} Renders last page of about page
  */
 function Footer(): React.ReactElement {
   // State

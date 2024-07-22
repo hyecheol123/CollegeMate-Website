@@ -22,7 +22,7 @@ const pageWrapperStyle = {
 
 /**
  * React functional component to render NotFound page
- * @return {React.ReactElement} the entry point for NotFound page
+ * @returns {React.ReactElement} the entry point for NotFound page
  */
 function NotFound(): React.ReactElement {
   // State

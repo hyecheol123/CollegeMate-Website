@@ -56,7 +56,7 @@ const inputWrapperStyle = {
 
 /**
  * React Functional Component to generate Login Page
- * @return {React.ReactElement} Renders Login Page
+ * @returns {React.ReactElement} Renders Login Page
  */
 function Login(): React.ReactElement {
   // States
@@ -84,7 +84,7 @@ function Login(): React.ReactElement {
 
   // Timeout for Timer
   React.useEffect(() => {
-    let timeout: any;
+    let timeout: undefined | number;
     if (secToExp > elapsedSec) {
       timeout = setTimeout(() => {
         setElapsedSec(elapsedSec + 1);
@@ -94,7 +94,7 @@ function Login(): React.ReactElement {
       setErrorMsg('Code Expired');
     }
 
-    return () => clearTimeout(timeout);
+    return (): void => clearTimeout(timeout);
   }, [secToExp, elapsedSec]);
 
   // Event Handlers for buttons
