@@ -1,5 +1,10 @@
-import React from 'react';
+/**
+ * Globally used style for Menu Bar UI
+ * @author Daekyun Kim <daekyun97@gmail.com>
+ */
 
+// React
+import React from 'react';
 // Material UI
 import {
   Box,
@@ -28,11 +33,10 @@ const MenuStyle = {
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
-  height:'100vh',
+  height:'100%',
   transition: '300ms',
   zIndex: 3,
-  position: 'absolute',
-  overflow: 'hidden',
+  position: 'absolute'
 };
 
 /**

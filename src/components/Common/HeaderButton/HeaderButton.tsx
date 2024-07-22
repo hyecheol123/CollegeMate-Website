@@ -1,5 +1,5 @@
  /**
- * Component for the Main Header for Home
+ * Globally used style for Main Header
  * @author Daekyun Kim <daekyun97@gmail.com>
  */
 
