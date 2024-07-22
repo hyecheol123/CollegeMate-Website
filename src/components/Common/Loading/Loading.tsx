@@ -4,7 +4,7 @@
  */
 
 import * as React from 'react';
-import styles from './Loading.module.css';
+import * as styles from './Loading.module.css';
 
 /**
  * React functional component to render Loading animation
