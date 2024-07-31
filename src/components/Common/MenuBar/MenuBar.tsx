@@ -4,7 +4,7 @@
  */
 
 // React
-import React from 'react';
+import React, { useEffect } from 'react';
 // Material UI
 import {
   Box,
@@ -36,7 +36,7 @@ const MenuStyle = {
   height:'100%',
   transition: '300ms',
   zIndex: 3,
-  position: 'absolute'
+  position: 'absolute',
 };
 
 /**
@@ -48,6 +48,19 @@ function MenuBar(props: SettingMenuProps): React.ReactElement {
   const { open, handleClose, handleMyInfo, handleDelAcc, handleLogOut } = props;
 
   const barWidth = window.innerWidth <= 480 ? '100vw' : '400px';
+
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+
+    // cleanup function to reset overflow property.
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, [open]);
 
   return (
     <Box>
