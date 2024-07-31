@@ -89,7 +89,7 @@ function MainHeader(): React.ReactElement {
       <Box sx={titleStyle}>
         <Tooltip title="Menu">
           <IconButton
-            sx={{ color: 'red.main', mr: '0.3em' }}
+            sx={{ color: 'red.main'}}
             aria-label="Menu"
             onClick={handleMenuToggle}
           >
@@ -133,9 +133,10 @@ function MainHeader(): React.ReactElement {
       <MenuBar
         open={isMenuOpen}
         handleClose={handleMenuToggle}
-        handleMyInfo={() => console.log('My Info')}
-        handleDelAcc={() => console.log('Delete Account')}
-        handleLogOut={() => console.log('Log Out')}
+        handleMySchedule={() => console.log('My scheudlers')}
+        handleMyFriends={() => console.log('myfriends')}
+        handleMyUW={() => console.log('myuw')}
+        handleSettings={() => console.log('Setting')}
       />
     </>
   );
