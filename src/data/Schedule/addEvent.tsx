@@ -42,23 +42,22 @@ export default function addEventSessionRequest(
     scheduleId: string,
     requestData: IAddEventSessionRequest,
 ): Promise<IAddEventSessionResponse> {
-    // Log the schedule ID and request data
     console.log(
         `Adding ${requestData.eventType} to schedule with ID: ${scheduleId}`,
     );
     console.log('Request data:', requestData);
 
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
         // Simulate API call with a timeout
         setTimeout(() => {
             // Example responses for different cases
             if (scheduleId === 'unauthenticated-id') {
                 resolve({
-                    responseCode: '401', // Unauthenticated response code
+                    responseCode: '401', // Unauthenticated 
                 });
             } else if (scheduleId === 'forbidden-id') {
                 resolve({
-                    responseCode: '403', // Forbidden response code
+                    responseCode: '403', // Forbidden 
                 });
             } else if (scheduleId === 'notfound-id') {
                 resolve({
