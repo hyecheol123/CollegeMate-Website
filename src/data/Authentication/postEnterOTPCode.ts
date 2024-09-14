@@ -17,7 +17,7 @@ interface IResponse {
  * @param {string} requestId id of OTP Request
  * @param {string} email email address
  * @param {string} passcode OTP Code
- * @return {Promise<IResponse>} A promise that resolves to response of
+ * @returns {Promise<IResponse>} A promise that resolves to response of
  *   enter OTP Code API Call.
  */
 export default function postEnterOTPCode(

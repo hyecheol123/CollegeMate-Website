@@ -31,7 +31,7 @@ const formatTime = (seconds: number): string => {
 /**
  * FooterButton is a React component that renders a styled button.
  * @param {FooterButtonProps} props - The props for the FooterButton component.
- * @return {React.ReactElement} A React Element representing the FooterButton.
+ * @returns {React.ReactElement} A React Element representing the FooterButton.
  */
 function FooterButton(props: FooterButtonProps): React.ReactElement {
   return (

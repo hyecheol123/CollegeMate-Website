@@ -27,7 +27,7 @@ const initialContext: State = {
  * Reducer to modify the state
  * @param {State} state Current State
  * @param {Action} action Action to modify the State
- * @return {State} New State
+ * @returns {State} New State
  */
 function reducer(state: State, action: Action): State {
   switch (action.type) {
@@ -47,7 +47,7 @@ const AboutContext = React.createContext<State>(initialContext);
  * React functional component for AboutContext
  * @param {AboutContextProviderProps} props properties that passed from the
  *   parent component.
- * @return {React.ReactElement} Renders AboutContextProvider
+ * @returns {React.ReactElement} Renders AboutContextProvider
  */
 export function AboutContextProvider(
   props: AboutContextProviderProps,
@@ -67,7 +67,7 @@ export function AboutContextProvider(
 
 /**
  * React custom hooks to use the About Context
- * @return {State} current global state (About Context)
+ * @returns {State} current global state (About Context)
  */
 export function useAboutContext(): State {
   const state = React.useContext(AboutContext);

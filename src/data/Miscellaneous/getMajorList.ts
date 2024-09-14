@@ -15,7 +15,7 @@ interface IResponse {
 /**
  * Simulates an API call to fetch major list.
  * @param {string} schoolDomain school domain address
- * @return {Promise<IResponse>} A promise that resolves with the major list.
+ * @returns {Promise<IResponse>} A promise that resolves with the major list.
  */
 export default function getMajorList(schoolDomain: string): Promise<IResponse> {
   return new Promise((resolve) => {

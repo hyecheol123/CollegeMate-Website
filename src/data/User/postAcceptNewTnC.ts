@@ -13,7 +13,7 @@ interface IResponse {
  * Simulates an API call to post create user.
  * @param {string} email new user's email
  * @param {string} tncVersion accepting tnc version
- * @return {Promise<IResponse>} A promise that resolves with responseCode.
+ * @returns {Promise<IResponse>} A promise that resolves with responseCode.
  */
 export default function postAcceptNewTnC(
   email: string,

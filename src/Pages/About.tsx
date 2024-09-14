@@ -11,7 +11,7 @@ import { AboutContextProvider } from '../components/About/AboutContext';
 
 /**
  * React functional component to render about page
- * @return {React.ReactElement} the entry point for About page
+ * @returns {React.ReactElement} the entry point for About page
  */
 function About(): React.ReactElement {
   return (

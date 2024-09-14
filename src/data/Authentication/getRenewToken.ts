@@ -14,7 +14,7 @@ interface IResponse {
  * Simulates an API call to renew token.
  * @param {boolean | undefined} isSignup optional parameter to indicate signup
  *   purpose token
- * @return {Promise<IResponse>} A promise that resolves renew token result.
+ * @returns {Promise<IResponse>} A promise that resolves renew token result.
  */
 export default function getRenewToken(isSignup?: boolean): Promise<IResponse> {
   console.log(

@@ -18,7 +18,7 @@ interface IResponse {
  * @param {string} major new user's major
  * @param {number} graduationYear new user's graduation year
  * @param {string} tncVersion terms and condition version that new user agreed
- * @return {Promise<IResponse>} A promise that resolves with responseCode.
+ * @returns {Promise<IResponse>} A promise that resolves with responseCode.
  */
 export default function postCreatUser(
   email: string,

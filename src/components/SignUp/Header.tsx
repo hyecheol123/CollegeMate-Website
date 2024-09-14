@@ -32,7 +32,7 @@ const logoStyle = {
 
 /**
  * React Functional Component for SignUp page's first page
- * @return {React.ReactElement} Renders first page of about page
+ * @returns {React.ReactElement} Renders first page of about page
  */
 function Header(): React.ReactElement {
   const navigate = useNavigate();

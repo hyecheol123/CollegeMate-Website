@@ -55,7 +55,7 @@ interface ISignUpEmailProps {
  * React Functional Component to generate the Sign Up page
  * which manages the verification code to user's email
  * @param {ISignUpEmailProps} props properties for this view
- * @return {React.ReactElement} Renders Sing Up Page (Email)
+ * @returns {React.ReactElement} Renders Sing Up Page (Email)
  */
 function SignUpEmail(props: ISignUpEmailProps): React.ReactElement {
   const { verifiedEmail, setVerifiedEmail, setTokenExpiresAfterSec } = props;
@@ -69,7 +69,7 @@ function SignUpEmail(props: ISignUpEmailProps): React.ReactElement {
 
   // Timeout for Timer
   React.useEffect(() => {
-    let timeout: any;
+    let timeout: undefined | number;
     if (secToExp > elapsedSec && verifiedEmail === '') {
       timeout = setTimeout(() => {
         setElapsedSec(elapsedSec + 1);
@@ -79,7 +79,7 @@ function SignUpEmail(props: ISignUpEmailProps): React.ReactElement {
       setErrorMsg('Code Expired');
     }
 
-    return () => clearTimeout(timeout);
+    return (): void => clearTimeout(timeout);
   }, [secToExp, elapsedSec, verifiedEmail]);
 
   const sendCodeHandler = async (): Promise<void> => {

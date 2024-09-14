@@ -27,7 +27,7 @@ const logoStyle = {
 
 /**
  * React Functional Component for NewTnC's header
- * @return {React.ReactElement} Renders first page of newtnc page
+ * @returns {React.ReactElement} Renders first page of newtnc page
  */
 function Header(): React.ReactElement {
   return (

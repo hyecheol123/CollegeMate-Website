@@ -76,7 +76,7 @@ const isNicknameSpace = (value: string): boolean => {
 /**
  * React Functional Component for SignUp page's first page
  * @param {IProps} props properties sent from this parents
- * @return {React.ReactElement} Renders first page of about page
+ * @returns {React.ReactElement} Renders first page of about page
  */
 function SignUpCreateAccount(props: IProps): React.ReactElement {
   const [nicknameAvail, setIsNicknameAvail] = React.useState<boolean>(false);

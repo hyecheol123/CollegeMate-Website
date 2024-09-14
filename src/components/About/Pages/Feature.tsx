@@ -20,9 +20,9 @@ import PictureStyle from '../../Common/Styles/FilledPicture';
 interface IFeatureProps {
   title: string;
   body: string;
-  pngImage: any;
-  webpImage: any;
-  avifImage: any;
+  pngImage: '*.png';
+  webpImage: '*.png?as=webp';
+  avifImage: '*.png?as=avif';
   imageAlt: string;
 }
 
@@ -38,7 +38,7 @@ const textContainerStyle = {
 /**
  * React Functional Component for About page's second page
  * @param {IFeatureProps} props Properties that passed from the parent Component
- * @return {React.ReactElement} Renders second page of about page
+ * @returns {React.ReactElement} Renders second page of about page
  */
 function Feature(props: IFeatureProps): React.ReactElement {
   // States
@@ -53,7 +53,7 @@ function Feature(props: IFeatureProps): React.ReactElement {
   React.useEffect(() => {
     getOrientation();
     window.addEventListener('resize', getOrientation);
-    return () => window.removeEventListener('resize', getOrientation);
+    return (): void => window.removeEventListener('resize', getOrientation);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

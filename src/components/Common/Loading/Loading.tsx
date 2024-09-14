@@ -4,11 +4,11 @@
  */
 
 import * as React from 'react';
-import styles from './Loading.module.css';
+import * as styles from './Loading.module.css';
 
 /**
  * React functional component to render Loading animation
- * @return {React.ReactElement} A ReactElement referring Loading
+ * @returns {React.ReactElement} A ReactElement referring Loading
  */
 const Loading = (): React.ReactElement => {
   return <div className={styles.Loading}></div>;

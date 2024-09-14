@@ -24,7 +24,7 @@ const pictureWrapperStyle = { flex: 1, mx: '5%', py: '15px' };
 
 /**
  * React Functional Component for About page's first page
- * @return {React.ReactElement} Renders first page of about page
+ * @returns {React.ReactElement} Renders first page of about page
  */
 function Welcome(): React.ReactElement {
   const navigate = useNavigate();

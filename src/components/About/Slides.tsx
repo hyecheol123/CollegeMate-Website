@@ -35,7 +35,7 @@ interface IIdxState {
 /**
  * React Functional Component for full-page scroll wrapper
  * @param {ISlideProps} props Properties that passed from the parent Component
- * @return {React.ReactElement} Renders full-page scroll wrapper
+ * @returns {React.ReactElement} Renders full-page scroll wrapper
  */
 function Slides(props: ISlideProps): React.ReactElement {
   const { components } = props;
@@ -64,7 +64,7 @@ function Slides(props: ISlideProps): React.ReactElement {
   // function to detect whether the child slide is horizontal scrollable or not
   const isHorizontal = React.useCallback(
     (slide: React.ReactElement | React.ReactElement[]): boolean => {
-      return (slide as any)?.length !== undefined ? true : false;
+      return slide?.length !== undefined ? true : false;
     },
     [],
   );

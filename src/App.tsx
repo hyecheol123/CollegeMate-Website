@@ -174,7 +174,7 @@ theme = createTheme(theme, {
 
 /**
  * React functional component to setup App Layout
- * @return {React.ReactElement} The Layout setup for this application
+ * @returns {React.ReactElement} The Layout setup for this application
  */
 function Layout(): React.ReactElement {
   return (
@@ -187,7 +187,7 @@ function Layout(): React.ReactElement {
 
 /**
  * React functional component to render the application's content
- * @return {React.ReactElement} The content of the application
+ * @returns {React.ReactElement} The content of the application
  */
 function App(): React.ReactElement {
   // State
@@ -283,7 +283,7 @@ const router = createBrowserRouter([{ path: '*', Component: App }]);
 
 /**
  * React functional component to render the application's entry point
- * @return {React.ReactElement} The entry point of the application
+ * @returns {React.ReactElement} The entry point of the application
  */
 function AppWrapper(): React.ReactElement {
   return (
