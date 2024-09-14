@@ -4,7 +4,7 @@
  */
 
 // React
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 // Material UI
 import {
   Box,
@@ -15,6 +15,9 @@ import {
   Typography,
 } from '@mui/material';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+// Mocking
+import getRenewToken from '../../../data/Authentication/getRenewToken';
+import getUserProfile from '../../../data/Friend/getUserProfile';
 
 /**
  * Interface for ContentModalProps
@@ -22,6 +25,7 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 interface HomeMenuProps {
   open: boolean;
   handleClose: () => void;
+  handleMyAnnouncement: () => void;
   handleMySchedule: () => void;
   handleMyFriends: () => void;
   handleMyUW: () => void;
@@ -37,8 +41,8 @@ const MenuStyle = {
   transition: '300ms',
   zIndex: 3,
   position: 'absolute',
-  padding: '20px 20px', 
-  boxSizing: 'border-box' as 'border-box',
+  padding: '20px 20px',
+  boxSizing: 'border-box' as const,
 };
 
 /**
@@ -47,22 +51,47 @@ const MenuStyle = {
  * @return {React.ReactElement} Renders Setting Page
  */
 function MenuBar(props: HomeMenuProps): React.ReactElement {
-  const { open, handleMySchedule, handleMyFriends, handleMyUW, handleSettings } = props;
-
+  const {
+    open,
+    handleMyAnnouncement,
+    handleMySchedule,
+    handleMyFriends,
+    handleMyUW,
+    handleSettings,
+  } = props;
+  const [nickname, setNickname] = useState<string>('');
   const barWidth = window.innerWidth <= 480 ? '100vw' : '400px';
 
   useEffect(() => {
+    const fetchUserProfile = async (): Promise<void> => {
+      try {
+        const tokenResponse = await getRenewToken();
+        const email = tokenResponse.content.email;
+        const userProfile = await getUserProfile(email);
+
+        if (userProfile.content) {
+          setNickname(userProfile.content.nickname);
+        }
+      } catch (error) {
+        console.error('Failed to fetch user profile:', error);
+      }
+    };
+
     if (open) {
+      // if sidebar open, then deactivate the schedule ui scroll
       document.body.style.overflow = 'hidden';
+      if (!nickname) {
+        fetchUserProfile();
+      }
     } else {
       document.body.style.overflow = 'auto';
     }
 
-    // cleanup function to reset overflow property
-    return () => {
+    // cleanup function
+    return (): void => {
       document.body.style.overflow = 'auto';
     };
-  }, [open]);
+  }, [open, nickname]);
 
   return (
     <Box>
@@ -73,31 +102,55 @@ function MenuBar(props: HomeMenuProps): React.ReactElement {
             color="red.main"
             style={{ marginBottom: '10px' }}
           >
-            Hello, Andy!
+            Hello, {nickname}!
           </Typography>
           <List
-            sx={{ width: '100%'}} // 일단 맥스로 늘림.(to-do: ask jerry)
+            sx={{ width: '100%' }} 
             component="nav"
             aria-labelledby="nested-list-subheader"
           >
-            <ListItemButton sx={{ width: '100%', marginBottom: '10px' }} onClick={handleMySchedule}>
-              <ListItemText primary="My Schedules"  primaryTypographyProps={{ variant: 'body1' }}  />
-              <ArrowForwardIosIcon fontSize="small" /> 
+            <Divider />
+            <ListItemButton
+              sx={{ width: '100%' }}
+              onClick={handleMyAnnouncement}
+            >
+              <ListItemText
+                primary="Announcements"
+                primaryTypographyProps={{ variant: 'body1' }}
+              />
+              <ArrowForwardIosIcon fontSize="small" />
             </ListItemButton>
             <Divider />
-            <ListItemButton sx={{  width: '100%', marginBottom: '10px' }} onClick={handleMyFriends}>
-              <ListItemText primary="My Friends" primaryTypographyProps={{ variant: 'body1' }}  />
-              <ArrowForwardIosIcon fontSize="small" /> 
+            <ListItemButton sx={{ width: '100%' }} onClick={handleMySchedule}>
+              <ListItemText
+                primary="My Schedules"
+                primaryTypographyProps={{ variant: 'body1' }}
+              />
+              <ArrowForwardIosIcon fontSize="small" />
             </ListItemButton>
             <Divider />
-            <ListItemButton sx={{  width: '100%', marginBottom: '10px' }} onClick={handleMyUW}>
-              <ListItemText primary="My Uw" primaryTypographyProps={{ variant: 'body1' }} />
-              <ArrowForwardIosIcon fontSize="small" /> 
+            <ListItemButton sx={{ width: '100%' }} onClick={handleMyFriends}>
+              <ListItemText
+                primary="My Friends"
+                primaryTypographyProps={{ variant: 'body1' }}
+              />
+              <ArrowForwardIosIcon fontSize="small" />
             </ListItemButton>
             <Divider />
-            <ListItemButton sx={{  width: '100%', marginBottom: '10px' }} onClick={handleSettings}>
-              <ListItemText primary="Settings" primaryTypographyProps={{ variant: 'body1' }} />
-              <ArrowForwardIosIcon fontSize="small" /> 
+            <ListItemButton sx={{ width: '100%' }} onClick={handleMyUW}>
+              <ListItemText
+                primary="My Uw"
+                primaryTypographyProps={{ variant: 'body1' }}
+              />
+              <ArrowForwardIosIcon fontSize="small" />
+            </ListItemButton>
+            <Divider />
+            <ListItemButton sx={{ width: '100%' }} onClick={handleSettings}>
+              <ListItemText
+                primary="Settings"
+                primaryTypographyProps={{ variant: 'body1' }}
+              />
+              <ArrowForwardIosIcon fontSize="small" />
             </ListItemButton>
           </List>
         </Box>

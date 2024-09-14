@@ -30,8 +30,8 @@ const About = React.lazy(() => import('./Pages/About'));
 const Login = React.lazy(() => import('./Pages/Login'));
 const NewTnC = React.lazy(() => import('./Pages/NewTnC'));
 const SignUp = React.lazy(() => import('./Pages/SignUp'));
-const Home = React.lazy(() => import('./Pages/Home'));
 const NotFound = React.lazy(() => import('./Pages/NotFound'));
+const MainScheduler = React.lazy(() => import('./Pages/MainScheduler'));
 
 // MUI Theme (Setup Font family and Palette Color)
 declare module '@mui/material/styles' {
@@ -251,10 +251,6 @@ function App(): React.ReactElement {
     <Routes>
       <Route element={<Layout />}>
         <Route
-          path="/"
-          element={globalContext.initialized ? <Home /> : <Loading />}
-        />
-        <Route
           path="/login"
           element={globalContext.initialized ? <Login /> : <Loading />}
         />
@@ -269,6 +265,10 @@ function App(): React.ReactElement {
         <Route
           path="/about"
           element={globalContext.initialized ? <About /> : <Loading />}
+        />
+        <Route
+          path="/MainScheduler"
+          element={globalContext.initialized ? <MainScheduler /> : <Loading />}
         />
         <Route
           path="/*"

@@ -40,11 +40,16 @@ function SchedulerTitle(): React.ReactElement {
 
   // Effect to update the window width state on resize
   useEffect(() => {
-    const handleResize = (): void => setWindowWidth(window.innerWidth);
+    const handleResize = (): void => {
+      setWindowWidth(window.innerWidth);
+    };
+
     window.addEventListener('resize', handleResize);
 
     // Cleanup function to remove the event listener
-    return () => window.removeEventListener('resize', handleResize);
+    return (): void => {
+      window.removeEventListener('resize', handleResize);
+    };
   }, []);
 
   // Determine the icon size based on the window width
@@ -53,6 +58,7 @@ function SchedulerTitle(): React.ReactElement {
   return (
     <Box sx={containerStyle}>
       <Typography variant="h2" sx={titleStyle}>
+         {/* Currently hardcoded. Will implement API mocking after finish the dependent UI. */}
         Spring 2023
       </Typography>
       <Box sx={iconBoxStyle}>

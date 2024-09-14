@@ -5,7 +5,7 @@
 
 // Define the response object interface
 interface IDeleteScheduleResponse {
-    responseCode: string; // Response code
+  responseCode: string; // Response code
 }
 
 /**
@@ -15,34 +15,32 @@ interface IDeleteScheduleResponse {
  *  the delete schedule request API call.
  */
 export default function deleteScheduleRequest(
-    scheduleId: string,
+  scheduleId: string,
 ): Promise<IDeleteScheduleResponse> {
-    // Logging
-    console.log(
-        `Deleting schedule with ID: ${scheduleId}`,
-    );
+  // Logging
+  console.log(`Deleting schedule with ID: ${scheduleId}`);
 
-    return new Promise((resolve) => {
-        // Simulate API call with a timeout
-        setTimeout(() => {
-            // Example responses for different cases
-            if (scheduleId === 'unauthenticated-id') {
-                resolve({
-                    responseCode: '401', // Unauthenticated 
-                });
-            } else if (scheduleId === 'forbidden-id') {
-                resolve({
-                    responseCode: '403', // Forbidden 
-                });
-            } else if (scheduleId === 'notfound-id') {
-                resolve({
-                    responseCode: '404', // Not Found 
-                });
-            } else {
-                resolve({
-                    responseCode: '200', // Success 
-                });
-            }
-        }, 1000); // Simulate 1 second delay
-    });
+  return new Promise((resolve) => {
+    // Simulate API call with a timeout
+    setTimeout(() => {
+      // Example responses for different cases
+      if (scheduleId === 'unauthenticated-id') {
+        resolve({
+          responseCode: '401', // Unauthenticated
+        });
+      } else if (scheduleId === 'forbidden-id') {
+        resolve({
+          responseCode: '403', // Forbidden
+        });
+      } else if (scheduleId === 'notfound-id') {
+        resolve({
+          responseCode: '404', // Not Found
+        });
+      } else {
+        resolve({
+          responseCode: '200', // Success
+        });
+      }
+    }, 1000); // Simulate 1 second delay
+  });
 }

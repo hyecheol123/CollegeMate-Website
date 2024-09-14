@@ -9,14 +9,14 @@ import React from 'react';
 import { Box } from '@mui/material';
 // Component
 import HeaderButton from '../components/Common/HeaderButton/HeaderButton';
-import Scheduler from '../components/Scheduler/SchedulerTable';
-import SchedulerTitle from '../components/Scheduler/SchedulerTitle';
+import Scheduler from '../components/MainScheduler/SchedulerTable';
+import SchedulerTitle from '../components/MainScheduler/SchedulerTitle';
 
 /**
  * React Functional Component for About page's third page
  * @return {React.ReactElement} Renders third page of about page
  */
-function Home(): React.ReactElement {
+function MainScheduler(): React.ReactElement {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
       <HeaderButton />
@@ -26,4 +26,4 @@ function Home(): React.ReactElement {
   );
 }
 
-export default Home;
+export default MainScheduler;

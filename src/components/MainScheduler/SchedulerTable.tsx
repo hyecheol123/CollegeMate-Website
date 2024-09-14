@@ -95,7 +95,7 @@ function SchedulerTable(): React.ReactElement {
     });
 
     // Cleanup function
-    return () => {
+    return (): void => {
       window.removeEventListener('resize', handleResize);
     };
   }, [myEvents]); // Dependency array for useEffect

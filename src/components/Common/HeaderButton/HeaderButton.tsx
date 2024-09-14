@@ -1,4 +1,4 @@
- /**
+/**
  * Globally used style for Main Header
  * @author Daekyun Kim <daekyun97@gmail.com>
  */
@@ -8,13 +8,14 @@ import React, { useState, useEffect } from 'react';
 // Material UI
 import { Box, IconButton, Badge, Tooltip, SvgIconProps } from '@mui/material';
 // Material UI Icon
-import Menusharp from '@mui/icons-material/Menusharp';
-import NotificationNoneSharpIcon from '@mui/icons-material/NotificationsNoneSharp';
+import MenuSharp from '@mui/icons-material/MenuSharp';
 import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined';
 // Assets
 import CollegeMateLogoPng from '../../../../assets/logo.png';
 import CollegeMateLogoWebp from '../../../../assets/logo.png?as=webp';
 import CollegeMateLogAvif from '../../../../assets/logo.png?as=avif';
+// Mocking Data
+import getReceivedFriendRequests from '../../../data/Friend/getReceivedFriendRequests';
 
 import MenuBar from '../MenuBar/MenuBar';
 
@@ -35,9 +36,11 @@ const logoStyle = {
 const IconComponents = ({
   size,
   isFold = false, // Pass isFold directly
+  friendRequestCount = 0,
 }: {
   size: SvgIconProps['fontSize'];
   isFold?: boolean;
+  friendRequestCount?: number;
 }): React.ReactElement => (
   <>
     <Tooltip title="Friends">
@@ -48,15 +51,8 @@ const IconComponents = ({
         }}
         aria-label="Friend"
       >
-        <Badge badgeContent={4} color="error">
+        <Badge badgeContent={friendRequestCount} color="error" showZero={false}>
           <PersonOutlineOutlinedIcon fontSize={size} />
-        </Badge>
-      </IconButton>
-    </Tooltip>
-    <Tooltip title="Notifications">
-      <IconButton sx={{ color: 'red.main' }} aria-label="Notification">
-        <Badge badgeContent={4} color="error">
-          <NotificationNoneSharpIcon fontSize={size} />
         </Badge>
       </IconButton>
     </Tooltip>
@@ -70,12 +66,28 @@ const IconComponents = ({
 function MainHeader(): React.ReactElement {
   const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth);
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
+  const [friendRequestCount, setFriendRequestCount] = useState<number>(0);
 
   useEffect(() => {
-    const handleResize = (): void => setWindowWidth(window.innerWidth);
+    const handleResize = (): void => {
+      setWindowWidth(window.innerWidth);
+    };
+
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+
+    return (): void => {
+      window.removeEventListener('resize', handleResize);
+    };
   }, []);
+
+  useEffect(() => {
+    // Fetch friend requests
+    getReceivedFriendRequests().then((response) => {
+      if (response.content?.friendRequests) {
+        setFriendRequestCount(response.content.friendRequests.length);
+      }
+    });
+  }, []); //TODO: Ask Jerry about how to implement the code to call this api call whenever friendRequestCount got changed
 
   const isMobile = windowWidth <= 480;
   const isFold = windowWidth < 300;
@@ -89,11 +101,11 @@ function MainHeader(): React.ReactElement {
       <Box sx={titleStyle}>
         <Tooltip title="Menu">
           <IconButton
-            sx={{ color: 'red.main'}}
+            sx={{ color: 'red.main' }}
             aria-label="Menu"
             onClick={handleMenuToggle}
           >
-            <Menusharp fontSize={isFold ? 'small' : 'medium'} />
+            <MenuSharp fontSize={isFold ? 'small' : 'medium'} />
           </IconButton>
         </Tooltip>
         <Box
@@ -107,6 +119,7 @@ function MainHeader(): React.ReactElement {
             <IconComponents
               size={isFold ? 'small' : 'medium'}
               isFold={isFold}
+              friendRequestCount={friendRequestCount}
             />
           )}
 
@@ -125,6 +138,7 @@ function MainHeader(): React.ReactElement {
               <IconComponents
                 size={isFold ? 'small' : 'medium'}
                 isFold={isFold}
+                friendRequestCount={friendRequestCount}
               />
             </Box>
           )}
@@ -133,6 +147,7 @@ function MainHeader(): React.ReactElement {
       <MenuBar
         open={isMenuOpen}
         handleClose={handleMenuToggle}
+        handleMyAnnouncement={() => console.log('My Announcements')}
         handleMySchedule={() => console.log('My scheudlers')}
         handleMyFriends={() => console.log('myfriends')}
         handleMyUW={() => console.log('myuw')}
@@ -142,4 +157,4 @@ function MainHeader(): React.ReactElement {
   );
 }
 
-export default MainHeader; 
+export default MainHeader;
