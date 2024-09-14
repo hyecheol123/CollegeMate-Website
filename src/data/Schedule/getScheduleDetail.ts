@@ -88,7 +88,7 @@ export default function getScheduleDetail(
               {
                 id: 'session1',
                 courseId: 'course1',
-                termCode: '1234',
+                termCode: '1',
                 sessionId: 'session1',
                 courseName: 'Course 1',
                 description: 'Description of Course 1',

@@ -12,7 +12,7 @@ const footerStyle = {
   flexDirection: 'column',
   py: '0.7em',
   px: '0.5em',
-  width: '91%', 
+  width: '91%',
   margin: 'auto',
 };
 

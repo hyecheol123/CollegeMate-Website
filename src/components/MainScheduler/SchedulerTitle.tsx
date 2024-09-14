@@ -3,12 +3,16 @@
  * Dynamically adjust icons's size based on the window width
  * @author Daekyun Kim <daekyun97@gmail.com>
  */
-
+// React
 import React, { useState, useEffect } from 'react';
+// Material UI
 import { Box, IconButton, Typography, Tooltip } from '@mui/material';
+// Material UI Icon
 import Download from '@mui/icons-material/FileDownloadOutlined';
 import Share from '@mui/icons-material/IosShareOutlined';
 import Edit from '@mui/icons-material/EditOutlined';
+// Mocking Data
+import getScheduleDetail from '../../data/Schedule/getScheduleDetail';
 
 const containerStyle = {
   display: 'flex',
@@ -30,6 +34,34 @@ const iconBoxStyle = {
 };
 
 /**
+ * Determines the year and semester based on the term code.
+ * @param {string} termCode - The term code to evaluate.
+ * @return {string} The year and semester (e.g., '2023 Fall') or 'Unknown' if not matched.
+ *
+ * UW-Madison term codes reference: https://businessservices.wisc.edu/making-payments/charge-to-a-students-account/term-codes/
+ */
+const getYearAndSemester = (termCode: string): string => {
+  if (termCode.length !== 4) return 'Invalid code';
+
+  const middleDigits = parseInt(termCode.slice(1, 3), 10);
+  const suffix = `${termCode[0]}${termCode[3]}`;
+
+  let year = 2000 + middleDigits;
+  let semester = 'Unknown';
+
+  if (suffix === '14') {
+    semester = 'Spring';
+  } else if (suffix === '16') {
+    semester = 'Summer';
+  } else if (suffix === '12') {
+    year -= 1;
+    semester = 'Fall';
+  }
+
+  return `${year} ${semester}`;
+};
+
+/**
  * Renders the title for the Scheduler, including responsive icons for download, share, and edit.
  * Dynamically adjusts icon sizes based on the window width.
  * @return {React.ReactElement} A React component representing the scheduler title and icons.
@@ -37,6 +69,7 @@ const iconBoxStyle = {
 function SchedulerTitle(): React.ReactElement {
   // State to hold the current window width
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const [semesterName, setSemesterName] = useState('Unknown');
 
   // Effect to update the window width state on resize
   useEffect(() => {
@@ -52,14 +85,22 @@ function SchedulerTitle(): React.ReactElement {
     };
   }, []);
 
+  useEffect(() => {
+    // Mock API call to fetch schedule details
+    getScheduleDetail('some-schedule-id').then((response) => {
+      if (response.responseCode === 200 && response.content?.termCode) {
+        setSemesterName(getYearAndSemester(response.content.termCode));
+      }
+    });
+  }, []);
+
   // Determine the icon size based on the window width
   const iconSize = windowWidth < 300 ? 'small' : 'medium';
 
   return (
     <Box sx={containerStyle}>
       <Typography variant="h2" sx={titleStyle}>
-         {/* Currently hardcoded. Will implement API mocking after finish the dependent UI. */}
-        Spring 2023
+        {semesterName}
       </Typography>
       <Box sx={iconBoxStyle}>
         <Tooltip title="Download">

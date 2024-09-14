@@ -105,7 +105,7 @@ function MenuBar(props: HomeMenuProps): React.ReactElement {
             Hello, {nickname}!
           </Typography>
           <List
-            sx={{ width: '100%' }} 
+            sx={{ width: '100%' }}
             component="nav"
             aria-labelledby="nested-list-subheader"
           >
