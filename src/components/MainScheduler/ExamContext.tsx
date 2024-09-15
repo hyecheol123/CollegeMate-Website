@@ -21,7 +21,7 @@ type State = {
 // Initial Cotnext of reducer
 const initialContext: State = {
   isFullpageScrollEnabled: true,
-  dispatch: () => { },
+  dispatch: () => {},
 };
 
 /**
