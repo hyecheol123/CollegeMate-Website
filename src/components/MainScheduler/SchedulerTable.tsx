@@ -15,7 +15,7 @@ import {
   Box,
   Typography,
 } from '@mui/material';
-// elements
+// Components
 import Modal from '../Common/Modal/Modal';
 import InfoFooter from './InfoFooter';
 
@@ -39,30 +39,38 @@ const myEvents = [
     endTime: { hour: 11, minute: 5 },
     color: 'pink',
   },
-  {
-    id: '2',
-    title: 'Event 2',
-    day: 'Tue',
-    startTime: { hour: 9, minute: 15 },
-    endTime: { hour: 11, minute: 55 },
-    color: 'blue',
-  },
-  {
-    id: '3',
-    title: 'Event 3',
-    day: 'Wed',
-    startTime: { hour: 9, minute: 15 },
-    endTime: { hour: 11, minute: 20 },
-    color: 'blue',
-  },
-  {
-    id: '4',
-    title: 'Event 4',
-    day: 'Sun',
-    startTime: { hour: 22, minute: 15 },
-    endTime: { hour: 23, minute: 30 },
-    color: 'blue',
-  },
+  // {
+  //   id: '2',
+  //   title: 'Event 2',
+  //   day: 'Tue',
+  //   startTime: { hour: 9, minute: 15 },
+  //   endTime: { hour: 11, minute: 55 },
+  //   color: 'blue',
+  // },
+  // {
+  //   id: '3',
+  //   title: 'Event 3',
+  //   day: 'Wed',
+  //   startTime: { hour: 9, minute: 15 },
+  //   endTime: { hour: 11, minute: 20 },
+  //   color: 'blue',
+  // },
+  // {
+  //   id: '4',
+  //   title: 'Event 4',
+  //   day: 'Sun',
+  //   startTime: { hour: 9, minute: 15 },
+  //   endTime: { hour: 11, minute: 20 },
+  //   color: 'blue',
+  // },
+  // {
+  //   id: '6',
+  //   title: 'Event 6',
+  //   day: 'Sun',
+  //   startTime: { hour: 22, minute: 15 },
+  //   endTime: { hour: 23, minute: 20 },
+  //   color: 'blue',
+  // },
 ];
 
 /**
@@ -177,13 +185,8 @@ function SchedulerTable(): React.ReactElement {
           flexDirection: 'column',
         }}
       >
-        <Box
-          sx={{
-            width: '90%',
-            margin: 'auto',
-          }}
-        ></Box>
         {/* start of the scheduler box */}
+
         <Table
           sx={{
             width: '90%',
@@ -278,7 +281,9 @@ function SchedulerTable(): React.ReactElement {
                             align="center"
                             sx={{
                               backgroundColor: event.color,
+                              borderRadius: '4px',
                               padding: 0,
+                              border: 'none',
                             }}
                             rowSpan={rowSpan}
                           >
@@ -302,11 +307,11 @@ function SchedulerTable(): React.ReactElement {
                             key={`${day}-${hourLabel}-${i * 5}`}
                             sx={{
                               backgroundColor: hourColor,
-                              padding: '2px',
+                              padding: '3px',
                               borderTop: '0px',
                               borderLeft: '0px',
                               borderBottom: '0px',
-                              borderRight: '1px solid #DADFE1',
+                              // borderRight: '1px solid #DADFE1'
                             }}
                           />
                         );

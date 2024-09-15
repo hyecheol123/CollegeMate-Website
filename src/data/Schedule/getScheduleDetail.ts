@@ -2,12 +2,13 @@
  * This file provides a mock API for get the detail of schedule
  * @author Daekyun Kim <daekyun97@gmail.com>
  */
+
 interface IResponse {
   responseCode: number;
   content?: {
-    email?: string;
-    termCode?: string;
-    sessionList?: Array<{
+    email: string;
+    termCode: string;
+    sessionList: Array<{
       id: string;
       courseId: string;
       termCode: string;
@@ -17,45 +18,72 @@ interface IResponse {
       fullCourseName: string;
       title: string;
       meetings: Array<{
-        id: string;
-        courseId: string;
-        termCode: string;
-        sessionId: string;
-        courseName: string;
-        description: string;
-        fullCourseName: string;
-        title: string;
-        credit: number;
-        isAsynchronous: boolean;
-        onlineOnly: boolean;
-        topic: string;
-        colorCode: number;
+        buildingName?: string;
+        room?: string;
+        meetingDaysList?: Array<
+          | 'MONDAY'
+          | 'TUESDAY'
+          | 'WEDNESDAY'
+          | 'THURSDAY'
+          | 'FRIDAY'
+          | 'SATURDAY'
+          | 'SUNDAY'
+        >;
+        meetingType: string;
+        startTime: {
+          month: number; // [1..12]
+          day: number; // [1..31]
+          hour?: number; // [0..23]
+          minute?: number; //[0..59]
+        };
+        endTime: {
+          month: number; // [1..12]
+          day: number; // [1..31]
+          hour?: number; // [0..23]
+          minute?: number; //[0..59]
+        };
+        instructors: Array<{
+          campusId?: string;
+          email: string;
+          name: {
+            first: string;
+            last: string;
+          };
+        }>;
       }>;
-      credit: number;
+      credit: number; // >= 0
       isAsynchronous: boolean;
       onlineOnly: boolean;
-      topic: string;
-      colorCode: number;
+      topic?: string;
+      colorCode: number; // [0..15]
     }>;
-    eventList?: Array<{
+    eventList: Array<{
       id: string;
       title: string;
       location?: string;
-      meetingDaysList: string[];
+      meetingDaysList: Array<
+        | 'MONDAY'
+        | 'TUESDAY'
+        | 'WEDNESDAY'
+        | 'THURSDAY'
+        | 'FRIDAY'
+        | 'SATURDAY'
+        | 'SUNDAY'
+      >;
       startTime: {
-        month: number;
-        day: number;
-        hour: number;
-        minute: number;
+        month: number; // [1..12]
+        day: number; // [1..31]
+        hour: number; // [0..23]
+        minute: number; // [0..59]
       };
       endTime: {
-        month: number;
-        day: number;
-        hour: number;
-        minute: number;
+        month: number; // [1..12]
+        day: number; // [1..31]
+        hour: number; // [0..23]
+        minute: number; // [0..59]
       };
       memo?: string;
-      colorCode: number;
+      colorCode: number; // [0..15]
     }>;
   };
 }
@@ -96,19 +124,124 @@ export default function getScheduleDetail(
                 title: 'Session Title 1',
                 meetings: [
                   {
-                    id: 'meeting1',
-                    courseId: 'course1',
-                    termCode: '1234',
-                    sessionId: 'session1',
-                    courseName: 'Course 1',
-                    description: 'Description of Course 1',
-                    fullCourseName: 'Full Course Name 1',
-                    title: 'Meeting Title 1',
-                    credit: 3,
-                    isAsynchronous: false,
-                    onlineOnly: true,
-                    topic: 'Topic 1',
-                    colorCode: 1,
+                    buildingName: 'Building A',
+                    room: '101',
+                    meetingDaysList: ['MONDAY'],
+                    meetingType: 'EXAM',
+                    startTime: { month: 3, day: 10, hour: 9, minute: 0 },
+                    endTime: { month: 3, day: 10, hour: 12, minute: 0 },
+                    instructors: [
+                      {
+                        campusId: 'exam-inst1',
+                        email: 'examiner1@school.edu',
+                        name: { first: 'Alice', last: 'Smith' },
+                      },
+                    ],
+                  },
+                  {
+                    buildingName: 'Building B',
+                    room: '202',
+                    meetingDaysList: ['WEDNESDAY'],
+                    meetingType: 'EXAM',
+                    startTime: { month: 4, day: 15, hour: 14, minute: 0 },
+                    endTime: { month: 4, day: 15, hour: 17, minute: 0 },
+                    instructors: [
+                      {
+                        campusId: 'exam-inst2',
+                        email: 'examiner2@school.edu',
+                        name: { first: 'Bob', last: 'Johnson' },
+                      },
+                    ],
+                  },
+                  {
+                    buildingName: 'Building B',
+                    room: '202',
+                    meetingDaysList: ['WEDNESDAY'],
+                    meetingType: 'EXAM',
+                    startTime: { month: 4, day: 15, hour: 14, minute: 0 },
+                    endTime: { month: 4, day: 15, hour: 17, minute: 0 },
+                    instructors: [
+                      {
+                        campusId: 'exam-inst2',
+                        email: 'examiner2@school.edu',
+                        name: { first: 'Bob', last: 'Johnson' },
+                      },
+                    ],
+                  },
+                  {
+                    buildingName: 'Building B',
+                    room: '202',
+                    meetingDaysList: ['WEDNESDAY'],
+                    meetingType: 'EXAM',
+                    startTime: { month: 4, day: 15, hour: 14, minute: 0 },
+                    endTime: { month: 4, day: 15, hour: 17, minute: 0 },
+                    instructors: [
+                      {
+                        campusId: 'exam-inst2',
+                        email: 'examiner2@school.edu',
+                        name: { first: 'Bob', last: 'Johnson' },
+                      },
+                    ],
+                  },
+                  {
+                    buildingName: 'Building B',
+                    room: '202',
+                    meetingDaysList: ['WEDNESDAY'],
+                    meetingType: 'EXAM',
+                    startTime: { month: 4, day: 15, hour: 14, minute: 0 },
+                    endTime: { month: 4, day: 15, hour: 17, minute: 0 },
+                    instructors: [
+                      {
+                        campusId: 'exam-inst2',
+                        email: 'examiner2@school.edu',
+                        name: { first: 'Bob', last: 'Johnson' },
+                      },
+                    ],
+                  },
+                  {
+                    buildingName: 'Building B',
+                    room: '202',
+                    meetingDaysList: ['WEDNESDAY'],
+                    meetingType: 'EXAM',
+                    startTime: { month: 4, day: 15, hour: 14, minute: 0 },
+                    endTime: { month: 4, day: 15, hour: 17, minute: 0 },
+                    instructors: [
+                      {
+                        campusId: 'exam-inst2',
+                        email: 'examiner2@school.edu',
+                        name: { first: 'Bob', last: 'Johnson' },
+                      },
+                    ],
+                  },
+                  {
+                    buildingName: 'Building C',
+                    room: '303',
+                    meetingDaysList: ['FRIDAY'],
+                    meetingType: 'EXAM',
+                    startTime: { month: 5, day: 20, hour: 10, minute: 0 },
+                    endTime: { month: 5, day: 20, hour: 13, minute: 0 },
+                    instructors: [
+                      {
+                        campusId: 'exam-inst3',
+                        email: 'examiner3@school.edu',
+                        name: { first: 'Charlie', last: 'Brown' },
+                      },
+                    ],
+                  },
+                  {
+                    buildingName: 'Building D',
+                    room: '404',
+                    meetingDaysList: ['THURSDAY'],
+                    meetingType: 'Blah',
+                    startTime: { month: 6, day: 5, hour: 11, minute: 30 },
+                    endTime: { month: 6, day: 5, hour: 13, minute: 0 },
+                    instructors: [
+                      {
+                        campusId: 'blah-inst1',
+                        email: 'blahteacher@school.edu',
+                        name: { first: 'David', last: 'Lee' },
+                      },
+                    ],
                   },
                 ],
                 credit: 3,

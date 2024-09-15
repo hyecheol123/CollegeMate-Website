@@ -4,10 +4,14 @@
  * @author Daekyun Kim <daekyun97@gmail.com>
  */
 // React
-import { Typography, Box } from '@mui/material';
+import { Typography, Box, Dialog, DialogContent } from '@mui/material';
 import React, { useState, useEffect } from 'react';
 // Mocking Data
 import getScheduleDetail from '../../data/Schedule/getScheduleDetail';
+// Custom Hook to Load ExamContext
+import { useExamContext } from './ExamContext';
+// Component
+import Exam from './Exam';
 
 const footerStyle = {
   display: 'flex',
@@ -25,6 +29,19 @@ const footerStyle = {
 function InfoFooter(): React.ReactElement {
   const [credits, setCredits] = useState<number>(0);
   const [onlineClasses, setOnlineClasses] = useState<string[]>([]);
+  // State for managing Dialog open/close
+  const [open, setOpen] = useState(false);
+  const examContext = useExamContext();
+
+  // Event Handler
+  const handleOpen = React.useCallback((): void => {
+    setOpen(true);
+    examContext.dispatch({ type: 'DISABLE_SCROLL' });
+  }, [examContext]);
+  const handleClose = React.useCallback((): void => {
+    setOpen(false);
+    examContext.dispatch({ type: 'ENABLE_SCROLL' });
+  }, [examContext]);
 
   useEffect(() => {
     // Call the mock to get the schedule details
@@ -61,17 +78,35 @@ function InfoFooter(): React.ReactElement {
 
   return (
     <Box sx={footerStyle}>
-      <Typography variant="body2" color="text.secondary">
-        {onlineClasses.length > 0
-          ? `Online classes: ${onlineClasses.join(', ')}`
-          : 'No online classes are currently assigned to you'}
-      </Typography>
-      <Typography variant="body2" color="text.secondary">
-        {credits} credits
-      </Typography>
-      <Typography variant="body1" color="error">
-        View Exam Schedule
-      </Typography>
+      <Box sx={{ mb: 0.3, mt: 0.3 }}>
+        <Typography variant="body2" color="text.secondary">
+          {onlineClasses.length > 0
+            ? `Online classes: ${onlineClasses.join(', ')}`
+            : 'No online classes are currently assigned to you'}
+        </Typography>
+      </Box>
+      <Box sx={{ mb: 0.3 }}>
+        <Typography variant="body2" color="text.secondary">
+          {credits} credits
+        </Typography>
+      </Box>
+      <Box sx={{ mb: 0.3 }}>
+        <Typography
+          variant="body1"
+          color="red.main"
+          onClick={handleOpen}
+          sx={{
+            cursor: 'pointer',
+          }}
+        >
+          View Exam Schedule
+        </Typography>
+      </Box>
+      <Dialog open={open} onClose={handleClose} fullWidth={true} maxWidth="lg">
+        <DialogContent>
+          <Exam onBack={handleClose} />
+        </DialogContent>
+      </Dialog>
     </Box>
   );
 }

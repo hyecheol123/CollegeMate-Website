@@ -11,7 +11,7 @@ import { Box, IconButton, Typography, Tooltip } from '@mui/material';
 import Download from '@mui/icons-material/FileDownloadOutlined';
 import Share from '@mui/icons-material/IosShareOutlined';
 import Edit from '@mui/icons-material/EditOutlined';
-// Mocking Data
+// Mocking API
 import getScheduleDetail from '../../data/Schedule/getScheduleDetail';
 
 const containerStyle = {
