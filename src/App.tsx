@@ -7,7 +7,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 // Material UI
-import { ThemeProvider, createTheme,} from '@mui/material/styles';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { CssBaseline, Typography } from '@mui/material';
 // Router
 import {
@@ -250,7 +250,7 @@ function App(): React.ReactElement {
   return (
     <Routes>
       <Route element={<Layout />}>
-      <Route
+        <Route
           path="/"
           element={
             globalContext.initialized ? (
