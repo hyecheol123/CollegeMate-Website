@@ -7,8 +7,8 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 // Material UI
-import { ThemeProvider, createTheme } from '@mui/material/styles';
-import { CssBaseline } from '@mui/material';
+import { ThemeProvider, createTheme,} from '@mui/material/styles';
+import { CssBaseline, Typography } from '@mui/material';
 // Router
 import {
   Routes,
@@ -250,6 +250,18 @@ function App(): React.ReactElement {
   return (
     <Routes>
       <Route element={<Layout />}>
+      <Route
+          path="/"
+          element={
+            globalContext.initialized ? (
+              <Typography variant="h1" color="primary">
+                Hello World
+              </Typography>
+            ) : (
+              <Loading />
+            )
+          }
+        />
         <Route
           path="/login"
           element={globalContext.initialized ? <Login /> : <Loading />}
