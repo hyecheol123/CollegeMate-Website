@@ -4,36 +4,32 @@
  */
 
 // React
-import React, { useState } from 'react';
+import React, { useState } from "react";
 // Material UI
-import { Box, Drawer, List, ListItem, Typography, Divider, IconButton, TextField, InputAdornment } from '@mui/material';
+import { Box, Drawer, List, ListItem, Typography, Divider, IconButton, TextField, InputAdornment, Button } from "@mui/material";
 // Material UI ICON
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
-import SearchIcon from '@mui/icons-material/Search';
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
+import SearchIcon from "@mui/icons-material/Search";
 // Components
-import MyFriends from '../components/Friends/View/MyFriends';
-import FriendRequests from '../components/Friends/View/FriendRequests';
-import MyRequests from '../components/Friends/View/MyRequest';
+import MyFriends from "../components/Friends/View/MyFriends";
+import FriendRequests from "../components/Friends/View/FriendRequests";
+import MyRequests from "../components/Friends/View/MyRequest";
+import MainHeader from "../components/Common/HeaderButton/HeaderButton";
+import FriendsDrawer from "../components/Friends/View/FriendsDrawer";
 // API call
-import getReceivedFriendRequests from '../data/Friend/getReceivedFriendRequests';
-import getSentFriendRequests from '../data/Friend/getSentFriendRequests';
-import postSendFriendRequest from '../data/Friend/postSendFriendRequest';
+import getReceivedFriendRequests from "../data/Friend/getReceivedFriendRequests";
+import getSentFriendRequests from "../data/Friend/getSentFriendRequests";
+import postSendFriendRequest from "../data/Friend/postSendFriendRequest";
+import getUserProfile from "../data/Friend/getUserProfile";
 
 const pageWrapperStyle = {
     flex: 1,
-    display: 'flex',
+    display: "flex",
 };
 const drawerStyle = {
-    width: '100%',
-    '& .MuiDrawer-paper': {
-        width: '100%',
-        '@media (min-width: 800px)': {
-            width: 400,
-        },
-    },
+    width: "100%",
 };
-
 
 function Friends({ open }: { open: boolean }): React.ReactElement {
     const [myFriends, setMyFriends] = useState(false);
@@ -41,10 +37,15 @@ function Friends({ open }: { open: boolean }): React.ReactElement {
     const [receivedRequests, setReceivedRequests] = React.useState<{ requestId: string; from: string; }[]>([]);
     const [myRequests, setMyRequests] = useState(false);
     const [sentRequests, setSentRequests] = React.useState<{ requestId: string; from: string; }[]>([]);
-    const [email, setEmail] = useState('');
+    const [email, setEmail] = useState("");
+    const [searchResult, setSearchResult] = useState<{ nickname: string; lastLogin: string; signUpDate: string; major: string; graduationYear: number } | null>(null);
+    const [error, setError] = useState<string | null>(null);
+    const [receiveNickname, setReceiveNickname] = useState<{ nickname: string; lastLogin: string; signUpDate: string; major: string; graduationYear: number } | null>(null);
+    const [sentNickname, setSentNickname] = useState<{ nickname: string; lastLogin: string; signUpDate: string; major: string; graduationYear: number } | null>(null);
+
 
     const handleGoBack = () => {
-        // Add logic to go back when clicked
+        // Add go back when clicked
     };
 
     const handleMyFriends = () => {
@@ -57,29 +58,51 @@ function Friends({ open }: { open: boolean }): React.ReactElement {
         setMyRequests(true);
     };
 
-    // Search exact email
-    const handleSearch = async () => {
+
+    const handleSendRequest = async () => {
         try {
             const response = await postSendFriendRequest(email);
             if (response.responseCode === 201) {
-                console.log('Friend request sent successfully');
+                console.log("Friend request sent successfully");
             } else if (response.responseCode === 404) {
-                console.log('User not found');
+                console.log("User not found");
             } else if (response.responseCode === 409) {
-                console.log('User is already a friend');
+                console.log("User is already a friend");
             }
         } catch (error) {
-            console.error('Error sending friend request:', error);
+            console.error("Error sending friend request:", error);
+        }
+    };
+
+    const searchFriendByEmail = async (): Promise<void> => {
+        try {
+            if (!email) {
+                console.error("Email is required.");
+                return;
+            }
+            const response = await getUserProfile(email);
+            if (response.responseCode === 200) {
+                setSearchResult(response.content || null);
+                console.log("searchResult: ", searchResult)
+                setError(null);
+            } else {
+                setSearchResult(null);
+                console.log("searchResult: ", searchResult)
+                setError("No user found");
+            }
+        } catch (error) {
+            console.error("Error searching for friend:", error);
+            setSearchResult(null);
+            setError("Error searching for friend");
         }
     };
 
     const handleEnter = (event: { key: string; }) => {
-        if (event.key === 'Enter') {
-            handleSearch();
+        if (event.key === "Enter") {
+            searchFriendByEmail();
         }
     };
 
-    // Load friends list
     React.useEffect(() => {
         const loadData = async (): Promise<void> => {
             try {
@@ -92,103 +115,33 @@ function Friends({ open }: { open: boolean }): React.ReactElement {
                     setSentRequests(jsonSentList.content?.friendRequests);
                 }
             } catch (error) {
-                console.error('Error loading received friend requests:', error);
+                console.error("Error loading received friend requests:", error);
             }
         };
+        
+        const fetchProfile = async () => {
+            if (receivedRequests.length > 0) {
+                const response = await getUserProfile(receivedRequests[0].from);
+                if (response.responseCode === 200) {
+                    setReceiveNickname(response.content || null);
+                }
+            }
+            if (sentRequests.length > 0) {
+                const response = await getUserProfile(sentRequests[0].from);
+                if (response.responseCode === 200) {
+                    setSentNickname(response.content || null);
+                }
+            }
+        };
+
+        fetchProfile();
         loadData();
-    }, []);
+    }, [receivedRequests, sentRequests]);
 
     return (
-        <Box sx={{ ...pageWrapperStyle }}>
-            <Drawer
-                sx={{ ...drawerStyle }}
-                variant="persistent"
-                anchor="left"
-                open={true}
-            >
-                <Box alignItems="center" display="flex" width={'100%'} >
-                    <IconButton
-                        sx={{ color: 'whiteGray.main' }}
-                        aria-label="back"
-                        onClick={handleGoBack}
-                    >
-                        <ArrowBackIcon />
-                    </IconButton>
-                    <Typography variant='h2' color={'red.main'}>Friends</Typography>
-                </Box>
-                <Box alignItems="center" display="flex" justifyContent={'center'} >
-                    <List sx={{ width: '340px' }}>
-
-                        {/* My Friends */}
-                        <ListItem onClick={handleMyFriends} sx={{ margin: '10px', width: '100%' }}>
-                            <Box alignItems="center" display="flex" justifyContent="space-between" width="100%">
-                                <Typography variant='h3' fontWeight={500} color={'red.main'}>My Friends</Typography>
-                                <IconButton
-                                    sx={{ color: 'whiteGray.main', }}
-                                    aria-label="forward"
-                                >
-                                    <ArrowForwardIosIcon fontSize='small' />
-                                </IconButton>
-                            </Box>
-                        </ListItem>
-                        {<MyFriends myFriends={myFriends} setMyFriends={setMyFriends} />}
-                        <Divider />
-
-                        {/* Friend Requests */}
-                        <ListItem onClick={handleFriendRequests} sx={{ margin: '10px', width: '100%' }}>
-                            <Box display="flex" justifyContent="space-between" flexDirection={'column'} width="100%">
-                                <Typography variant='h3' fontWeight={500} color={'red.main'}>Friend Requests</Typography>
-                                {receivedRequests.length === 0 ? (
-                                    <Typography variant='body2'>No request found</Typography>
-                                ) : (
-                                    <Typography variant='body2'>{`You have ${receivedRequests.length} requests`}</Typography>
-                                )}
-                            </Box>
-                        </ListItem>
-                        {<FriendRequests friendRequests={friendRequests} setFriendRequests={setFriendRequests} receivedRequests={receivedRequests} />}
-                        <Divider />
-
-                        {/* My Requests */}
-                        <ListItem onClick={handleMyRequests} sx={{ margin: '10px', width: '100%' }}>
-                            <Box display="flex" justifyContent="space-between" flexDirection={'column'} width="100%">
-                                <Typography variant='h3' fontWeight={500} color={'red.main'}>My Requests</Typography>
-                                {sentRequests.length === 0 ? (
-                                    <Typography variant='body2'>No request found</Typography>
-                                ) : (
-                                    <Typography variant='body2'>{`You have sent ${sentRequests.length} requests`}</Typography>
-                                )}
-                            </Box>
-                        </ListItem>
-                        {<MyRequests myRequests={myRequests} setMyRequests={setMyRequests} receivedRequests={receivedRequests} />}
-                        <Divider />
-
-                        {/* Add Friends */}
-                        <ListItem sx={{ margin: '10px', width: '100%' }}>
-                            <Box display="flex" flexDirection="column" width="100%">
-                                <Typography variant="h3" fontWeight={500} color="red.main">Add Friends</Typography>
-                                <Box alignItems="center" display="flex" justifyContent="space-between" width="100%">
-                                    <TextField
-                                        label="Search by Friend Name"
-                                        InputProps={{
-                                            endAdornment: (
-                                                <InputAdornment position="end">
-                                                    <IconButton onClick={handleSearch}>
-                                                        <SearchIcon />
-                                                    </IconButton>
-                                                </InputAdornment>
-                                            ),
-                                        }}
-                                        variant="standard"
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
-                                        onKeyPress={handleEnter}
-                                    />
-                                </Box>
-                            </Box>
-                        </ListItem>
-                    </List>
-                </Box>
-            </Drawer>
+        <Box sx={{ display: "flex", flexDirection: "column", minHeight:"100%" }} >
+            <MainHeader/>
+            <FriendsDrawer/>
         </Box>
     );
 }

@@ -15,7 +15,7 @@ import deleteSentFriendRequests from '../../../data/Friend/deleteSentFriendReque
 interface IProps {
     myRequests: boolean;
     setMyRequests: React.Dispatch<React.SetStateAction<boolean>>;
-    receivedRequests: { requestId: string; from: string; }[];
+    sentRequests: { requestId: string; from: string; }[];
 }
 
 const pageWrapperStyle = {
@@ -77,7 +77,7 @@ function MyRequests(props: IProps): React.ReactElement {
             </Box>
             <Box alignItems="center" display="flex" justifyContent="center">
                 <List sx={{ width: '340px' }}>
-                    {props.receivedRequests.map((request, index) => (
+                    {props.sentRequests.map((request, index) => (
                         <Box key={index}>
                             <ListItem sx={{ margin: '10px', width: '100%' }}>
                                 <Box display={"flex"} flexDirection={'column'} width='100%'>

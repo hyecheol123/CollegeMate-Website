@@ -25,8 +25,8 @@ interface IResponse {
           responseCode: 200,
           content: {
             friendRequests: [
-              { requestId: "sadf989hvsad93ikj", from: "random@wisc.edu" },
               { requestId: "adsjbzvxn91fdsa", from: "tedpowel123@wisc.edu" },
+              { requestId: "sadf989hvsad93ikj", from: "random@wisc.edu" },
               { requestId: "djakfixkdl93fdic", from: "dalcmap@wisc.edu" }
             ]
           }
