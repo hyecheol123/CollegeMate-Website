@@ -8,7 +8,7 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 // Material UI
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import { CssBaseline, Typography } from '@mui/material';
+import { CssBaseline} from '@mui/material';
 // Router
 import {
   Routes,
@@ -252,9 +252,7 @@ function App(): React.ReactElement {
       <Route element={<Layout />}>
         <Route
           path="/"
-          element={
-            globalContext.initialized ? <MainScheduler /> : <Loading />
-          }
+          element={globalContext.initialized ? <MainScheduler /> : <Loading />}
         />
         <Route
           path="/login"
