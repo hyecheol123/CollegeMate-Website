@@ -271,10 +271,6 @@ function App(): React.ReactElement {
           element={globalContext.initialized ? <About /> : <Loading />}
         />
         <Route
-          path="/MainScheduler"
-          element={globalContext.initialized ? <MainScheduler /> : <Loading />}
-        />
-        <Route
           path="/*"
           element={globalContext.initialized ? <NotFound /> : <Loading />}
         />
