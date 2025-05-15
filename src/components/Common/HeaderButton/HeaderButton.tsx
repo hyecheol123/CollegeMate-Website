@@ -6,7 +6,7 @@
 // React
 import React, { useState, useEffect } from 'react';
 // Material UI
-import { Box, IconButton, Badge, Tooltip, SvgIconProps } from '@mui/material';
+import { Box, IconButton, Badge, Tooltip } from '@mui/material';
 // Material UI Icon
 import MenuSharp from '@mui/icons-material/MenuSharp';
 import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined';
@@ -16,6 +16,8 @@ import CollegeMateLogoWebp from '../../../../assets/logo.png?as=webp';
 import CollegeMateLogAvif from '../../../../assets/logo.png?as=avif';
 // Mocking Data
 import getReceivedFriendRequests from '../../../data/Friend/getReceivedFriendRequests';
+// Types
+import type { IconComponentsProps } from '../../../types/icon';
 
 import MenuBar from '../MenuBar/MenuBar';
 
@@ -35,13 +37,9 @@ const logoStyle = {
 
 const IconComponents = ({
   size,
-  isFold = false, // Pass isFold directly
+  isFold = false, // pass isFold directly
   friendRequestCount = 0,
-}: {
-  size: SvgIconProps['fontSize'];
-  isFold?: boolean;
-  friendRequestCount?: number;
-}): React.ReactElement => (
+}: IconComponentsProps): React.ReactElement => (
   <>
     <Tooltip title="Friends">
       <IconButton
