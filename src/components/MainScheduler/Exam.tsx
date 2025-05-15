@@ -50,8 +50,8 @@ const examItemStyle = {
 
 /**
  * Helper function to format time from 24-hour to 12-hour with AM/PM
- * @param hour
- * @param minute
+ * @param {number} hour - The hour in 24-hour format (0–23)
+ * @param {number} minute - The minute (0–59)
  */
 const formatTime = (hour: number, minute: number): string => {
   const period = hour >= 12 ? 'PM' : 'AM';
@@ -62,9 +62,9 @@ const formatTime = (hour: number, minute: number): string => {
 
 /**
  * Helper function to format date to "Mar 10, 2024" format
- * @param month
- * @param day
- * @param year
+ * @param {number} month - Month number (1–12)
+ * @param {number} day - Day of the month (1–31)
+ * @param {number} year - Full year (ex. 2024)
  */
 const formatDate = (month: number, day: number, year: number): string => {
   const date = new Date(year, month - 1, day); // Create a new Date object (month is zero-based)

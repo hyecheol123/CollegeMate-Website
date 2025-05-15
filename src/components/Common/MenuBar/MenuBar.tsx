@@ -47,7 +47,7 @@ const MenuStyle = {
 
 /**
  * React Functional Component to generate Setting Page
- * @param {SettingMenuProps} props Properties that passed from the parent Component
+ * @param {HomeMenuProps} props Properties that passed from the parent Component
  * @return {React.ReactElement} Renders Setting Page
  */
 function MenuBar(props: HomeMenuProps): React.ReactElement {
