@@ -18,60 +18,8 @@ import {
 // Components
 import Modal from '../Common/Modal/Modal';
 import InfoFooter from './InfoFooter';
-
-// define the interface for EventData
-interface EventData {
-  id: string;
-  title: string;
-  day: string;
-  startTime: { hour: number; minute: number };
-  endTime: { hour: number; minute: number };
-  color: string;
-}
-
-// Dummy Data
-const myEvents = [
-  {
-    id: '1',
-    title: 'Event 1',
-    day: 'Mon',
-    startTime: { hour: 9, minute: 15 },
-    endTime: { hour: 11, minute: 5 },
-    color: 'pink',
-  },
-  // {
-  //   id: '2',
-  //   title: 'Event 2',
-  //   day: 'Tue',
-  //   startTime: { hour: 9, minute: 15 },
-  //   endTime: { hour: 11, minute: 55 },
-  //   color: 'blue',
-  // },
-  // {
-  //   id: '3',
-  //   title: 'Event 3',
-  //   day: 'Wed',
-  //   startTime: { hour: 9, minute: 15 },
-  //   endTime: { hour: 11, minute: 20 },
-  //   color: 'blue',
-  // },
-  // {
-  //   id: '4',
-  //   title: 'Event 4',
-  //   day: 'Sun',
-  //   startTime: { hour: 9, minute: 15 },
-  //   endTime: { hour: 11, minute: 20 },
-  //   color: 'blue',
-  // },
-  // {
-  //   id: '6',
-  //   title: 'Event 6',
-  //   day: 'Sun',
-  //   startTime: { hour: 22, minute: 15 },
-  //   endTime: { hour: 23, minute: 20 },
-  //   color: 'blue',
-  // },
-];
+import getDummyEvents from '../../data/Schedule/getDummyEvents';
+import type { EventData } from '../../types/event';
 
 /**
  * React Functional Component for the Scheduler Table
@@ -81,8 +29,12 @@ function SchedulerTable(): React.ReactElement {
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
+  const [myEvents, setMyEvents] = useState<EventData[]>([]);
 
   useEffect(() => {
+    // Load dummy data
+    const dummyEvents = getDummyEvents();
+    setMyEvents(dummyEvents);
     // Function to handle window resize event
     const handleResize = (): void => {
       setWindowWidth(window.innerWidth);
@@ -91,10 +43,11 @@ function SchedulerTable(): React.ReactElement {
     window.addEventListener('resize', handleResize);
 
     // Event time validation
-    myEvents.forEach((event) => {
-      const startTime = event.startTime.hour * 60 + event.startTime.minute;
-      const endTime = event.endTime.hour * 60 + event.endTime.minute;
-      if (startTime >= endTime) {
+    // TODO: E
+    dummyEvents.forEach((event) => {
+      const start = event.startTime.hour * 60 + event.startTime.minute;
+      const end = event.endTime.hour * 60 + event.endTime.minute;
+      if (start >= end) {
         setIsModalOpen(true);
         setModalMessage(
           `"${event.title}" start time must be earlier than end time.`,
