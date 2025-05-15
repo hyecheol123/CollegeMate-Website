@@ -253,13 +253,7 @@ function App(): React.ReactElement {
         <Route
           path="/"
           element={
-            globalContext.initialized ? (
-              <Typography variant="h1" color="primary">
-                Hello World
-              </Typography>
-            ) : (
-              <Loading />
-            )
+            globalContext.initialized ? <MainScheduler /> : <Loading />
           }
         />
         <Route
