@@ -69,7 +69,11 @@ function HeaderButton({
       <picture style={logoStyle}>
         <source srcSet={CollegeMateLogAvif} type="image/avif" />
         <source srcSet={CollegeMateLogoWebp} type="image/webp" />
-        <img src={CollegeMateLogoPng} alt="CollegeMate Logo" style={{ height: '24px' }} />
+        <img
+          src={CollegeMateLogoPng}
+          alt="CollegeMate Logo"
+          style={{ height: '24px' }}
+        />
       </picture>
     </Box>
   );

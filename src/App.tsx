@@ -8,7 +8,7 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 // Material UI
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import { CssBaseline, Typography } from '@mui/material';
+import { CssBaseline } from '@mui/material';
 // Router
 import {
   Routes,
@@ -68,7 +68,7 @@ declare module '@mui/material/Typography' {
     subtitle2: false;
     body3: true;
     body4: true;
-    body5: true; 
+    body5: true;
     button: false;
     caption: false;
     overline: false;
@@ -258,7 +258,7 @@ function App(): React.ReactElement {
   return (
     <Routes>
       <Route element={<Layout />}>
-              <Route
+        <Route
           path="/"
           element={globalContext.initialized ? <MockHome /> : <Loading />}
         />

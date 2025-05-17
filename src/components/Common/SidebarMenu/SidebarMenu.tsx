@@ -11,6 +11,17 @@ import { Box, Typography, List } from '@mui/material';
 import SidebarMenuItem from './SidebarMenuItem';
 import { SidebarMenuProps } from './types';
 
+/**
+ * Renders the sidebar menu with title and selectable items.
+ * @param {SidebarMenuProps} props - Sidebar properties
+ * @param {boolean} props.open - Whether the sidebar is open
+ * @param {() => void} props.onClose - Function to close the sidebar (currently unused)
+ * @param {string} [props.title] - Optional title at the top of the sidebar
+ * @param {SidebarMenuItem[]} props.items - Menu item objects to display
+ * @param {number} [props.itemSpacing] - Vertical spacing between each menu item
+ * @param {boolean} [props.showDivider] - Whether to show dividers between items
+ * @returns {React.ReactElement | null} Sidebar JSX or null if closed
+ */
 function SidebarMenu({
   open,
   onClose,

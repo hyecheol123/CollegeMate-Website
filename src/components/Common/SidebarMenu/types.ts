@@ -1,8 +1,7 @@
 /**
  * Type definitions for Sidebar Menu Component
- * These interfaces are used to structure and control the behavior of the SidebarMenu, 
+ * These interfaces are used to structure and control the behavior of the SidebarMenu,
  * including its items, styling, and layout logic.
- * 
  * @author Daekyun Kim <daekyun97@gmail.com>
  */
 
@@ -12,11 +11,11 @@ export interface SidebarMenuProps {
   onClose: () => void; // 사이드바를 닫을 때 실행할 함수
   title?: string; // 사이드바 상단에 표시될 제목 (예: Notification, Setting..etc)
   items: SidebarMenuItem[]; // 사이드바에 표시될 메뉴 항목들
-  itemSpacing?: number; // 메뉴 항목 사이의 간격 
+  itemSpacing?: number; // 메뉴 항목 사이의 간격
   showDivider?: boolean; // 항목들 사이에 구분선(divider)을 보여줄지 여부
 }
 
-// 사이드바의 한 줄(메뉴 항목)에 대한 정보 
+// 사이드바의 한 줄(메뉴 항목)에 대한 정보
 export interface SidebarMenuItem {
   label: string; // 첫 줄에 표시될 텍스트 (예: 제목)
   description?: string; // 두 번째 줄 (예: 노티 설명 등) - Optional

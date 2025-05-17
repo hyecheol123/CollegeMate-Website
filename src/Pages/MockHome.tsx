@@ -4,15 +4,20 @@
  */
 
 // React
-import React, { useState } from 'react';
+import React from 'react';
 // MUI
 import { Box } from '@mui/material';
 // Components
 import MainHeader from '../components/Common/MainHeader/MainHeader';
 import type { SidebarMenuItem } from '../components/Common/SidebarMenu/types';
 
+/**
+ * MockHome (MainScheduler) page used for visual testing of header and sidebar
+ * @returns {React.ReactElement} Temporary layout container with header
+ */
 function MainScheduler(): React.ReactElement {
-  const [title, setTitle] = useState('Daekyun');
+  // const [title, setTitle] = useState('Daekyun');
+  const title = 'Daekyun';
 
   const sidebarItems: SidebarMenuItem[] = [
     { label: 'My Schedule', onClick: () => alert('Go to My Schedule') },
