@@ -31,7 +31,7 @@ const Login = React.lazy(() => import('./Pages/Login'));
 const NewTnC = React.lazy(() => import('./Pages/NewTnC'));
 const SignUp = React.lazy(() => import('./Pages/SignUp'));
 const NotFound = React.lazy(() => import('./Pages/NotFound'));
-const MockHome = React.lazy(() => import('./Pages/MainScheduler'));
+const MockHome = React.lazy(() => import('./Pages/MockHome'));
 
 // MUI Theme (Setup Font family and Palette Color)
 declare module '@mui/material/styles' {
