@@ -12,16 +12,17 @@ import MainHeader from '../components/Common/MainHeader/MainHeader';
 import type { SidebarMenuItem } from '../components/Common/SidebarMenu/types';
 
 /**
- * MockHome (MainScheduler) page used for visual testing of header and sidebar
+ * MockHome (MockHome) page used for visual testing of header and sidebar
  * @returns {React.ReactElement} Temporary layout container with header
  */
-function MainScheduler(): React.ReactElement {
-  // const [title, setTitle] = useState('Daekyun');
+function MockHome(): React.ReactElement {
   const title = 'Daekyun';
 
   const sidebarItems: SidebarMenuItem[] = [
     { label: 'My Schedule', onClick: () => alert('Go to My Schedule') },
     { label: 'My Friends', onClick: () => alert('Go to Friends') },
+    { label: 'My UW', onClick: () => alert('Go to my UW') },
+    { label: 'University of Wisconsin-Madison', onClick: () => alert('Go to UW-Madison Website') },
     { label: 'Settings', onClick: () => alert('Go to Settings') },
   ];
 
@@ -38,4 +39,4 @@ function MainScheduler(): React.ReactElement {
   );
 }
 
-export default MainScheduler;
+export default MockHome;

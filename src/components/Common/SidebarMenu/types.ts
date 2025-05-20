@@ -17,11 +17,11 @@ export interface SidebarMenuProps {
 
 // 사이드바의 한 줄(메뉴 항목)에 대한 정보
 export interface SidebarMenuItem {
-  label: string; // 첫 줄에 표시될 텍스트 (예: 제목)
+  label: string; // 첫 줄에 표시될 텍스트
   description?: string; // 두 번째 줄 (예: 노티 설명 등) - Optional
   onClick: () => void; // 클릭 시 실행할 함수
   icon?: React.ReactNode; // 오른쪽에 표시할 아이콘 (Optional)
-  textVariant?: 'body1' | 'body2'; // label에 적용할 텍스트 스타일
+  textVariant?: 'body1'; // label에 적용할 텍스트 스타일
   descriptionVariant?: 'body3'; // description에 적용할 텍스트 스타일 (Optional)
 }
 

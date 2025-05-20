@@ -27,12 +27,12 @@ function SidebarMenuItem({
   return (
     <>
       <ListItemButton
-        sx={{ width: '100%', mb: spacing }}
+        sx={{ width: '100%', py: `24px`, verticalAlign: 'center' }}
         onClick={item.onClick}
       >
         <ListItemText
           primary={item.label}
-          primaryTypographyProps={{ variant: item.textVariant || 'body1' }}
+          primaryTypographyProps={{ variant: item.textVariant || 'body2' }}
         />
         {item.icon} {/* Optional right-side icon */}
       </ListItemButton>

@@ -43,14 +43,16 @@ function SidebarMenu({
   return (
     <Box
       sx={{
+        position: 'absolute',
+        top: '56px',
         backgroundColor: '#fff',
         height: '100%',
         width: window.innerWidth <= 480 ? '100vw' : '400px',
-        position: 'absolute',
         zIndex: 3,
         p: 2,
         display: 'flex',
         flexDirection: 'column',
+        verticalAlign: 'center',
         boxSizing: 'border-box',
       }}
     >

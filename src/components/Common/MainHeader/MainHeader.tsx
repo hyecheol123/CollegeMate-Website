@@ -29,7 +29,7 @@ function MainHeader({ title, menuItems }: MainHeaderProps): React.ReactElement {
   const friendRequestCount = 3;
   const notificationCount = 4;
 
-  const isFold = windowWidth < 300;
+  const isFold = windowWidth < 300; // Galaxy Fold UI Adjustment
 
   useEffect(() => {
     const handleResize = (): void => {
@@ -52,12 +52,13 @@ function MainHeader({ title, menuItems }: MainHeaderProps): React.ReactElement {
           alignItems: 'center',
           justifyContent: 'space-between',
           height: '56px',
-          px: '0.5em',
-          position: 'relative',
+          pl: { xs: '12px', md: '48px' }, // 왼쪽 패딩 설정
+          pr: { xs: '24px' },
+          position: 'relative'
         }}
       >
         {/* 왼쪽: 메뉴 + 친구 +알림 (데스크탑) */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
           <Tooltip title="Menu">
             <IconButton onClick={handleMenuToggle} sx={{ color: 'red.main' }}>
               <MenuIcon fontSize={isFold ? 'small' : 'medium'} />
@@ -112,7 +113,7 @@ function MainHeader({ title, menuItems }: MainHeaderProps): React.ReactElement {
 
         {/* 모바일 우측: 친구 + 알림 */}
         {windowWidth <= 480 && (
-          <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+          <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
             <Tooltip title="Friends">
               <IconButton sx={{ color: 'red.main' }}>
                 <CustomBadge badgeContent={friendRequestCount}>
