@@ -8,6 +8,7 @@
 import React from 'react';
 import { ListItemButton, ListItemText, Divider } from '@mui/material';
 import { SidebarMenuItemProps } from './types';
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 
 /**
  * Renders an individual menu item for the sidebar.
@@ -34,8 +35,8 @@ function SidebarMenuItem({
           primary={item.label}
           primaryTypographyProps={{ variant: item.textVariant || 'body2' }}
         />
-        {item.icon} {/* Optional right-side icon */}
-      </ListItemButton>
+              {item.icon !== null && (item.icon ?? <ArrowForwardIosIcon fontSize="small" />)}
+      </ListItemButton> 
       {/* Divider shown only if not the last item */}
       {showDivider && !isLast && <Divider />}
     </>
