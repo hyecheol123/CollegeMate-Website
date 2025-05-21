@@ -33,10 +33,10 @@ function SidebarMenuItem({
       >
         <ListItemText
           primary={item.label}
-          primaryTypographyProps={{ variant: item.textVariant || 'body2' }}
+          primaryTypographyProps={{ variant: item.textVariant || 'body1' }}
         />
-              {item.icon !== null && (item.icon ?? <ArrowForwardIosIcon fontSize="small" />)}
-      </ListItemButton> 
+        {item.icon !== null && (item.icon ?? <ArrowForwardIosIcon fontSize="small" sx={{ color: 'darkGrey.main' }} />)}
+      </ListItemButton>
       {/* Divider shown only if not the last item */}
       {showDivider && !isLast && <Divider />}
     </>

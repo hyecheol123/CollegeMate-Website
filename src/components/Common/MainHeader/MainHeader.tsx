@@ -23,8 +23,6 @@ import LogoAvif from '../../../../assets/logo.png?as=avif';
 function MainHeader({ title, menuItems }: MainHeaderProps): React.ReactElement {
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  //   const [friendRequestCount, setFriendRequestCount] = useState(3); // TODO: MOCK API
-  //   const [notificationCount, setNotificationCount] = useState(4); // TODO: MOCK API
 
   const friendRequestCount = 3;
   const notificationCount = 4;
@@ -52,7 +50,7 @@ function MainHeader({ title, menuItems }: MainHeaderProps): React.ReactElement {
           alignItems: 'center',
           justifyContent: 'space-between',
           height: '56px',
-          pl: { xs: '12px', md: '48px' }, // 왼쪽 패딩 설정
+          pl: { xs: '12px', md: '48px' }, 
           pr: { xs: '24px' },
           position: 'relative'
         }}

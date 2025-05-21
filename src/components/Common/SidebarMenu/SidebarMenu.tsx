@@ -9,13 +9,14 @@
 import React from 'react';
 import { Box, Typography, List } from '@mui/material';
 import SidebarMenuItem from './SidebarMenuItem';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { SidebarMenuProps } from './types';
 
 /**
  * Renders the sidebar menu with title and selectable items.
  * @param {SidebarMenuProps} props - Sidebar properties
  * @param {boolean} props.open - Whether the sidebar is open
- * @param {() => void} props.onClose - Function to close the sidebar (currently unused)
+ * @param {() => void} props.onClose - Function to close the sidebar 
  * @param {string} [props.title] - Optional title at the top of the sidebar
  * @param {SidebarMenuItem[]} props.items - Menu item objects to display
  * @param {number} [props.itemSpacing] - Vertical spacing between each menu item
@@ -50,18 +51,25 @@ function SidebarMenu({
         width: window.innerWidth <= 480 ? '100vw' : '400px',
         zIndex: 3,
         p: 2,
+        marginLeft: window.innerWidth <= 480 ? '0px' : '42px',
         display: 'flex',
         flexDirection: 'column',
         verticalAlign: 'center',
         boxSizing: 'border-box',
       }}
     >
-      {/* Sidebar title */}
-      {title && (
-        <Typography variant="h2" color="red.main" mb={2}>
-          {title}
-        </Typography>
-      )}
+      {/* Sidebar title + Back Arrow Icon */}
+      <Box sx={{ display: 'flex', alignItems: 'center'}}>
+        <ArrowBackIcon
+          onClick={onClose}
+          sx={{ mr: 1, cursor: 'pointer', color: 'darkGrey.main', }}
+        />
+        {title && (
+          <Typography variant="h2" color="red.main" sx={{ ml: '4px' }}>
+            {title}
+          </Typography>
+        )}
+      </Box>
       {/* Sidebar menu items list */}
       <List sx={{ width: '100%' }}>
         {items.map((item, idx) => (
