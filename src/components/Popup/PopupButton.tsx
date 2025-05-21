@@ -60,6 +60,7 @@ export default function PopupButton({
               color: merged.textColor,
               borderColor: merged.borderColor,
               backgroundColor: merged.backgroundColor,
+              textTransform: 'none',
             }}
           >
             {merged.label}

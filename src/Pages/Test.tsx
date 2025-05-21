@@ -9,13 +9,7 @@ import React, { useState } from 'react';
 import { Button } from '@mui/material';
 // Component
 import HeaderButton from '../components/Common/HeaderButton/HeaderButton';
-import BasePopup from '../components/Popup/BasePopup';
-import PopupHeader from '../components/Popup/PopupHeader';
-import PopupButton from '../components/Popup/PopupButton';
-import PopupDropdown from '../components/Popup/PopupDropdown';
-import PopupHelperText from '../components/Popup/PopupInfoText';
-
-const deviceList = ['iPhone 12 Pro Max', 'iPhone 13', 'Galaxy S22'];
+import DownloadPopup from '../features/Download Schedule/DownloadPopup';
 
 /**
  * React Functional Component for About page's third page
@@ -23,7 +17,6 @@ const deviceList = ['iPhone 12 Pro Max', 'iPhone 13', 'Galaxy S22'];
  */
 function Test(): React.ReactElement {
   const [open, setOpen] = useState(false);
-  const [device, setDevice] = useState(deviceList[0]);
   return (
     <>
       <HeaderButton />
@@ -34,18 +27,7 @@ function Test(): React.ReactElement {
       >
         Open Popup
       </Button>
-      {open && (
-        <BasePopup onClose={() => setOpen(false)}>
-          <PopupHeader title="Download Schedule" align="center" />
-          <PopupButton buttons={[{ label: 'Image' }, { label: 'Wallpaper' }]} />
-          <PopupDropdown
-            items={deviceList}
-            value={device}
-            onChange={(e) => setDevice(e.target.value)}
-          />
-          <PopupHelperText text="Wallpaper dimension differs depend on phone model." />
-        </BasePopup>
-      )}
+      {open && <DownloadPopup onClose={() => setOpen(false)} />}
     </>
   );
 }

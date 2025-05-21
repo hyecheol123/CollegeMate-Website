@@ -7,7 +7,7 @@ import React from 'react';
 import { Box, IconButton, Paper } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 
-interface BasePopupProps {
+interface PopupBoxProps {
   onClose: () => void;
   children: React.ReactNode;
   width?: number | string;
@@ -15,7 +15,7 @@ interface BasePopupProps {
 }
 
 /**
- * BasePopup - A reusable popup component that appears above the current screen.
+ * PopupBox - A reusable popup component that appears above the current screen.
  * @param {object} props - Component props
  * @param {() => void} props.onClose - Function to handle popup close
  * @param {React.ReactNode} props.children - Content to be displayed inside the popup
@@ -23,12 +23,12 @@ interface BasePopupProps {
  * @param {number | string} [props.maxWidth] - Maximum width of the popup (default: 95%)
  * @returns {React.ReactElement} Rendered popup component
  */
-function BasePopup({
+function PopupBox({
   onClose,
   children,
   width = '620px',
   maxWidth = '95%',
-}: BasePopupProps): React.ReactElement {
+}: PopupBoxProps): React.ReactElement {
   return (
     <Paper
       elevation={4}
@@ -65,4 +65,4 @@ function BasePopup({
   );
 }
 
-export default BasePopup;
+export default PopupBox;
