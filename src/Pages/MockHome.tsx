@@ -22,7 +22,10 @@ function MockHome(): React.ReactElement {
     { label: 'My Schedule', onClick: () => alert('Go to My Schedule') },
     { label: 'My Friends', onClick: () => alert('Go to Friends') },
     { label: 'My UW', onClick: () => alert('Go to my UW') },
-    { label: 'University of Wisconsin-Madison', onClick: () => alert('Go to UW-Madison Website') },
+    {
+      label: 'University of Wisconsin-Madison',
+      onClick: () => alert('Go to UW-Madison Website'),
+    },
     { label: 'Settings', onClick: () => alert('Go to Settings') },
   ];
 

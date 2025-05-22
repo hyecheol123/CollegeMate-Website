@@ -3,9 +3,10 @@
  * @author Daekyun Kim <daekyun97@gmail.com>
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Box, IconButton, Tooltip } from '@mui/material';
 import MenuIcon from '@mui/icons-material/MenuSharp';
+import CloseIcon from '@mui/icons-material/Close';
 import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined';
 import PersonIcon from '@mui/icons-material/PersonOutlineOutlined';
 import SidebarMenu from '../SidebarMenu/SidebarMenu';
@@ -14,6 +15,8 @@ import type { MainHeaderProps } from './types';
 import LogoImg from '../../../../assets/logo.png';
 import LogoWebp from '../../../../assets/logo.png?as=webp';
 import LogoAvif from '../../../../assets/logo.png?as=avif';
+import useIsMobile from '../../../hooks/useIsMobile';
+import type { SidebarView } from '../SidebarMenu/types';
 
 /**
  * React Functional Component to render the Main Header
@@ -21,25 +24,55 @@ import LogoAvif from '../../../../assets/logo.png?as=avif';
  * @returns {React.ReactElement} The rendered Main Header component
  */
 function MainHeader({ title, menuItems }: MainHeaderProps): React.ReactElement {
-  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // 사이드바가 열려있는지 여부
+  const [currentSidebarView, setCurrentSidebarView] =
+    useState<SidebarView>('main'); // 현재 사이드바안에서 보고있는 뷰가 main인지 setting인지
+  const isMobile = useIsMobile(480);
+  const friendRequestCount = 3; // TODO: API Mocking
+  const notificationCount = 4; // TODO: API Mocking
 
-  const friendRequestCount = 3;
-  const notificationCount = 4;
+  const handleMenuToggle = (): void => setIsSidebarOpen((prev) => !prev); // 사이드바 열려있는지 여부
 
-  const isFold = windowWidth < 300; // Galaxy Fold UI Adjustment
+  const renderIcons = (): React.ReactNode => (
+    <>
+      <Tooltip title="Friends">
+        <IconButton sx={{ color: 'red.main' }}>
+          <CustomBadge badgeContent={friendRequestCount}>
+            <PersonIcon />
+          </CustomBadge>
+        </IconButton>
+      </Tooltip>
 
-  useEffect(() => {
-    const handleResize = (): void => {
-      setWindowWidth(window.innerWidth);
-    };
-    window.addEventListener('resize', handleResize);
-    return (): void => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, []);
+      <Tooltip title="Notifications">
+        <IconButton sx={{ color: 'red.main' }}>
+          <CustomBadge badgeContent={notificationCount}>
+            <NotificationsOutlinedIcon />
+          </CustomBadge>
+        </IconButton>
+      </Tooltip>
+    </>
+  );
 
-  const handleMenuToggle = (): void => setIsSidebarOpen((prev) => !prev);
+  const renderLogo = (): React.ReactNode => (
+    <Box
+      sx={{
+        position: 'absolute',
+        left: '50%',
+        top: '50%',
+        transform: 'translate(-50%, -50%)',
+      }}
+    >
+      <picture>
+        <source srcSet={LogoAvif} type="image/avif" />
+        <source srcSet={LogoWebp} type="image/webp" />
+        <img
+          src={LogoImg}
+          alt="CollegeMate Logo"
+          style={{ height: '20px', width: 'auto' }}
+        />
+      </picture>
+    </Box>
+  );
 
   return (
     <>
@@ -47,89 +80,34 @@ function MainHeader({ title, menuItems }: MainHeaderProps): React.ReactElement {
         sx={{
           bgcolor: 'whiteGrey.main',
           display: 'flex',
-          alignItems: 'center',
           justifyContent: 'space-between',
           height: '56px',
-          pl: { xs: '12px', md: '48px' }, 
-          pr: { xs: '24px' },
-          position: 'relative'
+          pl: { xs: '12px', md: '42px' },
+          pr: { xs: '12px' },
+          position: 'relative',
         }}
       >
         {/* 왼쪽: 메뉴 + 친구 +알림 (데스크탑) */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           <Tooltip title="Menu">
             <IconButton onClick={handleMenuToggle} sx={{ color: 'red.main' }}>
-              <MenuIcon fontSize={isFold ? 'small' : 'medium'} />
+              {isMobile && isSidebarOpen && currentSidebarView === 'main' ? (
+                <CloseIcon />
+              ) : (
+                <MenuIcon />
+              )}
             </IconButton>
           </Tooltip>
 
-          {windowWidth > 480 && (
-            <>
-              <Tooltip title="Friends">
-                <IconButton sx={{ color: 'red.main' }}>
-                  <CustomBadge badgeContent={friendRequestCount}>
-                    <PersonIcon fontSize={isFold ? 'small' : 'medium'} />
-                  </CustomBadge>
-                </IconButton>
-              </Tooltip>
-
-              <Tooltip title="Notifications">
-                <IconButton sx={{ color: 'red.main' }}>
-                  <CustomBadge badgeContent={notificationCount}>
-                    <NotificationsOutlinedIcon
-                      fontSize={isFold ? 'small' : 'medium'}
-                    />
-                  </CustomBadge>
-                </IconButton>
-              </Tooltip>
-            </>
-          )}
+          {!isMobile && renderIcons()}
         </Box>
 
         {/* 중앙 로고 */}
-        <Box
-          sx={{
-            position: 'absolute',
-            left: '50%',
-            top: '50%',
-            transform: 'translate(-50%, -50%)',
-          }}
-        >
-          <picture>
-            <source srcSet={LogoAvif} type="image/avif" />
-            <source srcSet={LogoWebp} type="image/webp" />
-            <img
-              src={LogoImg}
-              alt="CollegeMate Logo"
-              style={{
-                height: '20px',
-                width: 'auto',
-              }}
-            />
-          </picture>
-        </Box>
+        {renderLogo()}
 
         {/* 모바일 우측: 친구 + 알림 */}
-        {windowWidth <= 480 && (
-          <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-            <Tooltip title="Friends">
-              <IconButton sx={{ color: 'red.main' }}>
-                <CustomBadge badgeContent={friendRequestCount}>
-                  <PersonIcon fontSize={isFold ? 'small' : 'medium'} />
-                </CustomBadge>
-              </IconButton>
-            </Tooltip>
-
-            <Tooltip title="Notifications">
-              <IconButton sx={{ color: 'red.main' }}>
-                <CustomBadge badgeContent={notificationCount}>
-                  <NotificationsOutlinedIcon
-                    fontSize={isFold ? 'small' : 'medium'}
-                  />
-                </CustomBadge>
-              </IconButton>
-            </Tooltip>
-          </Box>
+        {isMobile && (
+          <Box sx={{ display: 'flex', gap: 2 }}>{renderIcons()}</Box>
         )}
       </Box>
 
@@ -138,8 +116,9 @@ function MainHeader({ title, menuItems }: MainHeaderProps): React.ReactElement {
         onClose={handleMenuToggle}
         title={`Hello, ${title}!`}
         items={menuItems}
-        itemSpacing={1.5}
+        itemSpacing={0}
         showDivider
+        onViewChange={setCurrentSidebarView}
       />
     </>
   );

@@ -5,6 +5,13 @@
  * @author Daekyun Kim <daekyun97@gmail.com>
  */
 
+export type SidebarView =
+  | 'main'
+  | 'schuedles'
+  | 'friends'
+  | 'settings'
+  | 'notifications';
+
 // 사이드바 전체의 속성 정의
 export interface SidebarMenuProps {
   open: boolean; // 사이드바가 열려있는지 여부
@@ -13,6 +20,8 @@ export interface SidebarMenuProps {
   items: SidebarMenuItem[]; // 사이드바에 표시될 메뉴 항목들
   itemSpacing?: number; // 메뉴 항목 사이의 간격
   showDivider?: boolean; // 항목들 사이에 구분선(divider)을 보여줄지 여부
+  initialView?: SidebarView;
+  onViewChange?: (view: SidebarView) => void;
 }
 
 // 사이드바의 한 줄(메뉴 항목)에 대한 정보

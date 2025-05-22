@@ -28,14 +28,26 @@ function SidebarMenuItem({
   return (
     <>
       <ListItemButton
-        sx={{ width: '100%', py: `24px`, verticalAlign: 'center' }}
+        sx={{
+          width: '100%',
+          ml: '10px',
+          py: '24px',
+          verticalAlign: 'center',
+          mb: spacing,
+        }}
         onClick={item.onClick}
       >
         <ListItemText
           primary={item.label}
           primaryTypographyProps={{ variant: item.textVariant || 'body1' }}
         />
-        {item.icon !== null && (item.icon ?? <ArrowForwardIosIcon fontSize="small" sx={{ color: 'darkGrey.main' }} />)}
+        {item.icon !== null &&
+          (item.icon ?? (
+            <ArrowForwardIosIcon
+              fontSize="small"
+              sx={{ color: 'darkGrey.main' }}
+            />
+          ))}
       </ListItemButton>
       {/* Divider shown only if not the last item */}
       {showDivider && !isLast && <Divider />}
