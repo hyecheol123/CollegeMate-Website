@@ -8,7 +8,6 @@ import React, { useState } from 'react';
 // Material UI
 import { Button } from '@mui/material';
 // Component
-import HeaderButton from '../components/Common/HeaderButton/HeaderButton';
 import DownloadPopup from '../features/Download Schedule/DownloadPopup';
 
 /**
@@ -19,7 +18,6 @@ function Test(): React.ReactElement {
   const [open, setOpen] = useState(false);
   return (
     <>
-      <HeaderButton />
       <Button
         variant="contained"
         onClick={() => setOpen(true)}
