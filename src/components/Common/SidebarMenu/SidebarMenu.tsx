@@ -10,9 +10,8 @@ import React, { useState, useEffect } from 'react';
 import { Box, Typography, List } from '@mui/material';
 import SidebarMenuItem from './SidebarMenuItem';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { SidebarMenuProps } from './types';
 import useIsMobile from '../../../hooks/useIsMobile';
-import type { SidebarView } from './types';
+import type { SidebarView, SidebarMenuProps } from '.';
 
 /**
  * Renders the sidebar menu with title and selectable items.

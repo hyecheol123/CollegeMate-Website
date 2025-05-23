@@ -7,7 +7,7 @@
 
 import React from 'react';
 import { ListItemButton, ListItemText, Divider } from '@mui/material';
-import { SidebarMenuItemProps } from './types';
+import type { SidebarMenuItemPropsType } from '.';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 
 /**
@@ -24,7 +24,7 @@ function SidebarMenuItem({
   spacing,
   showDivider,
   isLast,
-}: SidebarMenuItemProps): React.ReactElement {
+}: SidebarMenuItemPropsType): React.ReactElement {
   return (
     <>
       <ListItemButton

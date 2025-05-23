@@ -5,14 +5,14 @@
  * @author Daekyun Kim <daekyun97@gmail.com>
  */
 
-import type { SidebarMenuItem } from '../SidebarMenu/types';
+import type { SidebarMenuItemType } from '../SidebarMenu/types';
 
 /**
  * Props for MainHeader component
  * @property {string} title - Sidebar title to display at the top
- * @property {SidebarMenuItem[]} menuItems - Menu items shown in the sidebar
+ * @property {SidebarMenuItemType[]} menuItems - Menu items shown in the sidebar
  */
 export interface MainHeaderProps {
   title: string;
-  menuItems: SidebarMenuItem[];
+  menuItems: SidebarMenuItemType[];
 }

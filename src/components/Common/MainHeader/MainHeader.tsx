@@ -9,7 +9,6 @@ import MenuIcon from '@mui/icons-material/MenuSharp';
 import CloseIcon from '@mui/icons-material/Close';
 import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined';
 import PersonIcon from '@mui/icons-material/PersonOutlineOutlined';
-import SidebarMenu from '../SidebarMenu/SidebarMenu';
 import CustomBadge from '../Styles/CustomBadge';
 import type { MainHeaderProps } from './types';
 import LogoImg from '../../../../assets/logo.png';
@@ -17,6 +16,7 @@ import LogoWebp from '../../../../assets/logo.png?as=webp';
 import LogoAvif from '../../../../assets/logo.png?as=avif';
 import useIsMobile from '../../../hooks/useIsMobile';
 import type { SidebarView } from '../SidebarMenu/types';
+import SidebarMenu from '../SidebarMenu';
 
 /**
  * React Functional Component to render the Main Header
