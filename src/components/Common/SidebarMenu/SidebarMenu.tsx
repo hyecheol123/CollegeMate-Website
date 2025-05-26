@@ -6,12 +6,19 @@
  * @author Daekyun Kim <daekyun97@gmail.com>
  */
 
+// React
 import React, { useState, useEffect } from 'react';
+// MUI
 import { Box, Typography, List } from '@mui/material';
-import SidebarMenuItem from './SidebarMenuItem';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+// Assets
+import BackArrowPng from '../../../../assets/arrow_back_icon.png';
+import BackArrowWebp from '../../../../assets/arrow_back_icon.png?as=webp';
+import BackArrowAvif from '../../../../assets/arrow_back_icon.png?as=avif';
+// Hooks
 import useIsMobile from '../../../hooks/useIsMobile';
+
 import type { SidebarView, SidebarMenuProps } from '.';
+import SidebarMenuItem from './SidebarMenuItem';
 
 /**
  * Renders the sidebar menu with title and selectable items.
@@ -19,7 +26,7 @@ import type { SidebarView, SidebarMenuProps } from '.';
  * @param {boolean} props.open - Whether the sidebar is open
  * @param {() => void} props.onClose - Function to close the sidebar
  * @param {string} [props.title] - Optional title at the top of the sidebar
- * @param {SidebarMenuItem[]} props.items - Menu item objects to display
+ * @param {SidebarMenuItemType[]} props.items - Menu item objects to display
  * @param {number} [props.itemSpacing] - Vertical spacing between each menu item
  * @param {boolean} [props.showDivider] - Whether to show dividers between items
  * @returns {React.ReactElement | null} Sidebar JSX or null if closed
@@ -78,7 +85,7 @@ function SidebarMenu({
       {/* Sidebar title + Back Arrow Icon */}
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
         {showBackIcon && (
-          <ArrowBackIcon
+          <Box
             onClick={() => {
               if (currentView === 'main') {
                 onClose();
@@ -86,11 +93,26 @@ function SidebarMenu({
                 setCurrentView('main');
               }
             }}
-            sx={{ mr: 1, cursor: 'pointer', color: 'darkGrey.main' }}
-          />
+            sx={{
+              mr: 2,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+            }}
+          >
+            <picture>
+              <source srcSet={BackArrowAvif} type="image/avif" />
+              <source srcSet={BackArrowWebp} type="image/webp" />
+              <img
+                src={BackArrowPng}
+                alt="Back"
+                style={{ width: '14.67px', height: '12px' }}
+              />
+            </picture>
+          </Box>
         )}
         {title && (
-          <Typography variant="h2" color="red.main" sx={{ ml: '4px' }}>
+          <Typography variant="h2" color="red.main" sx={{ ml: { xs: '10px', sm: '4px' } }}>
             {title}
           </Typography>
         )}

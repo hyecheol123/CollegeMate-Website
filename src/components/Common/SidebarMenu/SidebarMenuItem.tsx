@@ -5,14 +5,19 @@
  * @author Daekyun Kim
  */
 
+// React
 import React from 'react';
+// MUI
 import { ListItemButton, ListItemText, Divider } from '@mui/material';
-import type { SidebarMenuItemPropsType } from '.';
-import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+// Assets
+import ArrowRightPng from '../../../../assets/arrow_right_icon.png';
+import ArrowRightWebp from '../../../../assets/arrow_right_icon.png?as=webp';
+import ArrowRightAvif from '../../../../assets/arrow_right_icon.png?as=avif';
 
+import type { SidebarMenuItemPropsType } from '.';
 /**
  * Renders an individual menu item for the sidebar.
- * @param {SidebarMenuItemProps} props - Props for the SidebarMenuItem component
+ * @param {SidebarMenuItemPropsType} props - Props for the SidebarMenuItem component
  * @param {SidebarMenuItem} props.item - The menu item object containing label, icon, etc.
  * @param {number} props.spacing - Bottom margin spacing between this and the next item
  * @param {boolean} props.showDivider - Whether to show a divider after this item
@@ -30,8 +35,8 @@ function SidebarMenuItem({
       <ListItemButton
         sx={{
           width: '100%',
-          ml: '10px',
-          py: '24px',
+          py: '20px',
+          ml: '4px',
           verticalAlign: 'center',
           mb: spacing,
         }}
@@ -43,12 +48,22 @@ function SidebarMenuItem({
         />
         {item.icon !== null &&
           (item.icon ?? (
-            <ArrowForwardIosIcon
-              fontSize="small"
-              sx={{ color: 'darkGrey.main' }}
-            />
+            <picture>
+              <source srcSet={ArrowRightAvif} type="image/avif" />
+              <source srcSet={ArrowRightWebp} type="image/webp" />
+              <img
+                src={ArrowRightPng}
+                alt="Arrow"
+                style={{
+                  width: '6.33px',
+                  height: '12px',
+                  marginRight: '6px',
+                }}
+              />
+            </picture>
           ))}
       </ListItemButton>
+
       {/* Divider shown only if not the last item */}
       {showDivider && !isLast && <Divider />}
     </>

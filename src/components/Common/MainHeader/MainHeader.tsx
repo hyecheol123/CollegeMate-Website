@@ -3,19 +3,28 @@
  * @author Daekyun Kim <daekyun97@gmail.com>
  */
 
+// React
 import React, { useState } from 'react';
+// MUI
 import { Box, IconButton, Tooltip } from '@mui/material';
 import MenuIcon from '@mui/icons-material/MenuSharp';
 import CloseIcon from '@mui/icons-material/Close';
-import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined';
-import PersonIcon from '@mui/icons-material/PersonOutlineOutlined';
 import CustomBadge from '../Styles/CustomBadge';
-import type { MainHeaderProps } from './types';
+// Assets
 import LogoImg from '../../../../assets/logo.png';
 import LogoWebp from '../../../../assets/logo.png?as=webp';
 import LogoAvif from '../../../../assets/logo.png?as=avif';
+import FriendIconPng from '../../../../assets/friend_Icon.png';
+import FriendIconWebp from '../../../../assets/friend_Icon.png?as=webp';
+import FriendIconAvif from '../../../../assets/friend_Icon.png?as=avif';
+import BellIconPng from '../../../../assets/bell_Icon.png';
+import BellIconWebp from '../../../../assets/bell_Icon.png?as=webp';
+import BellIconAvif from '../../../../assets/bell_Icon.png?as=avif';
+// Hook
 import useIsMobile from '../../../hooks/useIsMobile';
+
 import type { SidebarView } from '../SidebarMenu/types';
+import type { MainHeaderProps } from './types';
 import SidebarMenu from '../SidebarMenu';
 
 /**
@@ -24,21 +33,29 @@ import SidebarMenu from '../SidebarMenu';
  * @returns {React.ReactElement} The rendered Main Header component
  */
 function MainHeader({ title, menuItems }: MainHeaderProps): React.ReactElement {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // 사이드바가 열려있는지 여부
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [currentSidebarView, setCurrentSidebarView] =
-    useState<SidebarView>('main'); // 현재 사이드바안에서 보고있는 뷰가 main인지 setting인지
+    useState<SidebarView>('main');
   const isMobile = useIsMobile(480);
-  const friendRequestCount = 3; // TODO: API Mocking
-  const notificationCount = 4; // TODO: API Mocking
+  const friendRequestCount = 3;
+  const notificationCount = 4;
 
-  const handleMenuToggle = (): void => setIsSidebarOpen((prev) => !prev); // 사이드바 열려있는지 여부
+  const handleMenuToggle = (): void => setIsSidebarOpen((prev) => !prev);
 
   const renderIcons = (): React.ReactNode => (
     <>
       <Tooltip title="Friends">
         <IconButton sx={{ color: 'red.main' }}>
           <CustomBadge badgeContent={friendRequestCount}>
-            <PersonIcon />
+            <picture>
+              <source srcSet={FriendIconAvif} type="image/avif" />
+              <source srcSet={FriendIconWebp} type="image/webp" />
+              <img
+                src={FriendIconPng}
+                alt="Friends"
+                style={{ width: '24px', height: '24px' }}
+              />
+            </picture>
           </CustomBadge>
         </IconButton>
       </Tooltip>
@@ -46,7 +63,15 @@ function MainHeader({ title, menuItems }: MainHeaderProps): React.ReactElement {
       <Tooltip title="Notifications">
         <IconButton sx={{ color: 'red.main' }}>
           <CustomBadge badgeContent={notificationCount}>
-            <NotificationsOutlinedIcon />
+            <picture>
+              <source srcSet={BellIconAvif} type="image/avif" />
+              <source srcSet={BellIconWebp} type="image/webp" />
+              <img
+                src={BellIconPng}
+                alt="Notifications"
+                style={{ width: '24px', height: '24px' }}
+              />
+            </picture>
           </CustomBadge>
         </IconButton>
       </Tooltip>
@@ -87,8 +112,8 @@ function MainHeader({ title, menuItems }: MainHeaderProps): React.ReactElement {
           position: 'relative',
         }}
       >
-        {/* 왼쪽: 메뉴 + 친구 +알림 (데스크탑) */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+        {/* 왼쪽: 메뉴 + 친구 + 알림 (데스크탑) */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: '25px' }}>
           <Tooltip title="Menu">
             <IconButton onClick={handleMenuToggle} sx={{ color: 'red.main' }}>
               {isMobile && isSidebarOpen && currentSidebarView === 'main' ? (
