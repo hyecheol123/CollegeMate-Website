@@ -112,7 +112,11 @@ function SidebarMenu({
           </Box>
         )}
         {title && (
-          <Typography variant="h2" color="red.main" sx={{ ml: { xs: '10px', sm: '4px' } }}>
+          <Typography
+            variant="h2"
+            color="red.main"
+            sx={{ ml: { xs: '10px', sm: '4px' } }}
+          >
             {title}
           </Typography>
         )}
