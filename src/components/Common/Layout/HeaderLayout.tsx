@@ -21,7 +21,6 @@ type HeaderLayoutProps = {
  * HeaderLayout
  * - Provides a full-page layout with header at the top and dynamic content below
  * - Ensures consistent header + page body structure
- *
  * @param {HeaderLayoutProps} props - props including children, title, and menu items
  * @returns {React.ReactElement} React element representing the layout
  */
