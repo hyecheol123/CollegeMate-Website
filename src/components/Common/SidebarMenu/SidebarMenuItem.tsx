@@ -13,8 +13,11 @@ import { ListItemButton, ListItemText, Divider } from '@mui/material';
 import ArrowRightPng from '../../../../assets/arrow_right_icon.png';
 import ArrowRightWebp from '../../../../assets/arrow_right_icon.png?as=webp';
 import ArrowRightAvif from '../../../../assets/arrow_right_icon.png?as=avif';
-
+// Types
 import type { SidebarMenuItemPropsType } from '.';
+// Custom Components
+import CustomImage from '../Styles/CustomImage';
+
 /**
  * Renders an individual menu item for the sidebar.
  * @param {SidebarMenuItemPropsType} props - Props for the SidebarMenuItem component
@@ -48,19 +51,15 @@ function SidebarMenuItem({
         />
         {item.icon !== null &&
           (item.icon ?? (
-            <picture>
-              <source srcSet={ArrowRightAvif} type="image/avif" />
-              <source srcSet={ArrowRightWebp} type="image/webp" />
-              <img
-                src={ArrowRightPng}
-                alt="Arrow"
-                style={{
-                  width: '6.33px',
-                  height: '12px',
-                  marginRight: '6px',
-                }}
-              />
-            </picture>
+            <CustomImage
+              png={ArrowRightPng}
+              webp={ArrowRightWebp}
+              avif={ArrowRightAvif}
+              alt="Arrow"
+              width="6.33px"
+              height="12px"
+              style={{ marginRight: '6px' }}
+            />
           ))}
       </ListItemButton>
 

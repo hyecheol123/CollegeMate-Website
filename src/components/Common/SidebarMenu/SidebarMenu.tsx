@@ -14,11 +14,12 @@ import { Box, Typography, List } from '@mui/material';
 import BackArrowPng from '../../../../assets/arrow_back_icon.png';
 import BackArrowWebp from '../../../../assets/arrow_back_icon.png?as=webp';
 import BackArrowAvif from '../../../../assets/arrow_back_icon.png?as=avif';
-// Hooks
+// Hooks & Types
 import useIsMobile from '../../../hooks/useIsMobile';
-
 import type { SidebarView, SidebarMenuProps } from '.';
 import SidebarMenuItem from './SidebarMenuItem';
+// Custom Components
+import CustomImage from '../Styles/CustomImage';
 
 /**
  * Renders the sidebar menu with title and selectable items.
@@ -69,13 +70,13 @@ function SidebarMenu({
       sx={{
         position: 'absolute',
         top: '56px',
-        backgroundColor: '#fff',
+        bgcolor: 'white.main',
         height: '100%',
         width: { xs: '100vw', sm: '488px' },
         zIndex: 3,
         p: 2,
-        ml: { xs: 0, sm: 4 },
-        mt: { xs: 0, sm: 1 },
+        ml: { sm: 5 },
+        mt: { sm: 1 },
         display: 'flex',
         flexDirection: 'column',
         verticalAlign: 'center',
@@ -100,15 +101,14 @@ function SidebarMenu({
               alignItems: 'center',
             }}
           >
-            <picture>
-              <source srcSet={BackArrowAvif} type="image/avif" />
-              <source srcSet={BackArrowWebp} type="image/webp" />
-              <img
-                src={BackArrowPng}
-                alt="Back"
-                style={{ width: '14.67px', height: '12px' }}
-              />
-            </picture>
+            <CustomImage
+              png={BackArrowPng}
+              webp={BackArrowWebp}
+              avif={BackArrowAvif}
+              alt="Back"
+              width="14.67px"
+              height="12px"
+            />
           </Box>
         )}
         {title && (

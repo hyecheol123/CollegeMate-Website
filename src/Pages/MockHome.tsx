@@ -6,11 +6,9 @@
 
 // React
 import React from 'react';
-// MUI
-import { Box } from '@mui/material';
 // Components
-import MainHeader from '../components/Common/MainHeader';
 import type { SidebarMenuItemType } from '../components/Common/SidebarMenu';
+import HeaderLayout from '../components/Common/Layout/HeaderLayout';
 
 /**
  * MockHome (MockHome) page used for visual testing of header and sidebar
@@ -30,17 +28,9 @@ function MockHome(): React.ReactElement {
     { label: 'Settings', onClick: () => alert('Go to Settings') },
   ];
 
-  return (
-    <Box
-      sx={{
-        minHeight: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-      }}
-    >
-      <MainHeader title={title} menuItems={sidebarItems} />
-    </Box>
-  );
+  return <HeaderLayout title={title} menuItems={sidebarItems}>
+    
+  </HeaderLayout>;
 }
 
 export default MockHome;

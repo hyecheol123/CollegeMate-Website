@@ -1,6 +1,8 @@
 /**
  * Reusable Main Header component with responsive layout and sidebar toggle
- * @author Daekyun Kim <daekyun97@gmail.com>
+ * - Includes notification and friend request badges
+ * - Data is fetched and cached using Global Context
+ * @author Daekyun Kim
  */
 
 // React
@@ -14,18 +16,24 @@ import CustomBadge from '../Styles/CustomBadge';
 import LogoImg from '../../../../assets/logo.png';
 import LogoWebp from '../../../../assets/logo.png?as=webp';
 import LogoAvif from '../../../../assets/logo.png?as=avif';
+
 import FriendIconPng from '../../../../assets/friend_Icon.png';
 import FriendIconWebp from '../../../../assets/friend_Icon.png?as=webp';
 import FriendIconAvif from '../../../../assets/friend_Icon.png?as=avif';
+
 import BellIconPng from '../../../../assets/bell_Icon.png';
 import BellIconWebp from '../../../../assets/bell_Icon.png?as=webp';
 import BellIconAvif from '../../../../assets/bell_Icon.png?as=avif';
-// Hook
+// Hooks & Types
 import useIsMobile from '../../../hooks/useIsMobile';
-
 import type { SidebarView } from '../SidebarMenu/types';
 import type { MainHeaderProps } from './types';
+// Custom Components
+import CustomImage from '../Styles/CustomImage';
 import SidebarMenu from '../SidebarMenu';
+import useFetchFriendRequests from '../../../hooks/useFetchFriendRequests';
+import useFetchAnnouncements from '../../../hooks/useFetchAnnouncements';
+import { useGlobalContext } from '../../../GlobalContext';
 
 /**
  * React Functional Component to render the Main Header
@@ -37,8 +45,12 @@ function MainHeader({ title, menuItems }: MainHeaderProps): React.ReactElement {
   const [currentSidebarView, setCurrentSidebarView] =
     useState<SidebarView>('main');
   const isMobile = useIsMobile(480);
-  const friendRequestCount = 3;
-  const notificationCount = 4;
+
+  // Fetch friend request and announcement data into global context
+  useFetchFriendRequests();
+  useFetchAnnouncements();
+
+  const { friendRequests, announcements } = useGlobalContext();
 
   const handleMenuToggle = (): void => setIsSidebarOpen((prev) => !prev);
 
@@ -46,32 +58,26 @@ function MainHeader({ title, menuItems }: MainHeaderProps): React.ReactElement {
     <>
       <Tooltip title="Friends">
         <IconButton sx={{ color: 'red.main' }}>
-          <CustomBadge badgeContent={friendRequestCount}>
-            <picture>
-              <source srcSet={FriendIconAvif} type="image/avif" />
-              <source srcSet={FriendIconWebp} type="image/webp" />
-              <img
-                src={FriendIconPng}
-                alt="Friends"
-                style={{ width: '24px', height: '24px' }}
-              />
-            </picture>
+          <CustomBadge badgeContent={friendRequests.length}>
+            <CustomImage
+              png={FriendIconPng}
+              webp={FriendIconWebp}
+              avif={FriendIconAvif}
+              alt="Friends"
+            />
           </CustomBadge>
         </IconButton>
       </Tooltip>
 
       <Tooltip title="Notifications">
         <IconButton sx={{ color: 'red.main' }}>
-          <CustomBadge badgeContent={notificationCount}>
-            <picture>
-              <source srcSet={BellIconAvif} type="image/avif" />
-              <source srcSet={BellIconWebp} type="image/webp" />
-              <img
-                src={BellIconPng}
-                alt="Notifications"
-                style={{ width: '24px', height: '24px' }}
-              />
-            </picture>
+          <CustomBadge badgeContent={announcements.length}>
+            <CustomImage
+              png={BellIconPng}
+              webp={BellIconWebp}
+              avif={BellIconAvif}
+              alt="Notifications"
+            />
           </CustomBadge>
         </IconButton>
       </Tooltip>
@@ -87,15 +93,14 @@ function MainHeader({ title, menuItems }: MainHeaderProps): React.ReactElement {
         transform: 'translate(-50%, -50%)',
       }}
     >
-      <picture>
-        <source srcSet={LogoAvif} type="image/avif" />
-        <source srcSet={LogoWebp} type="image/webp" />
-        <img
-          src={LogoImg}
-          alt="CollegeMate Logo"
-          style={{ height: '20px', width: 'auto' }}
-        />
-      </picture>
+      <CustomImage
+        png={LogoImg}
+        webp={LogoWebp}
+        avif={LogoAvif}
+        alt="CollegeMate Logo"
+        height="20px"
+        width="auto"
+      />
     </Box>
   );
 
@@ -123,7 +128,6 @@ function MainHeader({ title, menuItems }: MainHeaderProps): React.ReactElement {
               )}
             </IconButton>
           </Tooltip>
-
           {!isMobile && renderIcons()}
         </Box>
 
@@ -132,7 +136,7 @@ function MainHeader({ title, menuItems }: MainHeaderProps): React.ReactElement {
 
         {/* 모바일 우측: 친구 + 알림 */}
         {isMobile && (
-          <Box sx={{ display: 'flex', gap: 2 }}>{renderIcons()}</Box>
+          <Box sx={{ display: 'flex', gap: 2.5 }}>{renderIcons()}</Box>
         )}
       </Box>
 
