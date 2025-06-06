@@ -23,7 +23,6 @@ type CustomImageProps = {
 /**
  * Renders optimized image using the <picture> element with AVIF, WebP, and PNG fallback.
  * @param {CustomImageProps} props - Props for image sources and display configuration
- * @returns {JSX.Element} Responsive and optimized image component
  */
 const CustomImage = ({
   png,
