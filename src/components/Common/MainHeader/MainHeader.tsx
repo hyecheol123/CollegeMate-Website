@@ -112,8 +112,8 @@ function MainHeader({ title, menuItems }: MainHeaderProps): React.ReactElement {
           display: 'flex',
           justifyContent: 'space-between',
           height: '56px',
-          pl: { xs: '12px', md: '42px' },
-          pr: { xs: '12px' },
+          pl: { xs: '12px', sm: '12px', md: '24px', lg: '24px', xl: '42px' },
+          pr: { xs: '12px', sm: '12'},
           position: 'relative',
         }}
       >
