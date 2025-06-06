@@ -35,6 +35,14 @@ const MockHome = React.lazy(() => import('./Pages/MockHome'));
 
 // MUI Theme (Setup Font family and Palette Color)
 declare module '@mui/material/styles' {
+  interface TypographyVariants {
+    body3: React.CSSProperties;
+    body4: React.CSSProperties;
+    body5: React.CSSProperties;
+  }
+}
+
+declare module '@mui/material/styles' {
   interface TypographyVariantsOptions {
     body3?: React.CSSProperties;
     body4?: React.CSSProperties;

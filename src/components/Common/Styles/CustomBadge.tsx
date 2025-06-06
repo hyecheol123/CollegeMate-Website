@@ -12,7 +12,11 @@ const CustomBadge = styled(Badge)(({ theme }) => ({
   '& .MuiBadge-badge': {
     backgroundColor: theme.palette.red.main,
     color: theme.palette.common.white,
-    ...theme.typography.body2,
+    fontSize: theme.typography.body3.fontSize,
+    transform: 'translate(30%, 15%)',
+    height: '14px',
+    minWidth: '14px',
+    padding: 0,
   },
 }));
 

@@ -72,7 +72,7 @@ function SidebarMenu({
         top: '56px',
         bgcolor: 'white.main',
         height: '100%',
-        width: { xs: '100vw', lg: 'min(480px, 20%)'},
+        width: { xs: '100vw', lg: 'min(480px, 20%)' },
         ml: { lg: 4 },
         zIndex: 3,
         p: 2,

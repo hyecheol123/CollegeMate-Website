@@ -28,7 +28,7 @@ function MockHome(): React.ReactElement {
     { label: 'Settings', onClick: () => alert('Go to Settings') },
   ];
 
-  return <HeaderLayout title={title} menuItems={sidebarItems}></HeaderLayout>;
+  return <HeaderLayout title={title} menuItems={sidebarItems}><div></div></HeaderLayout>;
 }
 
 export default MockHome;
