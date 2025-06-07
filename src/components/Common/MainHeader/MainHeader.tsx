@@ -2,43 +2,49 @@
  * Reusable Main Header component with responsive layout and sidebar toggle
  * - Includes notification and friend request badges
  * - Data is fetched and cached using Global Context
- * @author Daekyun Kim
+ * @author Daekyun Kim <daekyun97@gmail.com>
  */
 
 // React
 import React, { useState } from 'react';
 // MUI
-import { Box, IconButton, Tooltip } from '@mui/material';
+import Tooltip from '@mui/material/Tooltip';
 import MenuIcon from '@mui/icons-material/MenuSharp';
 import CloseIcon from '@mui/icons-material/Close';
-import CustomBadge from '../Styles/CustomBadge';
+// Components
+import CustomBadge from '../Styles/CustomBadge/CustomBadge';
+import CustomImage from '../Styles/CustomImage';
+import SidebarMenu from '../SidebarMenu';
+// Hooks
+import useIsMobile from '../../../hooks/useIsMobile';
+import useFetchFriendRequests from '../../../hooks/useFetchFriendRequests';
+import useFetchAnnouncements from '../../../hooks/useFetchAnnouncements';
+import { useGlobalContext } from '../../../GlobalContext';
+import type { SidebarView } from '../SidebarMenu/types';
+import type { MainHeaderProps } from './types';
 // Assets
 import LogoImg from '../../../../assets/logo.png';
 import LogoWebp from '../../../../assets/logo.png?as=webp';
 import LogoAvif from '../../../../assets/logo.png?as=avif';
-
 import FriendIconPng from '../../../../assets/friend_Icon.png';
 import FriendIconWebp from '../../../../assets/friend_Icon.png?as=webp';
 import FriendIconAvif from '../../../../assets/friend_Icon.png?as=avif';
-
 import BellIconPng from '../../../../assets/bell_Icon.png';
 import BellIconWebp from '../../../../assets/bell_Icon.png?as=webp';
 import BellIconAvif from '../../../../assets/bell_Icon.png?as=avif';
-// Hooks & Types
-import useIsMobile from '../../../hooks/useIsMobile';
-import type { SidebarView } from '../SidebarMenu/types';
-import type { MainHeaderProps } from './types';
-// Custom Components
-import CustomImage from '../Styles/CustomImage';
-import SidebarMenu from '../SidebarMenu';
-import useFetchFriendRequests from '../../../hooks/useFetchFriendRequests';
-import useFetchAnnouncements from '../../../hooks/useFetchAnnouncements';
-import { useGlobalContext } from '../../../GlobalContext';
+// Styles
+import {
+  HeaderContainer,
+  LeftSection,
+  RightSection,
+  LogoContainer,
+  StyledIconButton,
+} from './MainHeader.styles';
 
 /**
- * React Functional Component to render the Main Header
- * @param {MainHeaderProps} props - Props including title and menu items
- * @returns {React.ReactElement} The rendered Main Header component
+ * MainHeader component rendering top bar with menu and badges
+ * @param {MainHeaderProps} props
+ * @returns {React.ReactElement}
  */
 function MainHeader({ title, menuItems }: MainHeaderProps): React.ReactElement {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -46,7 +52,7 @@ function MainHeader({ title, menuItems }: MainHeaderProps): React.ReactElement {
     useState<SidebarView>('main');
   const isMobile = useIsMobile(480);
 
-  // Fetch friend request and announcement data into global context
+  // Fetch data into Global Context
   useFetchFriendRequests();
   useFetchAnnouncements();
 
@@ -57,7 +63,7 @@ function MainHeader({ title, menuItems }: MainHeaderProps): React.ReactElement {
   const renderIcons = (): React.ReactNode => (
     <>
       <Tooltip title="Friends">
-        <IconButton sx={{ color: 'red.main' }}>
+        <StyledIconButton>
           <CustomBadge badgeContent={friendRequests.length}>
             <CustomImage
               png={FriendIconPng}
@@ -66,11 +72,11 @@ function MainHeader({ title, menuItems }: MainHeaderProps): React.ReactElement {
               alt="Friends"
             />
           </CustomBadge>
-        </IconButton>
+        </StyledIconButton>
       </Tooltip>
 
       <Tooltip title="Notifications">
-        <IconButton sx={{ color: 'red.main' }}>
+        <StyledIconButton>
           <CustomBadge badgeContent={announcements.length}>
             <CustomImage
               png={BellIconPng}
@@ -79,20 +85,13 @@ function MainHeader({ title, menuItems }: MainHeaderProps): React.ReactElement {
               alt="Notifications"
             />
           </CustomBadge>
-        </IconButton>
+        </StyledIconButton>
       </Tooltip>
     </>
   );
 
   const renderLogo = (): React.ReactNode => (
-    <Box
-      sx={{
-        position: 'absolute',
-        left: '50%',
-        top: '50%',
-        transform: 'translate(-50%, -50%)',
-      }}
-    >
+    <LogoContainer>
       <CustomImage
         png={LogoImg}
         webp={LogoWebp}
@@ -101,44 +100,29 @@ function MainHeader({ title, menuItems }: MainHeaderProps): React.ReactElement {
         height="20px"
         width="auto"
       />
-    </Box>
+    </LogoContainer>
   );
 
   return (
     <>
-      <Box
-        sx={{
-          bgcolor: 'whiteGrey.main',
-          display: 'flex',
-          justifyContent: 'space-between',
-          height: '56px',
-          pl: { xs: '12px', sm: '12px', md: '24px', lg: '24px', xl: '42px' },
-          pr: { xs: '12px', sm: '12' },
-          position: 'relative',
-        }}
-      >
-        {/* 왼쪽: 메뉴 + 친구 + 알림 (데스크탑) */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: '25px' }}>
+      <HeaderContainer>
+        <LeftSection>
           <Tooltip title="Menu">
-            <IconButton onClick={handleMenuToggle} sx={{ color: 'red.main' }}>
+            <StyledIconButton onClick={handleMenuToggle}>
               {isMobile && isSidebarOpen && currentSidebarView === 'main' ? (
                 <CloseIcon />
               ) : (
                 <MenuIcon />
               )}
-            </IconButton>
+            </StyledIconButton>
           </Tooltip>
           {!isMobile && renderIcons()}
-        </Box>
+        </LeftSection>
 
-        {/* 중앙 로고 */}
         {renderLogo()}
 
-        {/* 모바일 우측: 친구 + 알림 */}
-        {isMobile && (
-          <Box sx={{ display: 'flex', gap: 2.5 }}>{renderIcons()}</Box>
-        )}
-      </Box>
+        {isMobile && <RightSection>{renderIcons()}</RightSection>}
+      </HeaderContainer>
 
       <SidebarMenu
         open={isSidebarOpen}

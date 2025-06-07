@@ -1,38 +1,34 @@
 /**
  * SidebarMenu Component
- * - A reusable sidebar component that displays a list of menu items
- * - Supports a title, optional dividers, and custom spacing between items
- * - Automatically locks body scroll when open
- * @author Daekyun Kim <daekyun97@gmail.com>
+ * - Fully reusable and scrollable sidebar menu component
+ * - Supports title, dynamic items, and mobile responsive behavior
+ * - Manages internal sidebar view state and back navigation
+ * @author Daekyun Kim
  */
 
-// React
 import React, { useState, useEffect } from 'react';
-// MUI
-import { Box, Typography, List } from '@mui/material';
-// Assets
 import BackArrowPng from '../../../../assets/arrow_back_icon.png';
 import BackArrowWebp from '../../../../assets/arrow_back_icon.png?as=webp';
 import BackArrowAvif from '../../../../assets/arrow_back_icon.png?as=avif';
-// Hooks & Types
 import useIsMobile from '../../../hooks/useIsMobile';
 import type { SidebarView, SidebarMenuProps } from '.';
 import SidebarMenuItem from './SidebarMenuItem';
-// Custom Components
 import CustomImage from '../Styles/CustomImage';
+import {
+  SidebarContainer,
+  TitleRow,
+  BackButtonWrapper,
+  SidebarList,
+  SidebarTitle,
+  InnerWrapper,
+} from './SidebarMenu.styles';
 
 /**
- * Renders the sidebar menu with title and selectable items.
- * @param {SidebarMenuProps} props - Sidebar properties
- * @param {boolean} props.open - Whether the sidebar is open
- * @param {() => void} props.onClose - Function to close the sidebar
- * @param {string} [props.title] - Optional title at the top of the sidebar
- * @param {SidebarMenuItemType[]} props.items - Menu item objects to display
- * @param {number} [props.itemSpacing] - Vertical spacing between each menu item
- * @param {boolean} [props.showDivider] - Whether to show dividers between items
- * @returns {React.ReactElement | null} Sidebar JSX or null if closed
+ * SidebarMenu Component
+ * @param {SidebarMenuProps} props - Sidebar props
+ * @returns {React.ReactElement | null} The rendered SidebarMenu component
  */
-function SidebarMenu({
+const SidebarMenu = ({
   open,
   onClose,
   title,
@@ -41,105 +37,76 @@ function SidebarMenu({
   showDivider = true,
   initialView = 'main',
   onViewChange,
-}: SidebarMenuProps): React.ReactElement | null {
+}: SidebarMenuProps): React.ReactElement | null => {
   const isMobile = useIsMobile(480);
   const [currentView, setCurrentView] = useState<SidebarView>(initialView);
 
-  useEffect((): void => {
+  useEffect(() => {
     if (!open) setCurrentView('main');
   }, [open]);
 
-  useEffect((): void => {
+  useEffect(() => {
     onViewChange?.(currentView);
   }, [currentView, onViewChange]);
 
-  useEffect((): (() => void) => {
+  useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : 'auto';
-    return () => {
+    return (): void => {
       document.body.style.overflow = 'auto';
     };
   }, [open]);
 
-  // If sidebar is not open, render nothing
   if (!open) return null;
 
-  const showBackIcon = (isMobile && currentView !== 'main') || !isMobile; // 데스크탑에선 항상 보여야 함
+  const showBackIcon = (isMobile && currentView !== 'main') || !isMobile;
 
   return (
-    <Box
-      sx={{
-        position: 'absolute',
-        top: '56px',
-        bgcolor: 'white.main',
-        height: '100%',
-        width: { xs: '100vw', lg: 'min(480px, 20%)' },
-        ml: { lg: 4 },
-        zIndex: 3,
-        p: 2,
-        display: 'flex',
-        flexDirection: 'column',
-        verticalAlign: 'center',
-        boxSizing: 'border-box',
-      }}
-    >
-      {/* Sidebar title + Back Arrow Icon */}
-      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        {showBackIcon && (
-          <Box
-            onClick={() => {
-              if (currentView === 'main') {
-                onClose();
-              } else {
-                setCurrentView('main');
-              }
-            }}
-            sx={{
-              mr: 2,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-            }}
-          >
-            <CustomImage
-              png={BackArrowPng}
-              webp={BackArrowWebp}
-              avif={BackArrowAvif}
-              alt="Back"
-              width="14.67px"
-              height="12px"
+    <SidebarContainer>
+      <InnerWrapper>
+        <TitleRow>
+          {showBackIcon && (
+            <BackButtonWrapper
+              onClick={(): void => {
+                if (currentView === 'main') {
+                  onClose();
+                } else {
+                  setCurrentView('main');
+                }
+              }}
+            >
+              <CustomImage
+                png={BackArrowPng}
+                webp={BackArrowWebp}
+                avif={BackArrowAvif}
+                alt="Back"
+                width="14.67px"
+                height="12px"
+              />
+            </BackButtonWrapper>
+          )}
+          {title && <SidebarTitle variant="h2">{title}</SidebarTitle>}
+        </TitleRow>
+
+        <SidebarList>
+          {items.map((item, idx) => (
+            <SidebarMenuItem
+              key={item.label}
+              item={{
+                ...item,
+                onClick: (): void => {
+                  setCurrentView(item.label as SidebarView);
+                  item.onClick();
+                },
+              }}
+              spacing={itemSpacing}
+              showDivider={showDivider}
+              isLast={idx === items.length - 1}
             />
-          </Box>
-        )}
-        {title && (
-          <Typography
-            variant="h2"
-            color="red.main"
-            sx={{ ml: { xs: '10px', sm: '4px' } }}
-          >
-            {title}
-          </Typography>
-        )}
-      </Box>
-      {/* Sidebar menu items list */}
-      <List sx={{ width: '100%' }}>
-        {items.map((item, idx) => (
-          <SidebarMenuItem
-            key={item.label}
-            item={{
-              ...item,
-              onClick: () => {
-                setCurrentView(item.label as SidebarView);
-                item.onClick();
-              },
-            }}
-            spacing={itemSpacing}
-            showDivider={showDivider}
-            isLast={idx === items.length - 1}
-          />
-        ))}
-      </List>
-    </Box>
+          ))}
+        </SidebarList>
+      </InnerWrapper>
+    </SidebarContainer>
   );
-}
+};
 
 export default SidebarMenu;

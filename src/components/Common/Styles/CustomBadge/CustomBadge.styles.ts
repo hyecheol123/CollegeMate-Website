@@ -1,14 +1,14 @@
 /**
- * Custom styled MUI Badge component for consistent badge appearance
- * - Applies red background with white text
- * - Uses body2 typography from theme
- * @author Daekyun Kim
+ * CustomBadge Stylesheet
+ * - Contains styled components for consistent badge appearance
+ * - Centralizes badge positioning, size, and typography
+ * @author Daekyun Kim <daekyun97@gmail.com>
  */
 
 import { styled } from '@mui/material/styles';
 import Badge from '@mui/material/Badge';
 
-const CustomBadge = styled(Badge)(({ theme }) => ({
+export const StyledBadge = styled(Badge)(({ theme }) => ({
   '& .MuiBadge-badge': {
     backgroundColor: theme.palette.red.main,
     color: theme.palette.common.white,
@@ -17,7 +17,6 @@ const CustomBadge = styled(Badge)(({ theme }) => ({
     height: '14px',
     minWidth: '14px',
     padding: 0,
+    lineHeight: 1,
   },
 }));
-
-export default CustomBadge;
