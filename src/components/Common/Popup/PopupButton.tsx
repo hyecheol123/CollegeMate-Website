@@ -56,7 +56,7 @@ export default function PopupButton({
             fullWidth
             sx={{
               height: 40,
-              maxWidth: 420,
+              maxWidth: '100%',
               color: merged.textColor,
               borderColor: merged.borderColor,
               backgroundColor: merged.backgroundColor,

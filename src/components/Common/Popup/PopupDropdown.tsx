@@ -32,7 +32,7 @@ export default function PopupDropdown({
   return (
     <FormControl
       fullWidth
-      sx={{ maxWidth: 420, borderColor: 'red.main', alignSelf: 'center' }}
+      sx={{ maxWidth: '100%', borderColor: 'red.main', alignSelf: 'center' }}
     >
       <Select
         value={value}

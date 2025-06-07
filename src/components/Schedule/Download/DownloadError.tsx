@@ -5,8 +5,8 @@
 
 import React from 'react';
 import { Box } from '@mui/material';
-import PopupHeader from '../../components/Popup/PopupHeader';
-import PopupButton from '../../components/Popup/PopupButton';
+import PopupHeader from '../../Common/Popup/PopupHeader';
+import PopupButton from '../../Common/Popup/PopupButton';
 
 interface DownloadErrorProps {
   onRetry: () => void;

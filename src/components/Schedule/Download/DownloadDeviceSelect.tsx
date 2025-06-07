@@ -5,15 +5,14 @@
 
 import React from 'react';
 import { SelectChangeEvent } from '@mui/material';
-import PopupHeader from '../../components/Popup/PopupHeader';
-import PopupDropdown from '../../components/Popup/PopupDropdown';
-import PopupHelperText from '../../components/Popup/PopupInfoText';
-import PopupButton from '../../components/Popup/PopupButton';
+import PopupHeader from '../../Common/Popup/PopupHeader';
+import PopupDropdown from '../../Common/Popup/PopupDropdown';
+import PopupHelperText from '../../Common/Popup/PopupInfoText';
+import PopupButton from '../../Common/Popup/PopupButton';
 
 interface DownloadDeviceSelectProps {
   value: string;
   onChange: (value: string) => void;
-  //onBack: () => void;
   onNext: () => void;
 }
 
@@ -22,14 +21,12 @@ interface DownloadDeviceSelectProps {
  * @param {object} props - Component props
  * @param {string} props.value - Selected device model
  * @param {(value: string) => void} props.onChange - Handler to change selected device
- //* @param {() => void} props.onBack - Handler to go back to previous view
  * @param {() => void} props.onNext - Handler to proceed to download
  * @returns {React.ReactElement} Device selection step for wallpaper
  */
 export default function DownloadDeviceSelect({
   value,
   onChange,
-  //onBack,
   onNext,
 }: DownloadDeviceSelectProps): React.ReactElement {
   const deviceOptions = [

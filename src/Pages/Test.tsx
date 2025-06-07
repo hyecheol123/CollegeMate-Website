@@ -6,9 +6,9 @@
 // React
 import React, { useState } from 'react';
 // Material UI
-import { Button } from '@mui/material';
+import { Box, Button } from '@mui/material';
 // Component
-import DownloadPopup from '../features/Download Schedule/DownloadPopup';
+import DownloadPopup from '../components/Schedule/Download/DownloadPopup';
 
 /**
  * React Functional Component for About page's third page
@@ -17,16 +17,17 @@ import DownloadPopup from '../features/Download Schedule/DownloadPopup';
 function Test(): React.ReactElement {
   const [open, setOpen] = useState(false);
   return (
-    <>
-      <Button
-        variant="contained"
-        onClick={() => setOpen(true)}
-        sx={{ position: 'flex', top: '50%', left: '50%' }}
-      >
+    <Box
+      display="flex"
+      justifyContent="center"
+      alignItems="center"
+      height="100vh"
+    >
+      <Button variant="contained" onClick={() => setOpen(true)}>
         Open Popup
       </Button>
       {open && <DownloadPopup onClose={() => setOpen(false)} />}
-    </>
+    </Box>
   );
 }
 

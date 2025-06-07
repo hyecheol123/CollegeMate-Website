@@ -19,15 +19,15 @@ interface PopupBoxProps {
  * @param {object} props - Component props
  * @param {() => void} props.onClose - Function to handle popup close
  * @param {React.ReactNode} props.children - Content to be displayed inside the popup
- * @param {number | string} [props.width] - Width of the popup (default: 640px)
- * @param {number | string} [props.maxWidth] - Maximum width of the popup (default: 95%)
+ * @param {number | string} [props.width] - Width of the popup
+ * @param {number} [props.maxWidth] - Maximum width of the popup (default: 500px)
  * @returns {React.ReactElement} Rendered popup component
  */
 function PopupBox({
   onClose,
   children,
-  width = '620px',
-  maxWidth = '95%',
+  width,
+  maxWidth = '500px',
 }: PopupBoxProps): React.ReactElement {
   return (
     <Paper
@@ -37,17 +37,19 @@ function PopupBox({
         top: '50%',
         left: '50%',
         transform: 'translate(-50%, -50%)',
-        width,
+        width: width ?? {
+          xs: '80%',
+          md: '100%',
+        },
         maxWidth,
-        borderRadius: 2,
+        borderRadius: '4px',
         p: 2,
-        pb: 3,
         zIndex: 1300,
         backgroundColor: 'background.paper',
       }}
     >
       <Box display="flex" justifyContent="flex-end">
-        <IconButton onClick={onClose} size="small">
+        <IconButton onClick={onClose} size="small" sx={{ p: 0 }}>
           <CloseIcon />
         </IconButton>
       </Box>
@@ -55,9 +57,12 @@ function PopupBox({
       <Box
         display="flex"
         flexDirection="column"
-        //alignItems="center" //'PopupHeader' is not always centered.
         width="100%"
-        gap={2}
+        sx={{ p: 1 }} // Give difference padding between close button and children
+        gap={{
+          xs: 1,
+          sm: 2,
+        }}
       >
         {children}
       </Box>

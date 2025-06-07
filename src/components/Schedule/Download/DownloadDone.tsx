@@ -40,7 +40,7 @@ export default function DownloadDone({
       onClick={onClose} //
     >
       <VerifiedIcon sx={{ fontSize: 48, color: 'green.main' }} />
-      <Typography variant="h3" fontWeight={600} mt={3} textAlign="center">
+      <Typography variant="h2" mt={3} textAlign="center">
         Download completed
       </Typography>
     </Box>

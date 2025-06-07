@@ -24,7 +24,7 @@ export default function PopupHeader({
 }: PopupHeaderProps): React.ReactElement {
   return (
     <Box my={1} display="flex" justifyContent={align}>
-      <Typography textAlign="center" variant="h3">
+      <Typography textAlign="center" variant="body1">
         {title}
       </Typography>
     </Box>

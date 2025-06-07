@@ -5,7 +5,7 @@
 
 import React, { useState } from 'react';
 import DownloadTypeSelect from './DownloadTypeSelect';
-import PopupBox from '../../components/Popup/PopupBox';
+import PopupBox from '../../Common/Popup/PopupBox';
 import DownloadDeviceSelect from './DownloadDeviceSelect';
 import DownloadLoading from './DownloadLoading';
 import DownloadDone from './DownloadDone';
@@ -28,7 +28,7 @@ export default function DownloadPopup({
   onClose,
 }: DownloadPopupProps): React.ReactElement {
   const [view, setView] = useState<DownloadView>('type');
-  const [downloadType, setDownloadType] = useState<DownloadType | null>(null);
+  const [downloadType, setDownloadType] = useState<DownloadType>('image');
   const [device, setDevice] = useState<string>('iPhone 12 Pro Max');
 
   const handleTypeSelect = (type: DownloadType): void => {
@@ -40,26 +40,34 @@ export default function DownloadPopup({
     }
   };
 
-  return (
-    <PopupBox onClose={onClose}>
-      {view === 'type' && <DownloadTypeSelect onSelect={handleTypeSelect} />}
-      {view === 'device' && (
-        <DownloadDeviceSelect
-          value={device}
-          onChange={setDevice}
-          //onBack={() => setView('type')}
-          onNext={() => setView('loading')}
-        />
-      )}
-      {view === 'loading' && (
-        <DownloadLoading
-          type={downloadType ?? 'image'}
-          onSuccess={() => setView('done')}
-          onError={() => setView('error')}
-        />
-      )}
-      {view === 'done' && <DownloadDone onClose={onClose} />}
-      {view === 'error' && <DownloadError onRetry={() => setView('loading')} />}
-    </PopupBox>
-  );
+  const renderContent = (): React.ReactElement | null => {
+    switch (view) {
+      case 'type':
+        return <DownloadTypeSelect onSelect={handleTypeSelect} />;
+      case 'device':
+        return (
+          <DownloadDeviceSelect
+            value={device}
+            onChange={setDevice}
+            onNext={() => setView('loading')}
+          />
+        );
+      case 'loading':
+        return (
+          <DownloadLoading
+            type={downloadType}
+            onSuccess={() => setView('done')}
+            onError={() => setView('error')}
+          />
+        );
+      case 'done':
+        return <DownloadDone onClose={onClose} />;
+      case 'error':
+        return <DownloadError onRetry={() => setView('loading')} />;
+      default:
+        return null;
+    }
+  };
+
+  return <PopupBox onClose={onClose}>{renderContent()}</PopupBox>;
 }

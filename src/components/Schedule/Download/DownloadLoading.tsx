@@ -5,8 +5,8 @@
 
 import React, { useEffect } from 'react';
 import { Box } from '@mui/material';
-import PopupHeader from '../../components/Popup/PopupHeader';
-import Loading from '../../components/Common/Loading/Loading';
+import PopupHeader from '../../Common/Popup/PopupHeader';
+import Loading from '../../Common/Loading/Loading';
 
 interface DownloadLoadingProps {
   type: 'image' | 'wallpaper';
@@ -57,7 +57,7 @@ export default function DownloadLoading({
         gap={2}
         position="relative"
       >
-        <Box position="static" m={5}>
+        <Box position="relative" m={5}>
           <Loading />
         </Box>
       </Box>
