@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { Box, Typography } from '@mui/material';
+import { PopupHeaderText, PopupHeaderWrapper } from './PopupStyles';
 
 interface PopupHeaderProps {
   title?: string;
@@ -23,10 +23,8 @@ export default function PopupHeader({
   align = 'center',
 }: PopupHeaderProps): React.ReactElement {
   return (
-    <Box my={1} display="flex" justifyContent={align}>
-      <Typography textAlign="center" variant="body1">
-        {title}
-      </Typography>
-    </Box>
+    <PopupHeaderWrapper align={align}>
+      <PopupHeaderText variant="body1">{title}</PopupHeaderText>
+    </PopupHeaderWrapper>
   );
 }

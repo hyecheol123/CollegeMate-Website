@@ -4,8 +4,9 @@
  */
 
 import React from 'react';
-import { Box, IconButton, Paper } from '@mui/material';
+import { Box, IconButton } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import { PopupContentWrapper, StyledPopupPaper } from './PopupStyles';
 
 interface PopupBoxProps {
   onClose: () => void;
@@ -26,47 +27,18 @@ interface PopupBoxProps {
 function PopupBox({
   onClose,
   children,
-  width,
+  width = '80%',
   maxWidth = '500px',
 }: PopupBoxProps): React.ReactElement {
   return (
-    <Paper
-      elevation={4}
-      sx={{
-        position: 'fixed',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        width: width ?? {
-          xs: '80%',
-          md: '100%',
-        },
-        maxWidth,
-        borderRadius: '4px',
-        p: 2,
-        zIndex: 1300,
-        backgroundColor: 'background.paper',
-      }}
-    >
+    <StyledPopupPaper elevation={4} width={width} maxWidth={maxWidth}>
       <Box display="flex" justifyContent="flex-end">
         <IconButton onClick={onClose} size="small" sx={{ p: 0 }}>
           <CloseIcon />
         </IconButton>
       </Box>
-
-      <Box
-        display="flex"
-        flexDirection="column"
-        width="100%"
-        sx={{ p: 1 }} // Give difference padding between close button and children
-        gap={{
-          xs: 1,
-          sm: 2,
-        }}
-      >
-        {children}
-      </Box>
-    </Paper>
+      <PopupContentWrapper>{children}</PopupContentWrapper>
+    </StyledPopupPaper>
   );
 }
 

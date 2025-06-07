@@ -1,6 +1,5 @@
 import React from 'react';
-import { Box, Typography } from '@mui/material';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import { PopupInfoWrapper, PopupInfoText, PopupInfoIcon } from './PopupStyles';
 
 interface PopupHelperTextProps {
   text: string;
@@ -16,17 +15,9 @@ export default function PopupHelperText({
   text,
 }: PopupHelperTextProps): React.ReactElement {
   return (
-    <Box
-      display="flex"
-      alignItems="flex-start"
-      justifyContent="center"
-      gap={1}
-      mt={1}
-    >
-      <InfoOutlinedIcon fontSize="small" sx={{ opacity: 0.4 }} />
-      <Typography variant="body3" alignSelf="center">
-        {text}
-      </Typography>
-    </Box>
+    <PopupInfoWrapper>
+      <PopupInfoIcon />
+      <PopupInfoText variant="body3">{text}</PopupInfoText>
+    </PopupInfoWrapper>
   );
 }

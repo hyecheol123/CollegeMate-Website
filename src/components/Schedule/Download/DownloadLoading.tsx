@@ -4,9 +4,9 @@
  */
 
 import React, { useEffect } from 'react';
-import { Box } from '@mui/material';
 import PopupHeader from '../../Common/Popup/PopupHeader';
 import Loading from '../../Common/Loading/Loading';
+import { DownloadLoadingInner, DownloadLoadingWrapper } from './DownloadStyles';
 
 interface DownloadLoadingProps {
   type: 'image' | 'wallpaper';
@@ -49,7 +49,7 @@ export default function DownloadLoading({
   return (
     <>
       <PopupHeader title={message} />
-      <Box
+      <DownloadLoadingWrapper
         display="flex"
         flexDirection="column"
         alignItems="center"
@@ -57,10 +57,10 @@ export default function DownloadLoading({
         gap={2}
         position="relative"
       >
-        <Box position="relative" m={5}>
+        <DownloadLoadingInner position="relative" m={5}>
           <Loading />
-        </Box>
-      </Box>
+        </DownloadLoadingInner>
+      </DownloadLoadingWrapper>
     </>
   );
 }

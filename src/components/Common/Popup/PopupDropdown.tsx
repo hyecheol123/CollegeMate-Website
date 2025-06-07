@@ -3,12 +3,12 @@
  * @author Joomyoung Park <joommm516@gmail.com>
  */
 import React from 'react';
+import { SelectChangeEvent } from '@mui/material';
 import {
-  Select,
-  MenuItem,
-  FormControl,
-  SelectChangeEvent,
-} from '@mui/material';
+  PopupDropdownWrapper,
+  StyledPopupItem,
+  StyledPopupSelect,
+} from './PopupStyles';
 
 interface PopupDropdownProps {
   items: string[];
@@ -30,34 +30,14 @@ export default function PopupDropdown({
   onChange,
 }: PopupDropdownProps): React.ReactElement {
   return (
-    <FormControl
-      fullWidth
-      sx={{ maxWidth: '100%', borderColor: 'red.main', alignSelf: 'center' }}
-    >
-      <Select
-        value={value}
-        onChange={onChange}
-        sx={(theme) => ({
-          justifyContent: 'center',
-          height: 40,
-          color: theme.palette.darkGrey.main,
-          ...theme.typography.body2,
-        })}
-      >
+    <PopupDropdownWrapper fullWidth>
+      <StyledPopupSelect value={value} onChange={onChange}>
         {items.map((item, i) => (
-          <MenuItem
-            sx={(theme) => ({
-              minHeight: 40,
-              py: 1,
-              ...theme.typography.body2,
-            })}
-            key={i}
-            value={item}
-          >
+          <StyledPopupItem key={i} value={item}>
             {item}
-          </MenuItem>
+          </StyledPopupItem>
         ))}
-      </Select>
-    </FormControl>
+      </StyledPopupSelect>
+    </PopupDropdownWrapper>
   );
 }

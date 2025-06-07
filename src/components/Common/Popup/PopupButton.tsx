@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { Box, Button } from '@mui/material';
+import { PopupButtonsWrapper, StyledPopupButton } from './PopupStyles';
 
 interface PopupButton {
   label?: string;
@@ -38,35 +38,25 @@ export default function PopupButton({
     onClick: () => {},
   };
   return (
-    <Box
-      display="flex"
-      flexDirection="column"
-      alignItems="center"
-      gap={2}
-      mt={1}
-      width="100%"
-    >
+    <PopupButtonsWrapper>
       {buttons.map(({ ...rest }, idx) => {
         const merged = { ...defaultButton, ...rest };
         return (
-          <Button
+          <StyledPopupButton
             key={idx}
             variant={merged.variant}
             onClick={merged.onClick}
             fullWidth
             sx={{
-              height: 40,
-              maxWidth: '100%',
               color: merged.textColor,
               borderColor: merged.borderColor,
               backgroundColor: merged.backgroundColor,
-              textTransform: 'none',
             }}
           >
             {merged.label}
-          </Button>
+          </StyledPopupButton>
         );
       })}
-    </Box>
+    </PopupButtonsWrapper>
   );
 }

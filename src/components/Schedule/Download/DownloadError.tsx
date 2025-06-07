@@ -4,9 +4,9 @@
  */
 
 import React from 'react';
-import { Box } from '@mui/material';
 import PopupHeader from '../../Common/Popup/PopupHeader';
 import PopupButton from '../../Common/Popup/PopupButton';
+import { DownloadErrorWrapper } from './DownloadStyles';
 
 interface DownloadErrorProps {
   onRetry: () => void;
@@ -24,13 +24,7 @@ export default function DownloadError({
   return (
     <>
       <PopupHeader title="Download Failed" />
-      <Box
-        display="flex"
-        flexDirection="column"
-        alignItems="center"
-        gap={3}
-        mt={5}
-      >
+      <DownloadErrorWrapper>
         <PopupButton
           buttons={[
             {
@@ -42,7 +36,7 @@ export default function DownloadError({
             },
           ]}
         />
-      </Box>
+      </DownloadErrorWrapper>
     </>
   );
 }

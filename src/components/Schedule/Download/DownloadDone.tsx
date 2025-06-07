@@ -4,8 +4,11 @@
  */
 
 import React, { useEffect } from 'react';
-import { Box, Typography } from '@mui/material';
-import VerifiedIcon from '@mui/icons-material/Verified';
+import {
+  DownloadDoneIcon,
+  DownloadDoneMessage,
+  DownloadDoneWrapper,
+} from './DownloadStyles';
 
 interface DownloadDoneProps {
   onClose: () => void;
@@ -29,20 +32,9 @@ export default function DownloadDone({
   }, [onClose]);
 
   return (
-    <Box
-      display="flex"
-      flexDirection="column"
-      alignItems="center"
-      justifyContent="center"
-      minHeight={150}
-      mb={3}
-      gap={1}
-      onClick={onClose} //
-    >
-      <VerifiedIcon sx={{ fontSize: 48, color: 'green.main' }} />
-      <Typography variant="h2" mt={3} textAlign="center">
-        Download completed
-      </Typography>
-    </Box>
+    <DownloadDoneWrapper onClick={onClose}>
+      <DownloadDoneIcon />
+      <DownloadDoneMessage variant="h2">Download completed</DownloadDoneMessage>
+    </DownloadDoneWrapper>
   );
 }
