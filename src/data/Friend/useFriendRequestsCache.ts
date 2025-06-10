@@ -7,15 +7,15 @@
  */
 
 import { useEffect } from 'react';
-import { useGlobalContext } from '../GlobalContext';
-import getFriendRequests from '../data/Friend/getFriendRequests';
+import { useGlobalContext } from '../../GlobalContext';
+import getFriendRequests from './getFriendRequests';
 
 /**
  * React Custom Hook to fetch and cache received friend requests
  * - Uses Global Context to store data and timestamp
  * - If data is older than 10 minutes or not fetched yet, fetch again
  */
-export default function useFetchFriendRequests(): void {
+export default function useFriendRequestsCache(): void {
   const { friendRequestsFetchedAt, dispatch } = useGlobalContext();
 
   useEffect(() => {

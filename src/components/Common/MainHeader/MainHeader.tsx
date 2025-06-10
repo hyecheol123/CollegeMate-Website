@@ -17,9 +17,11 @@ import CustomImage from '../Styles/CustomImage';
 import SidebarMenu from '../SidebarMenu';
 // Hooks
 import useIsMobile from '../../../hooks/useIsMobile';
-import useFetchFriendRequests from '../../../hooks/useFetchFriendRequests';
-import useFetchAnnouncements from '../../../hooks/useFetchAnnouncements';
+// Data
+import useFriendRequestsCache from '../../../data/Friend/useFriendRequestsCache';
+import useAnnouncementsCache from '../../../data/Miscellaneous/useAnnouncementsCache';
 import { useGlobalContext } from '../../../GlobalContext';
+// Types
 import type { SidebarView } from '../SidebarMenu/types';
 import type { MainHeaderProps } from './types';
 // Assets
@@ -53,8 +55,8 @@ function MainHeader({ title, menuItems }: MainHeaderProps): React.ReactElement {
   const isMobile = useIsMobile(480);
 
   // Fetch data into Global Context
-  useFetchFriendRequests();
-  useFetchAnnouncements();
+  useFriendRequestsCache();
+  useAnnouncementsCache();
 
   const { friendRequests, announcements } = useGlobalContext();
 
