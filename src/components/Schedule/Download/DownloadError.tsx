@@ -4,9 +4,8 @@
  */
 
 import React from 'react';
-import PopupHeader from '../../Common/Popup/PopupHeader';
-import PopupButton from '../../Common/Popup/PopupButton';
-import { DownloadErrorWrapper } from './DownloadStyles';
+import { DownloadErrorWrapper } from './';
+import { PopupHeader, PopupButton } from '../../Common/Popup';
 
 interface DownloadErrorProps {
   onRetry: () => void;

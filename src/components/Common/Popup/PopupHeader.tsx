@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { PopupHeaderText, PopupHeaderWrapper } from './PopupStyles';
+import { PopupHeaderText, PopupHeaderWrapper } from './';
 
 interface PopupHeaderProps {
   title?: string;

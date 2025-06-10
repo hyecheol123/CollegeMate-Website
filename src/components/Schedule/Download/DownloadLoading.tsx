@@ -4,9 +4,9 @@
  */
 
 import React, { useEffect } from 'react';
-import PopupHeader from '../../Common/Popup/PopupHeader';
+import { PopupHeader } from '../../Common/Popup';
+import { DownloadLoadingInner, DownloadLoadingWrapper } from './';
 import Loading from '../../Common/Loading/Loading';
-import { DownloadLoadingInner, DownloadLoadingWrapper } from './DownloadStyles';
 
 interface DownloadLoadingProps {
   type: 'image' | 'wallpaper';
@@ -29,15 +29,12 @@ export default function DownloadLoading({
 }: DownloadLoadingProps): React.ReactElement {
   useEffect(() => {
     const timer = setTimeout(() => {
-      //onError();
-      ///*
       const success = Math.random() > 0.2;
       if (success) {
         onSuccess();
       } else {
         onError();
       }
-      //*/
     }, 2000);
 
     return (): void => clearTimeout(timer);

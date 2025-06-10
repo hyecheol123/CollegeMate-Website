@@ -5,10 +5,12 @@
 
 import React from 'react';
 import { SelectChangeEvent } from '@mui/material';
-import PopupHeader from '../../Common/Popup/PopupHeader';
-import PopupDropdown from '../../Common/Popup/PopupDropdown';
-import PopupHelperText from '../../Common/Popup/PopupInfoText';
-import PopupButton from '../../Common/Popup/PopupButton';
+import {
+  PopupDropdown,
+  PopupHeader,
+  PopupHelperText,
+  PopupButton,
+} from '../../Common/Popup';
 
 interface DownloadDeviceSelectProps {
   value: string;

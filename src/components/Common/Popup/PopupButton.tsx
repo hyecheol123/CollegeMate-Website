@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { PopupButtonsWrapper, StyledPopupButton } from './PopupStyles';
+import { PopupButtonsWrapper, StyledPopupButton } from './';
 
 interface PopupButton {
   label?: string;

@@ -4,11 +4,7 @@
  */
 import React from 'react';
 import { SelectChangeEvent } from '@mui/material';
-import {
-  PopupDropdownWrapper,
-  StyledPopupItem,
-  StyledPopupSelect,
-} from './PopupStyles';
+import { PopupDropdownWrapper, StyledPopupItem, StyledPopupSelect } from './';
 
 interface PopupDropdownProps {
   items: string[];

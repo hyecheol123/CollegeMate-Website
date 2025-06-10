@@ -1,5 +1,5 @@
 import React from 'react';
-import { PopupInfoWrapper, PopupInfoText, PopupInfoIcon } from './PopupStyles';
+import { PopupInfoWrapper, PopupInfoText, PopupInfoIcon } from './';
 
 interface PopupHelperTextProps {
   text: string;

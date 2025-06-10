@@ -4,12 +4,14 @@
  */
 
 import React, { useState } from 'react';
-import DownloadTypeSelect from './DownloadTypeSelect';
-import PopupBox from '../../Common/Popup/PopupBox';
-import DownloadDeviceSelect from './DownloadDeviceSelect';
-import DownloadLoading from './DownloadLoading';
-import DownloadDone from './DownloadDone';
-import DownloadError from './DownloadError';
+import { PopupBox } from '../../Common/Popup';
+import {
+  DownloadDeviceSelect,
+  DownloadError,
+  DownloadDone,
+  DownloadLoading,
+  DownloadTypeSelect,
+} from './';
 
 export type DownloadView = 'type' | 'device' | 'loading' | 'error' | 'done';
 export type DownloadType = 'image' | 'wallpaper';

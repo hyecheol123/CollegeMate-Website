@@ -4,11 +4,7 @@
  */
 
 import React, { useEffect } from 'react';
-import {
-  DownloadDoneIcon,
-  DownloadDoneMessage,
-  DownloadDoneWrapper,
-} from './DownloadStyles';
+import { DownloadDoneIcon, DownloadDoneMessage, DownloadDoneWrapper } from './';
 
 interface DownloadDoneProps {
   onClose: () => void;

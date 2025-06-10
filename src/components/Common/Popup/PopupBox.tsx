@@ -6,7 +6,7 @@
 import React from 'react';
 import { Box, IconButton } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import { PopupContentWrapper, StyledPopupPaper } from './PopupStyles';
+import { PopupContentWrapper, StyledPopupPaper } from './';
 
 interface PopupBoxProps {
   onClose: () => void;

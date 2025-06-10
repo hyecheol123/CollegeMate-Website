@@ -4,10 +4,8 @@
  */
 
 import React from 'react';
-import PopupHeader from '../../Common/Popup/PopupHeader';
-import PopupHelperText from '../../Common/Popup/PopupInfoText';
-import PopupButton from '../../Common/Popup/PopupButton';
-import type { DownloadType } from './DownloadPopup';
+import { PopupHeader, PopupHelperText, PopupButton } from '../../Common/Popup';
+import type { DownloadType } from './';
 
 interface DownloadTypeSelectProps {
   onSelect: (type: DownloadType) => void;
