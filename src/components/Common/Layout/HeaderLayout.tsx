@@ -9,6 +9,7 @@ import React from 'react';
 import { Box } from '@mui/material';
 import MainHeader from '../MainHeader';
 import type { SidebarMenuItemType } from '../SidebarMenu';
+import { layoutWrapperSx, pageContentSx } from './HeaderLayout.styles';
 
 // Props for the HeaderLayout component
 type HeaderLayoutProps = {
@@ -30,12 +31,12 @@ const HeaderLayout = ({
   menuItems,
 }: HeaderLayoutProps): React.ReactElement => {
   return (
-    <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <Box sx={layoutWrapperSx}>
       {/* Top header (includes logo, friend,notification badges, and menu) */}
       <MainHeader title={title} menuItems={menuItems} />
 
       {/* Page-specific content rendered below header. */}
-      <Box sx={{ flex: 1 }}>{children}</Box>
+      <Box sx={pageContentSx}>{children}</Box>
     </Box>
   );
 };
