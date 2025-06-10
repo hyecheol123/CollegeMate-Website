@@ -15,10 +15,12 @@ type CustomBadgeProps = {
 };
 
 /**
- *
- * @param root0
- * @param root0.badgeContent
- * @param root0.children
+ * CustomBadge component wraps content with a styled red badge.
+ * It is used to show notification count or similar indicators.
+ * @param {CustomBadgeProps} props - The props for CustomBadge
+ * @param {number} props.badgeContent - Number to show in badge
+ * @param {ReactNode} props.children - Element to wrap with badge
+ * @returns {React.ReactElement} Badge-wrapped content
  */
 function CustomBadge({
   badgeContent,

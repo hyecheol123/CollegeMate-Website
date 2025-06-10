@@ -8,13 +8,13 @@
 import React from 'react';
 // Components
 import type { SidebarMenuItemType } from '../components/Common/SidebarMenu';
-import HeaderLayout from '../components/Common/Layout/HeaderLayout';
+import { HeaderLayout } from '../components/Common/Layout';
 
 /**
  * MockHome (MockHome) page used for visual testing of header and sidebar
  * @returns {React.ReactElement} Temporary layout container with header
  */
-function MockHome(): React.ReactElement {
+function Home(): React.ReactElement {
   const title = 'Daekyun';
 
   const sidebarItems: SidebarMenuItemType[] = [
@@ -35,4 +35,4 @@ function MockHome(): React.ReactElement {
   );
 }
 
-export default MockHome;
+export default Home;

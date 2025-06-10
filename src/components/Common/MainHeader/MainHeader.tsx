@@ -22,7 +22,7 @@ import useFriendRequestsCache from '../../../data/Friend/useFriendRequestsCache'
 import useAnnouncementsCache from '../../../data/Miscellaneous/useAnnouncementsCache';
 import { useGlobalContext } from '../../../GlobalContext';
 // Types
-import type { SidebarView } from '../SidebarMenu/types';
+import type { SidebarView, SidebarMenuItemType } from '../SidebarMenu/types';
 import type { MainHeaderProps } from './types';
 // Assets
 import LogoImg from '../../../../assets/logo.png';
@@ -44,9 +44,13 @@ import {
 } from './MainHeader.styles';
 
 /**
- * MainHeader component rendering top bar with menu and badges
- * @param {MainHeaderProps} props
- * @returns {React.ReactElement}
+ * MainHeader component rendering top bar with menu and badges.
+ * - Displays logo, menu toggle, and badges for friends & notifications.
+ * - Uses Global Context to fetch & cache data.
+ * @param {MainHeaderProps} props - Props including user's title and sidebar menu items
+ * @param {string} props.title - User's display name shown in header
+ * @param {SidebarMenuItemType[]} props.menuItems - Items to display in the sidebar menu
+ * @returns {React.ReactElement} The rendered MainHeader component
  */
 function MainHeader({ title, menuItems }: MainHeaderProps): React.ReactElement {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
