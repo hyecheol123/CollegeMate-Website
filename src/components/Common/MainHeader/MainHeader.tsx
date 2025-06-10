@@ -53,7 +53,7 @@ import {
  * @returns {React.ReactElement} The rendered MainHeader component
  */
 function MainHeader({ title, menuItems }: MainHeaderProps): React.ReactElement {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
   const [currentSidebarView, setCurrentSidebarView] =
     useState<SidebarView>('main');
   const isMobile = useIsMobile(480);
