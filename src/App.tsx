@@ -6,6 +6,8 @@
 // React
 import React from 'react';
 import { createRoot } from 'react-dom/client';
+// Global CSS
+// import './index.css';
 // Material UI
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { CssBaseline } from '@mui/material';
