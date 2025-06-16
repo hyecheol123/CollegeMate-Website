@@ -22,7 +22,7 @@ import { useGlobalContext } from '../../../GlobalContext';
 import { getAnnouncements } from '../../../data/Miscellaneous/getAnnouncements';
 import { getFriendRequests } from '../../../data/Friend/getFriendRequests';
 // Types
-import type { SidebarView } from '../SidebarMenu/types';
+import type { SidebarView, SidebarMenuItemType } from '../SidebarMenu/types';
 import type { MainHeaderProps } from './types';
 // Assets
 import LogoImg from '../../../../assets/logo.png';
@@ -66,7 +66,7 @@ function MainHeader({ title, menuItems }: MainHeaderProps): React.ReactElement {
     announcements,
     friendRequests,
   } = useGlobalContext();
- 
+
   useEffect(() => {
     getAnnouncements(dispatch, announcementsFetchedAt ?? undefined).catch(
       (err) => console.error('Failed to fetch announcements:', err), // Will be replaced with Alert
