@@ -6,7 +6,7 @@
  */
 
 // React
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 // MUI
 import Tooltip from '@mui/material/Tooltip';
 import MenuIcon from '@mui/icons-material/MenuSharp';
@@ -17,10 +17,10 @@ import CustomImage from '../Styles/CustomImage';
 import SidebarMenu from '../SidebarMenu';
 // Hooks
 import useIsMobile from '../../../hooks/useIsMobile';
-// Data
-import useFriendRequestsCache from '../../../data/Friend/useFriendRequestsCache';
-import useAnnouncementsCache from '../../../data/Miscellaneous/useAnnouncementsCache';
+// Global Context
 import { useGlobalContext } from '../../../GlobalContext';
+import { getAnnouncements } from '../../../data/Miscellaneous/getAnnouncements';
+import { getFriendRequests } from '../../../data/Friend/getFriendRequests';
 // Types
 import type { SidebarView, SidebarMenuItemType } from '../SidebarMenu/types';
 import type { MainHeaderProps } from './types';
@@ -58,11 +58,23 @@ function MainHeader({ title, menuItems }: MainHeaderProps): React.ReactElement {
     useState<SidebarView>('main');
   const isMobile = useIsMobile(480);
 
-  // Fetch data into Global Context
-  useFriendRequestsCache();
-  useAnnouncementsCache();
-
-  const { friendRequests, announcements } = useGlobalContext();
+  // Global state
+  const {
+    announcementsFetchedAt,
+    friendRequestsFetchedAt,
+    dispatch,
+    announcements,
+    friendRequests,
+  } = useGlobalContext();
+  // Announcement fetch
+  useEffect(() => {
+    getAnnouncements(dispatch, announcementsFetchedAt ?? undefined).catch(
+      (err) => console.error('Failed to fetch announcements:', err),
+    );
+    getFriendRequests(dispatch, friendRequestsFetchedAt ?? undefined).catch(
+      (err) => console.error('Failed to fetch friend requests:', err),
+    );
+  }, [dispatch, announcementsFetchedAt, friendRequestsFetchedAt]);
 
   const handleMenuToggle = (): void => setIsSidebarOpen((prev) => !prev);
 
