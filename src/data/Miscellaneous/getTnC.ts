@@ -6,6 +6,8 @@
  * @author Hyecheol (Jerry) Jang <hyecheol123@gmail.com>
  */
 
+import { mockPrivacyPolicy, mockTermsAndConditions } from './mockTerms';
+
 // Define a type for the API response
 export type ApiResponse = {
   version: string;
@@ -28,8 +30,8 @@ export default function getTnC(): Promise<ApiResponse> {
           version: 'v1.0.2',
           createdAt: '2023-05-30T14:48:00.000Z',
           content: {
-            privacyAct: 'Some Privacy Agreement',
-            termsAndConditions: 'Some Terms and Conditions',
+            privacyAct: mockPrivacyPolicy,
+            termsAndConditions: mockTermsAndConditions,
           },
         }),
       1000,
