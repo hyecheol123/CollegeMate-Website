@@ -3,7 +3,7 @@
  * @author Joomyoung Park <joommm516@gmail.com>
  */
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { SelectChangeEvent } from '@mui/material';
 import {
   PopupDropdown,
@@ -18,6 +18,14 @@ interface DownloadDeviceSelectProps {
   onNext: () => void;
 }
 
+const deviceOptions = [
+  'Auto-match for device',
+  'iPhone 12 Pro Max',
+  'iPhone 13',
+  'Galaxy S21',
+  'Galaxy Z Flip 5',
+];
+
 /**
  * DownloadDeviceSelect - Step for selecting the target device (only for wallpaper).
  * @param {object} props - Component props
@@ -31,12 +39,21 @@ export default function DownloadDeviceSelect({
   onChange,
   onNext,
 }: DownloadDeviceSelectProps): React.ReactElement {
-  const deviceOptions = [
-    'iPhone 12 Pro Max',
-    'iPhone 13',
-    'Galaxy S21',
-    'Galaxy Z Flip 5',
-  ];
+  const [autoMatched, setAutoMatched] = useState('');
+  useEffect(() => {
+    const updateMatch = (): void => {
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+      setAutoMatched(`${width}px × ${height}px`);
+    };
+    if (value === 'Auto-match for device') {
+      updateMatch();
+      window.addEventListener('resize', updateMatch);
+    }
+    return (): void => {
+      window.removeEventListener('resize', updateMatch);
+    };
+  }, [value]);
 
   const handleChange = (e: SelectChangeEvent<string>): void => {
     onChange(e.target.value);
@@ -61,7 +78,13 @@ export default function DownloadDeviceSelect({
           },
         ]}
       />
-      <PopupHelperText text="Wallpaper dimension differs depend on phone model." />
+      <PopupHelperText
+        text={
+          value === 'Auto-match for device'
+            ? `Current Device: ${autoMatched} `
+            : 'Wallpaper dimension differs depending on selected device model.'
+        }
+      />
     </>
   );
 }

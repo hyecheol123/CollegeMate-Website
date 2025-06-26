@@ -7,7 +7,7 @@ import React from 'react';
 import { PopupHeaderText, PopupHeaderWrapper } from './';
 
 interface PopupHeaderProps {
-  title?: string;
+  title: string;
   align?: 'center' | 'start';
 }
 
@@ -19,7 +19,7 @@ interface PopupHeaderProps {
  * @returns {React.ReactElement} Rendered popup component
  */
 export default function PopupHeader({
-  title = 'Popup Title',
+  title,
   align = 'center',
 }: PopupHeaderProps): React.ReactElement {
   return (
