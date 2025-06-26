@@ -69,7 +69,7 @@ function SignUpEmail(props: ISignUpEmailProps): React.ReactElement {
 
   // Timeout for Timer
   React.useEffect(() => {
-    let timeout: undefined | number;
+    let timeout: ReturnType<typeof setTimeout>;
     if (secToExp > elapsedSec && verifiedEmail === '') {
       timeout = setTimeout(() => {
         setElapsedSec(elapsedSec + 1);
@@ -209,7 +209,7 @@ function SignUpEmail(props: ISignUpEmailProps): React.ReactElement {
           {otpRequestId === '' && (
             <Button
               variant="contained"
-              sx={{ width: '100%', marginTop: '10px' }}
+              sx={{ width: '100%', marginTop: '28px' }}
               onClick={sendCodeHandler}
             >
               Send Code

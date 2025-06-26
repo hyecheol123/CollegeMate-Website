@@ -33,7 +33,7 @@ import VerticalLogoAvif from '../../assets/collegemate_logo_vertical.png?as=avif
 const innerContentWrapperStyle = {
   ...PageWrapperStyle,
   padding: 0,
-  maxWidth: '400px',
+  maxWidth: '424px',
   justifyContent: 'center',
 };
 const imageOuterWrapperStyle = {
@@ -84,7 +84,7 @@ function Login(): React.ReactElement {
 
   // Timeout for Timer
   React.useEffect(() => {
-    let timeout: undefined | number;
+    let timeout: ReturnType<typeof setTimeout>;
     if (secToExp > elapsedSec) {
       timeout = setTimeout(() => {
         setElapsedSec(elapsedSec + 1);
@@ -249,7 +249,12 @@ function Login(): React.ReactElement {
           {otpRequestId === '' && (
             <Button
               variant="contained"
-              sx={{ width: '100%', marginTop: '10px', textTransform: 'none' }}
+              sx={{
+                width: '100%',
+                height: '35px',
+                marginTop: '28px',
+                textTransform: 'none',
+              }}
               onClick={sendCodeHandler}
             >
               Send Code
