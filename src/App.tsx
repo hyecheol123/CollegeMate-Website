@@ -6,9 +6,11 @@
 // React
 import React from 'react';
 import { createRoot } from 'react-dom/client';
+// Global CSS
+// import './index.css';
 // Material UI
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import { CssBaseline, Typography } from '@mui/material';
+import { CssBaseline } from '@mui/material';
 // Router
 import {
   Routes,
@@ -31,13 +33,23 @@ const Login = React.lazy(() => import('./Pages/Login'));
 const NewTnC = React.lazy(() => import('./Pages/NewTnC'));
 const SignUp = React.lazy(() => import('./Pages/SignUp'));
 const NotFound = React.lazy(() => import('./Pages/NotFound'));
+const Home = React.lazy(() => import('./Pages/Home'));
 const Test = React.lazy(() => import('./Pages/Test'));
 
 // MUI Theme (Setup Font family and Palette Color)
 declare module '@mui/material/styles' {
+  interface TypographyVariants {
+    body3: React.CSSProperties;
+    body4: React.CSSProperties;
+    body5: React.CSSProperties;
+  }
+}
+
+declare module '@mui/material/styles' {
   interface TypographyVariantsOptions {
     body3?: React.CSSProperties;
     body4?: React.CSSProperties;
+    body5?: React.CSSProperties;
   }
   interface Palette {
     red: Palette['primary'];
@@ -67,6 +79,7 @@ declare module '@mui/material/Typography' {
     subtitle2: false;
     body3: true;
     body4: true;
+    body5: true;
     button: false;
     caption: false;
     overline: false;
@@ -110,15 +123,15 @@ let theme = createTheme({
       letterSpacing: 0,
     },
     body1: {
-      fontWeight: 400,
+      fontWeight: 500,
       fontSize: '16px',
       lineHeight: '19px',
       letterSpacing: 0,
     },
     body2: {
       fontWeight: 400,
-      fontSize: '14px',
-      lineHeight: '18px',
+      fontSize: '16px',
+      lineHeight: '19px',
       letterSpacing: 0,
     },
     body3: {
@@ -126,9 +139,15 @@ let theme = createTheme({
       fontSize: '14px',
       lineHeight: '18px',
       letterSpacing: 0,
-      opacity: 0.5,
     },
     body4: {
+      fontWeight: 400,
+      fontSize: '14px',
+      lineHeight: '18px',
+      letterSpacing: 0,
+      opacity: 0.5,
+    },
+    body5: {
       fontWeight: 400,
       fontSize: '11px',
       lineHeight: '13px',
@@ -252,15 +271,7 @@ function App(): React.ReactElement {
       <Route element={<Layout />}>
         <Route
           path="/"
-          element={
-            globalContext.initialized ? (
-              <Typography variant="h1" color="primary">
-                Hello World
-              </Typography>
-            ) : (
-              <Loading />
-            )
-          }
+          element={globalContext.initialized ? <Home /> : <Loading />}
         />
         <Route
           path="/login"
