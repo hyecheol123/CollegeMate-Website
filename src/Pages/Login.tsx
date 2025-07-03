@@ -134,7 +134,7 @@ function Login(): React.ReactElement {
         setSecToExp(
           Math.floor(
             (result.content.codeExpireAt.getTime() - new Date().getTime()) /
-            1000,
+              1000,
           ),
         );
         setCode('');
