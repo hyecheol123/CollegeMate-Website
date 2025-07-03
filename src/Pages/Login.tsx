@@ -14,6 +14,8 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
+import { styled } from '@mui/material/styles';
+import InputBase from '@mui/material/InputBase';
 // Custom Hook to use Context
 import { useGlobalContext } from '../GlobalContext';
 // API Calls
@@ -29,6 +31,21 @@ import FilledPictureStyle from '../components/Common/Styles/FilledPicture';
 import VerticalLogoPng from '../../assets/collegemate_logo_vertical.png';
 import VerticalLogoWebp from '../../assets/collegemate_logo_vertical.png?as=webp';
 import VerticalLogoAvif from '../../assets/collegemate_logo_vertical.png?as=avif';
+
+// Custom input component with centered text and placeholder
+const CenteredInput = styled(InputBase)(({ theme }) => ({
+  input: {
+    textAlign: 'center',
+  },
+  'input::placeholder': {
+    textAlign: 'center',
+  },
+  '&::after': {
+    borderBottom: `1px solid ${theme.palette.grey[400]}`,
+  },
+  borderBottom: `1px solid ${theme.palette.grey[400]}`,
+  paddingBottom: '4px',
+}));
 
 const innerContentWrapperStyle = {
   ...PageWrapperStyle,
@@ -209,16 +226,13 @@ function Login(): React.ReactElement {
               />
             )
           }
-          <TextField
-            variant="standard"
-            size="small"
-            margin="dense"
-            fullWidth
-            disabled={!isEditable || otpRequestId !== ''}
-            label="Email Address"
+
+          <CenteredInput
+            placeholder="Email Address"
             value={email}
             onChange={emailChangeHandler}
-            type="email"
+            fullWidth
+            disabled={!isEditable || otpRequestId !== ''}
           />
           {otpRequestId !== '' && (
             <Box sx={{ width: '100%', display: 'flex' }}>
