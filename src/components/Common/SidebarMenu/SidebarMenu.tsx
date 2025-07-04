@@ -1,19 +1,18 @@
 /**
  * SidebarMenu Component
  * - Fully reusable and scrollable sidebar menu component
- * - Supports title, dynamic items, and mobile responsive behavior
- * - Manages internal sidebar view state and back navigation
+ * - Supports title, dynamic items, and multi-level back navigation using view history stack
  * @author Daekyun Kim
  */
 
+// React
 import React, { useState, useEffect } from 'react';
-import BackArrowPng from '../../../../assets/arrow_back_icon.png';
-import BackArrowWebp from '../../../../assets/arrow_back_icon.png?as=webp';
-import BackArrowAvif from '../../../../assets/arrow_back_icon.png?as=avif';
-import useIsMobile from '../../../hooks/useIsMobile';
+// Types
 import type { SidebarView, SidebarMenuProps } from '.';
+// Components
 import SidebarMenuItem from './SidebarMenuItem';
 import CustomImage from '../Styles/CustomImage';
+// Styles
 import {
   SidebarContainer,
   TitleRow,
@@ -22,6 +21,10 @@ import {
   SidebarTitle,
   InnerWrapper,
 } from './SidebarMenu.styles';
+// Assets
+import BackArrowPng from '../../../../assets/arrow_back_icon.png';
+import BackArrowWebp from '../../../../assets/arrow_back_icon.png?as=webp';
+import BackArrowAvif from '../../../../assets/arrow_back_icon.png?as=avif';
 
 /**
  * SidebarMenu Component
@@ -38,18 +41,26 @@ const SidebarMenu = ({
   initialView = 'main',
   onViewChange,
 }: SidebarMenuProps): React.ReactElement | null => {
-  const isMobile = useIsMobile(480);
-  const [currentView, setCurrentView] = useState<SidebarView>(initialView);
+  // View history stack to support multi-level back navigation.
+  const [viewHistory, setViewHistory] = useState<SidebarView[]>([initialView]);
+
+  // Current view is always the last item in history stack
+  const currentView = viewHistory[viewHistory.length - 1];
 
   useEffect(() => {
-    if (!open) setCurrentView('main');
-  }, [open]);
+    // Reset to initial view when sidebar closes
+    if (!open) {
+      setViewHistory([initialView]);
+    }
+  }, [open, initialView]);
 
   useEffect(() => {
+    // Call onViewChange callback whenever currentView changes
     onViewChange?.(currentView);
   }, [currentView, onViewChange]);
 
   useEffect(() => {
+    // Prevent body scroll when sidebar is open
     document.body.style.overflow = open ? 'hidden' : 'auto';
     return (): void => {
       document.body.style.overflow = 'auto';
@@ -58,22 +69,31 @@ const SidebarMenu = ({
 
   if (!open) return null;
 
-  const showBackIcon = (isMobile && currentView !== 'main') || !isMobile;
+  // Show back icon only when there is more than one view in the stack
+  const showBackIcon = viewHistory.length > 1;
+
+  // Navigate to a new view by pushing it onto the stack
+  const navigateTo = (view: SidebarView): void => {
+    setViewHistory((prev) => [...prev, view]);
+  };
+
+  // Go back by popping one view from the stack
+  const goBack = (): void => {
+    setViewHistory((prev) => {
+      if (prev.length > 1) {
+        return prev.slice(0, -1);
+      }
+      onClose();
+      return prev;
+    });
+  };
 
   return (
     <SidebarContainer>
       <InnerWrapper>
         <TitleRow>
           {showBackIcon && (
-            <BackButtonWrapper
-              onClick={(): void => {
-                if (currentView === 'main') {
-                  onClose();
-                } else {
-                  setCurrentView('main');
-                }
-              }}
-            >
+            <BackButtonWrapper onClick={goBack}>
               <CustomImage
                 png={BackArrowPng}
                 webp={BackArrowWebp}
@@ -94,7 +114,8 @@ const SidebarMenu = ({
               item={{
                 ...item,
                 onClick: (): void => {
-                  setCurrentView(item.label as SidebarView);
+                  // Push new view to history when item is clicked
+                  navigateTo(item.label as SidebarView);
                   item.onClick();
                 },
               }}
