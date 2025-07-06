@@ -51,7 +51,7 @@ function Header({
     if (step > 0) {
       setStep(step - 1);
     } else {
-      navigate('/login'); // step === 0일 때 로그인 페이지로 이동
+      navigate('/login'); // if step === 0, redirect to login page
     }
   }, [step, setStep, navigate]);
 
