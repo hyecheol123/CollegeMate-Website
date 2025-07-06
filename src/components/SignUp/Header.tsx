@@ -31,16 +31,29 @@ const logoStyle = {
 };
 
 /**
- * React Functional Component for SignUp page's first page
- * @returns {React.ReactElement} Renders first page of about page
+ * React Functional Component for SignUp page's header
+ * @param {object} props - Component props
+ * @param {number} props.step - Current signup step
+ * @param {React.Dispatch<React.SetStateAction<number>>} props.setStep - Function to set step
+ * @returns {React.ReactElement} The rendered header component
  */
-function Header(): React.ReactElement {
+function Header({
+  step,
+  setStep,
+}: {
+  step: number;
+  setStep: React.Dispatch<React.SetStateAction<number>>;
+}): React.ReactElement {
   const navigate = useNavigate();
 
   // Event Handler to go back
   const handleGoBack = React.useCallback((): void => {
-    navigate(-1);
-  }, [navigate]);
+    if (step > 0) {
+      setStep(step - 1);
+    } else {
+      navigate('/login'); // step === 0일 때 로그인 페이지로 이동
+    }
+  }, [step, setStep, navigate]);
 
   return (
     <Box sx={titleStyle}>
