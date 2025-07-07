@@ -1,6 +1,5 @@
 /**
- * Temporary Main Home for testing layout components
- * Used for visual development of MainHeader + Sidebar integration
+ * This files define notification detail view
  * @author Joomyoung Park <joommm516@gmail.com>
  */
 
