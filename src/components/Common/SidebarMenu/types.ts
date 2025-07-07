@@ -33,6 +33,7 @@ export interface SidebarMenuItemType {
   icon?: React.ReactNode; // 오른쪽에 표시할 아이콘 (Optional)
   textVariant?: 'body1'; // label에 적용할 텍스트 스타일
   descriptionVariant?: 'body3'; // description에 적용할 텍스트 스타일 (Optional)
+  content?: string;
 }
 
 // 사이드바에서 개별 메뉴 항목을 렌더링할 때 사용할 props

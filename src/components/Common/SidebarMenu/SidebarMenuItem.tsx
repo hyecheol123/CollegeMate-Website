@@ -39,6 +39,18 @@ function SidebarMenuItem({
         <StyledListItemText
           primary={item.label}
           primaryTypographyProps={{ variant: item.textVariant || 'body1' }}
+          secondary={item.content}
+          secondaryTypographyProps={{
+            variant: 'body3',
+            noWrap: false,
+            sx: {
+              mt: 1,
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden',
+            },
+          }}
         />
         {item.icon !== null &&
           (item.icon ?? (
@@ -49,7 +61,7 @@ function SidebarMenuItem({
               alt="Arrow"
               width="6.33px"
               height="12px"
-              style={{ marginRight: '6px' }}
+              style={{ marginRight: '6px', marginLeft: '6px' }}
             />
           ))}
       </StyledListItemButton>

@@ -20,5 +20,8 @@ export const StyledListItemButton = styled(ListItemButton)({
 // Styled ListItemText (we keep default for now)
 export const StyledListItemText = styled(ListItemText)({});
 
+//Styled Detail information about ListItem
+export const StyledListItemDetail = styled(ListItemText)({});
+
 // Styled Divider
 export const StyledDivider = styled(Divider)({});

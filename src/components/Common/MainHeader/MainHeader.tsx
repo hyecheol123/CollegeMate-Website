@@ -76,7 +76,14 @@ function MainHeader({ title, menuItems }: MainHeaderProps): React.ReactElement {
     );
   }, [dispatch, announcementsFetchedAt, friendRequestsFetchedAt]);
 
-  const handleMenuToggle = (): void => setIsSidebarOpen((prev) => !prev);
+  const handleMenuToggle = (targetView?: SidebarView): void => {
+    if (targetView && targetView !== currentSidebarView) {
+      setCurrentSidebarView(targetView);
+      setIsSidebarOpen(true);
+    } else {
+      setIsSidebarOpen((prev) => !prev);
+    }
+  };
 
   const renderIcons = (): React.ReactNode => (
     <>
@@ -94,7 +101,7 @@ function MainHeader({ title, menuItems }: MainHeaderProps): React.ReactElement {
       </Tooltip>
 
       <Tooltip title="Notifications">
-        <StyledIconButton>
+        <StyledIconButton onClick={() => handleMenuToggle('notifications')}>
           <CustomBadge badgeContent={announcements.length}>
             <CustomImage
               png={BellIconPng}
@@ -126,7 +133,7 @@ function MainHeader({ title, menuItems }: MainHeaderProps): React.ReactElement {
       <HeaderContainer>
         <LeftSection>
           <Tooltip title="Menu">
-            <StyledIconButton onClick={handleMenuToggle}>
+            <StyledIconButton onClick={() => handleMenuToggle('main')}>
               {isMobile && isSidebarOpen && currentSidebarView === 'main' ? (
                 <CloseIcon />
               ) : (
@@ -143,13 +150,21 @@ function MainHeader({ title, menuItems }: MainHeaderProps): React.ReactElement {
       </HeaderContainer>
 
       <SidebarMenu
+        key={currentSidebarView}
         open={isSidebarOpen}
-        onClose={handleMenuToggle}
-        title={`Hello, ${title}!`}
-        items={menuItems}
+        onClose={() => handleMenuToggle()}
+        initialView={currentSidebarView}
+        onViewChange={setCurrentSidebarView}
         itemSpacing={0}
         showDivider
-        onViewChange={setCurrentSidebarView}
+        title={
+          currentSidebarView === 'main'
+            ? `Hello, ${title}!`
+            : currentSidebarView === 'notifications'
+              ? 'Notifications'
+              : undefined
+        }
+        items={currentSidebarView === 'main' ? menuItems : []}
       />
     </>
   );
