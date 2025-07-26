@@ -146,6 +146,8 @@ function SchedulerTable(): React.ReactElement {
             margin: 'auto',
             tableLayout: 'fixed',
             height: '100%',
+            borderRadius: '6px',
+            overflow:'hidden'
           }}
         >
           <TableHead>
@@ -156,7 +158,7 @@ function SchedulerTable(): React.ReactElement {
                   paddingLeft: 0,
                   paddingRight: 0,
                   width: windowWidth < 300 ? '20px' : '40px',
-                  border: '0',
+                  border: 'none',
                 }}
               >
                 <Typography variant="body2" color="white.main" align="center">
@@ -167,7 +169,7 @@ function SchedulerTable(): React.ReactElement {
               {days.map((day) => (
                 <TableCell
                   key={day}
-                  sx={{ paddingLeft: 0, paddingRight: 0, border: '0' }}
+                  sx={{ paddingLeft: 0, paddingRight: 0, border: 'none' }}
                 >
                   <Typography variant="body2" color="white.main" align="center">
                     {day}
@@ -261,10 +263,7 @@ function SchedulerTable(): React.ReactElement {
                             sx={{
                               backgroundColor: hourColor,
                               padding: '3px',
-                              borderTop: '0px',
-                              borderLeft: '0px',
-                              borderBottom: '0px',
-                              // borderRight: '1px solid #DADFE1'
+                              border: 'none',
                             }}
                           />
                         );
@@ -279,7 +278,7 @@ function SchedulerTable(): React.ReactElement {
           </TableBody>
         </Table>
       </Box>
-      <InfoFooter></InfoFooter>
+      {/* <InfoFooter></InfoFooter> */}
     </Box>
   );
 }
