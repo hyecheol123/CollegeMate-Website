@@ -147,7 +147,7 @@ function SchedulerTable(): React.ReactElement {
             tableLayout: 'fixed',
             height: '100%',
             borderRadius: '6px',
-            overflow:'hidden'
+            overflow: 'hidden',
           }}
         >
           <TableHead>
@@ -209,7 +209,7 @@ function SchedulerTable(): React.ReactElement {
                         </Typography>
                       </TableCell>
                     )}
-                    {days.map((day) => {
+                    {days.map((day, dayIndex) => {
                       const eventsForDay = myEvents.filter(
                         (e) => e.day === day,
                       );
@@ -239,6 +239,10 @@ function SchedulerTable(): React.ReactElement {
                               borderRadius: '4px',
                               padding: 0,
                               border: 'none',
+                              borderRight:
+                                dayIndex < days.length - 1
+                                  ? '1px solid #DADFE1'
+                                  : 'none',
                             }}
                             rowSpan={rowSpan}
                           >
@@ -264,6 +268,10 @@ function SchedulerTable(): React.ReactElement {
                               backgroundColor: hourColor,
                               padding: '3px',
                               border: 'none',
+                              borderRight:
+                                dayIndex < days.length - 1
+                                  ? '1px solid #DADFE1'
+                                  : 'none',
                             }}
                           />
                         );
