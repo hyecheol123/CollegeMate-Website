@@ -11,8 +11,7 @@ interface IResponse {
 
 /**
  * Simulates an API call to unfriend a friend.
- * @param {IUnfriendRequest} request The unfriend request.
- * @param base64Email
+ * @param {string} base64Email The base64 encoded email of the friend to unfriend.
  * @return {Promise<IResponse>} A promise that resolves with the response.
  */
 export default function deleteFriend(base64Email: string): Promise<IResponse> {

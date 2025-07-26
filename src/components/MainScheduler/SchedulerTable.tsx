@@ -17,7 +17,6 @@ import {
 } from '@mui/material';
 // Components
 import Modal from '../Common/Modal/Modal';
-import InfoFooter from './InfoFooter';
 import getDummyEvents from '../../data/Schedule/getDummyEvents';
 import type { EventData } from '../../types/event';
 
