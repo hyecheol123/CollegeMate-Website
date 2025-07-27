@@ -298,6 +298,10 @@ function App(): React.ReactElement {
           path="/test"
           element={globalContext.initialized ? <Test /> : <Loading />}
         />
+        <Route
+          path="/scheduler"
+          element={globalContext.initialized ? <MainScheduler /> : <Loading />}
+        />
       </Route>
     </Routes>
   );
