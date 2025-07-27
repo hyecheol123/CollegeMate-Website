@@ -20,9 +20,13 @@ import { HeaderContainer, LogoContainer } from './SimpleHeader.styles';
  * @returns {React.ReactElement} The rendered SimpleHeader component
  */
 function SimpleHeader(): React.ReactElement {
+  const handleLogoClick = (): void => {
+    window.location.reload();
+  };
+
   return (
     <HeaderContainer>
-      <LogoContainer>
+      <LogoContainer onClick={handleLogoClick}>
         <CustomImage
           png={LogoImg}
           webp={LogoWebp}

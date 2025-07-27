@@ -37,4 +37,9 @@ export const LogoContainer = styled(Box)({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
+  cursor: 'pointer',
+  transition: 'opacity 0.2s ease-in-out',
+  '&:hover': {
+    opacity: 0.8,
+  },
 });
