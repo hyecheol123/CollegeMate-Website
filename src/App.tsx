@@ -6,8 +6,6 @@
 // React
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-// Global CSS
-// import './index.css';
 // Material UI
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { CssBaseline } from '@mui/material';
@@ -33,10 +31,9 @@ import getRenewToken from './data/Authentication/getRenewToken';
 // const NewTnC = React.lazy(() => import('./Pages/NewTnC'));
 // const SignUp = React.lazy(() => import('./Pages/SignUp'));
 // const NotFound = React.lazy(() => import('./Pages/NotFound'));
-// const MainScheduler = React.lazy(() => import('./Pages/MainScheduler'));
 // const Home = React.lazy(() => import('./Pages/Home'));
 // const Test = React.lazy(() => import('./Pages/Test'));
-const MvpHome = React.lazy(() => import('./Pages/MvpHome'));
+const MainScheduler = React.lazy(() => import('./Pages/MainScheduler'));
 
 // MUI Theme (Setup Font family and Palette Color)
 declare module '@mui/material/styles' {
@@ -301,7 +298,7 @@ function App(): React.ReactElement {
         /> */}
         <Route
           path="/"
-          element={globalContext.initialized ? <MvpHome /> : <Loading />}
+          element={globalContext.initialized ? <MainScheduler /> : <Loading />}
         />
       </Route>
     </Routes>
