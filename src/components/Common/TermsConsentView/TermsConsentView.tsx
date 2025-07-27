@@ -12,6 +12,7 @@ import { Box, Typography, Checkbox, FormControlLabel } from '@mui/material';
 import Loading from '../Loading/Loading';
 // Global Styles
 import PageWrapperStyle from '../../SignUp/Styles/PageWrapper';
+import { TermsConsentRenderer } from './TermsConsentRender';
 
 const termsStyle = {
   flex: 1,
@@ -82,7 +83,7 @@ function TermsConsent(props: ITermsConsent): React.ReactElement {
               minHeight={0}
               maxWidth={'80%'}
             >
-              {content}
+              {TermsConsentRenderer({ content })}
             </Typography>
           </Box>
         ) : (

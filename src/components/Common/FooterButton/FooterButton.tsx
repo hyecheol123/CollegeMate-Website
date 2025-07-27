@@ -44,7 +44,7 @@ function FooterButton(props: FooterButtonProps): React.ReactElement {
       <Button
         variant="contained"
         color="primary"
-        sx={{ width: '100%', maxWidth: '400px' }}
+        sx={{ width: '100%', maxWidth: '424px' }}
         onClick={props.onClick}
         disabled={props.disabled}
       >

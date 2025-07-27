@@ -5,6 +5,20 @@
 
 import React from 'react';
 
+// Type for a single friend request
+export type FriendRequestType = {
+  requestId: string;
+  from: string;
+};
+
+// Type for a single announcement
+export type AnnouncementType = {
+  id: string;
+  title: string;
+  content: string;
+  datetime: string;
+};
+
 // Type definition for props of GlobalContextProvider
 type GlobalContextProviderProps = { children: React.ReactNode };
 
@@ -14,7 +28,19 @@ type Action =
   | { type: 'LOGOUT' }
   | { type: 'SET_NEW_TNC' }
   | { type: 'UNSET_NEW_TNC' }
-  | { type: 'INITIALIZE'; login: boolean; email: string; newTnC: boolean };
+  | { type: 'INITIALIZE'; login: boolean; email: string; newTnC: boolean }
+  | {
+      type: 'SET_FRIEND_REQUESTS';
+      requests: FriendRequestType[];
+      fetchedAt: number;
+    }
+  | { type: 'INVALIDATE_FRIEND_REQUESTS' }
+  | {
+      type: 'SET_ANNOUNCEMENTS';
+      announcements: AnnouncementType[];
+      fetchedAt: number;
+    }
+  | { type: 'INVALIDATE_ANNOUNCEMENTS' };
 
 // Type definition for state
 type State = {
@@ -23,6 +49,10 @@ type State = {
   newTnC: boolean;
   initialized: boolean;
   dispatch: React.Dispatch<Action>;
+  friendRequests: FriendRequestType[];
+  friendRequestsFetchedAt: number | null;
+  announcements: AnnouncementType[];
+  announcementsFetchedAt: number | null;
 };
 
 // Initial Data of reducer
@@ -32,6 +62,10 @@ const initialData: State = {
   newTnC: false,
   initialized: false,
   dispatch: () => {},
+  friendRequests: [],
+  friendRequestsFetchedAt: null,
+  announcements: [],
+  announcementsFetchedAt: null,
 };
 
 /**
@@ -58,6 +92,30 @@ function reducer(state: State, action: Action): State {
         newTnC: action.newTnC,
         initialized: true,
       };
+    case 'SET_FRIEND_REQUESTS':
+      return {
+        ...state,
+        friendRequests: action.requests,
+        friendRequestsFetchedAt: action.fetchedAt,
+      };
+    case 'INVALIDATE_FRIEND_REQUESTS':
+      return {
+        ...state,
+        friendRequests: [],
+        friendRequestsFetchedAt: null,
+      };
+    case 'SET_ANNOUNCEMENTS':
+      return {
+        ...state,
+        announcements: action.announcements,
+        announcementsFetchedAt: action.fetchedAt,
+      };
+    case 'INVALIDATE_ANNOUNCEMENTS':
+      return {
+        ...state,
+        announcements: [],
+        announcementsFetchedAt: null,
+      };
     default:
       return state;
   }
@@ -68,19 +126,14 @@ const GlobalContext = React.createContext<State>(initialData);
 
 /**
  * React Functional Component for GlobalContext
- * @param {GlobalContextProviderProps} props Properties that passed from the
- *   parent Component.
+ * @param {GlobalContextProviderProps} props Properties that passed from the parent Component.
  * @returns {React.ReactElement} Renders GlobalContextProvider
  */
 export function GlobalContextProvider(
   props: GlobalContextProviderProps,
 ): React.ReactElement {
-  // State
   const [state, dispatch] = React.useReducer(reducer, initialData);
-
-  // Context Value
   const value = { ...state, dispatch };
-
   return (
     <GlobalContext.Provider value={value}>
       {props.children}

@@ -102,7 +102,7 @@ function SignUp(): React.ReactElement {
 
   // Timeout for Token
   React.useEffect(() => {
-    let timeout: undefined | number;
+    let timeout: ReturnType<typeof setTimeout>;
     if (tokenExpiresAfterSec > 0 && step !== 4) {
       timeout = setTimeout(() => {
         setTokenExpiresAfterSec(tokenExpiresAfterSec - 1);
