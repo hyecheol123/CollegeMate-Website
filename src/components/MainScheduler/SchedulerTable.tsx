@@ -42,7 +42,6 @@ function SchedulerTable(): React.ReactElement {
     window.addEventListener('resize', handleResize);
 
     // Event time validation
-    // TODO: E
     dummyEvents.forEach((event) => {
       const start = event.startTime.hour * 60 + event.startTime.minute;
       const end = event.endTime.hour * 60 + event.endTime.minute;
@@ -285,7 +284,7 @@ function SchedulerTable(): React.ReactElement {
           </TableBody>
         </Table>
       </Box>
-      {/* <InfoFooter></InfoFooter> */}
+      {/* <InfoFooter>Remove due to mvp feature</InfoFooter> */}
     </Box>
   );
 }

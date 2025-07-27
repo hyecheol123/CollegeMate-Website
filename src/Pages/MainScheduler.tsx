@@ -8,7 +8,6 @@ import React from 'react';
 // Material UI
 import { Box } from '@mui/material';
 // Component
-import HeaderButton from '../components/Common/HeaderButton/HeaderButton';
 import Scheduler from '../components/MainScheduler/SchedulerTable';
 import SchedulerTitle from '../components/MainScheduler/SchedulerTitle';
 
@@ -19,7 +18,6 @@ import SchedulerTitle from '../components/MainScheduler/SchedulerTitle';
 function MainScheduler(): React.ReactElement {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
-      <HeaderButton />
       <SchedulerTitle />
       <Scheduler />
     </Box>
