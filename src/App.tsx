@@ -28,14 +28,15 @@ import '@fontsource/roboto/700.css';
 import Loading from './components/Common/Loading/Loading';
 import { GlobalContextProvider, useGlobalContext } from './GlobalContext';
 import getRenewToken from './data/Authentication/getRenewToken';
-const About = React.lazy(() => import('./Pages/About'));
-const Login = React.lazy(() => import('./Pages/Login'));
-const NewTnC = React.lazy(() => import('./Pages/NewTnC'));
-const SignUp = React.lazy(() => import('./Pages/SignUp'));
-const NotFound = React.lazy(() => import('./Pages/NotFound'));
-const MainScheduler = React.lazy(() => import('./Pages/MainScheduler'));
-const Home = React.lazy(() => import('./Pages/Home'));
-const Test = React.lazy(() => import('./Pages/Test'));
+// const About = React.lazy(() => import('./Pages/About'));
+// const Login = React.lazy(() => import('./Pages/Login'));
+// const NewTnC = React.lazy(() => import('./Pages/NewTnC'));
+// const SignUp = React.lazy(() => import('./Pages/SignUp'));
+// const NotFound = React.lazy(() => import('./Pages/NotFound'));
+// const MainScheduler = React.lazy(() => import('./Pages/MainScheduler'));
+// const Home = React.lazy(() => import('./Pages/Home'));
+// const Test = React.lazy(() => import('./Pages/Test'));
+const MvpHome = React.lazy(() => import('./Pages/MvpHome'));
 
 // MUI Theme (Setup Font family and Palette Color)
 declare module '@mui/material/styles' {
@@ -270,11 +271,11 @@ function App(): React.ReactElement {
   return (
     <Routes>
       <Route element={<Layout />}>
-        <Route
+        {/* <Route
           path="/"
           element={globalContext.initialized ? <Home /> : <Loading />}
-        />
-        <Route
+        /> */}
+        {/* <Route
           path="/login"
           element={globalContext.initialized ? <Login /> : <Loading />}
         />
@@ -297,10 +298,10 @@ function App(): React.ReactElement {
         <Route
           path="/test"
           element={globalContext.initialized ? <Test /> : <Loading />}
-        />
+        /> */}
         <Route
-          path="/scheduler"
-          element={globalContext.initialized ? <MainScheduler /> : <Loading />}
+          path="/"
+          element={globalContext.initialized ? <MvpHome /> : <Loading />}
         />
       </Route>
     </Routes>
