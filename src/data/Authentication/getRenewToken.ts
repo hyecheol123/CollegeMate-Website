@@ -27,7 +27,7 @@ export default function getRenewToken(isSignup?: boolean): Promise<IResponse> {
       () =>
         resolve({
           responseCode: 200,
-          content: { email: 'dummyemail@dummy.com' },
+          content: { email: 'user123@gmail.com' },
         }),
       1000,
     );
