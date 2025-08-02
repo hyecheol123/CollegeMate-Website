@@ -11,6 +11,7 @@ import { Box, IconButton, Typography, Tooltip } from '@mui/material';
 import Download from '@mui/icons-material/FileDownloadOutlined';
 import Share from '@mui/icons-material/IosShareOutlined';
 import Edit from '@mui/icons-material/EditOutlined';
+import Save from '@mui/icons-material/SaveOutlined';
 // Mocking API
 import getScheduleDetail from '../../data/Schedule/getScheduleDetail';
 
@@ -61,12 +62,22 @@ const getYearAndSemester = (termCode: string): string => {
   return `${year} ${semester}`;
 };
 
+// Props interface
+interface SchedulerTitleProps {
+  onEditClick?: () => void;
+  isEditMode?: boolean;
+}
+
 /**
  * Renders the title for the Scheduler, including responsive icons for download, share, and edit.
  * Dynamically adjusts icon sizes based on the window width.
+ * @param {SchedulerTitleProps} props - Props including edit click handler and edit mode state
  * @return {React.ReactElement} A React component representing the scheduler title and icons.
  */
-function SchedulerTitle(): React.ReactElement {
+function SchedulerTitle({
+  onEditClick,
+  isEditMode = false,
+}: SchedulerTitleProps): React.ReactElement {
   // State to hold the current window width
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [semesterName, setSemesterName] = useState('Unknown');
@@ -105,8 +116,9 @@ function SchedulerTitle(): React.ReactElement {
       <Box sx={iconBoxStyle}>
         <Tooltip title="Download">
           <IconButton
+            disabled={isEditMode}
             sx={{
-              color: 'darkGrey.main',
+              color: isEditMode ? 'rgba(0,0,0,0.26)' : 'darkGrey.main',
               fontSize: iconSize === 'small' ? '1.25rem' : 'inherit',
             }}
           >
@@ -115,22 +127,32 @@ function SchedulerTitle(): React.ReactElement {
         </Tooltip>
         <Tooltip title="Share">
           <IconButton
+            disabled={isEditMode}
             sx={{
-              color: 'darkGrey.main',
+              color: isEditMode ? 'rgba(0,0,0,0.26)' : 'darkGrey.main',
               fontSize: iconSize === 'small' ? '1.25rem' : 'inherit',
             }}
           >
             <Share fontSize={iconSize} />
           </IconButton>
         </Tooltip>
-        <Tooltip title="Edit">
+        <Tooltip title={isEditMode ? 'Save Changes' : 'Edit Schedule'}>
           <IconButton
+            onClick={onEditClick}
             sx={{
-              color: 'darkGrey.main',
+              color: isEditMode ? 'red.main' : 'darkGrey.main',
               fontSize: iconSize === 'small' ? '1.25rem' : 'inherit',
+              backgroundColor: isEditMode
+                ? 'rgba(178, 0, 0, 0.1)'
+                : 'transparent',
+              '&:hover': {
+                backgroundColor: isEditMode
+                  ? 'rgba(178, 0, 0, 0.2)'
+                  : 'rgba(0, 0, 0, 0.04)',
+              },
             }}
           >
-            <Edit fontSize={iconSize} />
+            {isEditMode ? <Save fontSize={iconSize} /> : <Edit fontSize={iconSize} />}
           </IconButton>
         </Tooltip>
       </Box>

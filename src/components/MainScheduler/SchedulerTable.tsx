@@ -20,20 +20,25 @@ import Modal from '../Common/Modal/Modal';
 import getDummyEvents from '../../data/Schedule/getDummyEvents';
 import type { EventData } from '../../types/event';
 
+interface SchedulerTableProps {
+  events?: EventData[];
+}
+
 /**
  * React Functional Component for the Scheduler Table
+ * @param {SchedulerTableProps} props - Props including events array
  * @return {React.ReactElement} Renders scheduler table
  */
-function SchedulerTable(): React.ReactElement {
+function SchedulerTable({ events }: SchedulerTableProps): React.ReactElement {
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
   const [myEvents, setMyEvents] = useState<EventData[]>([]);
 
   useEffect(() => {
-    // Load dummy data
-    const dummyEvents = getDummyEvents();
-    setMyEvents(dummyEvents);
+    // Use passed events or fall back to dummy data
+    const currentEvents = events || getDummyEvents();
+    setMyEvents(currentEvents);
     // Function to handle window resize event
     const handleResize = (): void => {
       setWindowWidth(window.innerWidth);
@@ -42,7 +47,7 @@ function SchedulerTable(): React.ReactElement {
     window.addEventListener('resize', handleResize);
 
     // Event time validation
-    dummyEvents.forEach((event) => {
+    currentEvents.forEach((event) => {
       const start = event.startTime.hour * 60 + event.startTime.minute;
       const end = event.endTime.hour * 60 + event.endTime.minute;
       if (start >= end) {
@@ -57,7 +62,7 @@ function SchedulerTable(): React.ReactElement {
     return (): void => {
       window.removeEventListener('resize', handleResize);
     };
-  }, [myEvents]); // Dependency array for useEffect
+  }, [events]); // Dependency array for useEffect
 
   const handleCloseModal = (): void => {
     setIsModalOpen(false);
