@@ -152,7 +152,11 @@ function SchedulerTitle({
               },
             }}
           >
-            {isEditMode ? <Save fontSize={iconSize} /> : <Edit fontSize={iconSize} />}
+            {isEditMode ? (
+              <Save fontSize={iconSize} />
+            ) : (
+              <Edit fontSize={iconSize} />
+            )}
           </IconButton>
         </Tooltip>
       </Box>

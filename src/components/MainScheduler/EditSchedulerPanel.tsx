@@ -60,26 +60,26 @@ const DUMMY_CLASSES: DummyClass[] = [
 const convertClassToEvent = (classItem: DummyClass): EventData[] => {
   const events: EventData[] = [];
   const dayMap: { [key: string]: string } = {
-    'Mon': 'Mon',
-    'Tue': 'Tue', 
-    'Wed': 'Wed',
-    'Thu': 'Thu',
-    'Fri': 'Fri',
-    'Sat': 'Sat',
-    'Sun': 'Sun'
+    Mon: 'Mon',
+    Tue: 'Tue',
+    Wed: 'Wed',
+    Thu: 'Thu',
+    Fri: 'Fri',
+    Sat: 'Sat',
+    Sun: 'Sun',
   };
 
   // Parse time (assuming format like "10:00 AM - 11:15 AM")
   const [startTimeStr, endTimeStr] = classItem.time.split(' - ');
-  const parseTime = (timeStr: string) => {
+  const parseTime = (timeStr: string): { hour: number; minute: number } => {
     const [time, period] = timeStr.split(' ');
     const [hourStr, minuteStr] = time.split(':');
     let hour = parseInt(hourStr, 10);
     const minute = parseInt(minuteStr, 10);
-    
+
     if (period === 'PM' && hour !== 12) hour += 12;
     if (period === 'AM' && hour === 12) hour = 0;
-    
+
     return { hour, minute };
   };
 
@@ -88,8 +88,8 @@ const convertClassToEvent = (classItem: DummyClass): EventData[] => {
 
   // Parse days (assuming format like "Mon, Wed, Fri")
   const daysList = classItem.days.split(', ');
-  
-  daysList.forEach(dayStr => {
+
+  daysList.forEach((dayStr) => {
     const day = dayMap[dayStr];
     if (day) {
       events.push({
@@ -100,7 +100,7 @@ const convertClassToEvent = (classItem: DummyClass): EventData[] => {
         day,
         color: '#1976d2', // Default blue color
         location: classItem.location,
-        instructor: classItem.instructor
+        instructor: classItem.instructor,
       });
     }
   });
@@ -117,7 +117,9 @@ interface EditSchedulerPanelProps {
  * @param {EditSchedulerPanelProps} props - Props including onAddEvent function
  * @returns {React.ReactElement} The rendered EditSchedulerPanel component
  */
-function EditSchedulerPanel({ onAddEvent }: EditSchedulerPanelProps): React.ReactElement {
+function EditSchedulerPanel({
+  onAddEvent,
+}: EditSchedulerPanelProps): React.ReactElement {
   const [searchInput, setSearchInput] = useState<string>('');
 
   // Filter classes based on search input
@@ -144,7 +146,7 @@ function EditSchedulerPanel({ onAddEvent }: EditSchedulerPanelProps): React.Reac
   const handleAddClass = (classItem: DummyClass): void => {
     if (onAddEvent) {
       const events = convertClassToEvent(classItem);
-      events.forEach(event => onAddEvent(event));
+      events.forEach((event) => onAddEvent(event));
     }
   };
 
