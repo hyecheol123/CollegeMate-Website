@@ -15,7 +15,10 @@ import {
 interface DownloadDeviceSelectProps {
   value: string;
   onChange: (value: string) => void;
-  onNext: () => void;
+  onNext: (params: {
+    device: string;
+    size: { width: number; height: number };
+  }) => void;
 }
 
 const deviceOptions = [
@@ -25,6 +28,13 @@ const deviceOptions = [
   'Galaxy S21',
   'Galaxy Z Flip 5',
 ];
+
+const DEVICE_DIMENSIONS: Record<string, { width: number; height: number }> = {
+  'iPhone 12 Pro Max': { width: 1284, height: 2778 },
+  'iPhone 13': { width: 1170, height: 2532 },
+  'Galaxy S21': { width: 1080, height: 2400 },
+  'Galaxy Z Flip 5': { width: 1080, height: 2640 },
+};
 
 /**
  * DownloadDeviceSelect - Step for selecting the target device (only for wallpaper).
@@ -74,7 +84,18 @@ export default function DownloadDeviceSelect({
             variant: 'contained',
             backgroundColor: 'red.main',
             textColor: 'white.main',
-            onClick: onNext,
+            onClick: (): void => {
+              const selected = value;
+              const size =
+                value === 'Auto-match for device'
+                  ? ({
+                      width: window.innerWidth,
+                      height: window.innerHeight,
+                    } as { width: number; height: number })
+                  : DEVICE_DIMENSIONS[value];
+
+              onNext({ device: selected, size });
+            },
           },
         ]}
       />

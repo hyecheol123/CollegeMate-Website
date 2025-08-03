@@ -12,6 +12,7 @@ interface DownloadLoadingProps {
   type: 'image' | 'wallpaper';
   onSuccess: () => void;
   onError: () => void;
+  onDownload: () => Promise<boolean>;
 }
 
 /**
@@ -20,25 +21,32 @@ interface DownloadLoadingProps {
  * @param {'image' | 'wallpaper'} props.type - Type of download content
  * @param {() => void} props.onSuccess - Called when download succeeds
  * @param {() => void} props.onError - Called when download fails
+ * @param {() => void} props.onDownload - Handler to execute actual download process
  * @returns {React.ReactElement} Loading screen
  */
 export default function DownloadLoading({
   type,
   onSuccess,
   onError,
+  onDownload,
 }: DownloadLoadingProps): React.ReactElement {
   useEffect(() => {
     const timer = setTimeout(() => {
-      const success = Math.random() > 0.2;
-      if (success) {
-        onSuccess();
-      } else {
-        onError();
-      }
-    }, 2000);
+      const runDownload = async (): Promise<void> => {
+        try {
+          const result = await onDownload();
+          if (result) onSuccess();
+          else onError();
+        } catch (e) {
+          console.error('Download failed:', e);
+          onError();
+        }
+      };
 
+      runDownload();
+    }, 1500);
     return (): void => clearTimeout(timer);
-  }, [onSuccess, onError]);
+  }, [onDownload, onSuccess, onError]);
 
   const message =
     type === 'image' ? 'Image Downloading' : 'Wallpaper Downloading';

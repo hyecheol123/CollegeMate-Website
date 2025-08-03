@@ -66,6 +66,7 @@ const getYearAndSemester = (termCode: string): string => {
 interface SchedulerTitleProps {
   onEditClick?: () => void;
   isEditMode?: boolean;
+  onDownloadClick?: () => void;
 }
 
 /**
@@ -77,6 +78,7 @@ interface SchedulerTitleProps {
 function SchedulerTitle({
   onEditClick,
   isEditMode = false,
+  onDownloadClick,
 }: SchedulerTitleProps): React.ReactElement {
   // State to hold the current window width
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
@@ -117,6 +119,7 @@ function SchedulerTitle({
         <Tooltip title="Download">
           <IconButton
             disabled={isEditMode}
+            onClick={onDownloadClick}
             sx={{
               color: isEditMode ? 'rgba(0,0,0,0.26)' : 'darkGrey.main',
               fontSize: iconSize === 'small' ? '1.25rem' : 'inherit',
