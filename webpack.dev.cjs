@@ -11,6 +11,15 @@ module.exports = merge(common, {
     hot: true,
     allowedHosts: ['.loca.lt'],
     historyApiFallback: true,
+    proxy: [
+      {
+        context: ['/api'],
+        target: 'https://public.enroll.wisc.edu',
+        changeOrigin: true,
+        secure: true,
+        logLevel: 'debug',
+      },
+    ],
   },
   plugins: [
     new webpack.HotModuleReplacementPlugin(),
