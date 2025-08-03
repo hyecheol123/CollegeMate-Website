@@ -20,18 +20,18 @@ const containerStyle = {
   justifyContent: 'space-between',
   alignItems: 'center',
   py: '1em',
-  px: '1em',
-  width: '90%',
-  margin: 'auto',
+  px: '16px',
+  width: '100%',
+  margin: 0,
 };
 
 const titleStyle = {
   color: 'red.main',
-  marginLeft: '-0.5em',
+  marginLeft: 0,
 };
 
 const iconBoxStyle = {
-  marginRight: '-1.3em',
+  marginRight: 0,
 };
 
 /**

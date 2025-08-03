@@ -10,4 +10,6 @@ export interface EventData {
   startTime: { hour: number; minute: number };
   endTime: { hour: number; minute: number };
   color: string;
+  location?: string;
+  instructor?: string;
 }

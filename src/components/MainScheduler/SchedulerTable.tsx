@@ -25,9 +25,10 @@ interface SchedulerTableProps {
 }
 
 /**
- * React Functional Component for the Scheduler Table
- * @param {SchedulerTableProps} props - Props including events array
- * @return {React.ReactElement} Renders scheduler table
+ * SchedulerTable component that displays a weekly schedule grid
+ * Supports dynamic events, responsive design, and time validation
+ * @param {SchedulerTableProps} props - Props including optional events array
+ * @return {React.ReactElement} The rendered scheduler table
  */
 function SchedulerTable({ events }: SchedulerTableProps): React.ReactElement {
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
@@ -47,7 +48,7 @@ function SchedulerTable({ events }: SchedulerTableProps): React.ReactElement {
     window.addEventListener('resize', handleResize);
 
     // Event time validation
-    currentEvents.forEach((event) => {
+    currentEvents.forEach((event: EventData) => {
       const start = event.startTime.hour * 60 + event.startTime.minute;
       const end = event.endTime.hour * 60 + event.endTime.minute;
       if (start >= end) {
@@ -145,8 +146,8 @@ function SchedulerTable({ events }: SchedulerTableProps): React.ReactElement {
 
         <Table
           sx={{
-            width: '90%',
-            margin: 'auto',
+            width: '100%',
+            margin: 0,
             tableLayout: 'fixed',
             height: '100%',
             borderRadius: '6px',
@@ -212,7 +213,7 @@ function SchedulerTable({ events }: SchedulerTableProps): React.ReactElement {
                         </Typography>
                       </TableCell>
                     )}
-                    {days.map((day, dayIndex) => {
+                    {days.map((day) => {
                       const eventsForDay = myEvents.filter(
                         (e) => e.day === day,
                       );
@@ -242,10 +243,6 @@ function SchedulerTable({ events }: SchedulerTableProps): React.ReactElement {
                               borderRadius: '4px',
                               padding: 0,
                               border: 'none',
-                              borderRight:
-                                dayIndex < days.length - 1
-                                  ? '1px solid #DADFE1'
-                                  : 'none',
                             }}
                             rowSpan={rowSpan}
                           >
@@ -271,10 +268,6 @@ function SchedulerTable({ events }: SchedulerTableProps): React.ReactElement {
                               backgroundColor: hourColor,
                               padding: '3px',
                               border: 'none',
-                              borderRight:
-                                dayIndex < days.length - 1
-                                  ? '1px solid #DADFE1'
-                                  : 'none',
                             }}
                           />
                         );

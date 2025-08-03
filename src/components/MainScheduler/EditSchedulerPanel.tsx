@@ -17,8 +17,12 @@ import {
   CardContent,
   Chip,
   InputAdornment,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
+// Components
+import ColorSelectionModal from '../Common/ColorSelectionModal';
 
 // Dummy class data type
 interface DummyClass {
@@ -30,6 +34,7 @@ interface DummyClass {
   days: string;
   credits: number;
   location: string;
+  color?: string;
 }
 
 // Static dummy data
@@ -98,7 +103,7 @@ const convertClassToEvent = (classItem: DummyClass): EventData[] => {
         startTime,
         endTime,
         day,
-        color: '#1976d2', // Default blue color
+        color: classItem.color || '#1976d2', // Use class color or default blue
         location: classItem.location,
         instructor: classItem.instructor,
       });
@@ -110,17 +115,25 @@ const convertClassToEvent = (classItem: DummyClass): EventData[] => {
 
 interface EditSchedulerPanelProps {
   onAddEvent?: (event: EventData) => void;
+  onUpdateEventColor?: (classId: string, color: string) => void;
 }
 
 /**
- * EditSchedulerPanel component for managing class search and addition
- * @param {EditSchedulerPanelProps} props - Props including onAddEvent function
+ * EditSchedulerPanel component for searching, customizing, and adding classes
+ * Features include: class search, color customization, and responsive button layout
+ * @param {EditSchedulerPanelProps} props - Props including callback functions for events
  * @returns {React.ReactElement} The rendered EditSchedulerPanel component
  */
 function EditSchedulerPanel({
   onAddEvent,
+  onUpdateEventColor,
 }: EditSchedulerPanelProps): React.ReactElement {
   const [searchInput, setSearchInput] = useState<string>('');
+  const [classColors, setClassColors] = useState<{ [key: string]: string }>({});
+  const [colorModalOpen, setColorModalOpen] = useState(false);
+  const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   // Filter classes based on search input
   const filteredClasses = useMemo(() => {
@@ -145,20 +158,51 @@ function EditSchedulerPanel({
 
   const handleAddClass = (classItem: DummyClass): void => {
     if (onAddEvent) {
-      const events = convertClassToEvent(classItem);
+      const selectedColor = classColors[classItem.id] || '#1976d2';
+      const classWithColor = {
+        ...classItem,
+        color: selectedColor,
+      };
+      const events = convertClassToEvent(classWithColor);
       events.forEach((event) => onAddEvent(event));
     }
+  };
+
+  const handleCustomizeColor = (classId: string): void => {
+    setSelectedClassId(classId);
+    setColorModalOpen(true);
+  };
+
+  const handleColorSelect = (color: string): void => {
+    if (selectedClassId) {
+      setClassColors((prev) => ({
+        ...prev,
+        [selectedClassId]: color,
+      }));
+
+      // Update existing events with the new color
+      if (onUpdateEventColor) {
+        onUpdateEventColor(selectedClassId, color);
+      }
+    }
+    setColorModalOpen(false);
+    setSelectedClassId(null);
+  };
+
+  const handleColorModalClose = (): void => {
+    setColorModalOpen(false);
+    setSelectedClassId(null);
   };
 
   return (
     <Box
       sx={{
-        width: '90%',
-        margin: '20px auto',
-        padding: '24px',
-        backgroundColor: 'whiteGrey.main',
-        borderRadius: '8px',
-        border: '1px solid #e0e0e0',
+        width: '100%',
+        margin: 0,
+        padding: isMobile ? '16px' : '24px',
+        backgroundColor: isMobile ? 'transparent' : 'whiteGrey.main',
+        borderRadius: isMobile ? '0px' : '8px',
+        border: isMobile ? 'none' : '1px solid #e0e0e0',
       }}
     >
       {/* Panel Title */}
@@ -181,12 +225,14 @@ function EditSchedulerPanel({
         value={searchInput}
         onChange={handleSearchChange}
         sx={{ marginBottom: '20px' }}
-        InputProps={{
-          startAdornment: (
-            <InputAdornment position="start">
-              <SearchIcon color="action" />
-            </InputAdornment>
-          ),
+        slotProps={{
+          input: {
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon color="action" />
+              </InputAdornment>
+            ),
+          },
         }}
       />
 
@@ -292,24 +338,58 @@ function EditSchedulerPanel({
                     </Typography>
                   </Box>
 
-                  {/* Add Button */}
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={() => handleAddClass(classItem)}
+                  {/* Action Buttons */}
+                  <Box
                     sx={{
-                      minWidth: '120px',
-                      alignSelf: 'flex-end',
+                      display: 'flex',
+                      flexDirection: 'row',
+                      gap: '8px',
+                      width: '100%',
+                      marginTop: '12px',
                     }}
                   >
-                    Add Class
-                  </Button>
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      onClick={() => handleCustomizeColor(classItem.id)}
+                      sx={{
+                        flex: 1,
+                        fontSize: '12px',
+                        padding: '6px 12px',
+                      }}
+                    >
+                      Customize Color
+                    </Button>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      size="small"
+                      onClick={() => handleAddClass(classItem)}
+                      sx={{
+                        flex: 1,
+                        fontSize: '12px',
+                        padding: '6px 12px',
+                      }}
+                    >
+                      Add Class
+                    </Button>
+                  </Box>
                 </Box>
               </CardContent>
             </Card>
           ))
         )}
       </Box>
+
+      {/* Color Selection Modal */}
+      <ColorSelectionModal
+        open={colorModalOpen}
+        onClose={handleColorModalClose}
+        onColorSelect={handleColorSelect}
+        selectedColor={
+          selectedClassId ? classColors[selectedClassId] : undefined
+        }
+      />
     </Box>
   );
 }
