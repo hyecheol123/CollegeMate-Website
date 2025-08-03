@@ -89,9 +89,9 @@ function MainScheduler(): React.ReactElement {
           sx={{
             display: 'flex',
             flexDirection: 'row',
-            gap: '12px',
+            gap: '32px',
             alignItems: 'flex-start',
-            padding: '0 16px',
+            padding: '0 32px',
             width: '100%',
           }}
         >
@@ -121,7 +121,7 @@ function MainScheduler(): React.ReactElement {
           </Box>
         </Box>
       ) : (
-        <Box sx={{ padding: '0 16px' }}>
+        <Box sx={{ padding: '0 32px' }}>
           <SchedulerTable events={scheduleEvents} />
         </Box>
       )}

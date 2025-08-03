@@ -20,7 +20,7 @@ const containerStyle = {
   justifyContent: 'space-between',
   alignItems: 'center',
   py: '1em',
-  px: '16px',
+  px: { xs: '16px', md: '32px' },
   width: '100%',
   margin: 0,
 };
