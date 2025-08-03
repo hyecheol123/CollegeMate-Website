@@ -7,14 +7,18 @@
 // React
 import React, { useState, useRef, useEffect } from 'react';
 // Material UI
-import { Box, useMediaQuery, useTheme } from '@mui/material';
+import { Box, useMediaQuery, useTheme, Alert, CircularProgress, Typography } from '@mui/material';
 // Component
 import SchedulerTable from '../components/MainScheduler/SchedulerTable';
 import SchedulerTitle from '../components/MainScheduler/SchedulerTitle';
 import SimpleHeader from '../components/Mvp/SimpleHeader/SimpleHeader';
 import EditSchedulerPanel from '../components/MainScheduler/EditSchedulerPanel';
+// API and Utils
+import { getTerms } from '../data/Terms/getTerms';
+import { getCurrentTerm, getUpcomingTerms } from '../utils/termUtils';
 // Types
 import type { EventData } from '../types/event';
+import type { Term } from '../data/Terms/getTerms';
 
 /**
  * MainScheduler component with responsive layout
@@ -25,6 +29,13 @@ import type { EventData } from '../types/event';
 function MainScheduler(): React.ReactElement {
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
   const [scheduleEvents, setScheduleEvents] = useState<EventData[]>([]);
+  const [availableTerms, setAvailableTerms] = useState<Term[]>([]);
+  const [currentTerm, setCurrentTerm] = useState<Term | null>(null);
+  const [scheduleEventsByTerm, setScheduleEventsByTerm] = useState<
+    Record<string, EventData[]>
+  >({});
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const searchPanelRef = useRef<HTMLDivElement>(null);
@@ -32,6 +43,39 @@ function MainScheduler(): React.ReactElement {
   const handleEditToggle = (): void => {
     setIsEditMode((prev) => !prev);
   };
+
+  // Load terms on component mount
+  useEffect(() => {
+    const loadTerms = async (): Promise<void> => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const termsData = await getTerms();
+        const futureTerms = getUpcomingTerms(termsData.terms, 6); // Get next 6 terms
+        setAvailableTerms(futureTerms);
+
+        // Set current term
+        const current = getCurrentTerm(termsData.terms);
+        if (current) {
+          setCurrentTerm(current);
+          // Initialize with empty events for current term
+          setScheduleEvents([]);
+        } else if (futureTerms.length > 0) {
+          // If no current term, use the first available future term
+          setCurrentTerm(futureTerms[0]);
+          setScheduleEvents([]);
+        }
+      } catch (error) {
+        console.error('Failed to load terms:', error);
+        setError(error instanceof Error ? error.message : 'Failed to load terms');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadTerms();
+  }, []);
 
   // Auto-scroll to search panel on mobile when edit mode is activated
   useEffect(() => {
@@ -45,6 +89,27 @@ function MainScheduler(): React.ReactElement {
       }, 100);
     }
   }, [isEditMode, isMobile]);
+
+  // Handle term change
+  const handleTermChange = (newTerm: Term): void => {
+    // Save current events for the current term
+    if (currentTerm) {
+      setScheduleEventsByTerm((prev) => ({
+        ...prev,
+        [currentTerm.termCode]: scheduleEvents,
+      }));
+    }
+
+    // Switch to new term
+    setCurrentTerm(newTerm);
+
+    // Load events for new term (if any saved)
+    const savedEvents = scheduleEventsByTerm[newTerm.termCode] || [];
+    setScheduleEvents(savedEvents);
+
+    // Exit edit mode when switching terms
+    setIsEditMode(false);
+  };
 
   const addEvent = (event: EventData): void => {
     setScheduleEvents((prev) => [...prev, event]);
@@ -63,10 +128,56 @@ function MainScheduler(): React.ReactElement {
     );
   };
 
+  // Show loading state
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+        <SimpleHeader />
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '200px',
+            gap: 2,
+          }}
+        >
+          <CircularProgress size={24} />
+          <Typography>Loading terms...</Typography>
+        </Box>
+      </Box>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+        <SimpleHeader />
+        <Box sx={{ padding: '16px' }}>
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {error}
+          </Alert>
+          <Typography variant="body2" color="text.secondary">
+            Please make sure the Express API server is running on port 3001.
+            <br />
+            Run: <code>npm run dev:full</code> to start both servers.
+          </Typography>
+        </Box>
+      </Box>
+    );
+  }
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
       <SimpleHeader />
-      <SchedulerTitle onEditClick={handleEditToggle} isEditMode={isEditMode} />
+      <SchedulerTitle
+        onEditClick={handleEditToggle}
+        isEditMode={isEditMode}
+        currentTerm={currentTerm}
+        availableTerms={availableTerms}
+        onTermChange={handleTermChange}
+      />
 
       {/* Main Content Area */}
       {isMobile ? (

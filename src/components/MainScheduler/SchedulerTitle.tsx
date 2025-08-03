@@ -6,14 +6,24 @@
 // React
 import React, { useState, useEffect } from 'react';
 // Material UI
-import { Box, IconButton, Typography, Tooltip } from '@mui/material';
+import {
+  Box,
+  IconButton,
+  Typography,
+  Tooltip,
+  useTheme,
+  useMediaQuery,
+} from '@mui/material';
 // Material UI Icon
 import Download from '@mui/icons-material/FileDownloadOutlined';
 import Share from '@mui/icons-material/IosShareOutlined';
 import Edit from '@mui/icons-material/EditOutlined';
 import Save from '@mui/icons-material/SaveOutlined';
-// Mocking API
-import getScheduleDetail from '../../data/Schedule/getScheduleDetail';
+// Components
+import TermSelector from './TermSelector';
+// Types and Utils
+import type { Term } from '../../data/Terms/getTerms';
+import { formatTermCode } from '../../utils/termUtils';
 
 const containerStyle = {
   display: 'flex',
@@ -34,38 +44,13 @@ const iconBoxStyle = {
   marginRight: 0,
 };
 
-/**
- * Determines the year and semester based on the term code.
- * @param {string} termCode - The term code to evaluate.
- * @return {string} The year and semester (e.g., '2023 Fall') or 'Unknown' if not matched.
- *
- * UW-Madison term codes reference: https://businessservices.wisc.edu/making-payments/charge-to-a-students-account/term-codes/
- */
-const getYearAndSemester = (termCode: string): string => {
-  if (termCode.length !== 4) return 'Invalid code';
-
-  const middleDigits = parseInt(termCode.slice(1, 3), 10);
-  const suffix = `${termCode[0]}${termCode[3]}`;
-
-  let year = 2000 + middleDigits;
-  let semester = 'Unknown';
-
-  if (suffix === '14') {
-    semester = 'Spring';
-  } else if (suffix === '16') {
-    semester = 'Summer';
-  } else if (suffix === '12') {
-    year -= 1;
-    semester = 'Fall';
-  }
-
-  return `${year} ${semester}`;
-};
-
 // Props interface
 interface SchedulerTitleProps {
   onEditClick?: () => void;
   isEditMode?: boolean;
+  currentTerm?: Term | null;
+  availableTerms?: Term[];
+  onTermChange?: (term: Term) => void;
 }
 
 /**
@@ -77,10 +62,14 @@ interface SchedulerTitleProps {
 function SchedulerTitle({
   onEditClick,
   isEditMode = false,
+  currentTerm,
+  availableTerms = [],
+  onTermChange,
 }: SchedulerTitleProps): React.ReactElement {
   // State to hold the current window width
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
-  const [semesterName, setSemesterName] = useState('Unknown');
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   // Effect to update the window width state on resize
   useEffect(() => {
@@ -96,23 +85,42 @@ function SchedulerTitle({
     };
   }, []);
 
-  useEffect(() => {
-    // Mock API call to fetch schedule details
-    getScheduleDetail('some-schedule-id').then((response) => {
-      if (response.responseCode === 200 && response.content?.termCode) {
-        setSemesterName(getYearAndSemester(response.content.termCode));
-      }
-    });
-  }, []);
-
   // Determine the icon size based on the window width
   const iconSize = windowWidth < 300 ? 'small' : 'medium';
 
+  // Get current term display name
+  const currentTermName = currentTerm
+    ? formatTermCode(currentTerm.termCode)
+    : 'Loading...';
+
   return (
     <Box sx={containerStyle}>
-      <Typography variant="h2" sx={titleStyle}>
-        {semesterName}
-      </Typography>
+      {/* Left side: Current term title and term selector */}
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: isMobile ? 'column' : 'row',
+          alignItems: isMobile ? 'flex-start' : 'center',
+          gap: isMobile ? '8px' : '16px',
+          flex: 1,
+        }}
+      >
+        <Typography variant="h2" sx={titleStyle}>
+          {currentTermName}
+        </Typography>
+
+        {/* Term selector dropdown */}
+        {availableTerms.length > 1 && onTermChange && (
+          <TermSelector
+            terms={availableTerms}
+            selectedTerm={currentTerm}
+            onTermChange={onTermChange}
+            disabled={isEditMode}
+          />
+        )}
+      </Box>
+
+      {/* Right side: Action icons */}
       <Box sx={iconBoxStyle}>
         <Tooltip title="Download">
           <IconButton
