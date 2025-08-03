@@ -211,7 +211,7 @@ function EditSchedulerPanel({
         sx={{
           color: 'red.main',
           marginBottom: '20px',
-          textAlign: 'center',
+          textAlign: 'left',
         }}
       >
         Edit Schedule

@@ -98,7 +98,7 @@ function MainScheduler(): React.ReactElement {
           {/* Scheduler Section */}
           <Box
             sx={{
-              flex: '1 1 55%',
+              flex: '1 1 65%',
               minWidth: 0,
             }}
           >
@@ -109,9 +109,9 @@ function MainScheduler(): React.ReactElement {
           <Box
             ref={searchPanelRef}
             sx={{
-              flex: '1 1 45%',
-              minWidth: '350px',
-              maxWidth: '500px',
+              flex: '1 1 35%',
+              minWidth: '300px',
+              maxWidth: '450px',
             }}
           >
             <EditSchedulerPanel
