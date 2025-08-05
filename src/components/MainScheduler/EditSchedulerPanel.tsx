@@ -45,7 +45,7 @@ const DUMMY_CLASSES: DummyClass[] = [
     code: 'CS 101',
     instructor: 'Dr. Smith',
     time: '10:00 AM - 11:15 AM',
-    days: 'Mon, Wed, Fri',
+    days: 'Mon, Wed, Fri, Sat',
     credits: 3,
     location: 'Science Building 101',
   },
@@ -103,7 +103,7 @@ const convertClassToEvent = (classItem: DummyClass): EventData[] => {
         startTime,
         endTime,
         day,
-        color: classItem.color || '#1976d2', // Use class color or default blue
+        color: classItem.color || '#9E9E9E', // Use class color or default mild gray
         location: classItem.location,
         instructor: classItem.instructor,
       });
@@ -158,7 +158,7 @@ function EditSchedulerPanel({
 
   const handleAddClass = (classItem: DummyClass): void => {
     if (onAddEvent) {
-      const selectedColor = classColors[classItem.id] || '#1976d2';
+      const selectedColor = classColors[classItem.id] || '#9E9E9E';
       const classWithColor = {
         ...classItem,
         color: selectedColor,

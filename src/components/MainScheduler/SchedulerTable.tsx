@@ -14,7 +14,9 @@ import {
   TableRow,
   Box,
   Typography,
+  IconButton,
 } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 // Components
 import Modal from '../Common/Modal/Modal';
 import getDummyEvents from '../../data/Schedule/getDummyEvents';
@@ -22,6 +24,8 @@ import type { EventData } from '../../types/event';
 
 interface SchedulerTableProps {
   events?: EventData[];
+  onRemoveEvent?: (eventId: string) => void;
+  isEditMode?: boolean;
 }
 
 /**
@@ -30,7 +34,7 @@ interface SchedulerTableProps {
  * @param {SchedulerTableProps} props - Props including optional events array
  * @return {React.ReactElement} The rendered scheduler table
  */
-function SchedulerTable({ events }: SchedulerTableProps): React.ReactElement {
+function SchedulerTable({ events, onRemoveEvent, isEditMode = false }: SchedulerTableProps): React.ReactElement {
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
@@ -67,6 +71,12 @@ function SchedulerTable({ events }: SchedulerTableProps): React.ReactElement {
 
   const handleCloseModal = (): void => {
     setIsModalOpen(false);
+  };
+
+  const handleRemoveEvent = (eventId: string): void => {
+    if (onRemoveEvent) {
+      onRemoveEvent(eventId);
+    }
   };
 
   // Function to determine the color based on the hour index
@@ -127,7 +137,7 @@ function SchedulerTable({ events }: SchedulerTableProps): React.ReactElement {
   }, [myEvents]);
 
   return (
-    <Box sx={{ height: '100%', flexGrow: 1 }}>
+    <Box sx={{ height: '100%', flexGrow: 1, overflow: 'visible' }}>
       <Modal
         isOpen={isModalOpen}
         handleClose={handleCloseModal}
@@ -140,6 +150,7 @@ function SchedulerTable({ events }: SchedulerTableProps): React.ReactElement {
           width: '100%',
           height: '100%',
           flexDirection: 'column',
+          overflow: 'visible',
         }}
       >
         {/* start of the scheduler box */}
@@ -151,7 +162,8 @@ function SchedulerTable({ events }: SchedulerTableProps): React.ReactElement {
             tableLayout: 'fixed',
             height: '100%',
             borderRadius: '6px',
-            overflow: 'hidden',
+            overflow: 'visible',
+            marginRight: '15px', // Extra space for rightmost X buttons
           }}
         >
           <TableHead>
@@ -243,8 +255,32 @@ function SchedulerTable({ events }: SchedulerTableProps): React.ReactElement {
                               borderRadius: '4px',
                               padding: 0,
                               border: 'none',
+                              position: 'relative',
+                              ...(isEditMode && {
+                                '&::after': {
+                                  content: '"×"',
+                                  position: 'absolute',
+                                  top: '-12px',
+                                  right: '-12px',
+                                  width: '24px',
+                                  height: '24px',
+                                  color: '#494949',
+                                  fontSize: '24px',
+                                  fontWeight: '200',
+                                  cursor: 'pointer',
+                                  zIndex: 1000,
+                                  lineHeight: '24px',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  '&:hover': {
+                                    color: '#333',
+                                  },
+                                },
+                              }),
                             }}
                             rowSpan={rowSpan}
+                            onClick={isEditMode ? () => handleRemoveEvent(event.id) : undefined}
                           >
                             <Typography
                               variant="body2"
