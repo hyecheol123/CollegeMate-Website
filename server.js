@@ -55,14 +55,109 @@ app.get('/api/terms', async (req, res) => {
   }
 });
 
+// Proxy endpoint for UW-Madison class search API
+app.post('/api/search', async (req, res) => {
+  try {
+    const { searchTerm, queryString, page = 1, pageSize = 10 } = req.body;
+    
+    console.log('🔍 Proxying search request to UW-Madison API...');
+    console.log(`📋 Search params: term=${searchTerm}, query="${queryString}", page=${page}, size=${pageSize}`);
+    
+    // Prepare the search payload
+    const searchPayload = {
+      searchTerm: parseInt(searchTerm),
+      queryString: queryString,
+      page: page,
+      pageSize: pageSize
+    };
+
+    // Fetch data from UW-Madison search API
+    const response = await fetch('https://public.enroll.wisc.edu/api/search/v1', {
+      method: 'POST',
+      headers: {
+        'User-Agent': 'CollegeMate-API-Proxy/1.0',
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(searchPayload)
+    });
+
+    if (!response.ok) {
+      throw new Error(`UW-Madison Search API returned status ${response.status}`);
+    }
+
+    const data = await response.json();
+    
+    console.log('✅ Successfully fetched search results from UW-Madison API');
+    console.log(`📊 Found ${data.totalCount || 0} total results, returning ${data.results?.length || 0} items`);
+    
+    // Return the data to frontend
+    res.json(data);
+    
+  } catch (error) {
+    console.error('❌ Error proxying UW-Madison Search API:', error.message);
+    
+    res.status(500).json({
+      error: 'Failed to search classes from UW-Madison API',
+      message: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+// Proxy endpoint for UW-Madison course details API
+app.get('/api/course-details/:termCode/:subjectCode/:courseId', async (req, res) => {
+  try {
+    const { termCode, subjectCode, courseId } = req.params;
+    
+    console.log('📚 Proxying course details request to UW-Madison API...');
+    console.log(`📋 Course details params: term=${termCode}, subject="${decodeURIComponent(subjectCode)}", course=${courseId}`);
+    
+    // Construct the URL for the UW-Madison course details API
+    const apiUrl = `https://public.enroll.wisc.edu/api/search/v1/enrollmentPackages/${termCode}/${encodeURIComponent(subjectCode)}/${courseId}`;
+    
+    // Fetch data from UW-Madison course details API
+    const response = await fetch(apiUrl, {
+      method: 'GET',
+      headers: {
+        'User-Agent': 'CollegeMate-API-Proxy/1.0',
+        'Accept': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`UW-Madison Course Details API returned status ${response.status}`);
+    }
+
+    const data = await response.json();
+    
+    console.log('✅ Successfully fetched course details from UW-Madison API');
+    console.log(`📊 Found ${data?.length || 0} enrollment packages for ${decodeURIComponent(subjectCode)} ${courseId}`);
+    
+    // Return the data to frontend
+    res.json(data);
+    
+  } catch (error) {
+    console.error('❌ Error proxying UW-Madison Course Details API:', error.message);
+    
+    res.status(500).json({
+      error: 'Failed to fetch course details from UW-Madison API',
+      message: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
 // Start the server
 app.listen(PORT, () => {
   console.log(`🚀 Express API server running on http://localhost:${PORT}`);
   console.log(`📡 Terms endpoint: http://localhost:${PORT}/api/terms`);
+  console.log(`🔍 Search endpoint: http://localhost:${PORT}/api/search`);
+  console.log(`📚 Course details: http://localhost:${PORT}/api/course-details/:termCode/:subjectCode/:courseId`);
   console.log(`🏥 Health check: http://localhost:${PORT}/health`);
   console.log('');
   console.log('🎯 Next steps:');
   console.log('1. Keep this server running');
   console.log('2. In another terminal, run: npm run dev');
-  console.log('3. Frontend will fetch terms from this proxy server');
+  console.log('3. Frontend will fetch data from this proxy server');
 });

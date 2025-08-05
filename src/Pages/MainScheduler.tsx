@@ -201,6 +201,7 @@ function MainScheduler(): React.ReactElement {
               <EditSchedulerPanel
                 onAddEvent={addEvent}
                 onUpdateEventColor={updateEventColorsByClassId}
+                currentTerm={currentTerm}
               />
             </Box>
           )}
@@ -241,6 +242,7 @@ function MainScheduler(): React.ReactElement {
             <EditSchedulerPanel
               onAddEvent={addEvent}
               onUpdateEventColor={updateEventColorsByClassId}
+              currentTerm={currentTerm}
             />
           </Box>
         </Box>

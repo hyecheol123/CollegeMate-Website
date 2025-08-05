@@ -4,9 +4,12 @@
  */
 
 // React
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 // Types
 import type { EventData } from '../../types/event';
+// API
+import { searchClasses, type ClassSearchResult } from '../../data/Search/searchClasses';
+import { getCourseDetails } from '../../data/Search/getCourseDetails';
 // Material UI
 import {
   Box,
@@ -23,99 +26,77 @@ import {
 import SearchIcon from '@mui/icons-material/Search';
 // Components
 import ColorSelectionModal from '../Common/ColorSelectionModal';
+import type { Term } from '../../data/Terms/getTerms';
 
-// Dummy class data type
-interface DummyClass {
-  id: string;
-  name: string;
-  code: string;
-  instructor: string;
-  time: string;
-  days: string;
-  credits: number;
-  location: string;
-  color?: string;
-}
-
-// Static dummy data
-const DUMMY_CLASSES: DummyClass[] = [
-  {
-    id: '1',
-    name: 'Introduction to Computer Science',
-    code: 'CS 101',
-    instructor: 'Dr. Smith',
-    time: '10:00 AM - 11:15 AM',
-    days: 'Mon, Wed, Fri, Sat',
-    credits: 3,
-    location: 'Science Building 101',
-  },
-  {
-    id: '2',
-    name: 'Calculus I',
-    code: 'MATH 141',
-    instructor: 'Prof. Johnson',
-    time: '2:00 PM - 3:15 PM',
-    days: 'Tue, Thu',
-    credits: 4,
-    location: 'Math Building 205',
-  },
-];
-
-// Helper function to convert dummy class to event data
-const convertClassToEvent = (classItem: DummyClass): EventData[] => {
+// Helper function to convert course details to event data
+const convertCourseToEvents = (
+  course: ClassSearchResult, 
+  courseDetails: any, 
+  color: string
+): EventData[] => {
   const events: EventData[] = [];
-  const dayMap: { [key: string]: string } = {
-    Mon: 'Mon',
-    Tue: 'Tue',
-    Wed: 'Wed',
-    Thu: 'Thu',
-    Fri: 'Fri',
-    Sat: 'Sat',
-    Sun: 'Sun',
-  };
+  
+  console.log(`🔄 Converting course ${course.fullCourseDesignation} to events...`);
+  
+  if (!courseDetails || !courseDetails.length) {
+    console.log(`⚠️ No course details found for ${course.fullCourseDesignation}`);
+    return events;
+  }
 
-  // Parse time (assuming format like "10:00 AM - 11:15 AM")
-  const [startTimeStr, endTimeStr] = classItem.time.split(' - ');
-  const parseTime = (timeStr: string): { hour: number; minute: number } => {
-    const [time, period] = timeStr.split(' ');
-    const [hourStr, minuteStr] = time.split(':');
-    let hour = parseInt(hourStr, 10);
-    const minute = parseInt(minuteStr, 10);
+  courseDetails.forEach((enrollmentPackage: any) => {
+    enrollmentPackage.sections?.forEach((section: any) => {
+      section.classMeetings?.forEach((meeting: any) => {
+        // Convert meeting days list to individual days
+        meeting.meetingDaysList?.forEach((day: string) => {
+          // Convert timestamps to time objects
+          const startDate = new Date(meeting.meetingTimeStart);
+          const endDate = new Date(meeting.meetingTimeEnd);
+          
+          const startTime = {
+            hour: startDate.getHours(),
+            minute: startDate.getMinutes(),
+          };
+          
+          const endTime = {
+            hour: endDate.getHours(),
+            minute: endDate.getMinutes(),
+          };
 
-    if (period === 'PM' && hour !== 12) hour += 12;
-    if (period === 'AM' && hour === 12) hour = 0;
+          // Get instructor info
+          const instructorNames = section.instructors?.map((inst: any) => 
+            `${inst.name.first} ${inst.name.last}`
+          ).join(', ') || 'TBA';
 
-    return { hour, minute };
-  };
+          // Create unique event ID
+          const eventId = `${course.courseId}-${section.id}-${day}`;
 
-  const startTime = parseTime(startTimeStr);
-  const endTime = parseTime(endTimeStr);
+          events.push({
+            id: eventId,
+            title: course.courseDesignation,
+            startTime,
+            endTime,
+            day,
+            color,
+            location: meeting.buildingName && meeting.room 
+              ? `${meeting.buildingName} ${meeting.room}` 
+              : 'TBA',
+            instructor: instructorNames,
+          });
 
-  // Parse days (assuming format like "Mon, Wed, Fri")
-  const daysList = classItem.days.split(', ');
-
-  daysList.forEach((dayStr) => {
-    const day = dayMap[dayStr];
-    if (day) {
-      events.push({
-        id: `${classItem.id}-${day}`,
-        title: classItem.code,
-        startTime,
-        endTime,
-        day,
-        color: classItem.color || '#9E9E9E', // Use class color or default mild gray
-        location: classItem.location,
-        instructor: classItem.instructor,
+          console.log(`  ✅ Created event: ${course.courseDesignation} on ${day} ${startTime.hour}:${startTime.minute.toString().padStart(2, '0')}-${endTime.hour}:${endTime.minute.toString().padStart(2, '0')}`);
+        });
       });
-    }
+    });
   });
 
+  console.log(`📊 Created ${events.length} events for ${course.fullCourseDesignation}`);
   return events;
 };
 
 interface EditSchedulerPanelProps {
   onAddEvent?: (event: EventData) => void;
   onUpdateEventColor?: (classId: string, color: string) => void;
+  currentTerm?: Term | null;
 }
 
 /**
@@ -127,28 +108,58 @@ interface EditSchedulerPanelProps {
 function EditSchedulerPanel({
   onAddEvent,
   onUpdateEventColor,
+  currentTerm,
 }: EditSchedulerPanelProps): React.ReactElement {
   const [searchInput, setSearchInput] = useState<string>('');
   const [classColors, setClassColors] = useState<{ [key: string]: string }>({});
   const [colorModalOpen, setColorModalOpen] = useState(false);
   const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
+  const [searchResults, setSearchResults] = useState<ClassSearchResult[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
-  // Filter classes based on search input
-  const filteredClasses = useMemo(() => {
-    if (!searchInput.trim()) {
-      return DUMMY_CLASSES;
-    }
+  // Perform search when search input changes
+  useEffect(() => {
+    const performSearch = async () => {
+      if (!searchInput.trim() || !currentTerm) {
+        setSearchResults([]);
+        return;
+      }
 
-    const searchTerm = searchInput.toLowerCase();
-    return DUMMY_CLASSES.filter(
-      (classItem) =>
-        classItem.name.toLowerCase().includes(searchTerm) ||
-        classItem.code.toLowerCase().includes(searchTerm) ||
-        classItem.instructor.toLowerCase().includes(searchTerm),
-    );
-  }, [searchInput]);
+      if (searchInput.length < 2) {
+        return; // Don't search for very short queries
+      }
+
+      setIsSearching(true);
+      setSearchError(null);
+      
+      console.log(`🔍 Starting search for "${searchInput}" in term ${currentTerm.termCode}...`);
+
+      try {
+        const response = await searchClasses(currentTerm.termCode, searchInput, 1, 10);
+        
+        console.log(`✅ Search completed! Found ${response.found} total results`);
+        setSearchResults(response.hits || []);
+        
+        if (response.hits.length === 0) {
+          console.log(`ℹ️ No results found for "${searchInput}"`);
+        }
+        
+      } catch (error) {
+        console.error('❌ Search failed:', error);
+        setSearchError(error instanceof Error ? error.message : 'Search failed');
+        setSearchResults([]);
+      } finally {
+        setIsSearching(false);
+      }
+    };
+
+    // Debounce search
+    const timeoutId = setTimeout(performSearch, 500);
+    return () => clearTimeout(timeoutId);
+  }, [searchInput, currentTerm]);
 
   const handleSearchChange = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -156,15 +167,38 @@ function EditSchedulerPanel({
     setSearchInput(event.target.value);
   };
 
-  const handleAddClass = (classItem: DummyClass): void => {
-    if (onAddEvent) {
-      const selectedColor = classColors[classItem.id] || '#9E9E9E';
-      const classWithColor = {
-        ...classItem,
-        color: selectedColor,
-      };
-      const events = convertClassToEvent(classWithColor);
+  const handleAddClass = async (course: ClassSearchResult): Promise<void> => {
+    if (!onAddEvent || !currentTerm) {
+      console.log('❌ Cannot add class: missing onAddEvent callback or currentTerm');
+      return;
+    }
+
+    console.log(`🎯 Adding class ${course.fullCourseDesignation}...`);
+    
+    try {
+      // Get course details
+      console.log(`📡 Fetching details for ${course.subject.subjectCode} ${course.courseId}...`);
+      const courseDetails = await getCourseDetails(
+        currentTerm.termCode,
+        course.subject.subjectCode,
+        course.courseId
+      );
+
+      const selectedColor = classColors[course.courseId] || '#9E9E9E';
+      const events = convertCourseToEvents(course, courseDetails.packages, selectedColor);
+      
+      if (events.length === 0) {
+        console.log(`⚠️ No events created for ${course.fullCourseDesignation}`);
+        return;
+      }
+
+      console.log(`✅ Adding ${events.length} events to schedule...`);
       events.forEach((event) => onAddEvent(event));
+      
+      console.log(`🎉 Successfully added ${course.fullCourseDesignation} to schedule!`);
+      
+    } catch (error) {
+      console.error(`❌ Failed to add class ${course.fullCourseDesignation}:`, error);
     }
   };
 
@@ -245,21 +279,30 @@ function EditSchedulerPanel({
           fontWeight: 500,
         }}
       >
-        {filteredClasses.length} class(es) found
+        {isSearching ? 'Searching...' : 
+         searchError ? 'Search error' :
+         searchResults.length > 0 ? `${searchResults.length} class(es) found` :
+         searchInput.trim() ? 'No classes found' : 'Enter search term above'}
       </Typography>
 
       {/* Class List */}
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        {filteredClasses.length === 0 ? (
+        {searchError ? (
+          <Card sx={{ padding: '20px', textAlign: 'center' }}>
+            <Typography variant="body2" color="error">
+              Error: {searchError}
+            </Typography>
+          </Card>
+        ) : searchResults.length === 0 && searchInput.trim() && !isSearching ? (
           <Card sx={{ padding: '20px', textAlign: 'center' }}>
             <Typography variant="body2" color="text.secondary">
               No classes found matching your search.
             </Typography>
           </Card>
         ) : (
-          filteredClasses.map((classItem) => (
+          searchResults.map((course, index) => (
             <Card
-              key={classItem.id}
+              key={`${course.courseId}-${course.subject.subjectCode}-${index}`}
               sx={{
                 transition: 'box-shadow 0.2s ease-in-out',
                 '&:hover': {
@@ -288,14 +331,16 @@ function EditSchedulerPanel({
                       }}
                     >
                       <Typography variant="h3" color="red.main">
-                        {classItem.code}
+                        {course.courseDesignation}
                       </Typography>
-                      <Chip
-                        label={`${classItem.credits} credits`}
-                        size="small"
-                        variant="outlined"
-                        sx={{ fontSize: '12px' }}
-                      />
+                      {course.credits && (
+                        <Chip
+                          label={`${course.credits.min}-${course.credits.max} credits`}
+                          size="small"
+                          variant="outlined"
+                          sx={{ fontSize: '12px' }}
+                        />
+                      )}
                     </Box>
 
                     <Typography
@@ -306,7 +351,7 @@ function EditSchedulerPanel({
                         color: 'darkGrey.main',
                       }}
                     >
-                      {classItem.name}
+                      {course.title}
                     </Typography>
 
                     <Typography
@@ -314,27 +359,21 @@ function EditSchedulerPanel({
                       color="text.secondary"
                       sx={{ marginBottom: '4px' }}
                     >
-                      Instructor: {classItem.instructor}
+                      Subject: {course.subject.formalDescription}
                     </Typography>
 
                     <Typography
                       variant="body2"
                       color="text.secondary"
-                      sx={{ marginBottom: '4px' }}
+                      sx={{ 
+                        marginBottom: '4px',
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden',
+                      }}
                     >
-                      Time: {classItem.time}
-                    </Typography>
-
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      sx={{ marginBottom: '4px' }}
-                    >
-                      Days: {classItem.days}
-                    </Typography>
-
-                    <Typography variant="body2" color="text.secondary">
-                      Location: {classItem.location}
+                      {course.description}
                     </Typography>
                   </Box>
 
@@ -351,7 +390,7 @@ function EditSchedulerPanel({
                     <Button
                       variant="outlined"
                       size="small"
-                      onClick={() => handleCustomizeColor(classItem.id)}
+                      onClick={() => handleCustomizeColor(course.courseId)}
                       sx={{
                         flex: 1,
                         fontSize: '12px',
@@ -364,7 +403,7 @@ function EditSchedulerPanel({
                       variant="contained"
                       color="primary"
                       size="small"
-                      onClick={() => handleAddClass(classItem)}
+                      onClick={() => handleAddClass(course)}
                       sx={{
                         flex: 1,
                         fontSize: '12px',

@@ -66,25 +66,7 @@ function TermSelector({
   }
 
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: isMobile ? '8px' : '12px',
-      }}
-    >
-      <Typography
-        variant="body2"
-        color="text.secondary"
-        sx={{
-          minWidth: 'max-content',
-          fontSize: isMobile ? '0.875rem' : '0.9rem',
-        }}
-      >
-        Term:
-      </Typography>
-
-      <FormControl
+    <FormControl
         size="small"
         disabled={disabled}
         sx={{
@@ -132,31 +114,12 @@ function TermSelector({
           )}
 
           {terms.map((term) => (
-            <MenuItem
-              key={term.termCode}
-              value={term.termCode}
-              sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'flex-start',
-                py: 1,
-              }}
-            >
-              <Typography variant="body2" fontWeight="medium">
-                {formatTermCode(term.termCode)}
-              </Typography>
-              <Typography
-                variant="caption"
-                color="text.secondary"
-                sx={{ lineHeight: 1.2 }}
-              >
-                {term.longDescription}
-              </Typography>
+            <MenuItem key={term.termCode} value={term.termCode}>
+              {formatTermCode(term.termCode)}
             </MenuItem>
           ))}
         </Select>
       </FormControl>
-    </Box>
   );
 }
 
