@@ -14,9 +14,7 @@ import {
   TableRow,
   Box,
   Typography,
-  IconButton,
 } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
 // Components
 import Modal from '../Common/Modal/Modal';
 import getDummyEvents from '../../data/Schedule/getDummyEvents';
@@ -34,7 +32,11 @@ interface SchedulerTableProps {
  * @param {SchedulerTableProps} props - Props including optional events array
  * @return {React.ReactElement} The rendered scheduler table
  */
-function SchedulerTable({ events, onRemoveEvent, isEditMode = false }: SchedulerTableProps): React.ReactElement {
+function SchedulerTable({
+  events,
+  onRemoveEvent,
+  isEditMode = false,
+}: SchedulerTableProps): React.ReactElement {
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
@@ -280,7 +282,11 @@ function SchedulerTable({ events, onRemoveEvent, isEditMode = false }: Scheduler
                               }),
                             }}
                             rowSpan={rowSpan}
-                            onClick={isEditMode ? () => handleRemoveEvent(event.id) : undefined}
+                            onClick={
+                              isEditMode
+                                ? (): void => handleRemoveEvent(event.id)
+                                : undefined
+                            }
                           >
                             <Typography
                               variant="body2"

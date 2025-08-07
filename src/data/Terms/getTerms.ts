@@ -43,15 +43,17 @@ export async function getTerms(): Promise<TermsResponse> {
         const { data, timestamp } = JSON.parse(cached);
         const age = Date.now() - timestamp;
         const ageMinutes = Math.floor(age / (1000 * 60));
-        
+
         if (age < CACHE_DURATION) {
           console.log(`💾 Using cached terms data (${ageMinutes}분 전 캐시)`);
           console.log(`📊 Cached: ${data.terms?.length || 0} terms`);
           return data;
         } else {
-          console.log(`⏰ Cache expired (${ageMinutes}분 전), fetching fresh data...`);
+          console.log(
+            `⏰ Cache expired (${ageMinutes}분 전), fetching fresh data...`,
+          );
         }
-      } catch (e) {
+      } catch {
         console.log('🗑️ Invalid cache, fetching fresh data...');
         localStorage.removeItem(CACHE_KEY);
       }
@@ -78,7 +80,7 @@ export async function getTerms(): Promise<TermsResponse> {
     // 캐시에 저장
     const cacheData = {
       data,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
     localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
     console.log('💾 Terms data cached for 1 hour');

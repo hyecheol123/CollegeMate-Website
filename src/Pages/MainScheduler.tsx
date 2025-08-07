@@ -7,7 +7,14 @@
 // React
 import React, { useState, useRef, useEffect } from 'react';
 // Material UI
-import { Box, useMediaQuery, useTheme, Alert, CircularProgress, Typography } from '@mui/material';
+import {
+  Box,
+  useMediaQuery,
+  useTheme,
+  Alert,
+  CircularProgress,
+  Typography,
+} from '@mui/material';
 // Component
 import SchedulerTable from '../components/MainScheduler/SchedulerTable';
 import SchedulerTitle from '../components/MainScheduler/SchedulerTitle';
@@ -50,7 +57,7 @@ function MainScheduler(): React.ReactElement {
       try {
         setLoading(true);
         setError(null);
-        
+
         const termsData = await getTerms();
         const futureTerms = getUpcomingTerms(termsData.terms, 6); // Get next 6 terms
         setAvailableTerms(futureTerms);
@@ -68,7 +75,9 @@ function MainScheduler(): React.ReactElement {
         }
       } catch (error) {
         console.error('Failed to load terms:', error);
-        setError(error instanceof Error ? error.message : 'Failed to load terms');
+        setError(
+          error instanceof Error ? error.message : 'Failed to load terms',
+        );
       } finally {
         setLoading(false);
       }
@@ -132,12 +141,11 @@ function MainScheduler(): React.ReactElement {
     setScheduleEvents((prev) => {
       // Extract the class ID from the event ID (format: "classId-day")
       const classId = eventId.split('-')[0];
-      
+
       // Remove all events that belong to the same class
       return prev.filter((event) => !event.id.startsWith(`${classId}-`));
     });
   };
-
 
   // Show loading state
   if (loading) {
@@ -194,10 +202,14 @@ function MainScheduler(): React.ReactElement {
       {isMobile ? (
         <Box sx={{ padding: '0 16px', overflow: 'visible' }}>
           {/* Mobile: Scheduler always same size */}
-          <SchedulerTable events={scheduleEvents} onRemoveEvent={removeEvent} isEditMode={isEditMode} />
+          <SchedulerTable
+            events={scheduleEvents}
+            onRemoveEvent={removeEvent}
+            isEditMode={isEditMode}
+          />
           {/* Mobile: Search panel below when in edit mode */}
           {isEditMode && (
-            <Box ref={searchPanelRef} sx={{ marginTop: '16px' }}>
+            <Box ref={searchPanelRef} sx={{ marginTop: '8px', width: '100%' }}>
               <EditSchedulerPanel
                 onAddEvent={addEvent}
                 onUpdateEventColor={updateEventColorsByClassId}
@@ -216,27 +228,37 @@ function MainScheduler(): React.ReactElement {
             alignItems: 'flex-start',
             padding: '0 32px',
             width: '100%',
-            overflow: 'visible',
+            overflow: 'hidden',
+            height: 'calc(100vh - 140px)', // Adjust based on header height
           }}
         >
           {/* Scheduler Section */}
           <Box
             sx={{
-              flex: '1 1 65%',
+              flex: '1 1 60%',
               minWidth: 0,
               overflow: 'visible',
+              position: 'sticky',
+              top: '0px',
+              height: 'fit-content',
             }}
           >
-            <SchedulerTable events={scheduleEvents} onRemoveEvent={removeEvent} isEditMode={isEditMode} />
+            <SchedulerTable
+              events={scheduleEvents}
+              onRemoveEvent={removeEvent}
+              isEditMode={isEditMode}
+            />
           </Box>
 
           {/* Search Panel Section */}
           <Box
             ref={searchPanelRef}
             sx={{
-              flex: '1 1 35%',
-              minWidth: '300px',
-              maxWidth: '450px',
+              flex: '1 1 40%',
+              minWidth: '350px',
+              maxWidth: '500px',
+              height: 'calc(100vh - 140px)',
+              overflowY: 'auto',
             }}
           >
             <EditSchedulerPanel
@@ -248,7 +270,11 @@ function MainScheduler(): React.ReactElement {
         </Box>
       ) : (
         <Box sx={{ padding: '0 32px', overflow: 'visible' }}>
-          <SchedulerTable events={scheduleEvents} onRemoveEvent={removeEvent} isEditMode={isEditMode} />
+          <SchedulerTable
+            events={scheduleEvents}
+            onRemoveEvent={removeEvent}
+            isEditMode={isEditMode}
+          />
         </Box>
       )}
     </Box>

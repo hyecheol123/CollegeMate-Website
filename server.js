@@ -22,35 +22,37 @@ app.get('/health', (req, res) => {
 app.get('/api/terms', async (req, res) => {
   try {
     console.log('🔄 Proxying request to UW-Madison enrollment API...');
-    
+
     // Fetch data from UW-Madison API
-    const response = await fetch('https://public.enroll.wisc.edu/api/search/v1/aggregate', {
-      method: 'GET',
-      headers: {
-        'User-Agent': 'CollegeMate-API-Proxy/1.0',
-        'Accept': 'application/json',
+    const response = await fetch(
+      'https://public.enroll.wisc.edu/api/search/v1/aggregate',
+      {
+        method: 'GET',
+        headers: {
+          'User-Agent': 'CollegeMate-API-Proxy/1.0',
+          Accept: 'application/json',
+        },
       },
-    });
+    );
 
     if (!response.ok) {
       throw new Error(`UW-Madison API returned status ${response.status}`);
     }
 
     const data = await response.json();
-    
+
     console.log('✅ Successfully fetched terms from UW-Madison API');
     console.log(`📊 Found ${data.terms?.length || 0} terms`);
-    
+
     // Return the data to frontend
     res.json(data);
-    
   } catch (error) {
     console.error('❌ Error proxying UW-Madison API:', error.message);
-    
+
     res.status(500).json({
       error: 'Failed to fetch terms from UW-Madison API',
       message: error.message,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 });
@@ -59,101 +61,106 @@ app.get('/api/terms', async (req, res) => {
 app.post('/api/search', async (req, res) => {
   try {
     const { searchTerm, queryString, page = 1, pageSize = 10 } = req.body;
-    
-    console.log('🔍 Proxying search request to UW-Madison API...');
-    console.log(`📋 Search params: term=${searchTerm}, query="${queryString}", page=${page}, size=${pageSize}`);
-    
+
     // Prepare the search payload
     const searchPayload = {
       searchTerm: parseInt(searchTerm),
       queryString: queryString,
       page: page,
-      pageSize: pageSize
+      pageSize: pageSize,
     };
 
     // Fetch data from UW-Madison search API
-    const response = await fetch('https://public.enroll.wisc.edu/api/search/v1', {
-      method: 'POST',
-      headers: {
-        'User-Agent': 'CollegeMate-API-Proxy/1.0',
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
+    const response = await fetch(
+      'https://public.enroll.wisc.edu/api/search/v1',
+      {
+        method: 'POST',
+        headers: {
+          'User-Agent': 'CollegeMate-API-Proxy/1.0',
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(searchPayload),
       },
-      body: JSON.stringify(searchPayload)
-    });
+    );
 
     if (!response.ok) {
-      throw new Error(`UW-Madison Search API returned status ${response.status}`);
+      throw new Error(
+        `UW-Madison Search API returned status ${response.status}`,
+      );
     }
 
     const data = await response.json();
-    
-    console.log('✅ Successfully fetched search results from UW-Madison API');
-    console.log(`📊 Found ${data.totalCount || 0} total results, returning ${data.results?.length || 0} items`);
-    
+
     // Return the data to frontend
     res.json(data);
-    
   } catch (error) {
-    console.error('❌ Error proxying UW-Madison Search API:', error.message);
-    
     res.status(500).json({
       error: 'Failed to search classes from UW-Madison API',
       message: error.message,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 });
 
 // Proxy endpoint for UW-Madison course details API
-app.get('/api/course-details/:termCode/:subjectCode/:courseId', async (req, res) => {
-  try {
-    const { termCode, subjectCode, courseId } = req.params;
-    
-    console.log('📚 Proxying course details request to UW-Madison API...');
-    console.log(`📋 Course details params: term=${termCode}, subject="${decodeURIComponent(subjectCode)}", course=${courseId}`);
-    
-    // Construct the URL for the UW-Madison course details API
-    const apiUrl = `https://public.enroll.wisc.edu/api/search/v1/enrollmentPackages/${termCode}/${encodeURIComponent(subjectCode)}/${courseId}`;
-    
-    // Fetch data from UW-Madison course details API
-    const response = await fetch(apiUrl, {
-      method: 'GET',
-      headers: {
-        'User-Agent': 'CollegeMate-API-Proxy/1.0',
-        'Accept': 'application/json',
-      },
-    });
+app.get(
+  '/api/course-details/:termCode/:subjectCode/:courseId',
+  async (req, res) => {
+    try {
+      const { termCode, subjectCode, courseId } = req.params;
 
-    if (!response.ok) {
-      throw new Error(`UW-Madison Course Details API returned status ${response.status}`);
+      // Construct the URL for the UW-Madison course details API
+      const apiUrl = `https://public.enroll.wisc.edu/api/search/v1/enrollmentPackages/${termCode}/${encodeURIComponent(subjectCode)}/${courseId}`;
+
+      console.log('🎯 UW-MADISON API CALL:');
+      console.log(`   URL: ${apiUrl}`);
+      console.log('   Method: GET');
+      console.log(
+        `   Params: termCode=${termCode}, subjectCode="${decodeURIComponent(subjectCode)}", courseId=${courseId}`,
+      );
+
+      // Fetch data from UW-Madison course details API
+      const response = await fetch(apiUrl, {
+        method: 'GET',
+        headers: {
+          'User-Agent': 'CollegeMate-API-Proxy/1.0',
+          Accept: 'application/json',
+        },
+      });
+
+      console.log(`   Response Status: ${response.status}`);
+
+      if (!response.ok) {
+        throw new Error(
+          `UW-Madison Course Details API returned status ${response.status}`,
+        );
+      }
+
+      const data = await response.json();
+
+      console.log('   Response Data:', JSON.stringify(data, null, 2));
+
+      // Return the data to frontend
+      res.json(data);
+    } catch (error) {
+      res.status(500).json({
+        error: 'Failed to fetch course details from UW-Madison API',
+        message: error.message,
+        timestamp: new Date().toISOString(),
+      });
     }
-
-    const data = await response.json();
-    
-    console.log('✅ Successfully fetched course details from UW-Madison API');
-    console.log(`📊 Found ${data?.length || 0} enrollment packages for ${decodeURIComponent(subjectCode)} ${courseId}`);
-    
-    // Return the data to frontend
-    res.json(data);
-    
-  } catch (error) {
-    console.error('❌ Error proxying UW-Madison Course Details API:', error.message);
-    
-    res.status(500).json({
-      error: 'Failed to fetch course details from UW-Madison API',
-      message: error.message,
-      timestamp: new Date().toISOString()
-    });
-  }
-});
+  },
+);
 
 // Start the server
 app.listen(PORT, () => {
   console.log(`🚀 Express API server running on http://localhost:${PORT}`);
   console.log(`📡 Terms endpoint: http://localhost:${PORT}/api/terms`);
   console.log(`🔍 Search endpoint: http://localhost:${PORT}/api/search`);
-  console.log(`📚 Course details: http://localhost:${PORT}/api/course-details/:termCode/:subjectCode/:courseId`);
+  console.log(
+    `📚 Course details: http://localhost:${PORT}/api/course-details/:termCode/:subjectCode/:courseId`,
+  );
   console.log(`🏥 Health check: http://localhost:${PORT}/health`);
   console.log('');
   console.log('🎯 Next steps:');

@@ -42,78 +42,54 @@ export async function searchClasses(
   searchTerm: string,
   queryString: string,
   page: number = 1,
-  pageSize: number = 10
+  pageSize: number = 10,
 ): Promise<ClassSearchResponse> {
-  try {
-    // Create cache key based on search parameters
-    const cacheKey = `${CACHE_KEY_PREFIX}${searchTerm}_${queryString}_${page}_${pageSize}`;
-    
-    // Check cache
-    const cached = localStorage.getItem(cacheKey);
-    if (cached) {
-      try {
-        const { data, timestamp } = JSON.parse(cached);
-        const age = Date.now() - timestamp;
-        const ageMinutes = Math.floor(age / (1000 * 60));
-        
-        if (age < CACHE_DURATION) {
-          console.log(`💾 Using cached search results (${ageMinutes}분 전 캐시)`);
-          console.log(`📊 Cached: ${data.hits?.length || 0} results`);
-          return data;
-        } else {
-          console.log(`⏰ Cache expired (${ageMinutes}분 전), fetching fresh data...`);
-        }
-      } catch (e) {
-        console.log('🗑️ Invalid cache, fetching fresh data...');
-        localStorage.removeItem(cacheKey);
+  // Create cache key based on search parameters
+  const cacheKey = `${CACHE_KEY_PREFIX}${searchTerm}_${queryString}_${page}_${pageSize}`;
+
+  // Check cache
+  const cached = localStorage.getItem(cacheKey);
+  if (cached) {
+    try {
+      const { data, timestamp } = JSON.parse(cached);
+      const age = Date.now() - timestamp;
+
+      if (age < CACHE_DURATION) {
+        return data;
       }
+    } catch {
+      localStorage.removeItem(cacheKey);
     }
-
-    console.log(`🔄 Searching classes: "${queryString}" in term ${searchTerm}...`);
-
-    const searchPayload = {
-      searchTerm: parseInt(searchTerm),
-      queryString: queryString,
-      page: page,
-      pageSize: pageSize
-    };
-
-    const response = await fetch('/api/search', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(searchPayload)
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Search API error ${response.status}: ${errorText}`);
-    }
-
-    const data: ClassSearchResponse = await response.json();
-    console.log('✅ Successfully fetched class search results!');
-    console.log(`📊 Found ${data.found} total results, showing ${data.hits?.length || 0} on page ${page}`);
-    
-    // Log first few results for debugging
-    if (data.hits && data.hits.length > 0) {
-      console.log('🎯 Sample results:');
-      data.hits.slice(0, 3).forEach((result, index) => {
-        console.log(`  ${index + 1}. ${result.fullCourseDesignation} - ${result.title}`);
-      });
-    }
-
-    // Cache the results
-    const cacheData = {
-      data,
-      timestamp: Date.now()
-    };
-    localStorage.setItem(cacheKey, JSON.stringify(cacheData));
-    console.log('💾 Search results cached for 1 hour');
-
-    return data;
-  } catch (error) {
-    console.error('❌ Failed to search classes:', error);
-    throw error; // Re-throw to let components handle the error
   }
+
+  const searchPayload = {
+    searchTerm: parseInt(searchTerm),
+    queryString: queryString,
+    page: page,
+    pageSize: pageSize,
+  };
+
+  const response = await fetch('/api/search', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(searchPayload),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Search API error ${response.status}: ${errorText}`);
+  }
+
+  const data: ClassSearchResponse = await response.json();
+
+  // Cache the results
+  const cacheData = {
+    data,
+    timestamp: Date.now(),
+  };
+  localStorage.setItem(cacheKey, JSON.stringify(cacheData));
+
+  return data;
 }

@@ -13,14 +13,14 @@ import {
   Tooltip,
   useTheme,
   useMediaQuery,
+  Menu,
+  MenuItem,
 } from '@mui/material';
 // Material UI Icon
 import Download from '@mui/icons-material/FileDownloadOutlined';
 import Share from '@mui/icons-material/IosShareOutlined';
 import Edit from '@mui/icons-material/EditOutlined';
 import Save from '@mui/icons-material/SaveOutlined';
-// Components
-import TermSelector from './TermSelector';
 // Types and Utils
 import type { Term } from '../../data/Terms/getTerms';
 import { formatTermCode } from '../../utils/termUtils';
@@ -68,6 +68,9 @@ function SchedulerTitle({
 }: SchedulerTitleProps): React.ReactElement {
   // State to hold the current window width
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const [termMenuAnchor, setTermMenuAnchor] = useState<null | HTMLElement>(
+    null,
+  );
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
@@ -93,9 +96,26 @@ function SchedulerTitle({
     ? formatTermCode(currentTerm.termCode)
     : 'Loading...';
 
+  const handleTermMenuOpen = (event: React.MouseEvent<HTMLElement>): void => {
+    if (!isEditMode) {
+      setTermMenuAnchor(event.currentTarget);
+    }
+  };
+
+  const handleTermMenuClose = (): void => {
+    setTermMenuAnchor(null);
+  };
+
+  const handleTermSelect = (term: Term): void => {
+    if (onTermChange) {
+      onTermChange(term);
+    }
+    setTermMenuAnchor(null);
+  };
+
   return (
     <Box sx={containerStyle}>
-      {/* Left side: Current term title and term selector */}
+      {/* Left side: Custom term selector */}
       <Box
         sx={{
           display: 'flex',
@@ -105,19 +125,85 @@ function SchedulerTitle({
           flex: 1,
         }}
       >
-        <Typography variant="h2" sx={titleStyle}>
-          {currentTermName}
-        </Typography>
+        {/* Custom Term Selector */}
+        {availableTerms.length > 1 && onTermChange ? (
+          <Box
+            onClick={handleTermMenuOpen}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              cursor: isEditMode ? 'default' : 'pointer',
+              opacity: isEditMode ? 0.6 : 1,
+              marginLeft: '1px',
+              '&:hover': {
+                opacity: isEditMode ? 0.6 : 0.8,
+              },
+            }}
+          >
+            <Typography variant="h2" sx={titleStyle}>
+              {currentTermName}
+            </Typography>
 
-        {/* Term selector dropdown */}
-        {availableTerms.length > 1 && onTermChange && (
-          <TermSelector
-            terms={availableTerms}
-            selectedTerm={currentTerm}
-            onTermChange={onTermChange}
-            disabled={isEditMode}
-          />
+            {/* Red Triangle Arrow */}
+            <Box
+              sx={{
+                width: 0,
+                height: 0,
+                borderLeft: '6px solid transparent',
+                borderRight: '6px solid transparent',
+                borderTop: '8px solid #B20000',
+                marginTop: '2px',
+                marginLeft: '3px',
+                transition: 'transform 0.2s ease',
+                transform: termMenuAnchor ? 'rotate(180deg)' : 'rotate(0deg)',
+              }}
+            />
+          </Box>
+        ) : (
+          <Typography variant="h2" sx={titleStyle}>
+            {currentTermName}
+          </Typography>
         )}
+
+        {/* Term Menu */}
+        <Menu
+          anchorEl={termMenuAnchor}
+          open={Boolean(termMenuAnchor)}
+          onClose={handleTermMenuClose}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'left',
+          }}
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'left',
+          }}
+          sx={{
+            '& .MuiPaper-root': {
+              marginTop: '8px',
+              minWidth: '200px',
+            },
+          }}
+        >
+          {availableTerms.map((term) => (
+            <MenuItem
+              key={term.termCode}
+              onClick={() => handleTermSelect(term)}
+              selected={currentTerm?.termCode === term.termCode}
+              sx={{
+                '&.Mui-selected': {
+                  backgroundColor: 'rgba(178, 0, 0, 0.08)',
+                  '&:hover': {
+                    backgroundColor: 'rgba(178, 0, 0, 0.12)',
+                  },
+                },
+              }}
+            >
+              {formatTermCode(term.termCode)}
+            </MenuItem>
+          ))}
+        </Menu>
       </Box>
 
       {/* Right side: Action icons */}

@@ -27,6 +27,11 @@ interface TermSelectorProps {
 /**
  * TermSelector component renders a dropdown for selecting academic terms
  * Responsive design that adapts to mobile and desktop layouts
+ * @param root0
+ * @param root0.terms
+ * @param root0.selectedTerm
+ * @param root0.onTermChange
+ * @param root0.disabled
  */
 function TermSelector({
   terms,
@@ -67,59 +72,59 @@ function TermSelector({
 
   return (
     <FormControl
-        size="small"
-        disabled={disabled}
-        sx={{
-          minWidth: isMobile ? '120px' : '140px',
-          '& .MuiOutlinedInput-root': {
-            fontSize: isMobile ? '0.875rem' : '0.9rem',
-            height: isMobile ? '36px' : '40px',
-            '&:hover .MuiOutlinedInput-notchedOutline': {
-              borderColor: 'red.main',
-            },
-            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-              borderColor: 'red.main',
-            },
+      size="small"
+      disabled={disabled}
+      sx={{
+        minWidth: isMobile ? '120px' : '140px',
+        '& .MuiOutlinedInput-root': {
+          fontSize: isMobile ? '0.875rem' : '0.9rem',
+          height: isMobile ? '36px' : '40px',
+          '&:hover .MuiOutlinedInput-notchedOutline': {
+            borderColor: 'red.main',
           },
-        }}
-      >
-        <Select
-          value={selectedTerm?.termCode || ''}
-          onChange={handleChange}
-          displayEmpty
-          MenuProps={{
-            PaperProps: {
-              sx: {
-                maxHeight: 300,
-                '& .MuiMenuItem-root': {
-                  fontSize: isMobile ? '0.875rem' : '0.9rem',
+          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+            borderColor: 'red.main',
+          },
+        },
+      }}
+    >
+      <Select
+        value={selectedTerm?.termCode || ''}
+        onChange={handleChange}
+        displayEmpty
+        MenuProps={{
+          PaperProps: {
+            sx: {
+              maxHeight: 300,
+              '& .MuiMenuItem-root': {
+                fontSize: isMobile ? '0.875rem' : '0.9rem',
+                '&:hover': {
+                  backgroundColor: 'rgba(178, 0, 0, 0.08)',
+                },
+                '&.Mui-selected': {
+                  backgroundColor: 'rgba(178, 0, 0, 0.12)',
                   '&:hover': {
-                    backgroundColor: 'rgba(178, 0, 0, 0.08)',
-                  },
-                  '&.Mui-selected': {
-                    backgroundColor: 'rgba(178, 0, 0, 0.12)',
-                    '&:hover': {
-                      backgroundColor: 'rgba(178, 0, 0, 0.16)',
-                    },
+                    backgroundColor: 'rgba(178, 0, 0, 0.16)',
                   },
                 },
               },
             },
-          }}
-        >
-          {selectedTerm === null && (
-            <MenuItem value="" disabled>
-              <em>Select a term</em>
-            </MenuItem>
-          )}
+          },
+        }}
+      >
+        {selectedTerm === null && (
+          <MenuItem value="" disabled>
+            <em>Select a term</em>
+          </MenuItem>
+        )}
 
-          {terms.map((term) => (
-            <MenuItem key={term.termCode} value={term.termCode}>
-              {formatTermCode(term.termCode)}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+        {terms.map((term) => (
+          <MenuItem key={term.termCode} value={term.termCode}>
+            {formatTermCode(term.termCode)}
+          </MenuItem>
+        ))}
+      </Select>
+    </FormControl>
   );
 }
 
