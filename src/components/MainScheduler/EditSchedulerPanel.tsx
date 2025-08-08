@@ -161,7 +161,7 @@ function EditSchedulerPanel({
           currentTerm.termCode,
           searchInput,
           1,
-          10,
+          50,
         );
         setSearchResults(response.hits || []);
 
@@ -372,7 +372,7 @@ function EditSchedulerPanel({
         onChange={handleSearchChange}
         size={isMobile ? 'small' : 'medium'}
         sx={{
-          marginBottom: isMobile ? '8px' : '12px',
+          marginBottom: isMobile ? '8px' : '6px',
           ...(isMobile && {
             marginLeft: '-15px',
             width: 'calc(100% + 15px)',
@@ -393,7 +393,7 @@ function EditSchedulerPanel({
       <Typography
         variant="body1"
         sx={{
-          marginBottom: isMobile ? '12px' : '16px',
+          marginBottom: isMobile ? '12px' : '6px',
           color: 'darkGrey.main',
           fontWeight: 500,
           marginLeft: isMobile ? '-10px' : '0px',
@@ -566,12 +566,12 @@ function EditSchedulerPanel({
                 >
                   {!courseSections[course.courseId] ? (
                     <Typography>Loading sections...</Typography>
-                  ) : courseSections[course.courseId].length === 0 ? (
+                  ) : (courseSections[course.courseId] as any[]).length === 0 ? (
                     <Typography>
                       No sections available for this course.
                     </Typography>
                   ) : (
-                    courseSections[course.courseId].map(
+                    (courseSections[course.courseId] as any[]).map(
                       (enrollmentPackage: any, packageIndex: number) =>
                         enrollmentPackage.sections?.map(
                           (section: any, sectionIndex: number) => (

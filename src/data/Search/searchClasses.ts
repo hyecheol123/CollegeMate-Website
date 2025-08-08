@@ -44,16 +44,15 @@ export async function searchClasses(
   page: number = 1,
   pageSize: number = 10,
 ): Promise<ClassSearchResponse> {
-  // Create cache key based on search parameters
+  // Check cache first
   const cacheKey = `${CACHE_KEY_PREFIX}${searchTerm}_${queryString}_${page}_${pageSize}`;
-
-  // Check cache
   const cached = localStorage.getItem(cacheKey);
+  
   if (cached) {
     try {
       const { data, timestamp } = JSON.parse(cached);
       const age = Date.now() - timestamp;
-
+      
       if (age < CACHE_DURATION) {
         return data;
       }
@@ -63,12 +62,47 @@ export async function searchClasses(
   }
 
   const searchPayload = {
-    searchTerm: parseInt(searchTerm),
+    selectedTerm: searchTerm,
     queryString: queryString,
     page: page,
     pageSize: pageSize,
+    sortOrder: "SCORE",
+    filters: [
+      {
+        bool: {
+          must: [
+            {
+              term: {
+                "termCode": searchTerm
+              }
+            },
+            {
+              has_child: {
+                type: "enrollmentPackage",
+                query: {
+                  bool: {
+                    must: [
+                      {
+                        match: {
+                          "packageEnrollmentStatus.status": "OPEN WAITLISTED"
+                        }
+                      },
+                      {
+                        match: {
+                          published: true
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    ]
   };
-
+  
   const response = await fetch('/api/search', {
     method: 'POST',
     headers: {

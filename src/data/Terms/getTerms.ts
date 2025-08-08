@@ -59,8 +59,6 @@ export async function getTerms(): Promise<TermsResponse> {
       }
     }
 
-    console.log('🔄 Fetching terms from UW-Madison API via Express proxy...');
-
     const response = await fetch('/api/terms', {
       method: 'GET',
       headers: {

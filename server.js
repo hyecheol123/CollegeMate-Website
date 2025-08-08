@@ -60,14 +60,9 @@ app.get('/api/terms', async (req, res) => {
 // Proxy endpoint for UW-Madison class search API
 app.post('/api/search', async (req, res) => {
   try {
-    const { searchTerm, queryString, page = 1, pageSize = 10 } = req.body;
-
-    // Prepare the search payload
+    // Pass through all fields from the request
     const searchPayload = {
-      searchTerm: parseInt(searchTerm),
-      queryString: queryString,
-      page: page,
-      pageSize: pageSize,
+      ...req.body
     };
 
     // Fetch data from UW-Madison search API
@@ -76,7 +71,7 @@ app.post('/api/search', async (req, res) => {
       {
         method: 'POST',
         headers: {
-          'User-Agent': 'CollegeMate-API-Proxy/1.0',
+          'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
           Accept: 'application/json',
           'Content-Type': 'application/json',
         },
