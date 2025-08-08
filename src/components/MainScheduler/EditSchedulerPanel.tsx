@@ -40,8 +40,8 @@ interface Instructor {
 }
 
 interface Meeting {
-  meetingTimeStart: number;
-  meetingTimeEnd: number;
+  meetingTimeStart: number | null;
+  meetingTimeEnd: number | null;
   meetingDaysList: string[];
   building?: {
     buildingName: string;
@@ -224,6 +224,30 @@ function EditSchedulerPanel({
     const events: EventData[] = [];
 
     section.classMeetings?.forEach((meeting: Meeting) => {
+      // Skip online/asynchronous courses without specific meeting times
+      if (!meeting.meetingTimeStart || !meeting.meetingTimeEnd) {
+        // For online courses, create a single event without specific time
+        const instructorNames =
+          section.instructors
+            ?.map((inst: Instructor) => `${inst.name.first} ${inst.name.last}`)
+            .join(', ') || 'TBA';
+
+        const sectionId = section.sectionNumber || 'default';
+        const eventId = `${course.courseId}-${sectionId}-online`;
+
+        events.push({
+          id: eventId,
+          title: course.courseDesignation,
+          startTime: { hour: 0, minute: 0 },
+          endTime: { hour: 0, minute: 0 },
+          day: 'Online',
+          color: selectedColor,
+          location: meeting.building?.buildingName === 'ONLINE' ? 'ONLINE' : 'TBA',
+          instructor: instructorNames,
+        });
+        return;
+      }
+
       meeting.meetingDaysList?.forEach((fullDay: string) => {
         const dayMap: { [key: string]: string } = {
           MONDAY: 'Mon',
@@ -238,8 +262,8 @@ function EditSchedulerPanel({
 
         // UTC OFFSET CORRECTION - Madison is CST (UTC-6), API uses UTC
         const offsetMs = 6 * 60 * 60 * 1000; // 6 hours in milliseconds
-        const correctedStartMs = meeting.meetingTimeStart - offsetMs;
-        const correctedEndMs = meeting.meetingTimeEnd - offsetMs;
+        const correctedStartMs = meeting.meetingTimeStart! - offsetMs;
+        const correctedEndMs = meeting.meetingTimeEnd! - offsetMs;
 
         const startTime = {
           hour: Math.floor(correctedStartMs / (1000 * 60 * 60)),
@@ -655,48 +679,37 @@ function EditSchedulerPanel({
                                         color="text.secondary"
                                         sx={{ marginBottom: '2px' }}
                                       >
-                                        {meeting.meetingDaysList?.join(', ')} •{' '}
-                                        {((): string => {
+{(() => {
+                                          // Check if this is an online/asynchronous course
+                                          if (!meeting.meetingTimeStart || !meeting.meetingTimeEnd) {
+                                            if (meeting.building?.buildingName === 'ONLINE') {
+                                              return 'ONLINE';
+                                            }
+                                            return 'TBA';
+                                          }
+
+                                          // Show days and time for scheduled classes
+                                          const daysText = meeting.meetingDaysList?.join(', ') || '';
+                                          
                                           // UTC OFFSET CORRECTION - Madison is CST (UTC-6), API uses UTC
                                           const offsetMs = 6 * 60 * 60 * 1000; // 6 hours in milliseconds
-                                          const correctedStartMs =
-                                            meeting.meetingTimeStart - offsetMs;
-                                          const correctedEndMs =
-                                            meeting.meetingTimeEnd - offsetMs;
+                                          const correctedStartMs = meeting.meetingTimeStart! - offsetMs;
+                                          const correctedEndMs = meeting.meetingTimeEnd! - offsetMs;
 
-                                          const startHour = Math.floor(
-                                            correctedStartMs / (1000 * 60 * 60),
-                                          );
-                                          const startMinute = Math.floor(
-                                            (correctedStartMs %
-                                              (1000 * 60 * 60)) /
-                                              (1000 * 60),
-                                          );
-                                          const endHour = Math.floor(
-                                            correctedEndMs / (1000 * 60 * 60),
-                                          );
-                                          const endMinute = Math.floor(
-                                            (correctedEndMs %
-                                              (1000 * 60 * 60)) /
-                                              (1000 * 60),
-                                          );
+                                          const startHour = Math.floor(correctedStartMs / (1000 * 60 * 60));
+                                          const startMinute = Math.floor((correctedStartMs % (1000 * 60 * 60)) / (1000 * 60));
+                                          const endHour = Math.floor(correctedEndMs / (1000 * 60 * 60));
+                                          const endMinute = Math.floor((correctedEndMs % (1000 * 60 * 60)) / (1000 * 60));
 
-                                          const formatTime = (
-                                            hour: number,
-                                            minute: number,
-                                          ): string => {
-                                            const period =
-                                              hour >= 12 ? 'PM' : 'AM';
-                                            const displayHour =
-                                              hour > 12
-                                                ? hour - 12
-                                                : hour === 0
-                                                  ? 12
-                                                  : hour;
+                                          const formatTime = (hour: number, minute: number): string => {
+                                            const period = hour >= 12 ? 'PM' : 'AM';
+                                            const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
                                             return `${displayHour}:${minute.toString().padStart(2, '0')} ${period}`;
                                           };
 
-                                          return `${formatTime(startHour, startMinute)} - ${formatTime(endHour, endMinute)}`;
+                                          const timeText = `${formatTime(startHour, startMinute)} - ${formatTime(endHour, endMinute)}`;
+                                          
+                                          return daysText ? `${daysText} • ${timeText}` : timeText;
                                         })()}
                                         {meeting.building?.buildingName &&
                                           meeting.room && (
