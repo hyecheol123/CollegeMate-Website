@@ -31,79 +31,39 @@ import SearchIcon from '@mui/icons-material/Search';
 import ColorSelectionModal from '../Common/ColorSelectionModal';
 import type { Term } from '../../data/Terms/getTerms';
 
-// Helper function to convert course details to event data (currently unused)
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const convertCourseToEvents = (
-  course: ClassSearchResult,
-  courseDetails: any,
-  color: string,
-): EventData[] => {
-  const events: EventData[] = [];
+// Local interfaces for API data
+interface Instructor {
+  name: {
+    first: string;
+    last: string;
+  };
+}
 
-  if (!courseDetails || !courseDetails.length) {
-    return events;
-  }
+interface Meeting {
+  meetingTimeStart: number;
+  meetingTimeEnd: number;
+  meetingDaysList: string[];
+  building?: {
+    buildingName: string;
+  };
+  room?: string;
+}
 
-  courseDetails.forEach((enrollmentPackage: any) => {
-    enrollmentPackage.sections?.forEach((section: any) => {
-      section.classMeetings?.forEach((meeting: any) => {
-        // Convert meeting days list to individual days
-        meeting.meetingDaysList?.forEach((fullDay: string) => {
-          // Convert full day name to 3-letter format
-          const dayMap: { [key: string]: string } = {
-            MONDAY: 'Mon',
-            TUESDAY: 'Tue',
-            WEDNESDAY: 'Wed',
-            THURSDAY: 'Thu',
-            FRIDAY: 'Fri',
-            SATURDAY: 'Sat',
-            SUNDAY: 'Sun',
-          };
-          const day = dayMap[fullDay] || fullDay;
-          // Convert timestamps to time objects
-          const startDate = new Date(meeting.meetingTimeStart);
-          const endDate = new Date(meeting.meetingTimeEnd);
+interface Section {
+  type: string;
+  sectionNumber: string;
+  instructors?: Instructor[];
+  classMeetings?: Meeting[];
+}
 
-          const startTime = {
-            hour: startDate.getHours(),
-            minute: startDate.getMinutes(),
-          };
-
-          const endTime = {
-            hour: endDate.getHours(),
-            minute: endDate.getMinutes(),
-          };
-
-          // Get instructor info
-          const instructorNames =
-            section.instructors
-              ?.map((inst: any) => `${inst.name.first} ${inst.name.last}`)
-              .join(', ') || 'TBA';
-
-          // Create unique event ID
-          const sectionId = section.id || 'default';
-          const eventId = `${course.courseId}-${sectionId}-${day}`;
-
-          events.push({
-            id: eventId,
-            title: course.courseDesignation,
-            startTime,
-            endTime,
-            day,
-            color,
-            location:
-              meeting.buildingName && meeting.room
-                ? `${meeting.buildingName} ${meeting.room}`
-                : 'TBA',
-            instructor: instructorNames,
-          });
-        });
-      });
-    });
-  });
-
-  return events;
-};
+interface EnrollmentPackage {
+  id: string;
+  packageEnrollmentStatus?: {
+    status: string;
+    availableSeats: number;
+  };
+  sections?: Section[];
+}
 
 interface EditSchedulerPanelProps {
   onAddEvent?: (event: EventData) => void;
@@ -133,6 +93,16 @@ function EditSchedulerPanel({
   const [courseSections, setCourseSections] = useState<{
     [key: string]: unknown;
   }>({});
+
+  // Clear all cache on component mount
+  React.useEffect(() => {
+    Object.keys(localStorage).forEach((key) => {
+      if (key.startsWith('uw_')) {
+        localStorage.removeItem(key);
+      }
+    });
+  }, []);
+
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const resultsRef = React.useRef<HTMLDivElement>(null);
@@ -143,7 +113,7 @@ function EditSchedulerPanel({
 
   // Perform search when search input changes
   useEffect(() => {
-    const performSearch = async () => {
+    const performSearch = async (): Promise<void> => {
       if (!searchInput.trim() || !currentTerm) {
         setSearchResults([]);
         return;
@@ -161,7 +131,7 @@ function EditSchedulerPanel({
           currentTerm.termCode,
           searchInput,
           1,
-          50,
+          10,
         );
         setSearchResults(response.hits || []);
 
@@ -192,7 +162,7 @@ function EditSchedulerPanel({
 
     // Debounce search
     const timeoutId = setTimeout(performSearch, 500);
-    return () => clearTimeout(timeoutId);
+    return (): void => clearTimeout(timeoutId);
   }, [searchInput, currentTerm, hasScrolledToResults, isMobile]);
 
   const handleSearchChange = (
@@ -230,9 +200,10 @@ function EditSchedulerPanel({
         course.courseId,
       );
 
+      // API returns array directly, not wrapped in packages
       setCourseSections((prev) => ({
         ...prev,
-        [course.courseId]: courseDetails.packages,
+        [course.courseId]: courseDetails,
       }));
     } catch {
       // Handle error silently
@@ -241,7 +212,7 @@ function EditSchedulerPanel({
 
   const handleAddSection = async (
     course: ClassSearchResult,
-    section: any,
+    section: Section,
   ): Promise<void> => {
     if (!onAddEvent || !currentTerm) {
       return;
@@ -252,7 +223,7 @@ function EditSchedulerPanel({
     // Convert only this section to events
     const events: EventData[] = [];
 
-    section.classMeetings?.forEach((meeting: any) => {
+    section.classMeetings?.forEach((meeting: Meeting) => {
       meeting.meetingDaysList?.forEach((fullDay: string) => {
         const dayMap: { [key: string]: string } = {
           MONDAY: 'Mon',
@@ -265,25 +236,29 @@ function EditSchedulerPanel({
         };
         const day = dayMap[fullDay] || fullDay;
 
-        const startDate = new Date(meeting.meetingTimeStart);
-        const endDate = new Date(meeting.meetingTimeEnd);
+        // UTC OFFSET CORRECTION - Madison is CST (UTC-6), API uses UTC
+        const offsetMs = 6 * 60 * 60 * 1000; // 6 hours in milliseconds
+        const correctedStartMs = meeting.meetingTimeStart - offsetMs;
+        const correctedEndMs = meeting.meetingTimeEnd - offsetMs;
 
         const startTime = {
-          hour: startDate.getHours(),
-          minute: startDate.getMinutes(),
+          hour: Math.floor(correctedStartMs / (1000 * 60 * 60)),
+          minute: Math.floor(
+            (correctedStartMs % (1000 * 60 * 60)) / (1000 * 60),
+          ),
         };
 
         const endTime = {
-          hour: endDate.getHours(),
-          minute: endDate.getMinutes(),
+          hour: Math.floor(correctedEndMs / (1000 * 60 * 60)),
+          minute: Math.floor((correctedEndMs % (1000 * 60 * 60)) / (1000 * 60)),
         };
 
         const instructorNames =
           section.instructors
-            ?.map((inst: any) => `${inst.name.first} ${inst.name.last}`)
+            ?.map((inst: Instructor) => `${inst.name.first} ${inst.name.last}`)
             .join(', ') || 'TBA';
 
-        const sectionId = section.id || 'default';
+        const sectionId = section.sectionNumber || 'default';
         const eventId = `${course.courseId}-${sectionId}-${day}`;
 
         events.push({
@@ -294,8 +269,8 @@ function EditSchedulerPanel({
           day,
           color: selectedColor,
           location:
-            meeting.buildingName && meeting.room
-              ? `${meeting.buildingName} ${meeting.room}`
+            meeting.building?.buildingName && meeting.room
+              ? `${meeting.building.buildingName} ${meeting.room}`
               : 'TBA',
           instructor: instructorNames,
         });
@@ -564,119 +539,201 @@ function EditSchedulerPanel({
                     marginBottom: '12px',
                   }}
                 >
-                  {!courseSections[course.courseId] ? (
-                    <Typography>Loading sections...</Typography>
-                  ) : (courseSections[course.courseId] as any[]).length === 0 ? (
-                    <Typography>
-                      No sections available for this course.
-                    </Typography>
-                  ) : (
-                    (courseSections[course.courseId] as any[]).map(
-                      (enrollmentPackage: any, packageIndex: number) =>
-                        enrollmentPackage.sections?.map(
-                          (section: any, sectionIndex: number) => (
-                            <Card
-                              key={`${packageIndex}-${sectionIndex}`}
-                              sx={{
-                                marginBottom: '8px',
-                                backgroundColor: '#f8f9fa',
-                                border: '1px solid #e9ecef',
-                              }}
-                            >
-                              <CardContent sx={{ padding: '12px !important' }}>
-                                <Box
-                                  sx={{
-                                    display: 'flex',
-                                    justifyContent: 'space-between',
-                                    alignItems: 'center',
-                                  }}
-                                >
-                                  <Box sx={{ flex: 1 }}>
-                                    <Typography
-                                      variant="body1"
-                                      sx={{
-                                        fontWeight: 600,
-                                        marginBottom: '4px',
-                                      }}
-                                    >
-                                      Section {section.id || 'N/A'}
-                                    </Typography>
+                  {((): React.ReactNode => {
+                    const sectionData = courseSections[course.courseId];
 
-                                    {/* Instructor */}
-                                    <Typography
-                                      variant="body2"
-                                      color="text.secondary"
-                                      sx={{ marginBottom: '4px' }}
-                                    >
-                                      Instructor:{' '}
-                                      {section.instructors
-                                        ?.map(
-                                          (inst: any) =>
-                                            `${inst.name.first} ${inst.name.last}`,
-                                        )
-                                        .join(', ') || 'TBA'}
-                                    </Typography>
+                    if (!sectionData) {
+                      return <Typography>Loading sections...</Typography>;
+                    }
 
-                                    {/* Meeting Times */}
-                                    {section.classMeetings?.map(
-                                      (meeting: any, meetingIndex: number) => (
-                                        <Typography
-                                          key={meetingIndex}
-                                          variant="body2"
-                                          color="text.secondary"
-                                          sx={{ marginBottom: '2px' }}
-                                        >
-                                          {meeting.meetingDaysList?.join(', ')}{' '}
-                                          •{' '}
-                                          {new Date(
-                                            meeting.meetingTimeStart,
-                                          ).toLocaleTimeString('en-US', {
-                                            hour: 'numeric',
-                                            minute: '2-digit',
-                                            hour12: true,
-                                          })}{' '}
-                                          -{' '}
-                                          {new Date(
-                                            meeting.meetingTimeEnd,
-                                          ).toLocaleTimeString('en-US', {
-                                            hour: 'numeric',
-                                            minute: '2-digit',
-                                            hour12: true,
-                                          })}
-                                          {meeting.buildingName &&
-                                            meeting.room && (
-                                              <>
-                                                {' '}
-                                                • {meeting.buildingName}{' '}
-                                                {meeting.room}
-                                              </>
-                                            )}
-                                        </Typography>
-                                      ),
-                                    )}
-                                  </Box>
+                    if (!Array.isArray(sectionData)) {
+                      return (
+                        <Typography color="error">
+                          Error loading sections: Invalid data format (got{' '}
+                          {typeof sectionData})
+                        </Typography>
+                      );
+                    }
 
-                                  <Button
-                                    variant="contained"
-                                    size="small"
-                                    onClick={() =>
-                                      handleAddSection(course, section)
-                                    }
+                    if (sectionData.length === 0) {
+                      return (
+                        <Typography>
+                          No sections available for this course.
+                        </Typography>
+                      );
+                    }
+
+                    // Collect all unique sections from all packages
+                    const allSections: Section[] = [];
+                    const seenSections = new Set<string>();
+
+                    (sectionData as EnrollmentPackage[]).forEach(
+                      (enrollmentPackage: EnrollmentPackage) => {
+                        // Only show sections from packages that are OPEN or have available seats
+                        const packageStatus =
+                          enrollmentPackage.packageEnrollmentStatus?.status;
+                        const availableSeats =
+                          enrollmentPackage.packageEnrollmentStatus
+                            ?.availableSeats || 0;
+
+                        // Skip closed packages with no available seats
+                        if (
+                          packageStatus === 'CLOSED' &&
+                          availableSeats === 0
+                        ) {
+                          return;
+                        }
+
+                        enrollmentPackage.sections?.forEach(
+                          (section: Section) => {
+                            const sectionKey = `${section.type}-${section.sectionNumber}`;
+                            if (!seenSections.has(sectionKey)) {
+                              seenSections.add(sectionKey);
+                              allSections.push(section);
+                            }
+                          },
+                        );
+                      },
+                    );
+
+                    return allSections.map(
+                      (section: Section, sectionIndex: number) => {
+                        const uniqueKey = `${course.courseId}-${section.type}-${section.sectionNumber}-${sectionIndex}`;
+                        return (
+                          <Card
+                            key={uniqueKey}
+                            sx={{
+                              marginBottom: '8px',
+                              backgroundColor: '#f8f9fa',
+                              border: '1px solid #e9ecef',
+                            }}
+                          >
+                            <CardContent sx={{ padding: '12px !important' }}>
+                              <Box
+                                sx={{
+                                  display: 'flex',
+                                  justifyContent: 'space-between',
+                                  alignItems: 'center',
+                                }}
+                              >
+                                <Box sx={{ flex: 1 }}>
+                                  <Typography
+                                    variant="body1"
                                     sx={{
-                                      fontSize: '11px',
-                                      padding: '4px 8px',
-                                      minWidth: '80px',
+                                      fontWeight: 600,
+                                      marginBottom: '4px',
                                     }}
                                   >
-                                    Add Section
-                                  </Button>
+                                    Section {section.sectionNumber || 'N/A'} (
+                                    {section.type || 'CLASS'})
+                                  </Typography>
+
+                                  {/* Instructor */}
+                                  <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                    sx={{ marginBottom: '4px' }}
+                                  >
+                                    Instructor:{' '}
+                                    {section.instructors
+                                      ?.map(
+                                        (inst: Instructor) =>
+                                          `${inst.name.first} ${inst.name.last}`,
+                                      )
+                                      .join(', ') || 'TBA'}
+                                  </Typography>
+
+                                  {/* Meeting Times */}
+                                  {section.classMeetings?.map(
+                                    (
+                                      meeting: Meeting,
+                                      meetingIndex: number,
+                                    ) => (
+                                      <Typography
+                                        key={`${uniqueKey}-meeting-${meetingIndex}`}
+                                        variant="body2"
+                                        color="text.secondary"
+                                        sx={{ marginBottom: '2px' }}
+                                      >
+                                        {meeting.meetingDaysList?.join(', ')} •{' '}
+                                        {((): string => {
+                                          // UTC OFFSET CORRECTION - Madison is CST (UTC-6), API uses UTC
+                                          const offsetMs = 6 * 60 * 60 * 1000; // 6 hours in milliseconds
+                                          const correctedStartMs =
+                                            meeting.meetingTimeStart - offsetMs;
+                                          const correctedEndMs =
+                                            meeting.meetingTimeEnd - offsetMs;
+
+                                          const startHour = Math.floor(
+                                            correctedStartMs / (1000 * 60 * 60),
+                                          );
+                                          const startMinute = Math.floor(
+                                            (correctedStartMs %
+                                              (1000 * 60 * 60)) /
+                                              (1000 * 60),
+                                          );
+                                          const endHour = Math.floor(
+                                            correctedEndMs / (1000 * 60 * 60),
+                                          );
+                                          const endMinute = Math.floor(
+                                            (correctedEndMs %
+                                              (1000 * 60 * 60)) /
+                                              (1000 * 60),
+                                          );
+
+                                          const formatTime = (
+                                            hour: number,
+                                            minute: number,
+                                          ): string => {
+                                            const period =
+                                              hour >= 12 ? 'PM' : 'AM';
+                                            const displayHour =
+                                              hour > 12
+                                                ? hour - 12
+                                                : hour === 0
+                                                  ? 12
+                                                  : hour;
+                                            return `${displayHour}:${minute.toString().padStart(2, '0')} ${period}`;
+                                          };
+
+                                          return `${formatTime(startHour, startMinute)} - ${formatTime(endHour, endMinute)}`;
+                                        })()}
+                                        {meeting.building?.buildingName &&
+                                          meeting.room && (
+                                            <>
+                                              {' '}
+                                              • {
+                                                meeting.building.buildingName
+                                              }{' '}
+                                              {meeting.room}
+                                            </>
+                                          )}
+                                      </Typography>
+                                    ),
+                                  )}
                                 </Box>
-                              </CardContent>
-                            </Card>
-                          ),
-                        ),
-                    )
-                  )}
+
+                                <Button
+                                  variant="contained"
+                                  size="small"
+                                  onClick={(): Promise<void> =>
+                                    handleAddSection(course, section)
+                                  }
+                                  sx={{
+                                    fontSize: '11px',
+                                    padding: '4px 8px',
+                                    minWidth: '80px',
+                                  }}
+                                >
+                                  Add Section
+                                </Button>
+                              </Box>
+                            </CardContent>
+                          </Card>
+                        );
+                      },
+                    );
+                  })()}
                 </Box>
               )}
             </React.Fragment>

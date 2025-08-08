@@ -4,6 +4,7 @@
   "description": "Web Front-End for CollegeMate project",
   "author": "Hyecheol (Jerry) Jang <hyecheol123@gmail.com>",
   "main": "src/App.tsx",
+  "type": "module",
   "license": "ISC",
   "browserslist": [
     "defaults",

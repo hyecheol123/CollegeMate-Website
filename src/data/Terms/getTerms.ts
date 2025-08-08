@@ -28,7 +28,6 @@ export interface TermsResponse {
 }
 
 const CACHE_KEY = 'uw_terms_cache';
-const CACHE_DURATION = 1000 * 60 * 60; // 1시간
 
 /**
  * Fetches terms from UW-Madison enrollment API via Express.js proxy with 1-hour cache
@@ -36,28 +35,8 @@ const CACHE_DURATION = 1000 * 60 * 60; // 1시간
  */
 export async function getTerms(): Promise<TermsResponse> {
   try {
-    // 캐시 확인
-    const cached = localStorage.getItem(CACHE_KEY);
-    if (cached) {
-      try {
-        const { data, timestamp } = JSON.parse(cached);
-        const age = Date.now() - timestamp;
-        const ageMinutes = Math.floor(age / (1000 * 60));
-
-        if (age < CACHE_DURATION) {
-          console.log(`💾 Using cached terms data (${ageMinutes}분 전 캐시)`);
-          console.log(`📊 Cached: ${data.terms?.length || 0} terms`);
-          return data;
-        } else {
-          console.log(
-            `⏰ Cache expired (${ageMinutes}분 전), fetching fresh data...`,
-          );
-        }
-      } catch {
-        console.log('🗑️ Invalid cache, fetching fresh data...');
-        localStorage.removeItem(CACHE_KEY);
-      }
-    }
+    // Clear all terms cache for fresh data
+    localStorage.removeItem(CACHE_KEY);
 
     const response = await fetch('/api/terms', {
       method: 'GET',
@@ -72,16 +51,6 @@ export async function getTerms(): Promise<TermsResponse> {
     }
 
     const data: TermsResponse = await response.json();
-    console.log('✅ Successfully fetched real UW-Madison terms data!');
-    console.log(`📊 Loaded ${data.terms?.length || 0} terms`);
-
-    // 캐시에 저장
-    const cacheData = {
-      data,
-      timestamp: Date.now(),
-    };
-    localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
-    console.log('💾 Terms data cached for 1 hour');
 
     return data;
   } catch (error) {

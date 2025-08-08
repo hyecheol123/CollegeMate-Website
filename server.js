@@ -3,8 +3,8 @@
  * Solves CORS issues for local development
  */
 
-const express = require('express');
-const cors = require('cors');
+import express from 'express';
+import cors from 'cors';
 
 const app = express();
 const PORT = 3001;
@@ -14,12 +14,12 @@ app.use(cors());
 app.use(express.json());
 
 // Health check endpoint
-app.get('/health', (req, res) => {
+app.get('/health', (_req, res) => {
   res.json({ status: 'OK', message: 'Express API server is running' });
 });
 
 // Proxy endpoint for UW-Madison terms API
-app.get('/api/terms', async (req, res) => {
+app.get('/api/terms', async (_req, res) => {
   try {
     console.log('🔄 Proxying request to UW-Madison enrollment API...');
 
@@ -62,7 +62,7 @@ app.post('/api/search', async (req, res) => {
   try {
     // Pass through all fields from the request
     const searchPayload = {
-      ...req.body
+      ...req.body,
     };
 
     // Fetch data from UW-Madison search API
@@ -71,7 +71,8 @@ app.post('/api/search', async (req, res) => {
       {
         method: 'POST',
         headers: {
-          'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
+          'User-Agent':
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
           Accept: 'application/json',
           'Content-Type': 'application/json',
         },

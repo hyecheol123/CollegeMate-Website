@@ -27,9 +27,6 @@ export interface ClassSearchResponse {
   pageSize: number;
 }
 
-const CACHE_KEY_PREFIX = 'uw_search_cache_';
-const CACHE_DURATION = 1000 * 60 * 60; // 1시간
-
 /**
  * Searches for classes from UW-Madison enrollment API via Express.js proxy with 1-hour cache
  * @param {string} searchTerm - The term code to search in
@@ -44,65 +41,48 @@ export async function searchClasses(
   page: number = 1,
   pageSize: number = 10,
 ): Promise<ClassSearchResponse> {
-  // Check cache first
-  const cacheKey = `${CACHE_KEY_PREFIX}${searchTerm}_${queryString}_${page}_${pageSize}`;
-  const cached = localStorage.getItem(cacheKey);
-  
-  if (cached) {
-    try {
-      const { data, timestamp } = JSON.parse(cached);
-      const age = Date.now() - timestamp;
-      
-      if (age < CACHE_DURATION) {
-        return data;
-      }
-    } catch {
-      localStorage.removeItem(cacheKey);
-    }
-  }
-
   const searchPayload = {
     selectedTerm: searchTerm,
     queryString: queryString,
     page: page,
     pageSize: pageSize,
-    sortOrder: "SCORE",
+    sortOrder: 'SCORE',
     filters: [
       {
         bool: {
           must: [
             {
               term: {
-                "termCode": searchTerm
-              }
+                termCode: searchTerm,
+              },
             },
             {
               has_child: {
-                type: "enrollmentPackage",
+                type: 'enrollmentPackage',
                 query: {
                   bool: {
                     must: [
                       {
                         match: {
-                          "packageEnrollmentStatus.status": "OPEN WAITLISTED"
-                        }
+                          'packageEnrollmentStatus.status': 'OPEN WAITLISTED',
+                        },
                       },
                       {
                         match: {
-                          published: true
-                        }
-                      }
-                    ]
-                  }
-                }
-              }
-            }
-          ]
-        }
-      }
-    ]
+                          published: true,
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
+            },
+          ],
+        },
+      },
+    ],
   };
-  
+
   const response = await fetch('/api/search', {
     method: 'POST',
     headers: {
@@ -117,13 +97,6 @@ export async function searchClasses(
   }
 
   const data: ClassSearchResponse = await response.json();
-
-  // Cache the results
-  const cacheData = {
-    data,
-    timestamp: Date.now(),
-  };
-  localStorage.setItem(cacheKey, JSON.stringify(cacheData));
 
   return data;
 }

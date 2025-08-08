@@ -47,9 +47,6 @@ export interface CourseDetailsResponse {
   packages: CourseEnrollmentPackage[];
 }
 
-const CACHE_KEY_PREFIX = 'uw_course_details_cache_';
-const CACHE_DURATION = 1000 * 60 * 60; // 1시간
-
 /**
  * Fetches detailed course information from UW-Madison enrollment API
  * @param {string} termCode - The term code
@@ -62,24 +59,6 @@ export async function getCourseDetails(
   subjectCode: string,
   courseId: string,
 ): Promise<CourseDetailsResponse> {
-  // Create cache key
-  const cacheKey = `${CACHE_KEY_PREFIX}${termCode}_${subjectCode}_${courseId}`;
-
-  // Check cache
-  const cached = localStorage.getItem(cacheKey);
-  if (cached) {
-    try {
-      const { data, timestamp } = JSON.parse(cached);
-      const age = Date.now() - timestamp;
-
-      if (age < CACHE_DURATION) {
-        return data;
-      }
-    } catch {
-      localStorage.removeItem(cacheKey);
-    }
-  }
-
   const response = await fetch(
     `/api/course-details/${termCode}/${encodeURIComponent(subjectCode)}/${courseId}`,
     {
@@ -97,15 +76,7 @@ export async function getCourseDetails(
     );
   }
 
-  const packages = await response.json();
-  const data: CourseDetailsResponse = { packages };
-
-  // Cache the results
-  const cacheData = {
-    data,
-    timestamp: Date.now(),
-  };
-  localStorage.setItem(cacheKey, JSON.stringify(cacheData));
+  const data = await response.json();
 
   return data;
 }
