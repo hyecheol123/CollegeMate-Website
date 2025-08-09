@@ -38,7 +38,7 @@ export async function getTerms(): Promise<TermsResponse> {
     // Clear all terms cache for fresh data
     localStorage.removeItem(CACHE_KEY);
 
-    const response = await fetch('/api/terms', {
+    const response = await fetch('https://api.collegemate.app/api/terms', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

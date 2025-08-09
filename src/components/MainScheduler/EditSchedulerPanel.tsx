@@ -65,9 +65,18 @@ interface EnrollmentPackage {
   sections?: Section[];
 }
 
+interface OnlineCourse {
+  id: string;
+  designation: string;
+  instructor: string;
+  credits?: string;
+  color: string;
+}
+
 interface EditSchedulerPanelProps {
   onAddEvent?: (event: EventData) => void;
   onUpdateEventColor?: (classId: string, color: string) => void;
+  onAddOnlineCourse?: (course: OnlineCourse) => void;
   currentTerm?: Term | null;
 }
 
@@ -80,6 +89,7 @@ interface EditSchedulerPanelProps {
 function EditSchedulerPanel({
   onAddEvent,
   onUpdateEventColor,
+  onAddOnlineCourse,
   currentTerm,
 }: EditSchedulerPanelProps): React.ReactElement {
   const [searchInput, setSearchInput] = useState<string>('');
@@ -214,37 +224,55 @@ function EditSchedulerPanel({
     course: ClassSearchResult,
     section: Section,
   ): Promise<void> => {
-    if (!onAddEvent || !currentTerm) {
+    if (!currentTerm) {
       return;
     }
 
     const selectedColor = classColors[course.courseId] || '#9E9E9E';
 
-    // Convert only this section to events
+    // Check if this is an online course
+    const hasOnlineMeetings = section.classMeetings?.some(
+      (meeting) => !meeting.meetingTimeStart || !meeting.meetingTimeEnd,
+    );
+
+    if (hasOnlineMeetings && onAddOnlineCourse) {
+      // Handle online course
+      const instructorNames =
+        section.instructors
+          ?.map((inst: Instructor) => `${inst.name.first} ${inst.name.last}`)
+          .join(', ') || 'TBA';
+
+      const credits =
+        course.minimumCredits && course.maximumCredits
+          ? course.minimumCredits === course.maximumCredits
+            ? `${course.minimumCredits}`
+            : `${course.minimumCredits}-${course.maximumCredits}`
+          : course.credits
+            ? course.credits.min === course.credits.max
+              ? `${course.credits.min}`
+              : `${course.credits.min}-${course.credits.max}`
+            : '';
+
+      onAddOnlineCourse({
+        id: `${course.courseId}-${section.sectionNumber}`,
+        designation: course.courseDesignation,
+        instructor: instructorNames,
+        credits,
+        color: selectedColor,
+      });
+      return;
+    }
+
+    if (!onAddEvent) {
+      return;
+    }
+
+    // Handle regular scheduled courses
     const events: EventData[] = [];
 
     section.classMeetings?.forEach((meeting: Meeting) => {
-      // Skip online/asynchronous courses without specific meeting times
+      // Skip online meetings (already handled above)
       if (!meeting.meetingTimeStart || !meeting.meetingTimeEnd) {
-        // For online courses, create a single event without specific time
-        const instructorNames =
-          section.instructors
-            ?.map((inst: Instructor) => `${inst.name.first} ${inst.name.last}`)
-            .join(', ') || 'TBA';
-
-        const sectionId = section.sectionNumber || 'default';
-        const eventId = `${course.courseId}-${sectionId}-online`;
-
-        events.push({
-          id: eventId,
-          title: course.courseDesignation,
-          startTime: { hour: 0, minute: 0 },
-          endTime: { hour: 0, minute: 0 },
-          day: 'Online',
-          color: selectedColor,
-          location: meeting.building?.buildingName === 'ONLINE' ? 'ONLINE' : 'TBA',
-          instructor: instructorNames,
-        });
         return;
       }
 

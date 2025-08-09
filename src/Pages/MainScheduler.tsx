@@ -14,7 +14,9 @@ import {
   Alert,
   CircularProgress,
   Typography,
+  IconButton,
 } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 // Component
 import SchedulerTable from '../components/MainScheduler/SchedulerTable';
 import SchedulerTitle from '../components/MainScheduler/SchedulerTitle';
@@ -27,6 +29,15 @@ import { getCurrentTerm, getUpcomingTerms } from '../utils/termUtils';
 import type { EventData } from '../types/event';
 import type { Term } from '../data/Terms/getTerms';
 
+// Online course interface (matching EditSchedulerPanel)
+interface OnlineCourse {
+  id: string;
+  designation: string;
+  instructor: string;
+  credits?: string;
+  color: string;
+}
+
 /**
  * MainScheduler component with responsive layout
  * - Desktop: Side-by-side scheduler and edit panel (55%/45% split)
@@ -36,10 +47,14 @@ import type { Term } from '../data/Terms/getTerms';
 function MainScheduler(): React.ReactElement {
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
   const [scheduleEvents, setScheduleEvents] = useState<EventData[]>([]);
+  const [onlineCourses, setOnlineCourses] = useState<OnlineCourse[]>([]);
   const [availableTerms, setAvailableTerms] = useState<Term[]>([]);
   const [currentTerm, setCurrentTerm] = useState<Term | null>(null);
   const [scheduleEventsByTerm, setScheduleEventsByTerm] = useState<
     Record<string, EventData[]>
+  >({});
+  const [onlineCoursesByTerm, setOnlineCoursesByTerm] = useState<
+    Record<string, OnlineCourse[]>
   >({});
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -66,12 +81,14 @@ function MainScheduler(): React.ReactElement {
         const current = getCurrentTerm(termsData.terms);
         if (current) {
           setCurrentTerm(current);
-          // Initialize with empty events for current term
+          // Initialize with empty events and online courses for current term
           setScheduleEvents([]);
+          setOnlineCourses([]);
         } else if (futureTerms.length > 0) {
           // If no current term, use the first available future term
           setCurrentTerm(futureTerms[0]);
           setScheduleEvents([]);
+          setOnlineCourses([]);
         }
       } catch (error) {
         console.error('Failed to load terms:', error);
@@ -101,20 +118,26 @@ function MainScheduler(): React.ReactElement {
 
   // Handle term change
   const handleTermChange = (newTerm: Term): void => {
-    // Save current events for the current term
+    // Save current events and online courses for the current term
     if (currentTerm) {
       setScheduleEventsByTerm((prev) => ({
         ...prev,
         [currentTerm.termCode]: scheduleEvents,
+      }));
+      setOnlineCoursesByTerm((prev) => ({
+        ...prev,
+        [currentTerm.termCode]: onlineCourses,
       }));
     }
 
     // Switch to new term
     setCurrentTerm(newTerm);
 
-    // Load events for new term (if any saved)
+    // Load events and online courses for new term (if any saved)
     const savedEvents = scheduleEventsByTerm[newTerm.termCode] || [];
+    const savedOnlineCourses = onlineCoursesByTerm[newTerm.termCode] || [];
     setScheduleEvents(savedEvents);
+    setOnlineCourses(savedOnlineCourses);
 
     // Exit edit mode when switching terms
     setIsEditMode(false);
@@ -122,6 +145,26 @@ function MainScheduler(): React.ReactElement {
 
   const addEvent = (event: EventData): void => {
     setScheduleEvents((prev) => [...prev, event]);
+  };
+
+  const addOnlineCourse = (course: OnlineCourse): void => {
+    setOnlineCourses((prev) => {
+      // Check if this course is already added
+      const isDuplicate = prev.some(
+        (existingCourse) => existingCourse.id === course.id,
+      );
+
+      if (isDuplicate) {
+        console.log('⚠️ Duplicate online course detected:', course.designation);
+        return prev; // Don't add duplicate
+      }
+
+      return [...prev, course];
+    });
+  };
+
+  const removeOnlineCourse = (courseId: string): void => {
+    setOnlineCourses((prev) => prev.filter((course) => course.id !== courseId));
   };
 
   const updateEventColorsByClassId = (classId: string, color: string): void => {
@@ -207,12 +250,104 @@ function MainScheduler(): React.ReactElement {
             onRemoveEvent={removeEvent}
             isEditMode={isEditMode}
           />
+          
+          {/* Online Classes Display */}
+          {onlineCourses.length > 0 && (
+            <Box sx={{ 
+              marginTop: '16px',
+              backgroundColor: 'white',
+              padding: '8px 0'
+            }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  flexWrap: 'wrap',
+                  gap: '4px',
+                  marginBottom: '4px',
+                }}
+              >
+                <Typography
+                  variant="body2"
+                  sx={{
+                    fontSize: '14px',
+                    fontWeight: 'book',
+                    color: '#494949',
+                  }}
+                >
+                  Online classes:{' '}
+                </Typography>
+                {onlineCourses.map((course, index) => (
+                  <Box
+                    key={course.id}
+                    sx={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '2px',
+                    }}
+                  >
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        fontSize: '14px',
+                        fontWeight: 'book',
+                        color: '#494949',
+                      }}
+                    >
+                      {course.designation}
+                      {index < onlineCourses.length - 1 ? ',' : ''}
+                    </Typography>
+                    {isEditMode && (
+                      <IconButton
+                        size="small"
+                        onClick={() => removeOnlineCourse(course.id)}
+                        sx={{
+                          minWidth: '16px',
+                          width: '16px',
+                          height: '16px',
+                          padding: 0,
+                          marginLeft: '2px',
+                          color: '#666',
+                          '&:hover': {
+                            color: '#ff4444',
+                            backgroundColor: 'rgba(255, 68, 68, 0.1)',
+                          },
+                        }}
+                      >
+                        <CloseIcon sx={{ fontSize: '12px' }} />
+                      </IconButton>
+                    )}
+                  </Box>
+                ))}
+              </Box>
+              <Typography
+                variant="body2"
+                sx={{
+                  fontSize: '14px',
+                  fontWeight: 'book',
+                  color: '#494949',
+                }}
+              >
+                {((): string => {
+                  const totalCredits = onlineCourses.reduce((sum, course) => {
+                    if (!course.credits) return sum;
+                    // Parse credits like "3" or "1-4"
+                    const credits = course.credits.split('-');
+                    const creditValue = parseInt(credits[0]) || 0;
+                    return sum + creditValue;
+                  }, 0);
+                  return `${totalCredits} credits`;
+                })()}
+              </Typography>
+            </Box>
+          )}
           {/* Mobile: Search panel below when in edit mode */}
           {isEditMode && (
             <Box ref={searchPanelRef} sx={{ marginTop: '8px', width: '100%' }}>
               <EditSchedulerPanel
                 onAddEvent={addEvent}
                 onUpdateEventColor={updateEventColorsByClassId}
+                onAddOnlineCourse={addOnlineCourse}
                 currentTerm={currentTerm}
               />
             </Box>
@@ -264,6 +399,7 @@ function MainScheduler(): React.ReactElement {
             <EditSchedulerPanel
               onAddEvent={addEvent}
               onUpdateEventColor={updateEventColorsByClassId}
+              onAddOnlineCourse={addOnlineCourse}
               currentTerm={currentTerm}
             />
           </Box>
@@ -275,6 +411,98 @@ function MainScheduler(): React.ReactElement {
             onRemoveEvent={removeEvent}
             isEditMode={isEditMode}
           />
+
+          {/* Online Classes Display */}
+          {onlineCourses.length > 0 && (
+            <Box sx={{ 
+              marginTop: '16px',
+              backgroundColor: 'white',
+              padding: '8px 0',
+              zIndex: 10
+            }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  flexWrap: 'wrap',
+                  gap: '4px',
+                  marginBottom: '4px',
+                }}
+              >
+                <Typography
+                  variant="body2"
+                  sx={{
+                    fontSize: '14px',
+                    fontWeight: 'book',
+                    color: '#494949',
+                  }}
+                >
+                  Online classes:{' '}
+                </Typography>
+                {onlineCourses.map((course, index) => (
+                  <Box
+                    key={course.id}
+                    sx={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '2px',
+                    }}
+                  >
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        fontSize: '14px',
+                        fontWeight: 'book',
+                        color: '#494949',
+                      }}
+                    >
+                      {course.designation}
+                      {index < onlineCourses.length - 1 ? ',' : ''}
+                    </Typography>
+                    {isEditMode && (
+                      <IconButton
+                        size="small"
+                        onClick={() => removeOnlineCourse(course.id)}
+                        sx={{
+                          minWidth: '16px',
+                          width: '16px',
+                          height: '16px',
+                          padding: 0,
+                          marginLeft: '2px',
+                          color: '#666',
+                          '&:hover': {
+                            color: '#ff4444',
+                            backgroundColor: 'rgba(255, 68, 68, 0.1)',
+                          },
+                        }}
+                      >
+                        <CloseIcon sx={{ fontSize: '12px' }} />
+                      </IconButton>
+                    )}
+                  </Box>
+                ))}
+              </Box>
+              <Typography
+                variant="body2"
+                sx={{
+                  fontSize: '14px',
+                  fontWeight: 'book',
+                  color: '#494949',
+                }}
+              >
+                {((): string => {
+                  const totalCredits = onlineCourses.reduce((sum, course) => {
+                    if (!course.credits) return sum;
+                    // Parse credits like "3" or "1-4"
+                    const credits = course.credits.split('-');
+                    const creditValue = parseInt(credits[0]) || 0;
+                    return sum + creditValue;
+                  }, 0);
+                  return `${totalCredits} credits`;
+                })()}
+              </Typography>
+            </Box>
+          )}
         </Box>
       )}
     </Box>

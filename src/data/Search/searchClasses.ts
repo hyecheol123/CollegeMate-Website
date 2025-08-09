@@ -18,6 +18,8 @@ export interface ClassSearchResult {
     min: number;
     max: number;
   };
+  minimumCredits?: number;
+  maximumCredits?: number;
 }
 
 export interface ClassSearchResponse {
