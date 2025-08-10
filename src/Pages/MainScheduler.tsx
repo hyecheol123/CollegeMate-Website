@@ -164,7 +164,12 @@ function MainScheduler(): React.ReactElement {
   };
 
   const removeOnlineCourse = (courseId: string): void => {
+    // Remove from online courses
     setOnlineCourses((prev) => prev.filter((course) => course.id !== courseId));
+    
+    // Also remove corresponding schedule events (courseId format: "courseId-sectionNumber")
+    const courseIdOnly = courseId.split('-')[0];
+    setScheduleEvents((prev) => prev.filter((event) => !event.id.startsWith(`${courseIdOnly}-`)));
   };
 
   const updateEventColorsByClassId = (classId: string, color: string): void => {
@@ -181,13 +186,16 @@ function MainScheduler(): React.ReactElement {
   };
 
   const removeEvent = (eventId: string): void => {
-    setScheduleEvents((prev) => {
-      // Extract the class ID from the event ID (format: "classId-day")
-      const classId = eventId.split('-')[0];
-
-      // Remove all events that belong to the same class
-      return prev.filter((event) => !event.id.startsWith(`${classId}-`));
-    });
+    // Extract the class and section ID from the event ID (format: "courseId-sectionId-day")
+    const courseId = eventId.split('-')[0];
+    const sectionId = eventId.split('-')[1];
+    
+    // Remove all events that belong to the same course and section
+    setScheduleEvents((prev) => prev.filter((event) => !event.id.startsWith(`${courseId}-${sectionId}-`)));
+    
+    // Also remove corresponding online course
+    const onlineCourseId = `${courseId}-${sectionId}`;
+    setOnlineCourses((prev) => prev.filter((course) => course.id !== onlineCourseId));
   };
 
   // Show loading state
@@ -383,6 +391,97 @@ function MainScheduler(): React.ReactElement {
               onRemoveEvent={removeEvent}
               isEditMode={isEditMode}
             />
+
+            {/* Online Classes Display - Always show credits */}
+            <Box sx={{ 
+              marginTop: '8px',
+              backgroundColor: 'white',
+              padding: '8px 0'
+            }}>
+              {onlineCourses.length > 0 && (
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    flexWrap: 'wrap',
+                    gap: '4px',
+                    marginBottom: '4px',
+                  }}
+                >
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontSize: '14px',
+                      fontWeight: 'book',
+                      color: '#494949',
+                    }}
+                  >
+                    Online classes:{' '}
+                  </Typography>
+                  {onlineCourses.map((course, index) => (
+                    <Box
+                      key={course.id}
+                      sx={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '2px',
+                      }}
+                    >
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          fontSize: '14px',
+                          fontWeight: 'book',
+                          color: '#494949',
+                        }}
+                      >
+                        {course.designation}
+                        {index < onlineCourses.length - 1 ? ',' : ''}
+                      </Typography>
+                      {isEditMode && (
+                        <IconButton
+                          size="small"
+                          onClick={() => removeOnlineCourse(course.id)}
+                          sx={{
+                            minWidth: '16px',
+                            width: '16px',
+                            height: '16px',
+                            padding: 0,
+                            marginLeft: '2px',
+                            color: '#666',
+                            '&:hover': {
+                              color: '#ff4444',
+                              backgroundColor: 'rgba(255, 68, 68, 0.1)',
+                            },
+                          }}
+                        >
+                          <CloseIcon sx={{ fontSize: '12px' }} />
+                        </IconButton>
+                      )}
+                    </Box>
+                  ))}
+                </Box>
+              )}
+              <Typography
+                variant="body2"
+                sx={{
+                  fontSize: '14px',
+                  fontWeight: 'book',
+                  color: '#494949',
+                }}
+              >
+                {((): string => {
+                  const totalCredits = onlineCourses.reduce((sum, course) => {
+                    if (!course.credits) return sum;
+                    // Parse credits like "3" or "1-4"
+                    const credits = course.credits.split('-');
+                    const creditValue = parseInt(credits[0]) || 0;
+                    return sum + creditValue;
+                  }, 0);
+                  return `${totalCredits} credits`;
+                })()}
+              </Typography>
+            </Box>
           </Box>
 
           {/* Search Panel Section */}

@@ -235,24 +235,24 @@ function EditSchedulerPanel({
       (meeting) => !meeting.meetingTimeStart || !meeting.meetingTimeEnd,
     );
 
+    const instructorNames =
+      section.instructors
+        ?.map((inst: Instructor) => `${inst.name.first} ${inst.name.last}`)
+        .join(', ') || 'TBA';
+
+    const credits =
+      course.minimumCredits && course.maximumCredits
+        ? course.minimumCredits === course.maximumCredits
+          ? `${course.minimumCredits}`
+          : `${course.minimumCredits}-${course.maximumCredits}`
+        : course.credits
+          ? course.credits.min === course.credits.max
+            ? `${course.credits.min}`
+            : `${course.credits.min}-${course.credits.max}`
+          : '';
+
+    // Only add to online courses if there are actual online meetings
     if (hasOnlineMeetings && onAddOnlineCourse) {
-      // Handle online course
-      const instructorNames =
-        section.instructors
-          ?.map((inst: Instructor) => `${inst.name.first} ${inst.name.last}`)
-          .join(', ') || 'TBA';
-
-      const credits =
-        course.minimumCredits && course.maximumCredits
-          ? course.minimumCredits === course.maximumCredits
-            ? `${course.minimumCredits}`
-            : `${course.minimumCredits}-${course.maximumCredits}`
-          : course.credits
-            ? course.credits.min === course.credits.max
-              ? `${course.credits.min}`
-              : `${course.credits.min}-${course.credits.max}`
-            : '';
-
       onAddOnlineCourse({
         id: `${course.courseId}-${section.sectionNumber}`,
         designation: course.courseDesignation,
@@ -260,6 +260,12 @@ function EditSchedulerPanel({
         credits,
         color: selectedColor,
       });
+    }
+
+    // If it's online-only (no scheduled meetings), we're done
+    if (hasOnlineMeetings && !section.classMeetings?.some(
+      (meeting) => meeting.meetingTimeStart && meeting.meetingTimeEnd,
+    )) {
       return;
     }
 
