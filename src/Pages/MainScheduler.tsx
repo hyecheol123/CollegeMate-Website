@@ -44,30 +44,117 @@ function MainScheduler(): React.ReactElement {
     }
 
     const element = schedulerRef.current;
-    const originalWidth = element.style.width;
-    const originalHeight = element.style.height;
 
     try {
-      // If there is a specified size, the DOM style is also forced to adjust.
-      if (selectedSize && selectedSize.width > 0 && selectedSize.height > 0) {
-        element.style.width = `${selectedSize.width}px`;
-        element.style.height = `${selectedSize.height}px`;
-      }
-
-      const dataUrl = await toPng(element, {
+      // Basic options for image generation
+      const options: Parameters<typeof toPng>[1] = {
         cacheBust: true,
         pixelRatio: 1,
-      });
+        quality: 0.95,
+      };
 
-      download(dataUrl, 'schedule.png');
-      return true;
+      if (selectedSize && selectedSize.width > 0 && selectedSize.height > 0) {
+        // Calculate aspect ratio and determine mobile-friendly base size
+        const aspectRatio = selectedSize.width / selectedSize.height;
+
+        // Base mobile dimensions that will look good on screen
+        let baseMobileWidth: number;
+        let baseMobileHeight: number;
+
+        if (aspectRatio > 1) {
+          // Landscape orientation (wider than tall)
+          baseMobileWidth = 600;
+          baseMobileHeight = Math.round(600 / aspectRatio);
+        } else {
+          // Portrait orientation (taller than wide)
+          baseMobileWidth = 400;
+          baseMobileHeight = Math.round(400 / aspectRatio);
+        }
+
+        // Calculate the scale factor for final output
+        const scaleFactorX = selectedSize.width / baseMobileWidth;
+        const scaleFactorY = selectedSize.height / baseMobileHeight;
+        const scaleFactor = Math.max(scaleFactorX, scaleFactorY);
+
+        // Store original styles
+        const originalStyles = {
+          width: element.style.width,
+          height: element.style.height,
+          maxWidth: element.style.maxWidth,
+          maxHeight: element.style.maxHeight,
+          minWidth: element.style.minWidth,
+          overflow: element.style.overflow,
+        };
+
+        // Store original window.innerWidth
+        const originalInnerWidth = window.innerWidth;
+
+        try {
+          // Set container to mobile-friendly dimensions
+          element.style.width = `${baseMobileWidth}px`;
+          element.style.height = `${baseMobileHeight}px`;
+          element.style.maxWidth = `${baseMobileWidth}px`;
+          element.style.maxHeight = `${baseMobileHeight}px`;
+          element.style.minWidth = `${baseMobileWidth}px`;
+          element.style.overflow = 'hidden';
+
+          // Mock window.innerWidth to mobile size for proper component behavior
+          Object.defineProperty(window, 'innerWidth', {
+            writable: true,
+            configurable: true,
+            value: baseMobileWidth,
+          });
+
+          // Trigger resize event for mobile layout
+          const resizeEvent = new Event('resize');
+          window.dispatchEvent(resizeEvent);
+
+          // Wait for layout to stabilize
+          await new Promise((resolve) => setTimeout(resolve, 300));
+
+          // Capture with high pixel ratio for crisp output
+          const dataUrl = await toPng(element, {
+            cacheBust: true,
+            pixelRatio: scaleFactor,
+            quality: 0.95,
+            width: baseMobileWidth,
+            height: baseMobileHeight,
+          });
+
+          download(dataUrl, 'schedule.png');
+          return true;
+        } finally {
+          // Restore original element styles
+          element.style.width = originalStyles.width;
+          element.style.height = originalStyles.height;
+          element.style.maxWidth = originalStyles.maxWidth;
+          element.style.maxHeight = originalStyles.maxHeight;
+          element.style.minWidth = originalStyles.minWidth;
+          element.style.overflow = originalStyles.overflow;
+
+          // Restore original window.innerWidth
+          Object.defineProperty(window, 'innerWidth', {
+            writable: true,
+            configurable: true,
+            value: originalInnerWidth,
+          });
+
+          // Trigger resize to restore original layout
+          const restoreEvent = new Event('resize');
+          window.dispatchEvent(restoreEvent);
+
+          // Brief wait for restoration
+          await new Promise((resolve) => setTimeout(resolve, 300));
+        }
+      } else {
+        // Regular image download without device-specific sizing
+        const dataUrl = await toPng(element);
+        download(dataUrl, 'schedule.png');
+        return true;
+      }
     } catch (err) {
       console.error('Download failed', err);
       return false;
-    } finally {
-      // reset to original size
-      element.style.width = originalWidth;
-      element.style.height = originalHeight;
     }
   };
   const handleEditToggle = (): void => {
@@ -115,9 +202,9 @@ function MainScheduler(): React.ReactElement {
 
       {/* Main Content Area */}
       {isMobile ? (
-        <Box sx={{ padding: '0 16px' }} ref={schedulerRef}>
+        <Box sx={{ padding: '0 16px' }}>
           {/* Mobile: Scheduler always same size */}
-          <SchedulerTable events={scheduleEvents} />
+          <SchedulerTable events={scheduleEvents} ref={schedulerRef} />
           {/* Mobile: Search panel below when in edit mode */}
           {isEditMode && (
             <Box ref={searchPanelRef} sx={{ marginTop: '16px' }}>
@@ -147,7 +234,7 @@ function MainScheduler(): React.ReactElement {
               minWidth: 0,
             }}
           >
-            <SchedulerTable events={scheduleEvents} />
+            <SchedulerTable events={scheduleEvents} ref={schedulerRef} />
           </Box>
 
           {/* Search Panel Section */}
@@ -166,8 +253,8 @@ function MainScheduler(): React.ReactElement {
           </Box>
         </Box>
       ) : (
-        <Box sx={{ padding: '0 32px' }} ref={schedulerRef}>
-          <SchedulerTable events={scheduleEvents} />
+        <Box sx={{ padding: '0 32px' }}>
+          <SchedulerTable events={scheduleEvents} ref={schedulerRef} />
         </Box>
       )}
       {isDownloadOpen && (

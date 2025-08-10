@@ -39,6 +39,7 @@
     "@mui/material": "^6.1.0",
     "ajv": "^8.17.1",
     "ajv-formats": "^3.0.1",
+    "dom-to-image": "^2.6.0",
     "downloadjs": "^1.4.7",
     "html-to-image": "^1.11.13",
     "react": "^18.3.1",
