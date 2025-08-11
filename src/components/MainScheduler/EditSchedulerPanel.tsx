@@ -331,6 +331,7 @@ function EditSchedulerPanel({
               ? `${meeting.building.buildingName} ${meeting.room}`
               : 'TBA',
           instructor: instructorNames,
+          credits,
         });
       });
     });

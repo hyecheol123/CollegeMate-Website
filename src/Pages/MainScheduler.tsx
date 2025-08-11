@@ -272,7 +272,7 @@ function MainScheduler(): React.ReactElement {
                   alignItems: 'flex-start',
                   flexWrap: 'wrap',
                   gap: '4px',
-                  marginBottom: '4px',
+                  marginBottom: '12px',
                 }}
               >
                 <Typography
@@ -303,7 +303,6 @@ function MainScheduler(): React.ReactElement {
                       }}
                     >
                       {course.designation}
-                      {index < onlineCourses.length - 1 ? ',' : ''}
                     </Typography>
                     {isEditMode && (
                       <IconButton
@@ -325,6 +324,18 @@ function MainScheduler(): React.ReactElement {
                         <CloseIcon sx={{ fontSize: '12px' }} />
                       </IconButton>
                     )}
+                    {index < onlineCourses.length - 1 && (
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          fontSize: '14px',
+                          fontWeight: 'book',
+                          color: '#494949',
+                        }}
+                      >
+                        ,
+                      </Typography>
+                    )}
                   </Box>
                 ))}
               </Box>
@@ -336,14 +347,33 @@ function MainScheduler(): React.ReactElement {
                   color: '#494949',
                 }}
               >
-                {((): string => {
-                  const totalCredits = onlineCourses.reduce((sum, course) => {
-                    if (!course.credits) return sum;
-                    // Parse credits like "3" or "1-4"
-                    const credits = course.credits.split('-');
-                    const creditValue = parseInt(credits[0]) || 0;
-                    return sum + creditValue;
-                  }, 0);
+{((): string => {
+                  let totalCredits = 0;
+                  const allCourseIds = new Set<string>();
+                  
+                  // Add credits from online courses
+                  onlineCourses.forEach(course => {
+                    if (course.credits) {
+                      allCourseIds.add(course.id);
+                      const creditValue = parseInt(course.credits.split('-')[0]) || 0;
+                      totalCredits += creditValue;
+                    }
+                  });
+                  
+                  // Add credits from scheduled events (only if not already counted as online)
+                  scheduleEvents.forEach(event => {
+                    const parts = event.id.split('-');
+                    const courseId = parts[0];
+                    const sectionId = parts[1];
+                    const uniqueId = `${courseId}-${sectionId}`;
+                    
+                    if (!allCourseIds.has(uniqueId) && event.credits) {
+                      allCourseIds.add(uniqueId);
+                      const creditValue = parseInt(event.credits.split('-')[0]) || 0;
+                      totalCredits += creditValue;
+                    }
+                  });
+                  
                   return `${totalCredits} credits`;
                 })()}
               </Typography>
@@ -351,7 +381,7 @@ function MainScheduler(): React.ReactElement {
           )}
           {/* Mobile: Search panel below when in edit mode */}
           {isEditMode && (
-            <Box ref={searchPanelRef} sx={{ marginTop: '8px', width: '100%' }}>
+            <Box ref={searchPanelRef} sx={{ marginTop: '8px', width: '100%', minHeight: 'auto' }}>
               <EditSchedulerPanel
                 onAddEvent={addEvent}
                 onUpdateEventColor={updateEventColorsByClassId}
@@ -436,7 +466,6 @@ function MainScheduler(): React.ReactElement {
                         }}
                       >
                         {course.designation}
-                        {index < onlineCourses.length - 1 ? ',' : ''}
                       </Typography>
                       {isEditMode && (
                         <IconButton
@@ -458,6 +487,18 @@ function MainScheduler(): React.ReactElement {
                           <CloseIcon sx={{ fontSize: '12px' }} />
                         </IconButton>
                       )}
+                      {index < onlineCourses.length - 1 && (
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            fontSize: '14px',
+                            fontWeight: 'book',
+                            color: '#494949',
+                          }}
+                        >
+                          ,
+                        </Typography>
+                      )}
                     </Box>
                   ))}
                 </Box>
@@ -470,14 +511,33 @@ function MainScheduler(): React.ReactElement {
                   color: '#494949',
                 }}
               >
-                {((): string => {
-                  const totalCredits = onlineCourses.reduce((sum, course) => {
-                    if (!course.credits) return sum;
-                    // Parse credits like "3" or "1-4"
-                    const credits = course.credits.split('-');
-                    const creditValue = parseInt(credits[0]) || 0;
-                    return sum + creditValue;
-                  }, 0);
+{((): string => {
+                  let totalCredits = 0;
+                  const allCourseIds = new Set<string>();
+                  
+                  // Add credits from online courses
+                  onlineCourses.forEach(course => {
+                    if (course.credits) {
+                      allCourseIds.add(course.id);
+                      const creditValue = parseInt(course.credits.split('-')[0]) || 0;
+                      totalCredits += creditValue;
+                    }
+                  });
+                  
+                  // Add credits from scheduled events (only if not already counted as online)
+                  scheduleEvents.forEach(event => {
+                    const parts = event.id.split('-');
+                    const courseId = parts[0];
+                    const sectionId = parts[1];
+                    const uniqueId = `${courseId}-${sectionId}`;
+                    
+                    if (!allCourseIds.has(uniqueId) && event.credits) {
+                      allCourseIds.add(uniqueId);
+                      const creditValue = parseInt(event.credits.split('-')[0]) || 0;
+                      totalCredits += creditValue;
+                    }
+                  });
+                  
                   return `${totalCredits} credits`;
                 })()}
               </Typography>
@@ -525,7 +585,7 @@ function MainScheduler(): React.ReactElement {
                   alignItems: 'flex-start',
                   flexWrap: 'wrap',
                   gap: '4px',
-                  marginBottom: '4px',
+                  marginBottom: '12px',
                 }}
               >
                 <Typography
@@ -556,7 +616,6 @@ function MainScheduler(): React.ReactElement {
                       }}
                     >
                       {course.designation}
-                      {index < onlineCourses.length - 1 ? ',' : ''}
                     </Typography>
                     {isEditMode && (
                       <IconButton
@@ -578,6 +637,18 @@ function MainScheduler(): React.ReactElement {
                         <CloseIcon sx={{ fontSize: '12px' }} />
                       </IconButton>
                     )}
+                    {index < onlineCourses.length - 1 && (
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          fontSize: '14px',
+                          fontWeight: 'book',
+                          color: '#494949',
+                        }}
+                      >
+                        ,
+                      </Typography>
+                    )}
                   </Box>
                 ))}
               </Box>
@@ -589,14 +660,33 @@ function MainScheduler(): React.ReactElement {
                   color: '#494949',
                 }}
               >
-                {((): string => {
-                  const totalCredits = onlineCourses.reduce((sum, course) => {
-                    if (!course.credits) return sum;
-                    // Parse credits like "3" or "1-4"
-                    const credits = course.credits.split('-');
-                    const creditValue = parseInt(credits[0]) || 0;
-                    return sum + creditValue;
-                  }, 0);
+{((): string => {
+                  let totalCredits = 0;
+                  const allCourseIds = new Set<string>();
+                  
+                  // Add credits from online courses
+                  onlineCourses.forEach(course => {
+                    if (course.credits) {
+                      allCourseIds.add(course.id);
+                      const creditValue = parseInt(course.credits.split('-')[0]) || 0;
+                      totalCredits += creditValue;
+                    }
+                  });
+                  
+                  // Add credits from scheduled events (only if not already counted as online)
+                  scheduleEvents.forEach(event => {
+                    const parts = event.id.split('-');
+                    const courseId = parts[0];
+                    const sectionId = parts[1];
+                    const uniqueId = `${courseId}-${sectionId}`;
+                    
+                    if (!allCourseIds.has(uniqueId) && event.credits) {
+                      allCourseIds.add(uniqueId);
+                      const creditValue = parseInt(event.credits.split('-')[0]) || 0;
+                      totalCredits += creditValue;
+                    }
+                  });
+                  
                   return `${totalCredits} credits`;
                 })()}
               </Typography>

@@ -283,35 +283,11 @@ function SchedulerTable({
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  cursor: isEditMode ? 'pointer' : 'default',
+                  cursor: 'default',
                   zIndex: 10 + eventIndex,
                   minWidth: 0,
                   overflow: 'visible',
-                  ...(isEditMode && {
-                    '&::after': {
-                      content: '"×"',
-                      position: 'absolute',
-                      top: '-2px',
-                      right: '-2px',
-                      width: '24px',
-                      height: '24px',
-                      color: '#494949',
-                      fontSize: '24px',
-                      fontWeight: '200',
-                      cursor: 'pointer',
-                      zIndex: 1000 + eventIndex,
-                      lineHeight: '24px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    },
-                  }),
                 }}
-                onClick={
-                  isEditMode
-                    ? (): void => handleRemoveEvent(event.id)
-                    : undefined
-                }
               >
                 <Typography
                   variant="body2"
@@ -328,6 +304,32 @@ function SchedulerTable({
                 >
                   {event.title}
                 </Typography>
+                {isEditMode && (
+                  <Box
+                    sx={{
+                      position: 'absolute',
+                      top: '-2px',
+                      right: '-2px',
+                      width: '24px',
+                      height: '24px',
+                      color: '#494949',
+                      fontSize: '24px',
+                      fontWeight: '200',
+                      cursor: 'pointer',
+                      zIndex: 1000 + eventIndex,
+                      lineHeight: '24px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                    onClick={(e): void => {
+                      e.stopPropagation();
+                      handleRemoveEvent(event.id);
+                    }}
+                  >
+                    ×
+                  </Box>
+                )}
               </Box>
             );
           })}
