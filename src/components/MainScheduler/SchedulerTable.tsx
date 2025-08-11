@@ -6,10 +6,7 @@
 // React
 import React, { useState, useMemo, useEffect } from 'react';
 // Material UI
-import {
-  Box,
-  Typography,
-} from '@mui/material';
+import { Box, Typography } from '@mui/material';
 // Components
 import Modal from '../Common/Modal/Modal';
 import getDummyEvents from '../../data/Schedule/getDummyEvents';
@@ -103,7 +100,6 @@ function SchedulerTable({
     );
   }, [minHour, maxHour]);
 
-
   const days = useMemo(() => {
     const baseDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
     let hasSaturdayEvent = false;
@@ -129,7 +125,7 @@ function SchedulerTable({
   }, [myEvents]);
 
   return (
-    <Box sx={{ height: '100%', flexGrow: 1, overflow: 'visible' }}>
+    <Box sx={{ width: '100%', minWidth: '600px', overflow: 'visible' }}>
       <Modal
         isOpen={isModalOpen}
         handleClose={handleCloseModal}
@@ -153,6 +149,7 @@ function SchedulerTable({
             gridTemplateColumns: `${windowWidth < 300 ? '40px' : '45px'} repeat(${days.length}, 1fr)`,
             gridTemplateRows: `40px repeat(${(maxHour - minHour + 1) * 12}, 5px)`,
             width: '100%',
+            height: `${40 + (maxHour - minHour + 1) * 60}px`,
             borderRadius: '6px',
             overflow: 'visible',
             position: 'relative',
@@ -204,7 +201,7 @@ function SchedulerTable({
           <Box
             sx={{
               gridColumn: '1',
-              gridRow: `2 / -1`,
+              gridRow: '2 / -1',
               bgcolor: 'red.main',
               display: 'flex',
               flexDirection: 'column',
@@ -223,11 +220,7 @@ function SchedulerTable({
                     top: '-25px',
                   }}
                 >
-                  <Typography
-                    variant="body2"
-                    color="white.main"
-                    align="center"
-                  >
+                  <Typography variant="body2" color="white.main" align="center">
                     {hourLabel}
                   </Typography>
                 </Box>
@@ -240,10 +233,10 @@ function SchedulerTable({
             const hourColor = getColorForHourIndex(hourIndex);
             const hour = minHour + hourIndex;
             const cells: React.ReactElement[] = [];
-            
+
             for (let i = 0; i < 12; i++) {
               const gridRowStart = 2 + hourIndex * 12 + i;
-              
+
               days.forEach((day, dayIndex) => {
                 cells.push(
                   <Box
@@ -254,7 +247,7 @@ function SchedulerTable({
                       backgroundColor: hourColor,
                       minHeight: '5px',
                     }}
-                  />
+                  />,
                 );
               });
             }
@@ -289,21 +282,51 @@ function SchedulerTable({
                   overflow: 'visible',
                 }}
               >
-                <Typography
-                  variant="body2"
-                  color="white.main"
-                  align="center"
-                  style={{ 
-                    wordWrap: 'break-word',
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    height: '100%',
                     padding: '4px',
-                    whiteSpace: 'nowrap',
-                    textOverflow: 'ellipsis',
-                    overflow: 'hidden',
-                    width: '100%',
                   }}
                 >
-                  {event.title}
-                </Typography>
+                  <Typography
+                    variant="body2"
+                    color="white.main"
+                    align="center"
+                    sx={{
+                      wordWrap: 'break-word',
+                      whiteSpace: 'nowrap',
+                      textOverflow: 'ellipsis',
+                      overflow: 'hidden',
+                      width: '100%',
+                    }}
+                  >
+                    {event.title}
+                  </Typography>
+                  {event.location &&
+                    event.location !== 'TBA' &&
+                    event.location !== 'ONLINE' && (
+                      <Typography
+                        variant="body2"
+                        color="white.main"
+                        align="center"
+                        sx={{
+                          fontSize: '10px',
+                          opacity: 0.8,
+                          whiteSpace: 'nowrap',
+                          textOverflow: 'ellipsis',
+                          overflow: 'hidden',
+                          width: '100%',
+                          marginTop: '1px',
+                        }}
+                      >
+                        {event.location}
+                      </Typography>
+                    )}
+                </Box>
                 {isEditMode && (
                   <Box
                     sx={{

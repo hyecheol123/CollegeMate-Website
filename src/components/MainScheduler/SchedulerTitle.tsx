@@ -41,7 +41,7 @@ const titleStyle = {
 };
 
 const iconBoxStyle = {
-  marginRight: 0,
+  marginRight: '-8px',
 };
 
 // Props interface
@@ -200,7 +200,9 @@ function SchedulerTitle({
                 },
               }}
             >
-              {formatTermCode(term.termCode)}
+              <Typography variant="body2">
+                {formatTermCode(term.termCode)}
+              </Typography>
             </MenuItem>
           ))}
         </Menu>

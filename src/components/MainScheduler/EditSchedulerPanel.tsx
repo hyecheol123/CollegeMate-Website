@@ -263,9 +263,12 @@ function EditSchedulerPanel({
     }
 
     // If it's online-only (no scheduled meetings), we're done
-    if (hasOnlineMeetings && !section.classMeetings?.some(
-      (meeting) => meeting.meetingTimeStart && meeting.meetingTimeEnd,
-    )) {
+    if (
+      hasOnlineMeetings &&
+      !section.classMeetings?.some(
+        (meeting) => meeting.meetingTimeStart && meeting.meetingTimeEnd,
+      )
+    ) {
       return;
     }
 
@@ -411,6 +414,14 @@ function EditSchedulerPanel({
             marginLeft: '-15px',
             width: 'calc(100% + 15px)',
           }),
+          '& .MuiInputBase-input::placeholder': {
+            color: '#494949',
+            fontWeight: 400,
+            fontSize: '14px',
+            lineHeight: '18px',
+            fontFamily: 'Roboto',
+            opacity: 1,
+          },
         }}
         slotProps={{
           input: {
@@ -425,11 +436,9 @@ function EditSchedulerPanel({
 
       {/* Results Header */}
       <Typography
-        variant="body1"
+        variant="body2"
         sx={{
           marginBottom: isMobile ? '12px' : '6px',
-          color: 'darkGrey.main',
-          fontWeight: 500,
           marginLeft: isMobile ? '-10px' : '0px',
         }}
       >
@@ -460,10 +469,10 @@ function EditSchedulerPanel({
             sx={{
               padding: '20px',
               textAlign: 'center',
-              marginBottom: isMobile ? '20px' : '0px',
+              marginBottom: isMobile ? '8px' : '0px',
             }}
           >
-            <Typography variant="body2" color="text.secondary">
+            <Typography variant="body2">
               No classes found matching your search.
             </Typography>
           </Card>
@@ -525,7 +534,7 @@ function EditSchedulerPanel({
                       </Typography>
 
                       <Typography
-                        variant="body2"
+                        variant="body1"
                         color="text.secondary"
                         sx={{ marginBottom: '4px' }}
                       >
@@ -533,7 +542,7 @@ function EditSchedulerPanel({
                       </Typography>
 
                       <Typography
-                        variant="body2"
+                        variant="body1"
                         color="text.secondary"
                         sx={{
                           marginBottom: '4px',
@@ -655,10 +664,41 @@ function EditSchedulerPanel({
                       },
                     );
 
-                    return allSections.map(
-                      (section: Section, sectionIndex: number) => {
+                    // Separate lectures and discussions, then sort each by section number
+                    const lectures: Section[] = [];
+                    const discussions: Section[] = [];
+
+                    allSections.forEach((section: Section) => {
+                      if (section.type === 'LEC') {
+                        lectures.push(section);
+                      } else if (section.type === 'DIS') {
+                        discussions.push(section);
+                      } else {
+                        // For other types, treat as lectures
+                        lectures.push(section);
+                      }
+                    });
+
+                    // Sort sections by section number in ascending order
+                    const sortedLectures = lectures.sort((a, b) => {
+                      const aNum = parseInt(a.sectionNumber || '0', 10);
+                      const bNum = parseInt(b.sectionNumber || '0', 10);
+                      return aNum - bNum;
+                    });
+                    const sortedDiscussions = discussions.sort((a, b) => {
+                      const aNum = parseInt(a.sectionNumber || '0', 10);
+                      const bNum = parseInt(b.sectionNumber || '0', 10);
+                      return aNum - bNum;
+                    });
+
+                    // Render hierarchically: Lectures first, then their associated Discussions
+                    const renderedSections: React.ReactElement[] = [];
+
+                    // Render lecture sections
+                    sortedLectures.forEach(
+                      (section: Section, sectionIndex: number): void => {
                         const uniqueKey = `${course.courseId}-${section.type}-${section.sectionNumber}-${sectionIndex}`;
-                        return (
+                        renderedSections.push(
                           <Card
                             key={uniqueKey}
                             sx={{
@@ -683,13 +723,17 @@ function EditSchedulerPanel({
                                       marginBottom: '4px',
                                     }}
                                   >
-                                    Section {section.sectionNumber || 'N/A'} (
-                                    {section.type || 'CLASS'})
+                                    {section.type === 'LEC'
+                                      ? 'Lecture'
+                                      : section.type === 'DIS'
+                                        ? 'Discussion'
+                                        : section.type || 'Section'}{' '}
+                                    {section.sectionNumber || 'N/A'}
                                   </Typography>
 
                                   {/* Instructor */}
                                   <Typography
-                                    variant="body2"
+                                    variant="body1"
                                     color="text.secondary"
                                     sx={{ marginBottom: '4px' }}
                                   >
@@ -710,41 +754,76 @@ function EditSchedulerPanel({
                                     ) => (
                                       <Typography
                                         key={`${uniqueKey}-meeting-${meetingIndex}`}
-                                        variant="body2"
+                                        variant="body1"
                                         color="text.secondary"
                                         sx={{ marginBottom: '2px' }}
                                       >
-{(() => {
+                                        {((): string => {
                                           // Check if this is an online/asynchronous course
-                                          if (!meeting.meetingTimeStart || !meeting.meetingTimeEnd) {
-                                            if (meeting.building?.buildingName === 'ONLINE') {
+                                          if (
+                                            !meeting.meetingTimeStart ||
+                                            !meeting.meetingTimeEnd
+                                          ) {
+                                            if (
+                                              meeting.building?.buildingName ===
+                                              'ONLINE'
+                                            ) {
                                               return 'ONLINE';
                                             }
                                             return 'TBA';
                                           }
 
                                           // Show days and time for scheduled classes
-                                          const daysText = meeting.meetingDaysList?.join(', ') || '';
-                                          
+                                          const daysText =
+                                            meeting.meetingDaysList?.join(
+                                              ', ',
+                                            ) || '';
+
                                           // UTC OFFSET CORRECTION - Madison is CST (UTC-6), API uses UTC
                                           const offsetMs = 6 * 60 * 60 * 1000; // 6 hours in milliseconds
-                                          const correctedStartMs = meeting.meetingTimeStart! - offsetMs;
-                                          const correctedEndMs = meeting.meetingTimeEnd! - offsetMs;
+                                          const correctedStartMs =
+                                            meeting.meetingTimeStart! -
+                                            offsetMs;
+                                          const correctedEndMs =
+                                            meeting.meetingTimeEnd! - offsetMs;
 
-                                          const startHour = Math.floor(correctedStartMs / (1000 * 60 * 60));
-                                          const startMinute = Math.floor((correctedStartMs % (1000 * 60 * 60)) / (1000 * 60));
-                                          const endHour = Math.floor(correctedEndMs / (1000 * 60 * 60));
-                                          const endMinute = Math.floor((correctedEndMs % (1000 * 60 * 60)) / (1000 * 60));
+                                          const startHour = Math.floor(
+                                            correctedStartMs / (1000 * 60 * 60),
+                                          );
+                                          const startMinute = Math.floor(
+                                            (correctedStartMs %
+                                              (1000 * 60 * 60)) /
+                                              (1000 * 60),
+                                          );
+                                          const endHour = Math.floor(
+                                            correctedEndMs / (1000 * 60 * 60),
+                                          );
+                                          const endMinute = Math.floor(
+                                            (correctedEndMs %
+                                              (1000 * 60 * 60)) /
+                                              (1000 * 60),
+                                          );
 
-                                          const formatTime = (hour: number, minute: number): string => {
-                                            const period = hour >= 12 ? 'PM' : 'AM';
-                                            const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
+                                          const formatTime = (
+                                            hour: number,
+                                            minute: number,
+                                          ): string => {
+                                            const period =
+                                              hour >= 12 ? 'PM' : 'AM';
+                                            const displayHour =
+                                              hour > 12
+                                                ? hour - 12
+                                                : hour === 0
+                                                  ? 12
+                                                  : hour;
                                             return `${displayHour}:${minute.toString().padStart(2, '0')} ${period}`;
                                           };
 
                                           const timeText = `${formatTime(startHour, startMinute)} - ${formatTime(endHour, endMinute)}`;
-                                          
-                                          return daysText ? `${daysText} • ${timeText}` : timeText;
+
+                                          return daysText
+                                            ? `${daysText} • ${timeText}`
+                                            : timeText;
                                         })()}
                                         {meeting.building?.buildingName &&
                                           meeting.room && (
@@ -777,10 +856,186 @@ function EditSchedulerPanel({
                                 </Button>
                               </Box>
                             </CardContent>
-                          </Card>
+                          </Card>,
                         );
                       },
                     );
+
+                    // Render discussion sections with indentation
+                    sortedDiscussions.forEach(
+                      (section: Section, sectionIndex: number): void => {
+                        const uniqueKey = `${course.courseId}-${section.type}-${section.sectionNumber}-${sectionIndex}`;
+                        renderedSections.push(
+                          <Box
+                            key={`${uniqueKey}-wrapper`}
+                            sx={{ marginLeft: '24px' }} // Indentation for discussion sections
+                          >
+                            <Card
+                              sx={{
+                                marginBottom: '8px',
+                                backgroundColor: '#f1f3f4',
+                                border: '1px solid #d0d0d0',
+                              }}
+                            >
+                              <CardContent sx={{ padding: '12px !important' }}>
+                                <Box
+                                  sx={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                  }}
+                                >
+                                  <Box sx={{ flex: 1 }}>
+                                    <Typography
+                                      variant="body1"
+                                      sx={{
+                                        fontWeight: 600,
+                                        marginBottom: '4px',
+                                      }}
+                                    >
+                                      {section.type === 'LEC'
+                                        ? 'Lecture'
+                                        : section.type === 'DIS'
+                                          ? 'Discussion'
+                                          : section.type || 'Section'}{' '}
+                                      {section.sectionNumber || 'N/A'}
+                                    </Typography>
+
+                                    {/* Instructor */}
+                                    <Typography
+                                      variant="body1"
+                                      color="text.secondary"
+                                      sx={{ marginBottom: '4px' }}
+                                    >
+                                      Instructor:{' '}
+                                      {section.instructors
+                                        ?.map(
+                                          (inst: Instructor) =>
+                                            `${inst.name.first} ${inst.name.last}`,
+                                        )
+                                        .join(', ') || 'TBA'}
+                                    </Typography>
+
+                                    {/* Meeting Times */}
+                                    {section.classMeetings?.map(
+                                      (
+                                        meeting: Meeting,
+                                        meetingIndex: number,
+                                      ) => (
+                                        <Typography
+                                          key={`${uniqueKey}-meeting-${meetingIndex}`}
+                                          variant="body1"
+                                          color="text.secondary"
+                                          sx={{ marginBottom: '2px' }}
+                                        >
+                                          {((): string => {
+                                            // Check if this is an online/asynchronous course
+                                            if (
+                                              !meeting.meetingTimeStart ||
+                                              !meeting.meetingTimeEnd
+                                            ) {
+                                              if (
+                                                meeting.building
+                                                  ?.buildingName === 'ONLINE'
+                                              ) {
+                                                return 'ONLINE';
+                                              }
+                                              return 'TBA';
+                                            }
+
+                                            // Show days and time for scheduled classes
+                                            const daysText =
+                                              meeting.meetingDaysList?.join(
+                                                ', ',
+                                              ) || '';
+
+                                            // UTC OFFSET CORRECTION - Madison is CST (UTC-6), API uses UTC
+                                            const offsetMs = 6 * 60 * 60 * 1000; // 6 hours in milliseconds
+                                            const correctedStartMs =
+                                              meeting.meetingTimeStart! -
+                                              offsetMs;
+                                            const correctedEndMs =
+                                              meeting.meetingTimeEnd! -
+                                              offsetMs;
+
+                                            const startHour = Math.floor(
+                                              correctedStartMs /
+                                                (1000 * 60 * 60),
+                                            );
+                                            const startMinute = Math.floor(
+                                              (correctedStartMs %
+                                                (1000 * 60 * 60)) /
+                                                (1000 * 60),
+                                            );
+                                            const endHour = Math.floor(
+                                              correctedEndMs / (1000 * 60 * 60),
+                                            );
+                                            const endMinute = Math.floor(
+                                              (correctedEndMs %
+                                                (1000 * 60 * 60)) /
+                                                (1000 * 60),
+                                            );
+
+                                            const formatTime = (
+                                              hour: number,
+                                              minute: number,
+                                            ): string => {
+                                              const period =
+                                                hour >= 12 ? 'PM' : 'AM';
+                                              const displayHour =
+                                                hour > 12
+                                                  ? hour - 12
+                                                  : hour === 0
+                                                    ? 12
+                                                    : hour;
+                                              return `${displayHour}:${minute.toString().padStart(2, '0')} ${period}`;
+                                            };
+
+                                            const timeText = `${formatTime(startHour, startMinute)} - ${formatTime(endHour, endMinute)}`;
+
+                                            return daysText
+                                              ? `${daysText} • ${timeText}`
+                                              : timeText;
+                                          })()}
+                                          {meeting.building?.buildingName &&
+                                            meeting.room && (
+                                              <>
+                                                {' '}
+                                                •{' '}
+                                                {
+                                                  meeting.building.buildingName
+                                                }{' '}
+                                                {meeting.room}
+                                              </>
+                                            )}
+                                        </Typography>
+                                      ),
+                                    )}
+                                  </Box>
+
+                                  <Button
+                                    variant="contained"
+                                    size="small"
+                                    onClick={(): Promise<void> =>
+                                      handleAddSection(course, section)
+                                    }
+                                    sx={{
+                                      fontSize: '11px',
+                                      padding: '4px 8px',
+                                      minWidth: '80px',
+                                    }}
+                                  >
+                                    Add Section
+                                  </Button>
+                                </Box>
+                              </CardContent>
+                            </Card>
+                          </Box>,
+                        );
+                      },
+                    );
+
+                    return renderedSections;
                   })()}
                 </Box>
               )}

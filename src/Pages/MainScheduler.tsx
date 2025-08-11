@@ -166,10 +166,12 @@ function MainScheduler(): React.ReactElement {
   const removeOnlineCourse = (courseId: string): void => {
     // Remove from online courses
     setOnlineCourses((prev) => prev.filter((course) => course.id !== courseId));
-    
+
     // Also remove corresponding schedule events (courseId format: "courseId-sectionNumber")
     const courseIdOnly = courseId.split('-')[0];
-    setScheduleEvents((prev) => prev.filter((event) => !event.id.startsWith(`${courseIdOnly}-`)));
+    setScheduleEvents((prev) =>
+      prev.filter((event) => !event.id.startsWith(`${courseIdOnly}-`)),
+    );
   };
 
   const updateEventColorsByClassId = (classId: string, color: string): void => {
@@ -189,13 +191,17 @@ function MainScheduler(): React.ReactElement {
     // Extract the class and section ID from the event ID (format: "courseId-sectionId-day")
     const courseId = eventId.split('-')[0];
     const sectionId = eventId.split('-')[1];
-    
+
     // Remove all events that belong to the same course and section
-    setScheduleEvents((prev) => prev.filter((event) => !event.id.startsWith(`${courseId}-${sectionId}-`)));
-    
+    setScheduleEvents((prev) =>
+      prev.filter((event) => !event.id.startsWith(`${courseId}-${sectionId}-`)),
+    );
+
     // Also remove corresponding online course
     const onlineCourseId = `${courseId}-${sectionId}`;
-    setOnlineCourses((prev) => prev.filter((course) => course.id !== onlineCourseId));
+    setOnlineCourses((prev) =>
+      prev.filter((course) => course.id !== onlineCourseId),
+    );
   };
 
   // Show loading state
@@ -258,14 +264,16 @@ function MainScheduler(): React.ReactElement {
             onRemoveEvent={removeEvent}
             isEditMode={isEditMode}
           />
-          
+
           {/* Online Classes Display */}
           {onlineCourses.length > 0 && (
-            <Box sx={{ 
-              marginTop: '16px',
-              backgroundColor: 'white',
-              padding: '8px 0'
-            }}>
+            <Box
+              sx={{
+                marginTop: '16px',
+                backgroundColor: 'white',
+                padding: '8px 0',
+              }}
+            >
               <Box
                 sx={{
                   display: 'flex',
@@ -347,33 +355,35 @@ function MainScheduler(): React.ReactElement {
                   color: '#494949',
                 }}
               >
-{((): string => {
+                {((): string => {
                   let totalCredits = 0;
                   const allCourseIds = new Set<string>();
-                  
+
                   // Add credits from online courses
-                  onlineCourses.forEach(course => {
+                  onlineCourses.forEach((course) => {
                     if (course.credits) {
                       allCourseIds.add(course.id);
-                      const creditValue = parseInt(course.credits.split('-')[0]) || 0;
+                      const creditValue =
+                        parseInt(course.credits.split('-')[0]) || 0;
                       totalCredits += creditValue;
                     }
                   });
-                  
+
                   // Add credits from scheduled events (only if not already counted as online)
-                  scheduleEvents.forEach(event => {
+                  scheduleEvents.forEach((event) => {
                     const parts = event.id.split('-');
                     const courseId = parts[0];
                     const sectionId = parts[1];
                     const uniqueId = `${courseId}-${sectionId}`;
-                    
+
                     if (!allCourseIds.has(uniqueId) && event.credits) {
                       allCourseIds.add(uniqueId);
-                      const creditValue = parseInt(event.credits.split('-')[0]) || 0;
+                      const creditValue =
+                        parseInt(event.credits.split('-')[0]) || 0;
                       totalCredits += creditValue;
                     }
                   });
-                  
+
                   return `${totalCredits} credits`;
                 })()}
               </Typography>
@@ -381,7 +391,10 @@ function MainScheduler(): React.ReactElement {
           )}
           {/* Mobile: Search panel below when in edit mode */}
           {isEditMode && (
-            <Box ref={searchPanelRef} sx={{ marginTop: '8px', width: '100%', minHeight: 'auto' }}>
+            <Box
+              ref={searchPanelRef}
+              sx={{ marginTop: '8px', width: '100%', minHeight: 'auto' }}
+            >
               <EditSchedulerPanel
                 onAddEvent={addEvent}
                 onUpdateEventColor={updateEventColorsByClassId}
@@ -409,11 +422,10 @@ function MainScheduler(): React.ReactElement {
           <Box
             sx={{
               flex: '1 1 60%',
-              minWidth: 0,
+              width: '60%',
               overflow: 'visible',
               position: 'sticky',
               top: '0px',
-              height: 'fit-content',
             }}
           >
             <SchedulerTable
@@ -423,11 +435,13 @@ function MainScheduler(): React.ReactElement {
             />
 
             {/* Online Classes Display - Always show credits */}
-            <Box sx={{ 
-              marginTop: '8px',
-              backgroundColor: 'white',
-              padding: '8px 0'
-            }}>
+            <Box
+              sx={{
+                marginTop: '8px',
+                backgroundColor: 'white',
+                padding: '8px 0',
+              }}
+            >
               {onlineCourses.length > 0 && (
                 <Box
                   sx={{
@@ -511,33 +525,35 @@ function MainScheduler(): React.ReactElement {
                   color: '#494949',
                 }}
               >
-{((): string => {
+                {((): string => {
                   let totalCredits = 0;
                   const allCourseIds = new Set<string>();
-                  
+
                   // Add credits from online courses
-                  onlineCourses.forEach(course => {
+                  onlineCourses.forEach((course) => {
                     if (course.credits) {
                       allCourseIds.add(course.id);
-                      const creditValue = parseInt(course.credits.split('-')[0]) || 0;
+                      const creditValue =
+                        parseInt(course.credits.split('-')[0]) || 0;
                       totalCredits += creditValue;
                     }
                   });
-                  
+
                   // Add credits from scheduled events (only if not already counted as online)
-                  scheduleEvents.forEach(event => {
+                  scheduleEvents.forEach((event) => {
                     const parts = event.id.split('-');
                     const courseId = parts[0];
                     const sectionId = parts[1];
                     const uniqueId = `${courseId}-${sectionId}`;
-                    
+
                     if (!allCourseIds.has(uniqueId) && event.credits) {
                       allCourseIds.add(uniqueId);
-                      const creditValue = parseInt(event.credits.split('-')[0]) || 0;
+                      const creditValue =
+                        parseInt(event.credits.split('-')[0]) || 0;
                       totalCredits += creditValue;
                     }
                   });
-                  
+
                   return `${totalCredits} credits`;
                 })()}
               </Typography>
@@ -573,12 +589,14 @@ function MainScheduler(): React.ReactElement {
 
           {/* Online Classes Display */}
           {onlineCourses.length > 0 && (
-            <Box sx={{ 
-              marginTop: '16px',
-              backgroundColor: 'white',
-              padding: '8px 0',
-              zIndex: 10
-            }}>
+            <Box
+              sx={{
+                marginTop: '16px',
+                backgroundColor: 'white',
+                padding: '8px 0',
+                zIndex: 10,
+              }}
+            >
               <Box
                 sx={{
                   display: 'flex',
@@ -660,33 +678,35 @@ function MainScheduler(): React.ReactElement {
                   color: '#494949',
                 }}
               >
-{((): string => {
+                {((): string => {
                   let totalCredits = 0;
                   const allCourseIds = new Set<string>();
-                  
+
                   // Add credits from online courses
-                  onlineCourses.forEach(course => {
+                  onlineCourses.forEach((course) => {
                     if (course.credits) {
                       allCourseIds.add(course.id);
-                      const creditValue = parseInt(course.credits.split('-')[0]) || 0;
+                      const creditValue =
+                        parseInt(course.credits.split('-')[0]) || 0;
                       totalCredits += creditValue;
                     }
                   });
-                  
+
                   // Add credits from scheduled events (only if not already counted as online)
-                  scheduleEvents.forEach(event => {
+                  scheduleEvents.forEach((event) => {
                     const parts = event.id.split('-');
                     const courseId = parts[0];
                     const sectionId = parts[1];
                     const uniqueId = `${courseId}-${sectionId}`;
-                    
+
                     if (!allCourseIds.has(uniqueId) && event.credits) {
                       allCourseIds.add(uniqueId);
-                      const creditValue = parseInt(event.credits.split('-')[0]) || 0;
+                      const creditValue =
+                        parseInt(event.credits.split('-')[0]) || 0;
                       totalCredits += creditValue;
                     }
                   });
-                  
+
                   return `${totalCredits} credits`;
                 })()}
               </Typography>
