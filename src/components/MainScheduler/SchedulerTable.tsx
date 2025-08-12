@@ -125,7 +125,7 @@ function SchedulerTable({
   }, [myEvents]);
 
   return (
-    <Box sx={{ width: '100%', minWidth: '600px', overflow: 'visible' }}>
+    <Box sx={{ width: '100%', minWidth: windowWidth < 768 ? 'unset' : '600px', overflow: windowWidth < 768 ? 'auto' : 'visible' }}>
       <Modal
         isOpen={isModalOpen}
         handleClose={handleCloseModal}

@@ -174,12 +174,13 @@ function MainScheduler(): React.ReactElement {
     );
   };
 
-  const updateEventColorsByClassId = (classId: string, color: string): void => {
+  const updateEventColorsByClassId = (sectionId: string, color: string): void => {
     setScheduleEvents((prev) =>
       prev.map((event) => {
-        // Check if this event belongs to the class being updated
-        // Event IDs are in format: "classId-day"
-        if (event.id.startsWith(`${classId}-`)) {
+        // Check if this event belongs to the section being updated
+        // Event IDs are in format: "courseId-sectionNumber-day"
+        // Section IDs are in format: "courseId-sectionNumber"
+        if (event.id.startsWith(`${sectionId}-`)) {
           return { ...event, color };
         }
         return event;
