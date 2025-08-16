@@ -69,18 +69,18 @@ function MainScheduler(): React.ReactElement {
 
   const handleDownload = async (): Promise<void> => {
     if (!schedulerRef.current) return;
-    
+
     try {
       // Dynamically import html2canvas
       const html2canvas = await import('html2canvas');
-      
+
       const canvas = await html2canvas.default(schedulerRef.current, {
         backgroundColor: '#ffffff',
         scale: 2, // Higher quality
         useCORS: true,
         allowTaint: true,
       });
-      
+
       // Create download link
       const link = document.createElement('a');
       link.download = `schedule_${currentTerm?.termCode || 'current'}.png`;
@@ -201,7 +201,10 @@ function MainScheduler(): React.ReactElement {
     );
   };
 
-  const updateEventColorsByClassId = (sectionId: string, color: string): void => {
+  const updateEventColorsByClassId = (
+    sectionId: string,
+    color: string,
+  ): void => {
     setScheduleEvents((prev) =>
       prev.map((event) => {
         // Check if this event belongs to the section being updated

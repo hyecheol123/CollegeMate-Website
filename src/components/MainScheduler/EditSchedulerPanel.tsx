@@ -25,9 +25,6 @@ import {
   InputAdornment,
   useMediaQuery,
   useTheme,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
   Collapse,
   IconButton,
 } from '@mui/material';
@@ -344,8 +341,8 @@ function EditSchedulerPanel({
             meeting.building?.buildingName === 'ONLINE'
               ? 'ONLINE'
               : meeting.building?.buildingName && meeting.room
-              ? `${meeting.building.buildingName} ${meeting.room}`
-              : 'TBA',
+                ? `${meeting.building.buildingName} ${meeting.room}`
+                : 'TBA',
           instructor: instructorNames,
           credits,
         });
@@ -712,11 +709,15 @@ function EditSchedulerPanel({
                     });
 
                     // Group discussions by their associated lecture instructor
-                    const discussionsByLecture: { [key: string]: Section[] } = {};
+                    const discussionsByLecture: { [key: string]: Section[] } =
+                      {};
                     sortedDiscussions.forEach((discussion) => {
-                      const instructorKey = discussion.instructors
-                        ?.map((inst) => `${inst.name.first} ${inst.name.last}`)
-                        .join(', ') || 'TBA';
+                      const instructorKey =
+                        discussion.instructors
+                          ?.map(
+                            (inst) => `${inst.name.first} ${inst.name.last}`,
+                          )
+                          .join(', ') || 'TBA';
                       if (!discussionsByLecture[instructorKey]) {
                         discussionsByLecture[instructorKey] = [];
                       }
@@ -730,10 +731,14 @@ function EditSchedulerPanel({
                     sortedLectures.forEach(
                       (section: Section, sectionIndex: number): void => {
                         const uniqueKey = `${course.courseId}-${section.type}-${section.sectionNumber}-${sectionIndex}`;
-                        const instructorKey = section.instructors
-                          ?.map((inst) => `${inst.name.first} ${inst.name.last}`)
-                          .join(', ') || 'TBA';
-                        const relatedDiscussions = discussionsByLecture[instructorKey] || [];
+                        const instructorKey =
+                          section.instructors
+                            ?.map(
+                              (inst) => `${inst.name.first} ${inst.name.last}`,
+                            )
+                            .join(', ') || 'TBA';
+                        const relatedDiscussions =
+                          discussionsByLecture[instructorKey] || [];
                         const hasDiscussions = relatedDiscussions.length > 0;
                         const isExpanded = expandedLectures[uniqueKey] || false;
 
@@ -779,11 +784,13 @@ function EditSchedulerPanel({
                                         : section.type || 'Section'}{' '}
                                     {section.sectionNumber || 'N/A'}
                                   </Typography>
-                                  
+
                                   {hasDiscussions && (
                                     <IconButton
                                       size="small"
-                                      onClick={() => handleLectureToggle(uniqueKey)}
+                                      onClick={() =>
+                                        handleLectureToggle(uniqueKey)
+                                      }
                                       sx={{
                                         padding: '2px',
                                         marginLeft: '4px',
@@ -802,7 +809,7 @@ function EditSchedulerPanel({
                                 <Typography
                                   variant="body1"
                                   color="text.secondary"
-                                  sx={{ 
+                                  sx={{
                                     marginBottom: '4px',
                                     fontSize: '14px',
                                     color: '#666',
@@ -813,82 +820,106 @@ function EditSchedulerPanel({
 
                                 {/* Meeting Times */}
                                 {section.classMeetings?.map(
-                                  (
-                                    meeting: Meeting,
-                                    meetingIndex: number,
-                                  ) => (
+                                  (meeting: Meeting, meetingIndex: number) => (
                                     <Typography
                                       key={`${uniqueKey}-meeting-${meetingIndex}`}
                                       variant="body1"
                                       color="text.secondary"
-                                      sx={{ 
+                                      sx={{
                                         marginBottom: '2px',
                                         fontSize: '14px',
                                         color: '#666',
                                       }}
                                     >
-                                        {((): string => {
-                                          // Check if this is an online/asynchronous course
+                                      {((): string => {
+                                        // Check if this is an online/asynchronous course
+                                        if (
+                                          !meeting.meetingTimeStart ||
+                                          !meeting.meetingTimeEnd
+                                        ) {
                                           if (
-                                            !meeting.meetingTimeStart ||
-                                            !meeting.meetingTimeEnd
+                                            meeting.building?.buildingName ===
+                                            'ONLINE'
                                           ) {
-                                            if (
-                                              meeting.building?.buildingName ===
-                                              'ONLINE'
-                                            ) {
-                                              return 'ONLINE';
-                                            }
-                                            return 'TBA';
+                                            return 'ONLINE';
                                           }
+                                          return 'TBA';
+                                        }
 
-                                          // Show days and time for scheduled classes
-                                          const daysText =
-                                            meeting.meetingDaysList?.join(
-                                              ', ',
-                                            ) || '';
+                                        // Show days and time for scheduled classes
+                                        const daysText =
+                                          meeting.meetingDaysList?.join(', ') ||
+                                          '';
 
-                                          // Convert milliseconds to proper time format
-                                          // API gives time in UTC, need to subtract 6 hours for local time
-                                          const offsetMs = 6 * 60 * 60 * 1000; // 6 hours in milliseconds
-                                          const adjustedStartTime = meeting.meetingTimeStart! - offsetMs;
-                                          const adjustedEndTime = meeting.meetingTimeEnd! - offsetMs;
-                                          
-                                          const startHour = Math.floor(adjustedStartTime / (1000 * 60 * 60));
-                                          const startMinute = Math.floor((adjustedStartTime % (1000 * 60 * 60)) / (1000 * 60));
-                                          const endHour = Math.floor(adjustedEndTime / (1000 * 60 * 60));
-                                          const endMinute = Math.floor((adjustedEndTime % (1000 * 60 * 60)) / (1000 * 60));
+                                        // Convert milliseconds to proper time format
+                                        // API gives time in UTC, need to subtract 6 hours for local time
+                                        const offsetMs = 6 * 60 * 60 * 1000; // 6 hours in milliseconds
+                                        const adjustedStartTime =
+                                          meeting.meetingTimeStart! - offsetMs;
+                                        const adjustedEndTime =
+                                          meeting.meetingTimeEnd! - offsetMs;
 
-                                          const formatTime = (hour: number, minute: number): string => {
-                                            const period = hour >= 12 ? 'PM' : 'AM';
-                                            const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
-                                            return `${displayHour}:${minute.toString().padStart(2, '0')} ${period}`;
-                                          };
+                                        const startHour = Math.floor(
+                                          adjustedStartTime / (1000 * 60 * 60),
+                                        );
+                                        const startMinute = Math.floor(
+                                          (adjustedStartTime %
+                                            (1000 * 60 * 60)) /
+                                            (1000 * 60),
+                                        );
+                                        const endHour = Math.floor(
+                                          adjustedEndTime / (1000 * 60 * 60),
+                                        );
+                                        const endMinute = Math.floor(
+                                          (adjustedEndTime % (1000 * 60 * 60)) /
+                                            (1000 * 60),
+                                        );
 
-                                          const timeText = `${formatTime(startHour, startMinute)} - ${formatTime(endHour, endMinute)}`;
+                                        const formatTime = (
+                                          hour: number,
+                                          minute: number,
+                                        ): string => {
+                                          const period =
+                                            hour >= 12 ? 'PM' : 'AM';
+                                          const displayHour =
+                                            hour > 12
+                                              ? hour - 12
+                                              : hour === 0
+                                                ? 12
+                                                : hour;
+                                          return `${displayHour}:${minute.toString().padStart(2, '0')} ${period}`;
+                                        };
 
-                                          return daysText ? `${daysText} • ${timeText}` : '';
-                                        })()}
-                                        {meeting.building?.buildingName &&
-                                          meeting.room && (
-                                            <>
-                                              {' '}
-                                              • {
-                                                meeting.building.buildingName
-                                              }{' '}
-                                              {meeting.room}
-                                            </>
-                                          )}
-                                      </Typography>
-                                    ),
-                                  )}
-                                </Box>
+                                        const timeText = `${formatTime(startHour, startMinute)} - ${formatTime(endHour, endMinute)}`;
+
+                                        return daysText
+                                          ? `${daysText} • ${timeText}`
+                                          : '';
+                                      })()}
+                                      {meeting.building?.buildingName &&
+                                        meeting.room && (
+                                          <>
+                                            {' '}
+                                            • {
+                                              meeting.building.buildingName
+                                            }{' '}
+                                            {meeting.room}
+                                          </>
+                                        )}
+                                    </Typography>
+                                  ),
+                                )}
+                              </Box>
 
                               <Box sx={{ display: 'flex', gap: '8px' }}>
                                 <Button
                                   variant="outlined"
                                   size="small"
-                                  onClick={() => handleCustomizeColor(`${course.courseId}-${section.sectionNumber}`)}
+                                  onClick={() =>
+                                    handleCustomizeColor(
+                                      `${course.courseId}-${section.sectionNumber}`,
+                                    )
+                                  }
                                   sx={{
                                     fontSize: '11px',
                                     padding: '4px 8px',
@@ -897,7 +928,8 @@ function EditSchedulerPanel({
                                     color: '#666',
                                     '&:hover': {
                                       borderColor: '#666',
-                                      backgroundColor: 'rgba(102, 102, 102, 0.04)',
+                                      backgroundColor:
+                                        'rgba(102, 102, 102, 0.04)',
                                     },
                                   }}
                                 >
@@ -926,196 +958,266 @@ function EditSchedulerPanel({
                               </Box>
                             </Box>
 
-                              {/* Discussions Dropdown */}
-                              {hasDiscussions && (
-                                <Collapse in={isExpanded}>
-                                  <Box sx={{ marginTop: '12px', paddingLeft: '16px' }}>
-                                    <Typography
-                                      variant="body1"
-                                      sx={{
-                                        fontWeight: 600,
-                                        marginBottom: '8px',
-                                        color: '#666',
-                                        fontSize: '14px',
-                                      }}
-                                    >
-                                      Associated Discussions:
-                                    </Typography>
-                                    {relatedDiscussions.map(
-                                      (discussion, discIndex) => {
-                                        const discKey = `${uniqueKey}-disc-${discIndex}`;
-                                        return (
+                            {/* Discussions Dropdown */}
+                            {hasDiscussions && (
+                              <Collapse in={isExpanded}>
+                                <Box
+                                  sx={{
+                                    marginTop: '12px',
+                                    paddingLeft: '16px',
+                                  }}
+                                >
+                                  <Typography
+                                    variant="body1"
+                                    sx={{
+                                      fontWeight: 600,
+                                      marginBottom: '8px',
+                                      color: '#666',
+                                      fontSize: '14px',
+                                    }}
+                                  >
+                                    Associated Discussions:
+                                  </Typography>
+                                  {relatedDiscussions.map(
+                                    (discussion, discIndex) => {
+                                      const discKey = `${uniqueKey}-disc-${discIndex}`;
+                                      return (
+                                        <Box
+                                          key={discKey}
+                                          sx={{
+                                            marginBottom: '8px',
+                                            backgroundColor: '#f5f5f5',
+                                            borderRadius: '8px',
+                                            border: '1px solid #e0e0e0',
+                                            padding: '12px',
+                                          }}
+                                        >
                                           <Box
-                                            key={discKey}
                                             sx={{
-                                              marginBottom: '8px',
-                                              backgroundColor: '#f5f5f5',
-                                              borderRadius: '8px',
-                                              border: '1px solid #e0e0e0',
-                                              padding: '12px',
+                                              display: 'flex',
+                                              justifyContent: 'space-between',
+                                              alignItems: 'flex-start',
                                             }}
                                           >
+                                            <Box sx={{ flex: 1 }}>
+                                              <Typography
+                                                variant="body1"
+                                                sx={{
+                                                  fontWeight: 600,
+                                                  marginBottom: '4px',
+                                                  fontSize: '16px',
+                                                  color: '#333',
+                                                }}
+                                              >
+                                                Discussion{' '}
+                                                {discussion.sectionNumber ||
+                                                  'N/A'}
+                                              </Typography>
+
+                                              {/* Instructor */}
+                                              <Typography
+                                                variant="body1"
+                                                color="text.secondary"
+                                                sx={{
+                                                  marginBottom: '4px',
+                                                  fontSize: '14px',
+                                                  color: '#666',
+                                                }}
+                                              >
+                                                Instructor:{' '}
+                                                {discussion.instructors
+                                                  ?.map(
+                                                    (inst: Instructor) =>
+                                                      `${inst.name.first} ${inst.name.last}`,
+                                                  )
+                                                  .join(', ') || 'TBA'}
+                                              </Typography>
+
+                                              {/* Discussion Meeting Times */}
+                                              {discussion.classMeetings?.map(
+                                                (meeting, meetingIndex) => (
+                                                  <Typography
+                                                    key={`${discKey}-meeting-${meetingIndex}`}
+                                                    variant="body1"
+                                                    color="text.secondary"
+                                                    sx={{
+                                                      marginBottom: '2px',
+                                                      fontSize: '14px',
+                                                      color: '#666',
+                                                    }}
+                                                  >
+                                                    {((): string => {
+                                                      if (
+                                                        !meeting.meetingTimeStart ||
+                                                        !meeting.meetingTimeEnd
+                                                      ) {
+                                                        if (
+                                                          meeting.building
+                                                            ?.buildingName ===
+                                                          'ONLINE'
+                                                        ) {
+                                                          return 'ONLINE';
+                                                        }
+                                                        return 'TBA';
+                                                      }
+
+                                                      const daysText =
+                                                        meeting.meetingDaysList?.join(
+                                                          ', ',
+                                                        ) || '';
+
+                                                      // Convert milliseconds to proper time format
+                                                      // API gives time in UTC, need to subtract 6 hours for local time
+                                                      console.log(
+                                                        'Discussion Original times:',
+                                                        {
+                                                          meetingTimeStart:
+                                                            meeting.meetingTimeStart,
+                                                          meetingTimeEnd:
+                                                            meeting.meetingTimeEnd,
+                                                          sectionType:
+                                                            'Discussion',
+                                                        },
+                                                      );
+
+                                                      const offsetMs =
+                                                        6 * 60 * 60 * 1000; // 6 hours in milliseconds
+                                                      const adjustedStartTime =
+                                                        meeting.meetingTimeStart! -
+                                                        offsetMs;
+                                                      const adjustedEndTime =
+                                                        meeting.meetingTimeEnd! -
+                                                        offsetMs;
+
+                                                      const startHour =
+                                                        Math.floor(
+                                                          adjustedStartTime /
+                                                            (1000 * 60 * 60),
+                                                        );
+                                                      const startMinute =
+                                                        Math.floor(
+                                                          (adjustedStartTime %
+                                                            (1000 * 60 * 60)) /
+                                                            (1000 * 60),
+                                                        );
+                                                      const endHour =
+                                                        Math.floor(
+                                                          adjustedEndTime /
+                                                            (1000 * 60 * 60),
+                                                        );
+                                                      const endMinute =
+                                                        Math.floor(
+                                                          (adjustedEndTime %
+                                                            (1000 * 60 * 60)) /
+                                                            (1000 * 60),
+                                                        );
+
+                                                      const formatTime = (
+                                                        hour: number,
+                                                        minute: number,
+                                                      ): string => {
+                                                        const period =
+                                                          hour >= 12
+                                                            ? 'PM'
+                                                            : 'AM';
+                                                        const displayHour =
+                                                          hour > 12
+                                                            ? hour - 12
+                                                            : hour === 0
+                                                              ? 12
+                                                              : hour;
+                                                        return `${displayHour}:${minute.toString().padStart(2, '0')} ${period}`;
+                                                      };
+
+                                                      const timeText = `${formatTime(startHour, startMinute)} - ${formatTime(endHour, endMinute)}`;
+
+                                                      return daysText
+                                                        ? `${daysText} • ${timeText}`
+                                                        : '';
+                                                    })()}
+                                                    {meeting.building
+                                                      ?.buildingName &&
+                                                      meeting.room && (
+                                                        <>
+                                                          {' • '}
+                                                          {
+                                                            meeting.building
+                                                              .buildingName
+                                                          }{' '}
+                                                          {meeting.room}
+                                                        </>
+                                                      )}
+                                                  </Typography>
+                                                ),
+                                              )}
+                                            </Box>
+
                                             <Box
                                               sx={{
                                                 display: 'flex',
-                                                justifyContent: 'space-between',
-                                                alignItems: 'flex-start',
+                                                gap: '8px',
                                               }}
                                             >
-                                              <Box sx={{ flex: 1 }}>
-                                                <Typography
-                                                  variant="body1"
-                                                  sx={{
-                                                    fontWeight: 600,
-                                                    marginBottom: '4px',
-                                                    fontSize: '16px',
-                                                    color: '#333',
-                                                  }}
-                                                >
-                                                  Discussion {discussion.sectionNumber || 'N/A'}
-                                                </Typography>
-
-                                                {/* Instructor */}
-                                                <Typography
-                                                  variant="body1"
-                                                  color="text.secondary"
-                                                  sx={{ 
-                                                    marginBottom: '4px',
-                                                    fontSize: '14px',
-                                                    color: '#666',
-                                                  }}
-                                                >
-                                                  Instructor:{' '}
-                                                  {discussion.instructors
-                                                    ?.map(
-                                                      (inst: Instructor) =>
-                                                        `${inst.name.first} ${inst.name.last}`,
-                                                    )
-                                                    .join(', ') || 'TBA'}
-                                                </Typography>
-
-                                                {/* Discussion Meeting Times */}
-                                                {discussion.classMeetings?.map(
-                                                  (meeting, meetingIndex) => (
-                                                    <Typography
-                                                      key={`${discKey}-meeting-${meetingIndex}`}
-                                                      variant="body1"
-                                                      color="text.secondary"
-                                                      sx={{ 
-                                                        marginBottom: '2px',
-                                                        fontSize: '14px',
-                                                        color: '#666',
-                                                      }}
-                                                    >
-                                                        {((): string => {
-                                                          if (
-                                                            !meeting.meetingTimeStart ||
-                                                            !meeting.meetingTimeEnd
-                                                          ) {
-                                                            if (
-                                                              meeting.building?.buildingName === 'ONLINE'
-                                                            ) {
-                                                              return 'ONLINE';
-                                                            }
-                                                            return 'TBA';
-                                                          }
-
-                                                          const daysText =
-                                                            meeting.meetingDaysList?.join(', ') || '';
-
-                                                          // Convert milliseconds to proper time format
-                                                          // API gives time in UTC, need to subtract 6 hours for local time
-                                                          console.log('Discussion Original times:', {
-                                                            meetingTimeStart: meeting.meetingTimeStart,
-                                                            meetingTimeEnd: meeting.meetingTimeEnd,
-                                                            sectionType: 'Discussion'
-                                                          });
-                                                          
-                                                          const offsetMs = 6 * 60 * 60 * 1000; // 6 hours in milliseconds
-                                                          const adjustedStartTime = meeting.meetingTimeStart! - offsetMs;
-                                                          const adjustedEndTime = meeting.meetingTimeEnd! - offsetMs;
-                                                          
-                                                          
-                                                          const startHour = Math.floor(adjustedStartTime / (1000 * 60 * 60));
-                                                          const startMinute = Math.floor((adjustedStartTime % (1000 * 60 * 60)) / (1000 * 60));
-                                                          const endHour = Math.floor(adjustedEndTime / (1000 * 60 * 60));
-                                                          const endMinute = Math.floor((adjustedEndTime % (1000 * 60 * 60)) / (1000 * 60));
-
-                                                          const formatTime = (hour: number, minute: number): string => {
-                                                            const period = hour >= 12 ? 'PM' : 'AM';
-                                                            const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
-                                                            return `${displayHour}:${minute.toString().padStart(2, '0')} ${period}`;
-                                                          };
-
-                                                          const timeText = `${formatTime(startHour, startMinute)} - ${formatTime(endHour, endMinute)}`;
-
-                                                          return daysText ? `${daysText} • ${timeText}` : '';
-                                                        })()}
-                                                        {meeting.building?.buildingName &&
-                                                          meeting.room && (
-                                                            <>
-                                                              {' • '}
-                                                              {meeting.building.buildingName} {meeting.room}
-                                                            </>
-                                                          )}
-                                                      </Typography>
-                                                    ),
-                                                  )}
-                                                </Box>
-
-                                              <Box sx={{ display: 'flex', gap: '8px' }}>
-                                                <Button
-                                                  variant="outlined"
-                                                  size="small"
-                                                  onClick={() => handleCustomizeColor(`${course.courseId}-${discussion.sectionNumber}`)}
-                                                  sx={{
-                                                    fontSize: '10px',
-                                                    padding: '3px 6px',
-                                                    minWidth: '60px',
+                                              <Button
+                                                variant="outlined"
+                                                size="small"
+                                                onClick={() =>
+                                                  handleCustomizeColor(
+                                                    `${course.courseId}-${discussion.sectionNumber}`,
+                                                  )
+                                                }
+                                                sx={{
+                                                  fontSize: '10px',
+                                                  padding: '3px 6px',
+                                                  minWidth: '60px',
+                                                  borderColor: '#666',
+                                                  color: '#666',
+                                                  '&:hover': {
                                                     borderColor: '#666',
-                                                    color: '#666',
-                                                    '&:hover': {
-                                                      borderColor: '#666',
-                                                      backgroundColor: 'rgba(102, 102, 102, 0.04)',
-                                                    },
-                                                  }}
-                                                >
-                                                  Color
-                                                </Button>
-                                                <Button
-                                                  variant="outlined"
-                                                  size="small"
-                                                  onClick={(): Promise<void> =>
-                                                    handleAddSection(course, discussion)
-                                                  }
-                                                  sx={{
-                                                    fontSize: '12px',
-                                                    padding: '6px 12px',
-                                                    minWidth: '60px',
+                                                    backgroundColor:
+                                                      'rgba(102, 102, 102, 0.04)',
+                                                  },
+                                                }}
+                                              >
+                                                Color
+                                              </Button>
+                                              <Button
+                                                variant="outlined"
+                                                size="small"
+                                                onClick={(): Promise<void> =>
+                                                  handleAddSection(
+                                                    course,
+                                                    discussion,
+                                                  )
+                                                }
+                                                sx={{
+                                                  fontSize: '12px',
+                                                  padding: '6px 12px',
+                                                  minWidth: '60px',
+                                                  borderColor: '#B20000',
+                                                  color: '#B20000',
+                                                  '&:hover': {
                                                     borderColor: '#B20000',
-                                                    color: '#B20000',
-                                                    '&:hover': {
-                                                      borderColor: '#B20000',
-                                                      backgroundColor: 'rgba(178, 0, 0, 0.04)',
-                                                    },
-                                                  }}
-                                                >
-                                                  ADD
-                                                </Button>
-                                              </Box>
+                                                    backgroundColor:
+                                                      'rgba(178, 0, 0, 0.04)',
+                                                  },
+                                                }}
+                                              >
+                                                ADD
+                                              </Button>
                                             </Box>
                                           </Box>
-                                        );
-                                      },
-                                    )}
-                                  </Box>
-                                </Collapse>
-                              )}
+                                        </Box>
+                                      );
+                                    },
+                                  )}
+                                </Box>
+                              </Collapse>
+                            )}
                           </Box>,
                         );
                       },
                     );
-
 
                     return renderedSections;
                   })()}

@@ -125,7 +125,13 @@ function SchedulerTable({
   }, [myEvents]);
 
   return (
-    <Box sx={{ width: '100%', minWidth: windowWidth < 768 ? 'unset' : '600px', overflow: windowWidth < 768 ? 'auto' : 'visible' }}>
+    <Box
+      sx={{
+        width: '100%',
+        minWidth: windowWidth < 768 ? 'unset' : '600px',
+        overflow: windowWidth < 768 ? 'auto' : 'visible',
+      }}
+    >
       <Modal
         isOpen={isModalOpen}
         handleClose={handleCloseModal}
@@ -306,25 +312,24 @@ function SchedulerTable({
                   >
                     {event.title}
                   </Typography>
-                  {event.location &&
-                    event.location !== 'TBA' && (
-                      <Typography
-                        variant="body2"
-                        color="white.main"
-                        align="center"
-                        sx={{
-                          fontSize: '10px',
-                          opacity: 0.8,
-                          whiteSpace: 'nowrap',
-                          textOverflow: 'ellipsis',
-                          overflow: 'hidden',
-                          width: '100%',
-                          marginTop: '1px',
-                        }}
-                      >
-                        {event.location}
-                      </Typography>
-                    )}
+                  {event.location && event.location !== 'TBA' && (
+                    <Typography
+                      variant="body2"
+                      color="white.main"
+                      align="center"
+                      sx={{
+                        fontSize: '10px',
+                        opacity: 0.8,
+                        whiteSpace: 'nowrap',
+                        textOverflow: 'ellipsis',
+                        overflow: 'hidden',
+                        width: '100%',
+                        marginTop: '1px',
+                      }}
+                    >
+                      {event.location}
+                    </Typography>
+                  )}
                 </Box>
                 {isEditMode && (
                   <Box
