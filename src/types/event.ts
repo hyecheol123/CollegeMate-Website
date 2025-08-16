@@ -12,4 +12,5 @@ export interface EventData {
   color: string;
   location?: string;
   instructor?: string;
+  credits?: string;
 }

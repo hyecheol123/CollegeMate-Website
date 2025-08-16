@@ -6,14 +6,24 @@
 // React
 import React, { useState, useEffect } from 'react';
 // Material UI
-import { Box, IconButton, Typography, Tooltip } from '@mui/material';
+import {
+  Box,
+  IconButton,
+  Typography,
+  Tooltip,
+  useTheme,
+  useMediaQuery,
+  Menu,
+  MenuItem,
+} from '@mui/material';
 // Material UI Icon
 import Download from '@mui/icons-material/FileDownloadOutlined';
 import Share from '@mui/icons-material/IosShareOutlined';
 import Edit from '@mui/icons-material/EditOutlined';
 import Save from '@mui/icons-material/SaveOutlined';
-// Mocking API
-import getScheduleDetail from '../../data/Schedule/getScheduleDetail';
+// Types and Utils
+import type { Term } from '../../data/Terms/getTerms';
+import { formatTermCode } from '../../utils/termUtils';
 
 const containerStyle = {
   display: 'flex',
@@ -31,41 +41,17 @@ const titleStyle = {
 };
 
 const iconBoxStyle = {
-  marginRight: 0,
-};
-
-/**
- * Determines the year and semester based on the term code.
- * @param {string} termCode - The term code to evaluate.
- * @return {string} The year and semester (e.g., '2023 Fall') or 'Unknown' if not matched.
- *
- * UW-Madison term codes reference: https://businessservices.wisc.edu/making-payments/charge-to-a-students-account/term-codes/
- */
-const getYearAndSemester = (termCode: string): string => {
-  if (termCode.length !== 4) return 'Invalid code';
-
-  const middleDigits = parseInt(termCode.slice(1, 3), 10);
-  const suffix = `${termCode[0]}${termCode[3]}`;
-
-  let year = 2000 + middleDigits;
-  let semester = 'Unknown';
-
-  if (suffix === '14') {
-    semester = 'Spring';
-  } else if (suffix === '16') {
-    semester = 'Summer';
-  } else if (suffix === '12') {
-    year -= 1;
-    semester = 'Fall';
-  }
-
-  return `${year} ${semester}`;
+  marginRight: '-8px',
 };
 
 // Props interface
 interface SchedulerTitleProps {
   onEditClick?: () => void;
   isEditMode?: boolean;
+  currentTerm?: Term | null;
+  availableTerms?: Term[];
+  onTermChange?: (term: Term) => void;
+  onDownload?: () => void;
 }
 
 /**
@@ -77,10 +63,18 @@ interface SchedulerTitleProps {
 function SchedulerTitle({
   onEditClick,
   isEditMode = false,
+  currentTerm,
+  availableTerms = [],
+  onTermChange,
+  onDownload,
 }: SchedulerTitleProps): React.ReactElement {
   // State to hold the current window width
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
-  const [semesterName, setSemesterName] = useState('Unknown');
+  const [termMenuAnchor, setTermMenuAnchor] = useState<null | HTMLElement>(
+    null,
+  );
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   // Effect to update the window width state on resize
   useEffect(() => {
@@ -96,27 +90,132 @@ function SchedulerTitle({
     };
   }, []);
 
-  useEffect(() => {
-    // Mock API call to fetch schedule details
-    getScheduleDetail('some-schedule-id').then((response) => {
-      if (response.responseCode === 200 && response.content?.termCode) {
-        setSemesterName(getYearAndSemester(response.content.termCode));
-      }
-    });
-  }, []);
-
   // Determine the icon size based on the window width
   const iconSize = windowWidth < 300 ? 'small' : 'medium';
 
+  // Get current term display name
+  const currentTermName = currentTerm
+    ? formatTermCode(currentTerm.termCode)
+    : 'Loading...';
+
+  const handleTermMenuOpen = (event: React.MouseEvent<HTMLElement>): void => {
+    if (!isEditMode) {
+      setTermMenuAnchor(event.currentTarget);
+    }
+  };
+
+  const handleTermMenuClose = (): void => {
+    setTermMenuAnchor(null);
+  };
+
+  const handleTermSelect = (term: Term): void => {
+    if (onTermChange) {
+      onTermChange(term);
+    }
+    setTermMenuAnchor(null);
+  };
+
   return (
     <Box sx={containerStyle}>
-      <Typography variant="h2" sx={titleStyle}>
-        {semesterName}
-      </Typography>
+      {/* Left side: Custom term selector */}
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: isMobile ? 'column' : 'row',
+          alignItems: isMobile ? 'flex-start' : 'center',
+          gap: isMobile ? '8px' : '16px',
+          flex: 1,
+        }}
+      >
+        {/* Custom Term Selector */}
+        {availableTerms.length > 1 && onTermChange ? (
+          <Box
+            onClick={handleTermMenuOpen}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              cursor: isEditMode ? 'default' : 'pointer',
+              opacity: isEditMode ? 0.6 : 1,
+              marginLeft: '1px',
+              '&:hover': {
+                opacity: isEditMode ? 0.6 : 0.8,
+              },
+            }}
+          >
+            <Typography variant="h2" sx={titleStyle}>
+              {currentTermName}
+            </Typography>
+
+            {/* Red Triangle Arrow */}
+            <Box
+              sx={{
+                width: 0,
+                height: 0,
+                borderLeft: '6px solid transparent',
+                borderRight: '6px solid transparent',
+                borderTop: '8px solid #B20000',
+                marginTop: '2px',
+                marginLeft: '3px',
+                transition: 'transform 0.2s ease',
+                transform: termMenuAnchor ? 'rotate(180deg)' : 'rotate(0deg)',
+              }}
+            />
+          </Box>
+        ) : (
+          <Typography variant="h2" sx={titleStyle}>
+            {currentTermName}
+          </Typography>
+        )}
+
+        {/* Term Menu */}
+        <Menu
+          anchorEl={termMenuAnchor}
+          open={Boolean(termMenuAnchor)}
+          onClose={handleTermMenuClose}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'left',
+          }}
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'left',
+          }}
+          sx={{
+            '& .MuiPaper-root': {
+              marginTop: '8px',
+              minWidth: '200px',
+            },
+          }}
+        >
+          {availableTerms.map((term) => (
+            <MenuItem
+              key={term.termCode}
+              onClick={() => handleTermSelect(term)}
+              selected={currentTerm?.termCode === term.termCode}
+              sx={{
+                '&.Mui-selected': {
+                  backgroundColor: 'rgba(178, 0, 0, 0.08)',
+                  '&:hover': {
+                    backgroundColor: 'rgba(178, 0, 0, 0.12)',
+                  },
+                },
+              }}
+            >
+              <Typography variant="body2">
+                {formatTermCode(term.termCode)}
+              </Typography>
+            </MenuItem>
+          ))}
+        </Menu>
+      </Box>
+
+      {/* Right side: Action icons */}
       <Box sx={iconBoxStyle}>
         <Tooltip title="Download">
           <IconButton
             disabled={isEditMode}
+            onClick={onDownload}
             sx={{
               color: isEditMode ? 'rgba(0,0,0,0.26)' : 'darkGrey.main',
               fontSize: iconSize === 'small' ? '1.25rem' : 'inherit',

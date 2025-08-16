@@ -7,10 +7,17 @@ module.exports = merge(common, {
   mode: 'development',
   devtool: 'eval-source-map',
   devServer: {
-    port: 5500,
+    port: 3000,
     hot: true,
     allowedHosts: ['.loca.lt'],
     historyApiFallback: true,
+    proxy: [
+      {
+        context: ['/api'],
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+      },
+    ],
   },
   plugins: [
     new webpack.HotModuleReplacementPlugin(),
