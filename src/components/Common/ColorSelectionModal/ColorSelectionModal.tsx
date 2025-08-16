@@ -21,7 +21,7 @@ const COLOR_OPTIONS = [
   { label: 'Sky Blue', hex: '#A6DDFF' },
   { label: 'Aqua Blue', hex: '#D9F6FF' },
   { label: 'Pale Mint', hex: '#CFF3E7' },
-  { label: 'Red', hex: '#FF0000' },
+  { label: 'Red', hex: '#B20000' },
   { label: 'Rose Pink', hex: '#D46478' },
   { label: 'Baby Pink', hex: '#F3B8DF' },
   { label: 'Coral Pink', hex: '#F3ADA3' },

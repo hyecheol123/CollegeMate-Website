@@ -61,9 +61,36 @@ function MainScheduler(): React.ReactElement {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const searchPanelRef = useRef<HTMLDivElement>(null);
+  const schedulerRef = useRef<HTMLDivElement>(null);
 
   const handleEditToggle = (): void => {
     setIsEditMode((prev) => !prev);
+  };
+
+  const handleDownload = async (): Promise<void> => {
+    if (!schedulerRef.current) return;
+    
+    try {
+      // Dynamically import html2canvas
+      const html2canvas = await import('html2canvas');
+      
+      const canvas = await html2canvas.default(schedulerRef.current, {
+        backgroundColor: '#ffffff',
+        scale: 2, // Higher quality
+        useCORS: true,
+        allowTaint: true,
+      });
+      
+      // Create download link
+      const link = document.createElement('a');
+      link.download = `schedule_${currentTerm?.termCode || 'current'}.png`;
+      link.href = canvas.toDataURL('image/png');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error('Failed to download schedule as image:', error);
+    }
   };
 
   // Load terms on component mount
@@ -254,17 +281,20 @@ function MainScheduler(): React.ReactElement {
         currentTerm={currentTerm}
         availableTerms={availableTerms}
         onTermChange={handleTermChange}
+        onDownload={handleDownload}
       />
 
       {/* Main Content Area */}
       {isMobile ? (
         <Box sx={{ padding: '0 16px', overflow: 'visible' }}>
           {/* Mobile: Scheduler always same size */}
-          <SchedulerTable
-            events={scheduleEvents}
-            onRemoveEvent={removeEvent}
-            isEditMode={isEditMode}
-          />
+          <Box ref={schedulerRef}>
+            <SchedulerTable
+              events={scheduleEvents}
+              onRemoveEvent={removeEvent}
+              isEditMode={isEditMode}
+            />
+          </Box>
 
           {/* Online Classes Display */}
           {onlineCourses.length > 0 && (
@@ -429,11 +459,13 @@ function MainScheduler(): React.ReactElement {
               top: '0px',
             }}
           >
-            <SchedulerTable
-              events={scheduleEvents}
-              onRemoveEvent={removeEvent}
-              isEditMode={isEditMode}
-            />
+            <Box ref={schedulerRef}>
+              <SchedulerTable
+                events={scheduleEvents}
+                onRemoveEvent={removeEvent}
+                isEditMode={isEditMode}
+              />
+            </Box>
 
             {/* Online Classes Display - Always show credits */}
             <Box
@@ -582,11 +614,13 @@ function MainScheduler(): React.ReactElement {
         </Box>
       ) : (
         <Box sx={{ padding: '0 32px', overflow: 'visible' }}>
-          <SchedulerTable
-            events={scheduleEvents}
-            onRemoveEvent={removeEvent}
-            isEditMode={isEditMode}
-          />
+          <Box ref={schedulerRef}>
+            <SchedulerTable
+              events={scheduleEvents}
+              onRemoveEvent={removeEvent}
+              isEditMode={isEditMode}
+            />
+          </Box>
 
           {/* Online Classes Display */}
           {onlineCourses.length > 0 && (

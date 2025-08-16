@@ -341,7 +341,9 @@ function EditSchedulerPanel({
           day,
           color: selectedColor,
           location:
-            meeting.building?.buildingName && meeting.room
+            meeting.building?.buildingName === 'ONLINE'
+              ? 'ONLINE'
+              : meeting.building?.buildingName && meeting.room
               ? `${meeting.building.buildingName} ${meeting.room}`
               : 'TBA',
           instructor: instructorNames,

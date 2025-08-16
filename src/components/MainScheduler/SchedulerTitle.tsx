@@ -51,6 +51,7 @@ interface SchedulerTitleProps {
   currentTerm?: Term | null;
   availableTerms?: Term[];
   onTermChange?: (term: Term) => void;
+  onDownload?: () => void;
 }
 
 /**
@@ -65,6 +66,7 @@ function SchedulerTitle({
   currentTerm,
   availableTerms = [],
   onTermChange,
+  onDownload,
 }: SchedulerTitleProps): React.ReactElement {
   // State to hold the current window width
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
@@ -213,6 +215,7 @@ function SchedulerTitle({
         <Tooltip title="Download">
           <IconButton
             disabled={isEditMode}
+            onClick={onDownload}
             sx={{
               color: isEditMode ? 'rgba(0,0,0,0.26)' : 'darkGrey.main',
               fontSize: iconSize === 'small' ? '1.25rem' : 'inherit',

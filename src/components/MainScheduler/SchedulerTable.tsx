@@ -307,8 +307,7 @@ function SchedulerTable({
                     {event.title}
                   </Typography>
                   {event.location &&
-                    event.location !== 'TBA' &&
-                    event.location !== 'ONLINE' && (
+                    event.location !== 'TBA' && (
                       <Typography
                         variant="body2"
                         color="white.main"
