@@ -24,7 +24,11 @@ import SimpleHeader from '../components/Mvp/SimpleHeader/SimpleHeader';
 import EditSchedulerPanel from '../components/MainScheduler/EditSchedulerPanel';
 // API and Utils
 import { getTerms } from '../data/Terms/getTerms';
-import { getCurrentTerm, getUpcomingTerms } from '../utils/termUtils';
+import {
+  getCurrentTerm,
+  getUpcomingTerms,
+  formatTermCode,
+} from '../utils/termUtils';
 // Types
 import type { EventData } from '../types/event';
 import type { Term } from '../data/Terms/getTerms';
@@ -74,22 +78,95 @@ function MainScheduler(): React.ReactElement {
       // Dynamically import html2canvas
       const html2canvas = await import('html2canvas');
 
-      const canvas = await html2canvas.default(schedulerRef.current, {
+      // Capture the schedule as canvas
+      const originalCanvas = await html2canvas.default(schedulerRef.current, {
         backgroundColor: '#ffffff',
         scale: 2, // Higher quality
         useCORS: true,
         allowTaint: true,
       });
 
+      // Get device aspect ratio
+      //const deviceRatio = window.innerHeight / window.innerWidth;
+      const deviceRatio = 2.1654135338;
+      console.log('Device aspect ratio:', deviceRatio);
+
+      // Calculate padding percentages for phone wallpaper
+      const paddingLeft = 0.06; // 6%
+      const paddingRight = 0.06; // 6%
+      const paddingBottom = 0.035; // 10%
+
+      // Calculate new canvas dimensions with padding
+      const originalWidth = originalCanvas.width;
+      const originalHeight = originalCanvas.height;
+
+      // Calculate the content area (schedule) dimensions within the new canvas
+      const contentWidth = originalWidth;
+      const contentHeight = originalHeight;
+
+      // Calculate total width first (fixed by left/right padding)
+      const totalWidth = contentWidth / (1 - paddingLeft - paddingRight);
+
+      // Calculate paddingTop dynamically to match device aspect ratio
+      // Formula: paddingTop = 0.9 - (contentHeight * 0.88) / (contentWidth * deviceRatio)
+      const calculatedPaddingTop =
+        0.9 - (contentHeight * 0.88) / (contentWidth * deviceRatio);
+
+      // Ensure minimum padding of 10% to avoid negative or too small values
+      const paddingTop = Math.max(0.1, calculatedPaddingTop);
+      console.log('Calculated paddingTop:', calculatedPaddingTop);
+      console.log('Final paddingTop:', paddingTop);
+
+      // Calculate total height with the dynamic paddingTop
+      const totalHeight = contentHeight / (1 - paddingTop - paddingBottom);
+      console.log('Final image ratio:', totalHeight / totalWidth);
+
+      // Create new canvas with padding
+      const paddedCanvas = document.createElement('canvas');
+      paddedCanvas.width = totalWidth;
+      paddedCanvas.height = totalHeight;
+
+      const ctx = paddedCanvas.getContext('2d');
+      if (!ctx) throw new Error('Failed to get canvas context');
+
+      // Fill background with white
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, totalWidth, totalHeight);
+
+      // Add term title text (same style as SchedulerTitle.tsx)
+      const termName = currentTerm
+        ? formatTermCode(currentTerm.termCode)
+        : 'Schedule';
+
+      // Calculate position to center the schedule content
+      const x = totalWidth * paddingLeft;
+      const y = totalHeight * paddingTop;
+
+      // Set font style to match MUI h2 variant (26px * 2 for scale=2)
+      ctx.font = 'bold 52px Roboto, sans-serif';
+      ctx.fillStyle = '#B20000'; // red.main color
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'bottom';
+
+      // Position text just above the schedule table
+      const textX = x; // Same x as schedule content
+      const textY = y - 30; // 30px above the schedule table
+
+      // Draw the term title
+      ctx.fillText(termName, textX, textY);
+
+      // Draw the original schedule canvas onto the new padded canvas
+      ctx.drawImage(originalCanvas, x, y, contentWidth, contentHeight);
+
       // Create download link
       const link = document.createElement('a');
-      link.download = `schedule_${currentTerm?.termCode || 'current'}.png`;
-      link.href = canvas.toDataURL('image/png');
+      link.download = `schedule_wallpaper_${currentTerm?.termCode || 'current'}.png`;
+      link.href = paddedCanvas.toDataURL('image/png');
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
     } catch (error) {
-      console.error('Failed to download schedule as image:', error);
+      console.error('Failed to download schedule as wallpaper:', error);
     }
   };
 
