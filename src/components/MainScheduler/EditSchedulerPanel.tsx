@@ -83,6 +83,10 @@ interface EditSchedulerPanelProps {
   currentTerm?: Term | null;
 }
 
+interface EditSchedulerPanelRef {
+  scrollToSearch: () => void;
+}
+
 /**
  * EditSchedulerPanel component for searching, customizing, and adding classes
  * Features include: class search, color customization, and responsive button layout
@@ -155,22 +159,24 @@ function EditSchedulerPanel({
           10,
         );
         setSearchResults(response.hits || []);
-
-        // Scroll to edit title if there are search results (or no results) and on mobile (only first time)
-        if (
-          searchInput.trim() &&
-          isMobile &&
-          editTitleRef.current &&
-          !hasScrolledToResults
-        ) {
+        
+        // Auto-scroll on mobile after search results are loaded
+        if (isMobile && searchInput.length >= 1 && !hasScrolledToResults) {
+          console.log('Scrolling after API response...', window.scrollY);
+          // Try immediate scroll first
+          window.scrollTo(0, 800);
+          console.log('After immediate scroll, scrollY:', window.scrollY);
+          // Then try smooth scroll
           setTimeout(() => {
-            editTitleRef.current?.scrollIntoView({
-              behavior: 'smooth',
-              block: 'start',
+            window.scrollTo({
+              top: 800,
+              behavior: 'smooth'
             });
-            setHasScrolledToResults(true);
-          }, 100);
+            console.log('After smooth scroll, scrollY:', window.scrollY);
+          }, 50);
+          setHasScrolledToResults(true);
         }
+
       } catch (error) {
         setSearchError(
           error instanceof Error ? error.message : 'Search failed',
@@ -189,9 +195,11 @@ function EditSchedulerPanel({
   const handleSearchChange = (
     event: React.ChangeEvent<HTMLInputElement>,
   ): void => {
-    setSearchInput(event.target.value);
-    // Reset scroll flag when search input changes
-    if (event.target.value === '') {
+    const newValue = event.target.value;
+    setSearchInput(newValue);
+    
+    // Only reset scroll flag when completely clearing the input
+    if (newValue === '') {
       setHasScrolledToResults(false);
     }
   };
@@ -1033,9 +1041,7 @@ function EditSchedulerPanel({
                     }
                     if (selectedDisc) addedSections.push(`Discussion ${selectedDisc}`);
                     
-                    // Reset selections after successful add
-                    setSelectedLecture(prev => ({ ...prev, [course.courseId]: '' }));
-                    setSelectedDiscussion(prev => ({ ...prev, [course.courseId]: '' }));
+                    // Keep selections after successful add for easy color testing
                   }}
                 >
                   Add

@@ -304,10 +304,13 @@ function SchedulerTable({
                     align="center"
                     sx={{
                       wordWrap: 'break-word',
-                      whiteSpace: 'nowrap',
-                      textOverflow: 'ellipsis',
+                      whiteSpace: windowWidth < 768 ? 'normal' : 'nowrap',
+                      textOverflow: windowWidth < 768 ? 'unset' : 'ellipsis',
                       overflow: 'hidden',
                       width: '100%',
+                      fontSize: windowWidth < 768 ? '11px' : 'inherit',
+                      fontWeight: windowWidth < 768 ? '500' : 'inherit',
+                      lineHeight: windowWidth < 768 ? '1.2' : 'inherit',
                     }}
                   >
                     {event.title}
@@ -318,13 +321,14 @@ function SchedulerTable({
                       color="white.main"
                       align="center"
                       sx={{
-                        fontSize: '10px',
+                        fontSize: windowWidth < 768 ? '8px' : '10px',
                         opacity: 0.8,
-                        whiteSpace: 'nowrap',
-                        textOverflow: 'ellipsis',
+                        whiteSpace: windowWidth < 768 ? 'normal' : 'nowrap',
+                        textOverflow: windowWidth < 768 ? 'unset' : 'ellipsis',
                         overflow: 'hidden',
                         width: '100%',
                         marginTop: '1px',
+                        lineHeight: windowWidth < 768 ? '1.0' : 'inherit',
                       }}
                     >
                       {event.location}
@@ -335,15 +339,15 @@ function SchedulerTable({
                   <Box
                     sx={{
                       position: 'absolute',
-                      top: '-2px',
-                      right: '-2px',
+                      top: '-12px',
+                      right: '-12px',
                       width: '24px',
                       height: '24px',
                       color: '#494949',
                       fontSize: '24px',
                       fontWeight: '200',
                       cursor: 'pointer',
-                      zIndex: 1000 + eventIndex,
+                      zIndex: 2000 + eventIndex,
                       lineHeight: '24px',
                       display: 'flex',
                       alignItems: 'center',
