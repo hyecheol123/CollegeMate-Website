@@ -32,6 +32,7 @@ import {
 import SearchIcon from '@mui/icons-material/Search';
 // Components
 import ColorSelectionModal from '../Common/ColorSelectionModal';
+import Modal from '../Common/Modal/Modal';
 import type { Term } from '../../data/Terms/getTerms';
 
 // Local interfaces for API data
@@ -81,6 +82,7 @@ interface EditSchedulerPanelProps {
   onUpdateEventColor?: (classId: string, color: string) => void;
   onAddOnlineCourse?: (course: OnlineCourse) => void;
   currentTerm?: Term | null;
+  existingEvents?: EventData[];
 }
 
 interface EditSchedulerPanelRef {
@@ -98,6 +100,7 @@ function EditSchedulerPanel({
   onUpdateEventColor,
   onAddOnlineCourse,
   currentTerm,
+  existingEvents = [],
 }: EditSchedulerPanelProps): React.ReactElement {
   const [searchInput, setSearchInput] = useState<string>('');
   const [classColors, setClassColors] = useState<{ [key: string]: string }>({});
@@ -118,6 +121,10 @@ function EditSchedulerPanel({
   const [loadingSections, setLoadingSections] = useState<{
     [key: string]: boolean;
   }>({});
+  
+  // Time conflict modal states
+  const [isConflictModalOpen, setIsConflictModalOpen] = useState(false);
+  const [conflictMessage, setConflictMessage] = useState('');
 
   // Clear all cache on component mount
   React.useEffect(() => {
@@ -135,6 +142,33 @@ function EditSchedulerPanel({
   const editTitleRef = React.useRef<HTMLHeadingElement>(null);
   const [hasScrolledToResults, setHasScrolledToResults] =
     useState<boolean>(false);
+
+  // Time conflict validation function
+  const checkTimeConflict = (newEvents: EventData[]): string | null => {
+    for (const newEvent of newEvents) {
+      for (const existingEvent of existingEvents) {
+        // Check if events are on the same day
+        if (newEvent.day === existingEvent.day) {
+          const newStart = newEvent.startTime.hour * 60 + newEvent.startTime.minute;
+          const newEnd = newEvent.endTime.hour * 60 + newEvent.endTime.minute;
+          const existingStart = existingEvent.startTime.hour * 60 + existingEvent.startTime.minute;
+          const existingEnd = existingEvent.endTime.hour * 60 + existingEvent.endTime.minute;
+          
+          // Check if times overlap
+          if (newStart < existingEnd && newEnd > existingStart) {
+            const formatTime = (hour: number, minute: number) => {
+              const period = hour >= 12 ? 'PM' : 'AM';
+              const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
+              return `${displayHour}:${minute.toString().padStart(2, '0')} ${period}`;
+            };
+            
+            return `Time conflict detected!\n\n"${newEvent.title}" (${formatTime(newEvent.startTime.hour, newEvent.startTime.minute)} - ${formatTime(newEvent.endTime.hour, newEvent.endTime.minute)}) overlaps with "${existingEvent.title}" (${formatTime(existingEvent.startTime.hour, existingEvent.startTime.minute)} - ${formatTime(existingEvent.endTime.hour, existingEvent.endTime.minute)}) on ${newEvent.day}.`;
+          }
+        }
+      }
+    }
+    return null;
+  };
 
   // Perform search when search input changes
   useEffect(() => {
@@ -349,6 +383,14 @@ function EditSchedulerPanel({
         });
       });
     });
+
+    // Check for time conflicts before adding events
+    const conflictMessage = checkTimeConflict(events);
+    if (conflictMessage) {
+      setConflictMessage(conflictMessage);
+      setIsConflictModalOpen(true);
+      return;
+    }
 
     events.forEach((event) => {
       onAddEvent(event);
@@ -1061,6 +1103,15 @@ function EditSchedulerPanel({
         selectedColor={
           selectedClassId ? classColors[selectedClassId] : undefined
         }
+      />
+      
+      {/* Time Conflict Modal */}
+      <Modal
+        open={isConflictModalOpen}
+        onClose={() => setIsConflictModalOpen(false)}
+        title="Schedule Conflict"
+        message={conflictMessage}
+        buttonText="OK"
       />
     </Box>
   );

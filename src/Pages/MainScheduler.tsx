@@ -425,6 +425,7 @@ function MainScheduler(): React.ReactElement {
                 onUpdateEventColor={updateEventColorsByClassId}
                 onAddOnlineCourse={addOnlineCourse}
                 currentTerm={currentTerm}
+                existingEvents={scheduleEvents}
               />
             </Box>
           )}
@@ -603,6 +604,7 @@ function MainScheduler(): React.ReactElement {
               onUpdateEventColor={updateEventColorsByClassId}
               onAddOnlineCourse={addOnlineCourse}
               currentTerm={currentTerm}
+              existingEvents={scheduleEvents}
             />
           </Box>
         </Box>
