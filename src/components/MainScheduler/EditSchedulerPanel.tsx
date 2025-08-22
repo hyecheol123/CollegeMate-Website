@@ -25,12 +25,11 @@ import {
   InputAdornment,
   useMediaQuery,
   useTheme,
-  Collapse,
-  IconButton,
+  Select,
+  MenuItem,
+  FormControl,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 // Components
 import ColorSelectionModal from '../Common/ColorSelectionModal';
 import type { Term } from '../../data/Terms/getTerms';
@@ -103,11 +102,16 @@ function EditSchedulerPanel({
   const [searchResults, setSearchResults] = useState<ClassSearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
-  const [expandedCourse, setExpandedCourse] = useState<string | null>(null);
   const [courseSections, setCourseSections] = useState<{
     [key: string]: unknown;
   }>({});
-  const [expandedLectures, setExpandedLectures] = useState<{
+  const [selectedLecture, setSelectedLecture] = useState<{
+    [key: string]: string;
+  }>({});
+  const [selectedDiscussion, setSelectedDiscussion] = useState<{
+    [key: string]: string;
+  }>({});
+  const [loadingSections, setLoadingSections] = useState<{
     [key: string]: boolean;
   }>({});
 
@@ -192,23 +196,12 @@ function EditSchedulerPanel({
     }
   };
 
-  const handleViewSections = async (
-    course: ClassSearchResult,
-  ): Promise<void> => {
-    if (!currentTerm) return;
-
-    // Toggle expanded state
-    if (expandedCourse === course.courseId) {
-      setExpandedCourse(null);
+  const loadCourseSections = async (course: ClassSearchResult) => {
+    if (!currentTerm || courseSections[course.courseId] || loadingSections[course.courseId]) {
       return;
     }
 
-    setExpandedCourse(course.courseId);
-
-    // Check if we already have sections cached
-    if (courseSections[course.courseId]) {
-      return;
-    }
+    setLoadingSections(prev => ({ ...prev, [course.courseId]: true }));
 
     try {
       const courseDetails = await getCourseDetails(
@@ -216,14 +209,14 @@ function EditSchedulerPanel({
         course.subject.subjectCode,
         course.courseId,
       );
-
-      // API returns array directly, not wrapped in packages
       setCourseSections((prev) => ({
         ...prev,
         [course.courseId]: courseDetails,
       }));
-    } catch {
-      // Handle error silently
+    } catch (error) {
+      console.error('Failed to load course sections:', error);
+    } finally {
+      setLoadingSections(prev => ({ ...prev, [course.courseId]: false }));
     }
   };
 
@@ -380,11 +373,183 @@ function EditSchedulerPanel({
     setSelectedClassId(null);
   };
 
-  const handleLectureToggle = (lectureKey: string): void => {
-    setExpandedLectures((prev) => ({
+  const handleLectureChange = (courseId: string, lectureNumber: string) => {
+    setSelectedLecture(prev => ({
       ...prev,
-      [lectureKey]: !prev[lectureKey],
+      [courseId]: lectureNumber
     }));
+    
+    // Reset discussion selection when lecture changes
+    setSelectedDiscussion(prev => ({
+      ...prev,
+      [courseId]: ''
+    }));
+  };
+
+  const getLectureOptions = (course: ClassSearchResult) => {
+    const sectionData = courseSections[course.courseId];
+    if (!Array.isArray(sectionData)) return [];
+    
+    const lectures: Section[] = [];
+    const seenSections = new Set<string>();
+
+    (sectionData as EnrollmentPackage[]).forEach((enrollmentPackage: EnrollmentPackage) => {
+      enrollmentPackage.sections?.forEach((section: Section) => {
+        // Include LEC, LAB, and other non-DIS section types as "lectures"
+        if (section.type !== 'DIS') {
+          const sectionKey = `${section.type}-${section.sectionNumber}`;
+          if (!seenSections.has(sectionKey)) {
+            seenSections.add(sectionKey);
+            lectures.push(section);
+          }
+        }
+      });
+    });
+
+    return lectures.sort((a, b) => {
+      const aNum = parseInt(a.sectionNumber || '0', 10);
+      const bNum = parseInt(b.sectionNumber || '0', 10);
+      return aNum - bNum;
+    });
+  };
+
+  const getDiscussionOptions = (course: ClassSearchResult, selectedLectureNumber?: string) => {
+    const sectionData = courseSections[course.courseId];
+    if (!Array.isArray(sectionData)) return [];
+    
+    // If no lecture is selected, return all discussions
+    if (!selectedLectureNumber) {
+      const discussions: Section[] = [];
+      const seenSections = new Set<string>();
+
+      (sectionData as EnrollmentPackage[]).forEach((enrollmentPackage: EnrollmentPackage) => {
+        enrollmentPackage.sections?.forEach((section: Section) => {
+          if (section.type === 'DIS') {
+            const sectionKey = `${section.type}-${section.sectionNumber}`;
+            if (!seenSections.has(sectionKey)) {
+              seenSections.add(sectionKey);
+              discussions.push(section);
+            }
+          }
+        });
+      });
+
+      return discussions.sort((a, b) => {
+        const aNum = parseInt(a.sectionNumber || '0', 10);
+        const bNum = parseInt(b.sectionNumber || '0', 10);
+        return aNum - bNum;
+      });
+    }
+
+    // Find the selected lecture first
+    let selectedLecture: Section | null = null;
+    (sectionData as EnrollmentPackage[]).forEach((enrollmentPackage: EnrollmentPackage) => {
+      enrollmentPackage.sections?.forEach((section: Section) => {
+        if (section.type === 'LEC' && section.sectionNumber === selectedLectureNumber) {
+          selectedLecture = section;
+        }
+      });
+    });
+
+    if (!selectedLecture) return [];
+
+    // Get instructor of the selected lecture
+    const lectureInstructor = selectedLecture.instructors
+      ?.map((inst) => `${inst.name.first} ${inst.name.last}`)
+      .join(', ') || 'TBA';
+
+    // Find discussions with the same instructor
+    const relatedDiscussions: Section[] = [];
+    const seenSections = new Set<string>();
+
+    (sectionData as EnrollmentPackage[]).forEach((enrollmentPackage: EnrollmentPackage) => {
+      enrollmentPackage.sections?.forEach((section: Section) => {
+        if (section.type === 'DIS') {
+          const discussionInstructor = section.instructors
+            ?.map((inst) => `${inst.name.first} ${inst.name.last}`)
+            .join(', ') || 'TBA';
+          
+          // Match discussions with same instructor as the lecture
+          if (discussionInstructor === lectureInstructor) {
+            const sectionKey = `${section.type}-${section.sectionNumber}`;
+            if (!seenSections.has(sectionKey)) {
+              seenSections.add(sectionKey);
+              relatedDiscussions.push(section);
+            }
+          }
+        }
+      });
+    });
+
+    return relatedDiscussions.sort((a, b) => {
+      const aNum = parseInt(a.sectionNumber || '0', 10);
+      const bNum = parseInt(b.sectionNumber || '0', 10);
+      return aNum - bNum;
+    });
+  };
+
+  const hasDiscussions = (course: ClassSearchResult) => {
+    const sectionData = courseSections[course.courseId];
+    if (!Array.isArray(sectionData)) return false;
+    
+    // Check if there are any discussion sections
+    return (sectionData as EnrollmentPackage[]).some((enrollmentPackage: EnrollmentPackage) =>
+      enrollmentPackage.sections?.some((section: Section) => section.type === 'DIS')
+    );
+  };
+
+  const formatTime = (timeMs: number): string => {
+    const offsetMs = 6 * 60 * 60 * 1000; // 6 hours offset
+    const adjustedTime = timeMs - offsetMs;
+    const hour = Math.floor(adjustedTime / (1000 * 60 * 60));
+    const minute = Math.floor((adjustedTime % (1000 * 60 * 60)) / (1000 * 60));
+    
+    const period = hour >= 12 ? 'PM' : 'AM';
+    const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
+    return `${displayHour}:${minute.toString().padStart(2, '0')} ${period}`;
+  };
+
+  const formatDays = (daysList: string[]): string => {
+    const dayMap: { [key: string]: string } = {
+      MONDAY: 'M',
+      TUESDAY: 'T', 
+      WEDNESDAY: 'W',
+      THURSDAY: 'R',
+      FRIDAY: 'F',
+      SATURDAY: 'S',
+      SUNDAY: 'U'
+    };
+    return daysList.map(day => dayMap[day] || day).join(', ');
+  };
+
+  const getSectionDisplayInfo = (section: Section) => {
+    const instructorNames = section.instructors
+      ?.map((inst: Instructor) => `${inst.name.first} ${inst.name.last}`)
+      .join(', ') || 'TBA';
+
+    let timeAndDays = 'TBA';
+    let building = 'TBA';
+
+    if (section.classMeetings && section.classMeetings.length > 0) {
+      const meeting = section.classMeetings[0];
+      
+      if (meeting.meetingTimeStart && meeting.meetingTimeEnd) {
+        const startTime = formatTime(meeting.meetingTimeStart);
+        const endTime = formatTime(meeting.meetingTimeEnd);
+        const days = formatDays(meeting.meetingDaysList || []);
+        timeAndDays = `${days} ${startTime}-${endTime}`;
+      } else if (meeting.building?.buildingName === 'ONLINE') {
+        timeAndDays = 'ONLINE';
+      }
+
+      if (meeting.building?.buildingName && meeting.room) {
+        building = `${meeting.building.buildingName} ${meeting.room}`;
+      } else if (meeting.building?.buildingName) {
+        building = meeting.building.buildingName;
+      }
+    }
+
+    return { instructorNames, timeAndDays, building };
   };
 
   return (
@@ -498,731 +663,332 @@ function EditSchedulerPanel({
             <React.Fragment
               key={`${course.courseId}-${course.subject.subjectCode}-${index}`}
             >
-              <Card
+              <Box
                 sx={{
-                  transition: 'box-shadow 0.2s ease-in-out',
-                  '&:hover': {
-                    boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
-                  },
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '8px',
+                  marginBottom: '16px',
                 }}
               >
-                <CardContent sx={{ padding: '16px !important' }}>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'flex-start',
-                      flexWrap: 'wrap',
-                      gap: '12px',
-                    }}
-                  >
-                    {/* Class Info */}
-                    <Box sx={{ flex: 1, minWidth: '250px' }}>
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '8px',
-                          marginBottom: '8px',
-                        }}
-                      >
-                        <Typography variant="h3" color="red.main">
-                          {course.courseDesignation}
-                        </Typography>
-                        {course.credits && (
-                          <Chip
-                            label={`${course.credits.min}-${course.credits.max} credits`}
-                            size="small"
-                            variant="outlined"
-                            sx={{ fontSize: '12px' }}
-                          />
-                        )}
-                      </Box>
-
-                      <Typography
-                        variant="body1"
-                        sx={{
-                          fontWeight: 500,
-                          marginBottom: '4px',
-                          color: 'darkGrey.main',
-                        }}
-                      >
-                        {course.title}
-                      </Typography>
-
-                      <Typography
-                        variant="body1"
-                        color="text.secondary"
-                        sx={{ marginBottom: '4px' }}
-                      >
-                        Subject: {course.subject.formalDescription}
-                      </Typography>
-
-                      <Typography
-                        variant="body1"
-                        color="text.secondary"
-                        sx={{
-                          marginBottom: '4px',
-                          display: '-webkit-box',
-                          WebkitLineClamp: 2,
-                          WebkitBoxOrient: 'vertical',
-                          overflow: 'hidden',
-                        }}
-                      >
-                        {course.description}
-                      </Typography>
-                    </Box>
-
-                    {/* Action Buttons */}
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        flexDirection: 'row',
-                        gap: '8px',
-                        width: '100%',
-                        marginTop: '12px',
-                      }}
-                    >
-                      <Button
-                        variant="outlined"
-                        size="small"
-                        onClick={() => handleCustomizeColor(course.courseId)}
-                        sx={{
-                          flex: 1,
-                          fontSize: '12px',
-                          padding: '6px 12px',
-                        }}
-                      >
-                        Customize Color
-                      </Button>
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        size="small"
-                        onClick={() => handleViewSections(course)}
-                        sx={{
-                          flex: 1,
-                          fontSize: '12px',
-                          padding: '6px 12px',
-                        }}
-                      >
-                        {expandedCourse === course.courseId
-                          ? 'Hide Sections'
-                          : 'View Sections'}
-                      </Button>
-                    </Box>
-                  </Box>
-                </CardContent>
-              </Card>
-
-              {/* Expanded Sections */}
-              {expandedCourse === course.courseId && (
+                {/* Class Info Box */}
                 <Box
                   sx={{
-                    marginLeft: '16px',
-                    marginTop: '8px',
-                    marginBottom: '12px',
+                    backgroundColor: 'whiteGrey.main',
+                    padding: '16px',
+                    borderRadius: '8px',
+                    minHeight: '120px',
+                    cursor: 'pointer',
+                    border: '1px solid',
+                    borderColor: 'grey.main',
+                    '&:hover': {
+                      backgroundColor: 'grey.main',
+                    },
+                  }}
+                  onClick={() => loadCourseSections(course)}
+                >
+                  <Typography
+                    variant="h3"
+                    sx={{
+                      color: 'red.main',
+                      marginBottom: '8px',
+                    }}
+                  >
+                    {course.courseDesignation}
+                  </Typography>
+                  <Typography
+                    variant="body1"
+                    sx={{
+                      color: 'darkGrey.main',
+                      marginBottom: '8px',
+                    }}
+                  >
+                    {course.title}
+                  </Typography>
+                  <Typography
+                    variant="body3"
+                    sx={{
+                      color: 'darkGrey.main',
+                    }}
+                  >
+                    {course.subject.formalDescription}
+                  </Typography>
+                </Box>
+
+                {/* Lecture Dropdown */}
+                <FormControl fullWidth>
+                  <Select
+                    value={selectedLecture[course.courseId] || ''}
+                    onChange={(e) => handleLectureChange(course.courseId, e.target.value)}
+                    onOpen={() => loadCourseSections(course)}
+                    displayEmpty
+                    sx={{
+                      backgroundColor: 'white.main',
+                      border: '1px solid',
+                      borderColor: 'grey.main',
+                      borderRadius: '6px',
+                      '& .MuiSelect-select': {
+                        padding: '8px 12px',
+                      },
+                      '& .MuiOutlinedInput-notchedOutline': {
+                        border: 'none',
+                      },
+                      '&:hover .MuiOutlinedInput-notchedOutline': {
+                        border: 'none',
+                      },
+                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                        border: '1px solid',
+                        borderColor: 'red.main',
+                      },
+                    }}
+                    MenuProps={{
+                      PaperProps: {
+                        sx: {
+                          maxHeight: 400,
+                          width: 'auto',
+                          minWidth: '100%',
+                          '& .MuiMenuItem-root': {
+                            whiteSpace: 'normal',
+                            height: 'auto',
+                            minHeight: 'auto',
+                          },
+                        },
+                      },
+                      anchorOrigin: {
+                        vertical: 'bottom',
+                        horizontal: 'left',
+                      },
+                      transformOrigin: {
+                        vertical: 'top',
+                        horizontal: 'left',
+                      },
+                    }}
+                  >
+                    <MenuItem value="" disabled>
+                      {loadingSections[course.courseId] ? 'Loading sections...' : 'Select section'}
+                    </MenuItem>
+                    {getLectureOptions(course).map((lecture) => {
+                      const { instructorNames, timeAndDays, building } = getSectionDisplayInfo(lecture);
+                      const sectionType = lecture.type === 'LEC' ? 'Lecture' : 
+                                          lecture.type === 'LAB' ? 'Lab' : 
+                                          lecture.type;
+                      
+                      return (
+                        <MenuItem key={lecture.sectionNumber} value={lecture.sectionNumber}>
+                          <Box sx={{ width: '100%', py: 1 }}>
+                            <Typography variant="body1" sx={{ color: 'darkGrey.main', mb: 0.5 }}>
+                              {sectionType} {lecture.sectionNumber}
+                            </Typography>
+                            <Typography variant="body3" sx={{ color: 'darkGrey.main', mb: 0.5 }}>
+                              Instructor: {instructorNames}
+                            </Typography>
+                            <Typography variant="body3" sx={{ color: 'darkGrey.main', mb: 0.5 }}>
+                              {timeAndDays}
+                            </Typography>
+                            <Typography variant="body3" sx={{ color: 'darkGrey.main' }}>
+                              {building}
+                            </Typography>
+                          </Box>
+                        </MenuItem>
+                      );
+                    })}
+                  </Select>
+                </FormControl>
+
+                {/* Discussion Dropdown - Only show if discussions exist */}
+                {(loadingSections[course.courseId] || hasDiscussions(course)) && (
+                  <FormControl fullWidth>
+                    <Select
+                      value={selectedDiscussion[course.courseId] || ''}
+                      onChange={(e) => setSelectedDiscussion(prev => ({
+                        ...prev,
+                        [course.courseId]: e.target.value
+                      }))}
+                      onOpen={() => loadCourseSections(course)}
+                      displayEmpty
+                      sx={{
+                        backgroundColor: 'white.main',
+                        border: '1px solid',
+                        borderColor: 'grey.main',
+                        borderRadius: '6px',
+                        '& .MuiSelect-select': {
+                          padding: '8px 12px',
+                        },
+                        '& .MuiOutlinedInput-notchedOutline': {
+                          border: 'none',
+                        },
+                        '&:hover .MuiOutlinedInput-notchedOutline': {
+                          border: 'none',
+                        },
+                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                          border: '1px solid',
+                          borderColor: 'red.main',
+                        },
+                      }}
+                      MenuProps={{
+                        PaperProps: {
+                          sx: {
+                            maxHeight: 400,
+                            width: 'auto',
+                            minWidth: '100%',
+                            '& .MuiMenuItem-root': {
+                              whiteSpace: 'normal',
+                              height: 'auto',
+                              minHeight: 'auto',
+                            },
+                          },
+                        },
+                        anchorOrigin: {
+                          vertical: 'bottom',
+                          horizontal: 'left',
+                        },
+                        transformOrigin: {
+                          vertical: 'top',
+                          horizontal: 'left',
+                        },
+                      }}
+                    >
+                      <MenuItem value="" disabled>
+                        {loadingSections[course.courseId] 
+                          ? 'Loading discussions...' 
+                          : selectedLecture[course.courseId] 
+                            ? 'Select discussion for this section'
+                            : 'Select section first or choose any discussion'
+                        }
+                      </MenuItem>
+                      {getDiscussionOptions(course, selectedLecture[course.courseId]).map((discussion) => {
+                        const { instructorNames, timeAndDays, building } = getSectionDisplayInfo(discussion);
+                        
+                        return (
+                          <MenuItem key={discussion.sectionNumber} value={discussion.sectionNumber}>
+                            <Box sx={{ width: '100%', py: 1 }}>
+                              <Typography variant="body1" sx={{ color: 'darkGrey.main', mb: 0.5 }}>
+                                Discussion {discussion.sectionNumber}
+                              </Typography>
+                              <Typography variant="body3" sx={{ color: 'darkGrey.main', mb: 0.5 }}>
+                                Instructor: {instructorNames}
+                              </Typography>
+                              <Typography variant="body3" sx={{ color: 'darkGrey.main', mb: 0.5 }}>
+                                {timeAndDays}
+                              </Typography>
+                              <Typography variant="body3" sx={{ color: 'darkGrey.main' }}>
+                                {building}
+                              </Typography>
+                            </Box>
+                          </MenuItem>
+                        );
+                      })}
+                    </Select>
+                  </FormControl>
+                )}
+
+                {/* Color Button */}
+                <Button
+                  variant="outlined"
+                  fullWidth
+                  sx={{
+                    backgroundColor: 'white.main',
+                    color: 'darkGrey.main',
+                    border: '1px solid',
+                    borderColor: 'grey.main',
+                    borderRadius: '6px',
+                    padding: '10px',
+                    fontWeight: 500,
+                    textTransform: 'none',
+                    '&:hover': {
+                      backgroundColor: 'whiteGrey.main',
+                      borderColor: 'darkGrey.main',
+                    },
+                  }}
+                  onClick={() => handleCustomizeColor(course.courseId)}
+                >
+                  Color
+                </Button>
+
+                {/* Add Button */}
+                <Button
+                  variant="contained"
+                  fullWidth
+                  sx={{
+                    backgroundColor: 'red.main',
+                    color: 'white.main',
+                    border: 'none',
+                    borderRadius: '6px',
+                    padding: '10px',
+                    fontWeight: 600,
+                    textTransform: 'none',
+                    boxShadow: '0 2px 4px rgba(178, 0, 0, 0.2)',
+                    '&:hover': {
+                      backgroundColor: '#900000',
+                      boxShadow: '0 4px 8px rgba(178, 0, 0, 0.3)',
+                    },
+                  }}
+                  onClick={async () => {
+                    // First load sections if not already loaded
+                    await loadCourseSections(course);
+                    
+                    const selectedLec = selectedLecture[course.courseId];
+                    const selectedDisc = selectedDiscussion[course.courseId];
+                    
+                    // User-friendly validation
+                    if (!selectedLec && !selectedDisc) {
+                      const courseHasDiscussions = hasDiscussions(course);
+                      if (courseHasDiscussions) {
+                        alert('Please select at least a section or discussion to add.');
+                      } else {
+                        alert('Please select a section to add.');
+                      }
+                      return;
+                    }
+                    
+                    // Get available options
+                    const lectureOptions = getLectureOptions(course);
+                    const discussionOptions = getDiscussionOptions(course, selectedLec);
+                    
+                    // Add selected lecture
+                    if (selectedLec) {
+                      const lecture = lectureOptions.find(l => l.sectionNumber === selectedLec);
+                      if (lecture) {
+                        await handleAddSection(course, lecture);
+                      }
+                    }
+                    
+                    // Add selected discussion (with validation for lecture-discussion compatibility)
+                    if (selectedDisc) {
+                      // If lecture is selected, get discussions for that lecture only
+                      const availableDiscussions = selectedLec 
+                        ? getDiscussionOptions(course, selectedLec)
+                        : getDiscussionOptions(course);
+                      
+                      const discussion = availableDiscussions.find(d => d.sectionNumber === selectedDisc);
+                      if (discussion) {
+                        await handleAddSection(course, discussion);
+                      } else if (selectedLec) {
+                        alert(`Discussion ${selectedDisc} is not available for the selected lecture. Please choose a different discussion or lecture.`);
+                        return;
+                      }
+                    }
+                    
+                    // Success feedback
+                    const addedSections = [];
+                    if (selectedLec) {
+                      const lecture = lectureOptions.find(l => l.sectionNumber === selectedLec);
+                      const sectionType = lecture?.type === 'LEC' ? 'Lecture' : 
+                                          lecture?.type === 'LAB' ? 'Lab' : 
+                                          lecture?.type || 'Section';
+                      addedSections.push(`${sectionType} ${selectedLec}`);
+                    }
+                    if (selectedDisc) addedSections.push(`Discussion ${selectedDisc}`);
+                    
+                    // Reset selections after successful add
+                    setSelectedLecture(prev => ({ ...prev, [course.courseId]: '' }));
+                    setSelectedDiscussion(prev => ({ ...prev, [course.courseId]: '' }));
                   }}
                 >
-                  {((): React.ReactNode => {
-                    const sectionData = courseSections[course.courseId];
+                  Add
+                </Button>
+              </Box>
 
-                    if (!sectionData) {
-                      return <Typography>Loading sections...</Typography>;
-                    }
-
-                    if (!Array.isArray(sectionData)) {
-                      return (
-                        <Typography color="error">
-                          Error loading sections: Invalid data format (got{' '}
-                          {typeof sectionData})
-                        </Typography>
-                      );
-                    }
-
-                    if (sectionData.length === 0) {
-                      return (
-                        <Typography>
-                          No sections available for this course.
-                        </Typography>
-                      );
-                    }
-
-                    // Collect all unique sections from all packages
-                    const allSections: Section[] = [];
-                    const seenSections = new Set<string>();
-
-                    (sectionData as EnrollmentPackage[]).forEach(
-                      (enrollmentPackage: EnrollmentPackage) => {
-                        // Only show sections from packages that are OPEN or have available seats
-                        const packageStatus =
-                          enrollmentPackage.packageEnrollmentStatus?.status;
-                        const availableSeats =
-                          enrollmentPackage.packageEnrollmentStatus
-                            ?.availableSeats || 0;
-
-                        // Skip closed packages with no available seats
-                        if (
-                          packageStatus === 'CLOSED' &&
-                          availableSeats === 0
-                        ) {
-                          return;
-                        }
-
-                        enrollmentPackage.sections?.forEach(
-                          (section: Section) => {
-                            const sectionKey = `${section.type}-${section.sectionNumber}`;
-                            if (!seenSections.has(sectionKey)) {
-                              seenSections.add(sectionKey);
-                              allSections.push(section);
-                            }
-                          },
-                        );
-                      },
-                    );
-
-                    // Separate lectures and discussions, then sort each by section number
-                    const lectures: Section[] = [];
-                    const discussions: Section[] = [];
-
-                    allSections.forEach((section: Section) => {
-                      if (section.type === 'LEC') {
-                        lectures.push(section);
-                      } else if (section.type === 'DIS') {
-                        discussions.push(section);
-                      } else {
-                        // For other types, treat as lectures
-                        lectures.push(section);
-                      }
-                    });
-
-                    // Sort sections by section number in ascending order
-                    const sortedLectures = lectures.sort((a, b) => {
-                      const aNum = parseInt(a.sectionNumber || '0', 10);
-                      const bNum = parseInt(b.sectionNumber || '0', 10);
-                      return aNum - bNum;
-                    });
-                    const sortedDiscussions = discussions.sort((a, b) => {
-                      const aNum = parseInt(a.sectionNumber || '0', 10);
-                      const bNum = parseInt(b.sectionNumber || '0', 10);
-                      return aNum - bNum;
-                    });
-
-                    // Group discussions by their associated lecture instructor
-                    const discussionsByLecture: { [key: string]: Section[] } =
-                      {};
-                    sortedDiscussions.forEach((discussion) => {
-                      const instructorKey =
-                        discussion.instructors
-                          ?.map(
-                            (inst) => `${inst.name.first} ${inst.name.last}`,
-                          )
-                          .join(', ') || 'TBA';
-                      if (!discussionsByLecture[instructorKey]) {
-                        discussionsByLecture[instructorKey] = [];
-                      }
-                      discussionsByLecture[instructorKey].push(discussion);
-                    });
-
-                    // Render hierarchically with dropdown structure
-                    const renderedSections: React.ReactElement[] = [];
-
-                    // Render lecture sections with dropdown for discussions
-                    sortedLectures.forEach(
-                      (section: Section, sectionIndex: number): void => {
-                        const uniqueKey = `${course.courseId}-${section.type}-${section.sectionNumber}-${sectionIndex}`;
-                        const instructorKey =
-                          section.instructors
-                            ?.map(
-                              (inst) => `${inst.name.first} ${inst.name.last}`,
-                            )
-                            .join(', ') || 'TBA';
-                        const relatedDiscussions =
-                          discussionsByLecture[instructorKey] || [];
-                        const hasDiscussions = relatedDiscussions.length > 0;
-                        const isExpanded = expandedLectures[uniqueKey] || false;
-
-                        renderedSections.push(
-                          <Box
-                            key={uniqueKey}
-                            sx={{
-                              marginBottom: '8px',
-                              backgroundColor: '#f5f5f5',
-                              borderRadius: '8px',
-                              border: '1px solid #e0e0e0',
-                              padding: '12px',
-                            }}
-                          >
-                            <Box
-                              sx={{
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                alignItems: 'flex-start',
-                              }}
-                            >
-                              <Box sx={{ flex: 1 }}>
-                                <Box
-                                  sx={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    marginBottom: '4px',
-                                  }}
-                                >
-                                  <Typography
-                                    variant="body1"
-                                    sx={{
-                                      fontWeight: 600,
-                                      marginRight: '8px',
-                                      fontSize: '16px',
-                                      color: '#333',
-                                    }}
-                                  >
-                                    {section.type === 'LEC'
-                                      ? 'Lecture'
-                                      : section.type === 'DIS'
-                                        ? 'Discussion'
-                                        : section.type || 'Section'}{' '}
-                                    {section.sectionNumber || 'N/A'}
-                                  </Typography>
-
-                                  {hasDiscussions && (
-                                    <IconButton
-                                      size="small"
-                                      onClick={() =>
-                                        handleLectureToggle(uniqueKey)
-                                      }
-                                      sx={{
-                                        padding: '2px',
-                                        marginLeft: '4px',
-                                      }}
-                                    >
-                                      {isExpanded ? (
-                                        <ExpandLessIcon fontSize="small" />
-                                      ) : (
-                                        <ExpandMoreIcon fontSize="small" />
-                                      )}
-                                    </IconButton>
-                                  )}
-                                </Box>
-
-                                {/* Instructor */}
-                                <Typography
-                                  variant="body1"
-                                  color="text.secondary"
-                                  sx={{
-                                    marginBottom: '4px',
-                                    fontSize: '14px',
-                                    color: '#666',
-                                  }}
-                                >
-                                  Instructor: {instructorKey}
-                                </Typography>
-
-                                {/* Meeting Times */}
-                                {section.classMeetings?.map(
-                                  (meeting: Meeting, meetingIndex: number) => (
-                                    <Typography
-                                      key={`${uniqueKey}-meeting-${meetingIndex}`}
-                                      variant="body1"
-                                      color="text.secondary"
-                                      sx={{
-                                        marginBottom: '2px',
-                                        fontSize: '14px',
-                                        color: '#666',
-                                      }}
-                                    >
-                                      {((): string => {
-                                        // Check if this is an online/asynchronous course
-                                        if (
-                                          !meeting.meetingTimeStart ||
-                                          !meeting.meetingTimeEnd
-                                        ) {
-                                          if (
-                                            meeting.building?.buildingName ===
-                                            'ONLINE'
-                                          ) {
-                                            return 'ONLINE';
-                                          }
-                                          return 'TBA';
-                                        }
-
-                                        // Show days and time for scheduled classes
-                                        const daysText =
-                                          meeting.meetingDaysList?.join(', ') ||
-                                          '';
-
-                                        // Convert milliseconds to proper time format
-                                        // API gives time in UTC, need to subtract 6 hours for local time
-                                        const offsetMs = 6 * 60 * 60 * 1000; // 6 hours in milliseconds
-                                        const adjustedStartTime =
-                                          meeting.meetingTimeStart! - offsetMs;
-                                        const adjustedEndTime =
-                                          meeting.meetingTimeEnd! - offsetMs;
-
-                                        const startHour = Math.floor(
-                                          adjustedStartTime / (1000 * 60 * 60),
-                                        );
-                                        const startMinute = Math.floor(
-                                          (adjustedStartTime %
-                                            (1000 * 60 * 60)) /
-                                            (1000 * 60),
-                                        );
-                                        const endHour = Math.floor(
-                                          adjustedEndTime / (1000 * 60 * 60),
-                                        );
-                                        const endMinute = Math.floor(
-                                          (adjustedEndTime % (1000 * 60 * 60)) /
-                                            (1000 * 60),
-                                        );
-
-                                        const formatTime = (
-                                          hour: number,
-                                          minute: number,
-                                        ): string => {
-                                          const period =
-                                            hour >= 12 ? 'PM' : 'AM';
-                                          const displayHour =
-                                            hour > 12
-                                              ? hour - 12
-                                              : hour === 0
-                                                ? 12
-                                                : hour;
-                                          return `${displayHour}:${minute.toString().padStart(2, '0')} ${period}`;
-                                        };
-
-                                        const timeText = `${formatTime(startHour, startMinute)} - ${formatTime(endHour, endMinute)}`;
-
-                                        return daysText
-                                          ? `${daysText} • ${timeText}`
-                                          : '';
-                                      })()}
-                                      {meeting.building?.buildingName &&
-                                        meeting.room && (
-                                          <>
-                                            {' '}
-                                            • {
-                                              meeting.building.buildingName
-                                            }{' '}
-                                            {meeting.room}
-                                          </>
-                                        )}
-                                    </Typography>
-                                  ),
-                                )}
-                              </Box>
-
-                              <Box sx={{ display: 'flex', gap: '8px' }}>
-                                <Button
-                                  variant="outlined"
-                                  size="small"
-                                  onClick={() =>
-                                    handleCustomizeColor(
-                                      `${course.courseId}-${section.sectionNumber}`,
-                                    )
-                                  }
-                                  sx={{
-                                    fontSize: '11px',
-                                    padding: '4px 8px',
-                                    minWidth: '80px',
-                                    borderColor: '#666',
-                                    color: '#666',
-                                    '&:hover': {
-                                      borderColor: '#666',
-                                      backgroundColor:
-                                        'rgba(102, 102, 102, 0.04)',
-                                    },
-                                  }}
-                                >
-                                  Customize Color
-                                </Button>
-                                <Button
-                                  variant="outlined"
-                                  size="small"
-                                  onClick={(): Promise<void> =>
-                                    handleAddSection(course, section)
-                                  }
-                                  sx={{
-                                    fontSize: '12px',
-                                    padding: '6px 12px',
-                                    minWidth: '100px',
-                                    borderColor: '#B20000',
-                                    color: '#B20000',
-                                    '&:hover': {
-                                      borderColor: '#B20000',
-                                      backgroundColor: 'rgba(178, 0, 0, 0.04)',
-                                    },
-                                  }}
-                                >
-                                  ADD SECTION
-                                </Button>
-                              </Box>
-                            </Box>
-
-                            {/* Discussions Dropdown */}
-                            {hasDiscussions && (
-                              <Collapse in={isExpanded}>
-                                <Box
-                                  sx={{
-                                    marginTop: '12px',
-                                    paddingLeft: '16px',
-                                  }}
-                                >
-                                  <Typography
-                                    variant="body1"
-                                    sx={{
-                                      fontWeight: 600,
-                                      marginBottom: '8px',
-                                      color: '#666',
-                                      fontSize: '14px',
-                                    }}
-                                  >
-                                    Associated Discussions:
-                                  </Typography>
-                                  {relatedDiscussions.map(
-                                    (discussion, discIndex) => {
-                                      const discKey = `${uniqueKey}-disc-${discIndex}`;
-                                      return (
-                                        <Box
-                                          key={discKey}
-                                          sx={{
-                                            marginBottom: '8px',
-                                            backgroundColor: '#f5f5f5',
-                                            borderRadius: '8px',
-                                            border: '1px solid #e0e0e0',
-                                            padding: '12px',
-                                          }}
-                                        >
-                                          <Box
-                                            sx={{
-                                              display: 'flex',
-                                              justifyContent: 'space-between',
-                                              alignItems: 'flex-start',
-                                            }}
-                                          >
-                                            <Box sx={{ flex: 1 }}>
-                                              <Typography
-                                                variant="body1"
-                                                sx={{
-                                                  fontWeight: 600,
-                                                  marginBottom: '4px',
-                                                  fontSize: '16px',
-                                                  color: '#333',
-                                                }}
-                                              >
-                                                Discussion{' '}
-                                                {discussion.sectionNumber ||
-                                                  'N/A'}
-                                              </Typography>
-
-                                              {/* Instructor */}
-                                              <Typography
-                                                variant="body1"
-                                                color="text.secondary"
-                                                sx={{
-                                                  marginBottom: '4px',
-                                                  fontSize: '14px',
-                                                  color: '#666',
-                                                }}
-                                              >
-                                                Instructor:{' '}
-                                                {discussion.instructors
-                                                  ?.map(
-                                                    (inst: Instructor) =>
-                                                      `${inst.name.first} ${inst.name.last}`,
-                                                  )
-                                                  .join(', ') || 'TBA'}
-                                              </Typography>
-
-                                              {/* Discussion Meeting Times */}
-                                              {discussion.classMeetings?.map(
-                                                (meeting, meetingIndex) => (
-                                                  <Typography
-                                                    key={`${discKey}-meeting-${meetingIndex}`}
-                                                    variant="body1"
-                                                    color="text.secondary"
-                                                    sx={{
-                                                      marginBottom: '2px',
-                                                      fontSize: '14px',
-                                                      color: '#666',
-                                                    }}
-                                                  >
-                                                    {((): string => {
-                                                      if (
-                                                        !meeting.meetingTimeStart ||
-                                                        !meeting.meetingTimeEnd
-                                                      ) {
-                                                        if (
-                                                          meeting.building
-                                                            ?.buildingName ===
-                                                          'ONLINE'
-                                                        ) {
-                                                          return 'ONLINE';
-                                                        }
-                                                        return 'TBA';
-                                                      }
-
-                                                      const daysText =
-                                                        meeting.meetingDaysList?.join(
-                                                          ', ',
-                                                        ) || '';
-
-                                                      // Convert milliseconds to proper time format
-                                                      // API gives time in UTC, need to subtract 6 hours for local time
-                                                      console.log(
-                                                        'Discussion Original times:',
-                                                        {
-                                                          meetingTimeStart:
-                                                            meeting.meetingTimeStart,
-                                                          meetingTimeEnd:
-                                                            meeting.meetingTimeEnd,
-                                                          sectionType:
-                                                            'Discussion',
-                                                        },
-                                                      );
-
-                                                      const offsetMs =
-                                                        6 * 60 * 60 * 1000; // 6 hours in milliseconds
-                                                      const adjustedStartTime =
-                                                        meeting.meetingTimeStart! -
-                                                        offsetMs;
-                                                      const adjustedEndTime =
-                                                        meeting.meetingTimeEnd! -
-                                                        offsetMs;
-
-                                                      const startHour =
-                                                        Math.floor(
-                                                          adjustedStartTime /
-                                                            (1000 * 60 * 60),
-                                                        );
-                                                      const startMinute =
-                                                        Math.floor(
-                                                          (adjustedStartTime %
-                                                            (1000 * 60 * 60)) /
-                                                            (1000 * 60),
-                                                        );
-                                                      const endHour =
-                                                        Math.floor(
-                                                          adjustedEndTime /
-                                                            (1000 * 60 * 60),
-                                                        );
-                                                      const endMinute =
-                                                        Math.floor(
-                                                          (adjustedEndTime %
-                                                            (1000 * 60 * 60)) /
-                                                            (1000 * 60),
-                                                        );
-
-                                                      const formatTime = (
-                                                        hour: number,
-                                                        minute: number,
-                                                      ): string => {
-                                                        const period =
-                                                          hour >= 12
-                                                            ? 'PM'
-                                                            : 'AM';
-                                                        const displayHour =
-                                                          hour > 12
-                                                            ? hour - 12
-                                                            : hour === 0
-                                                              ? 12
-                                                              : hour;
-                                                        return `${displayHour}:${minute.toString().padStart(2, '0')} ${period}`;
-                                                      };
-
-                                                      const timeText = `${formatTime(startHour, startMinute)} - ${formatTime(endHour, endMinute)}`;
-
-                                                      return daysText
-                                                        ? `${daysText} • ${timeText}`
-                                                        : '';
-                                                    })()}
-                                                    {meeting.building
-                                                      ?.buildingName &&
-                                                      meeting.room && (
-                                                        <>
-                                                          {' • '}
-                                                          {
-                                                            meeting.building
-                                                              .buildingName
-                                                          }{' '}
-                                                          {meeting.room}
-                                                        </>
-                                                      )}
-                                                  </Typography>
-                                                ),
-                                              )}
-                                            </Box>
-
-                                            <Box
-                                              sx={{
-                                                display: 'flex',
-                                                gap: '8px',
-                                              }}
-                                            >
-                                              <Button
-                                                variant="outlined"
-                                                size="small"
-                                                onClick={() =>
-                                                  handleCustomizeColor(
-                                                    `${course.courseId}-${discussion.sectionNumber}`,
-                                                  )
-                                                }
-                                                sx={{
-                                                  fontSize: '10px',
-                                                  padding: '3px 6px',
-                                                  minWidth: '60px',
-                                                  borderColor: '#666',
-                                                  color: '#666',
-                                                  '&:hover': {
-                                                    borderColor: '#666',
-                                                    backgroundColor:
-                                                      'rgba(102, 102, 102, 0.04)',
-                                                  },
-                                                }}
-                                              >
-                                                Color
-                                              </Button>
-                                              <Button
-                                                variant="outlined"
-                                                size="small"
-                                                onClick={(): Promise<void> =>
-                                                  handleAddSection(
-                                                    course,
-                                                    discussion,
-                                                  )
-                                                }
-                                                sx={{
-                                                  fontSize: '12px',
-                                                  padding: '6px 12px',
-                                                  minWidth: '60px',
-                                                  borderColor: '#B20000',
-                                                  color: '#B20000',
-                                                  '&:hover': {
-                                                    borderColor: '#B20000',
-                                                    backgroundColor:
-                                                      'rgba(178, 0, 0, 0.04)',
-                                                  },
-                                                }}
-                                              >
-                                                ADD
-                                              </Button>
-                                            </Box>
-                                          </Box>
-                                        </Box>
-                                      );
-                                    },
-                                  )}
-                                </Box>
-                              </Collapse>
-                            )}
-                          </Box>,
-                        );
-                      },
-                    );
-
-                    return renderedSections;
-                  })()}
-                </Box>
-              )}
             </React.Fragment>
           ))
         )}
