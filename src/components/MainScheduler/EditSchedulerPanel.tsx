@@ -745,12 +745,12 @@ function EditSchedulerPanel({
                       PaperProps: {
                         sx: {
                           maxHeight: 400,
-                          width: 'auto',
-                          minWidth: '100%',
+                          maxWidth: 400,
                           '& .MuiMenuItem-root': {
                             whiteSpace: 'normal',
                             height: 'auto',
                             minHeight: 'auto',
+                            maxWidth: '100%',
                           },
                         },
                       },
@@ -764,29 +764,56 @@ function EditSchedulerPanel({
                       },
                     }}
                   >
-                    <MenuItem value="" disabled>
-                      {loadingSections[course.courseId] ? 'Loading sections...' : 'Select section'}
+                    <MenuItem value="" sx={{ color: 'darkGrey.main', opacity: 0.7 }}>
+                      <Typography variant="body3" sx={{ color: 'darkGrey.main', opacity: 0.7 }}>
+                        {loadingSections[course.courseId] ? 'Loading sections...' : 'Select section'}
+                      </Typography>
                     </MenuItem>
                     {getLectureOptions(course).map((lecture) => {
-                      const { instructorNames, timeAndDays, building } = getSectionDisplayInfo(lecture);
+                      const instructorNames = lecture.instructors
+                        ?.map((inst: Instructor) => `${inst.name.first} ${inst.name.last}`)
+                        .join(', ') || 'TBA';
+
+                      let timeDisplay = 'TBA';
+                      let locationDisplay = 'TBA';
+
+                      if (lecture.classMeetings && lecture.classMeetings.length > 0) {
+                        const meeting = lecture.classMeetings[0];
+                        
+                        if (meeting.meetingTimeStart && meeting.meetingTimeEnd) {
+                          const startTime = formatTime(meeting.meetingTimeStart);
+                          const endTime = formatTime(meeting.meetingTimeEnd);
+                          const days = formatDays(meeting.meetingDaysList || []);
+                          timeDisplay = `${days} ${startTime}-${endTime}`;
+                        } else if (meeting.building?.buildingName === 'ONLINE') {
+                          timeDisplay = 'ONLINE';
+                        }
+
+                        if (meeting.building?.buildingName && meeting.room) {
+                          locationDisplay = `${meeting.building.buildingName} ${meeting.room}`;
+                        } else if (meeting.building?.buildingName) {
+                          locationDisplay = meeting.building.buildingName;
+                        }
+                      }
+
                       const sectionType = lecture.type === 'LEC' ? 'Lecture' : 
                                           lecture.type === 'LAB' ? 'Lab' : 
                                           lecture.type;
                       
                       return (
-                        <MenuItem key={lecture.sectionNumber} value={lecture.sectionNumber}>
-                          <Box sx={{ width: '100%', py: 1 }}>
-                            <Typography variant="body1" sx={{ color: 'darkGrey.main', mb: 0.5 }}>
+                        <MenuItem key={lecture.sectionNumber} value={lecture.sectionNumber} sx={{ display: 'block', whiteSpace: 'normal' }}>
+                          <Box sx={{ width: '100%', py: 1, display: 'flex', flexDirection: 'column' }}>
+                            <Typography variant="body2" sx={{ color: 'darkGrey.main', mb: 0.5, display: 'block' }}>
                               {sectionType} {lecture.sectionNumber}
                             </Typography>
-                            <Typography variant="body3" sx={{ color: 'darkGrey.main', mb: 0.5 }}>
-                              Instructor: {instructorNames}
+                            <Typography variant="body3" sx={{ color: 'darkGrey.main', mb: 0.5, display: 'block' }}>
+                              {instructorNames}
                             </Typography>
-                            <Typography variant="body3" sx={{ color: 'darkGrey.main', mb: 0.5 }}>
-                              {timeAndDays}
+                            <Typography variant="body3" sx={{ color: 'darkGrey.main', mb: 0.5, display: 'block' }}>
+                              {timeDisplay}
                             </Typography>
-                            <Typography variant="body3" sx={{ color: 'darkGrey.main' }}>
-                              {building}
+                            <Typography variant="body3" sx={{ color: 'darkGrey.main', display: 'block' }}>
+                              {locationDisplay}
                             </Typography>
                           </Box>
                         </MenuItem>
@@ -829,12 +856,12 @@ function EditSchedulerPanel({
                         PaperProps: {
                           sx: {
                             maxHeight: 400,
-                            width: 'auto',
-                            minWidth: '100%',
+                            maxWidth: 400,
                             '& .MuiMenuItem-root': {
                               whiteSpace: 'normal',
                               height: 'auto',
                               minHeight: 'auto',
+                              maxWidth: '100%',
                             },
                           },
                         },
@@ -848,31 +875,57 @@ function EditSchedulerPanel({
                         },
                       }}
                     >
-                      <MenuItem value="" disabled>
-                        {loadingSections[course.courseId] 
-                          ? 'Loading discussions...' 
-                          : selectedLecture[course.courseId] 
-                            ? 'Select discussion for this section'
-                            : 'Select section first or choose any discussion'
-                        }
+                      <MenuItem value="" sx={{ color: 'darkGrey.main', opacity: 0.7 }}>
+                        <Typography variant="body3" sx={{ color: 'darkGrey.main', opacity: 0.7 }}>
+                          {loadingSections[course.courseId] 
+                            ? 'Loading discussions...' 
+                            : selectedLecture[course.courseId] 
+                              ? 'Select discussion for this section'
+                              : 'Select section first or choose any discussion'
+                          }
+                        </Typography>
                       </MenuItem>
                       {getDiscussionOptions(course, selectedLecture[course.courseId]).map((discussion) => {
-                        const { instructorNames, timeAndDays, building } = getSectionDisplayInfo(discussion);
+                        const instructorNames = discussion.instructors
+                          ?.map((inst: Instructor) => `${inst.name.first} ${inst.name.last}`)
+                          .join(', ') || 'TBA';
+
+                        let timeDisplay = 'TBA';
+                        let locationDisplay = 'TBA';
+
+                        if (discussion.classMeetings && discussion.classMeetings.length > 0) {
+                          const meeting = discussion.classMeetings[0];
+                          
+                          if (meeting.meetingTimeStart && meeting.meetingTimeEnd) {
+                            const startTime = formatTime(meeting.meetingTimeStart);
+                            const endTime = formatTime(meeting.meetingTimeEnd);
+                            const days = formatDays(meeting.meetingDaysList || []);
+                            timeDisplay = `${days} ${startTime}-${endTime}`;
+                          } else if (meeting.building?.buildingName === 'ONLINE') {
+                            timeDisplay = 'ONLINE';
+                          }
+
+                          if (meeting.building?.buildingName && meeting.room) {
+                            locationDisplay = `${meeting.building.buildingName} ${meeting.room}`;
+                          } else if (meeting.building?.buildingName) {
+                            locationDisplay = meeting.building.buildingName;
+                          }
+                        }
                         
                         return (
-                          <MenuItem key={discussion.sectionNumber} value={discussion.sectionNumber}>
-                            <Box sx={{ width: '100%', py: 1 }}>
-                              <Typography variant="body1" sx={{ color: 'darkGrey.main', mb: 0.5 }}>
+                          <MenuItem key={discussion.sectionNumber} value={discussion.sectionNumber} sx={{ display: 'block', whiteSpace: 'normal' }}>
+                            <Box sx={{ width: '100%', py: 1, display: 'flex', flexDirection: 'column' }}>
+                              <Typography variant="body2" sx={{ color: 'darkGrey.main', mb: 0.5, display: 'block' }}>
                                 Discussion {discussion.sectionNumber}
                               </Typography>
-                              <Typography variant="body3" sx={{ color: 'darkGrey.main', mb: 0.5 }}>
-                                Instructor: {instructorNames}
+                              <Typography variant="body3" sx={{ color: 'darkGrey.main', mb: 0.5, display: 'block' }}>
+                                {instructorNames}
                               </Typography>
-                              <Typography variant="body3" sx={{ color: 'darkGrey.main', mb: 0.5 }}>
-                                {timeAndDays}
+                              <Typography variant="body3" sx={{ color: 'darkGrey.main', mb: 0.5, display: 'block' }}>
+                                {timeDisplay}
                               </Typography>
-                              <Typography variant="body3" sx={{ color: 'darkGrey.main' }}>
-                                {building}
+                              <Typography variant="body3" sx={{ color: 'darkGrey.main', display: 'block' }}>
+                                {locationDisplay}
                               </Typography>
                             </Box>
                           </MenuItem>
