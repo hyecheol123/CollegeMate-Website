@@ -172,7 +172,6 @@ function SchedulerTable({
             gridTemplateRows: `40px repeat(${(maxHour - minHour + 1) * 12}, 5px)`,
             width: '100%',
             height: `${40 + (maxHour - minHour + 1) * 60}px`,
-            borderRadius: '6px',
             overflow: 'visible',
             position: 'relative',
             alignItems: 'stretch',
@@ -186,7 +185,6 @@ function SchedulerTable({
               display: 'grid',
               gridTemplateColumns: `${windowWidth < 300 ? '40px' : '45px'} repeat(${days.length}, 1fr)`,
               bgcolor: 'red.main',
-              borderRadius: '6px 6px 0 0',
               alignItems: 'stretch',
             }}
           >
@@ -293,7 +291,6 @@ function SchedulerTable({
                   gridColumn: dayIndex + 2,
                   gridRow: `${startGridRow} / ${endGridRow}`,
                   backgroundColor: event.color,
-                  borderRadius: '4px',
                   position: 'relative',
                   display: 'flex',
                   alignItems: 'center',
