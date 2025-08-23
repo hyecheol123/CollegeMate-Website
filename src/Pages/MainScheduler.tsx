@@ -130,19 +130,6 @@ function MainScheduler(): React.ReactElement {
     loadTerms();
   }, []);
 
-  // Auto-scroll to search panel on mobile when edit mode is activated
-  useEffect(() => {
-    if (isEditMode && isMobile && searchPanelRef.current) {
-      // Add a small delay to ensure the DOM has updated
-      setTimeout(() => {
-        searchPanelRef.current?.scrollIntoView({
-          behavior: 'smooth',
-          block: 'start',
-        });
-      }, 100);
-    }
-  }, [isEditMode, isMobile]);
-
   // Handle term change
   const handleTermChange = (newTerm: Term): void => {
     // Save current events and online courses for the current term
@@ -289,7 +276,12 @@ function MainScheduler(): React.ReactElement {
 
       {/* Main Content Area */}
       {isMobile ? (
-        <Box sx={{ padding: '0 16px', overflow: 'visible' }}>
+        <Box
+          sx={{
+            padding: '0 16px',
+            overflow: 'auto',
+          }}
+        >
           {/* Mobile: Scheduler always same size */}
           <Box ref={schedulerRef}>
             <SchedulerTable
@@ -434,6 +426,7 @@ function MainScheduler(): React.ReactElement {
                 onUpdateEventColor={updateEventColorsByClassId}
                 onAddOnlineCourse={addOnlineCourse}
                 currentTerm={currentTerm}
+                existingEvents={scheduleEvents}
               />
             </Box>
           )}
@@ -612,6 +605,7 @@ function MainScheduler(): React.ReactElement {
               onUpdateEventColor={updateEventColorsByClassId}
               onAddOnlineCourse={addOnlineCourse}
               currentTerm={currentTerm}
+              existingEvents={scheduleEvents}
             />
           </Box>
         </Box>

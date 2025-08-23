@@ -34,6 +34,22 @@ function SchedulerTable({
   const [modalMessage, setModalMessage] = useState('');
   const [myEvents, setMyEvents] = useState<EventData[]>([]);
 
+  // Function to determine text color based on background brightness
+  const getTextColor = (backgroundColor: string): string => {
+    // Convert hex to RGB
+    const hex = backgroundColor.replace('#', '');
+    const r = parseInt(hex.substr(0, 2), 16);
+    const g = parseInt(hex.substr(2, 2), 16);
+    const b = parseInt(hex.substr(4, 2), 16);
+
+    // Calculate luminance using standard formula
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+
+    // Return dark text for bright backgrounds, white text for dark backgrounds
+    // Use higher threshold (0.7) so gray colors still use white text
+    return luminance > 0.7 ? '#000000' : '#FFFFFF';
+  };
+
   useEffect(() => {
     // Use passed events or fall back to dummy data
     const currentEvents = events || getDummyEvents();
@@ -300,14 +316,17 @@ function SchedulerTable({
                 >
                   <Typography
                     variant="body2"
-                    color="white.main"
                     align="center"
                     sx={{
                       wordWrap: 'break-word',
-                      whiteSpace: 'nowrap',
-                      textOverflow: 'ellipsis',
+                      whiteSpace: windowWidth < 768 ? 'normal' : 'nowrap',
+                      textOverflow: windowWidth < 768 ? 'unset' : 'ellipsis',
                       overflow: 'hidden',
                       width: '100%',
+                      fontSize: windowWidth < 768 ? '11px' : 'inherit',
+                      fontWeight: windowWidth < 768 ? '500' : 'inherit',
+                      lineHeight: windowWidth < 768 ? '1.2' : 'inherit',
+                      color: getTextColor(event.color),
                     }}
                   >
                     {event.title}
@@ -315,16 +334,17 @@ function SchedulerTable({
                   {event.location && event.location !== 'TBA' && (
                     <Typography
                       variant="body2"
-                      color="white.main"
                       align="center"
                       sx={{
-                        fontSize: '10px',
+                        fontSize: windowWidth < 768 ? '8px' : '10px',
                         opacity: 0.8,
-                        whiteSpace: 'nowrap',
-                        textOverflow: 'ellipsis',
+                        whiteSpace: windowWidth < 768 ? 'normal' : 'nowrap',
+                        textOverflow: windowWidth < 768 ? 'unset' : 'ellipsis',
                         overflow: 'hidden',
                         width: '100%',
                         marginTop: '1px',
+                        lineHeight: windowWidth < 768 ? '1.0' : 'inherit',
+                        color: getTextColor(event.color),
                       }}
                     >
                       {event.location}
@@ -335,8 +355,8 @@ function SchedulerTable({
                   <Box
                     sx={{
                       position: 'absolute',
-                      top: '-2px',
-                      right: '-2px',
+                      top: '-8px',
+                      right: '-6px',
                       width: '24px',
                       height: '24px',
                       color: '#494949',
