@@ -41,10 +41,10 @@ function SchedulerTable({
     const r = parseInt(hex.substr(0, 2), 16);
     const g = parseInt(hex.substr(2, 2), 16);
     const b = parseInt(hex.substr(4, 2), 16);
-    
+
     // Calculate luminance using standard formula
     const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-    
+
     // Return dark text for bright backgrounds, white text for dark backgrounds
     // Use higher threshold (0.7) so gray colors still use white text
     return luminance > 0.7 ? '#000000' : '#FFFFFF';

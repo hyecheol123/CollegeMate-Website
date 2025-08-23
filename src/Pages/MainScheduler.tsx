@@ -130,7 +130,6 @@ function MainScheduler(): React.ReactElement {
     loadTerms();
   }, []);
 
-
   // Handle term change
   const handleTermChange = (newTerm: Term): void => {
     // Save current events and online courses for the current term
@@ -277,10 +276,12 @@ function MainScheduler(): React.ReactElement {
 
       {/* Main Content Area */}
       {isMobile ? (
-        <Box sx={{ 
-          padding: '0 16px',
-          overflow: 'auto'
-        }}>
+        <Box
+          sx={{
+            padding: '0 16px',
+            overflow: 'auto',
+          }}
+        >
           {/* Mobile: Scheduler always same size */}
           <Box ref={schedulerRef}>
             <SchedulerTable

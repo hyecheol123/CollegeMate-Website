@@ -20,8 +20,6 @@ import {
   Typography,
   Button,
   Card,
-  CardContent,
-  Chip,
   InputAdornment,
   useMediaQuery,
   useTheme,
@@ -85,15 +83,11 @@ interface EditSchedulerPanelProps {
   existingEvents?: EventData[];
 }
 
-interface EditSchedulerPanelRef {
-  scrollToSearch: () => void;
-}
-
 /**
  * EditSchedulerPanel component for searching, customizing, and adding classes
  * Features include: class search, color customization, and responsive button layout
  * @param {EditSchedulerPanelProps} props - Props including callback functions for events
- * @returns {React.ReactElement} The rendered EditSchedulerPanel component
+ * @return {React.ReactElement} The rendered EditSchedulerPanel component
  */
 function EditSchedulerPanel({
   onAddEvent,
@@ -121,7 +115,7 @@ function EditSchedulerPanel({
   const [loadingSections, setLoadingSections] = useState<{
     [key: string]: boolean;
   }>({});
-  
+
   // Time conflict modal states
   const [isConflictModalOpen, setIsConflictModalOpen] = useState(false);
   const [conflictMessage, setConflictMessage] = useState('');
@@ -149,19 +143,23 @@ function EditSchedulerPanel({
       for (const existingEvent of existingEvents) {
         // Check if events are on the same day
         if (newEvent.day === existingEvent.day) {
-          const newStart = newEvent.startTime.hour * 60 + newEvent.startTime.minute;
+          const newStart =
+            newEvent.startTime.hour * 60 + newEvent.startTime.minute;
           const newEnd = newEvent.endTime.hour * 60 + newEvent.endTime.minute;
-          const existingStart = existingEvent.startTime.hour * 60 + existingEvent.startTime.minute;
-          const existingEnd = existingEvent.endTime.hour * 60 + existingEvent.endTime.minute;
-          
+          const existingStart =
+            existingEvent.startTime.hour * 60 + existingEvent.startTime.minute;
+          const existingEnd =
+            existingEvent.endTime.hour * 60 + existingEvent.endTime.minute;
+
           // Check if times overlap
           if (newStart < existingEnd && newEnd > existingStart) {
-            const formatTime = (hour: number, minute: number) => {
+            const formatTime = (hour: number, minute: number): string => {
               const period = hour >= 12 ? 'PM' : 'AM';
-              const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
+              const displayHour =
+                hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
               return `${displayHour}:${minute.toString().padStart(2, '0')} ${period}`;
             };
-            
+
             return `Time conflict detected!\n\n"${newEvent.title}" (${formatTime(newEvent.startTime.hour, newEvent.startTime.minute)} - ${formatTime(newEvent.endTime.hour, newEvent.endTime.minute)}) overlaps with "${existingEvent.title}" (${formatTime(existingEvent.startTime.hour, existingEvent.startTime.minute)} - ${formatTime(existingEvent.endTime.hour, existingEvent.endTime.minute)}) on ${newEvent.day}.`;
           }
         }
@@ -193,7 +191,7 @@ function EditSchedulerPanel({
           10,
         );
         setSearchResults(response.hits || []);
-        
+
         // Auto-scroll on mobile after search results are loaded
         if (isMobile && searchInput.length >= 1 && !hasScrolledToResults) {
           console.log('Scrolling after API response...', window.scrollY);
@@ -204,13 +202,12 @@ function EditSchedulerPanel({
           setTimeout(() => {
             window.scrollTo({
               top: 800,
-              behavior: 'smooth'
+              behavior: 'smooth',
             });
             console.log('After smooth scroll, scrollY:', window.scrollY);
           }, 50);
           setHasScrolledToResults(true);
         }
-
       } catch (error) {
         setSearchError(
           error instanceof Error ? error.message : 'Search failed',
@@ -231,19 +228,25 @@ function EditSchedulerPanel({
   ): void => {
     const newValue = event.target.value;
     setSearchInput(newValue);
-    
+
     // Only reset scroll flag when completely clearing the input
     if (newValue === '') {
       setHasScrolledToResults(false);
     }
   };
 
-  const loadCourseSections = async (course: ClassSearchResult) => {
-    if (!currentTerm || courseSections[course.courseId] || loadingSections[course.courseId]) {
+  const loadCourseSections = async (
+    course: ClassSearchResult,
+  ): Promise<void> => {
+    if (
+      !currentTerm ||
+      courseSections[course.courseId] ||
+      loadingSections[course.courseId]
+    ) {
       return;
     }
 
-    setLoadingSections(prev => ({ ...prev, [course.courseId]: true }));
+    setLoadingSections((prev) => ({ ...prev, [course.courseId]: true }));
 
     try {
       const courseDetails = await getCourseDetails(
@@ -258,7 +261,7 @@ function EditSchedulerPanel({
     } catch (error) {
       console.error('Failed to load course sections:', error);
     } finally {
-      setLoadingSections(prev => ({ ...prev, [course.courseId]: false }));
+      setLoadingSections((prev) => ({ ...prev, [course.courseId]: false }));
     }
   };
 
@@ -423,38 +426,43 @@ function EditSchedulerPanel({
     setSelectedClassId(null);
   };
 
-  const handleLectureChange = (courseId: string, lectureNumber: string) => {
-    setSelectedLecture(prev => ({
+  const handleLectureChange = (
+    courseId: string,
+    lectureNumber: string,
+  ): void => {
+    setSelectedLecture((prev) => ({
       ...prev,
-      [courseId]: lectureNumber
+      [courseId]: lectureNumber,
     }));
-    
+
     // Reset discussion selection when lecture changes
-    setSelectedDiscussion(prev => ({
+    setSelectedDiscussion((prev) => ({
       ...prev,
-      [courseId]: ''
+      [courseId]: '',
     }));
   };
 
-  const getLectureOptions = (course: ClassSearchResult) => {
+  const getLectureOptions = (course: ClassSearchResult): Section[] => {
     const sectionData = courseSections[course.courseId];
     if (!Array.isArray(sectionData)) return [];
-    
+
     const lectures: Section[] = [];
     const seenSections = new Set<string>();
 
-    (sectionData as EnrollmentPackage[]).forEach((enrollmentPackage: EnrollmentPackage) => {
-      enrollmentPackage.sections?.forEach((section: Section) => {
-        // Include LEC, LAB, and other non-DIS section types as "lectures"
-        if (section.type !== 'DIS') {
-          const sectionKey = `${section.type}-${section.sectionNumber}`;
-          if (!seenSections.has(sectionKey)) {
-            seenSections.add(sectionKey);
-            lectures.push(section);
+    (sectionData as EnrollmentPackage[]).forEach(
+      (enrollmentPackage: EnrollmentPackage) => {
+        enrollmentPackage.sections?.forEach((section: Section) => {
+          // Include LEC, LAB, and other non-DIS section types as "lectures"
+          if (section.type !== 'DIS') {
+            const sectionKey = `${section.type}-${section.sectionNumber}`;
+            if (!seenSections.has(sectionKey)) {
+              seenSections.add(sectionKey);
+              lectures.push(section);
+            }
           }
-        }
-      });
-    });
+        });
+      },
+    );
 
     return lectures.sort((a, b) => {
       const aNum = parseInt(a.sectionNumber || '0', 10);
@@ -463,26 +471,31 @@ function EditSchedulerPanel({
     });
   };
 
-  const getDiscussionOptions = (course: ClassSearchResult, selectedLectureNumber?: string) => {
+  const getDiscussionOptions = (
+    course: ClassSearchResult,
+    selectedLectureNumber?: string,
+  ): Section[] => {
     const sectionData = courseSections[course.courseId];
     if (!Array.isArray(sectionData)) return [];
-    
+
     // If no lecture is selected, return all discussions
     if (!selectedLectureNumber) {
       const discussions: Section[] = [];
       const seenSections = new Set<string>();
 
-      (sectionData as EnrollmentPackage[]).forEach((enrollmentPackage: EnrollmentPackage) => {
-        enrollmentPackage.sections?.forEach((section: Section) => {
-          if (section.type === 'DIS') {
-            const sectionKey = `${section.type}-${section.sectionNumber}`;
-            if (!seenSections.has(sectionKey)) {
-              seenSections.add(sectionKey);
-              discussions.push(section);
+      (sectionData as EnrollmentPackage[]).forEach(
+        (enrollmentPackage: EnrollmentPackage) => {
+          enrollmentPackage.sections?.forEach((section: Section) => {
+            if (section.type === 'DIS') {
+              const sectionKey = `${section.type}-${section.sectionNumber}`;
+              if (!seenSections.has(sectionKey)) {
+                seenSections.add(sectionKey);
+                discussions.push(section);
+              }
             }
-          }
-        });
-      });
+          });
+        },
+      );
 
       return discussions.sort((a, b) => {
         const aNum = parseInt(a.sectionNumber || '0', 10);
@@ -493,43 +506,52 @@ function EditSchedulerPanel({
 
     // Find the selected lecture first
     let selectedLecture: Section | null = null;
-    (sectionData as EnrollmentPackage[]).forEach((enrollmentPackage: EnrollmentPackage) => {
-      enrollmentPackage.sections?.forEach((section: Section) => {
-        if (section.type === 'LEC' && section.sectionNumber === selectedLectureNumber) {
-          selectedLecture = section;
-        }
-      });
-    });
+    (sectionData as EnrollmentPackage[]).forEach(
+      (enrollmentPackage: EnrollmentPackage) => {
+        enrollmentPackage.sections?.forEach((section: Section) => {
+          if (
+            section.type === 'LEC' &&
+            section.sectionNumber === selectedLectureNumber
+          ) {
+            selectedLecture = section;
+          }
+        });
+      },
+    );
 
     if (!selectedLecture) return [];
 
     // Get instructor of the selected lecture
-    const lectureInstructor = selectedLecture.instructors
-      ?.map((inst) => `${inst.name.first} ${inst.name.last}`)
-      .join(', ') || 'TBA';
+    const lectureInstructor =
+      selectedLecture.instructors
+        ?.map((inst) => `${inst.name.first} ${inst.name.last}`)
+        .join(', ') || 'TBA';
 
     // Find discussions with the same instructor
     const relatedDiscussions: Section[] = [];
     const seenSections = new Set<string>();
 
-    (sectionData as EnrollmentPackage[]).forEach((enrollmentPackage: EnrollmentPackage) => {
-      enrollmentPackage.sections?.forEach((section: Section) => {
-        if (section.type === 'DIS') {
-          const discussionInstructor = section.instructors
-            ?.map((inst) => `${inst.name.first} ${inst.name.last}`)
-            .join(', ') || 'TBA';
-          
-          // Match discussions with same instructor as the lecture
-          if (discussionInstructor === lectureInstructor) {
-            const sectionKey = `${section.type}-${section.sectionNumber}`;
-            if (!seenSections.has(sectionKey)) {
-              seenSections.add(sectionKey);
-              relatedDiscussions.push(section);
+    (sectionData as EnrollmentPackage[]).forEach(
+      (enrollmentPackage: EnrollmentPackage) => {
+        enrollmentPackage.sections?.forEach((section: Section) => {
+          if (section.type === 'DIS') {
+            const discussionInstructor =
+              section.instructors
+                ?.map((inst) => `${inst.name.first} ${inst.name.last}`)
+                .join(', ') || 'TBA';
+
+            // Match discussions with same instructor as the lecture
+            if (discussionInstructor === lectureInstructor) {
+              const sectionKey = `${section.type}-${section.sectionNumber}`;
+              if (!seenSections.has(sectionKey)) {
+                seenSections.add(sectionKey);
+                relatedDiscussions.push(section);
+              }
             }
           }
-        }
-      });
-    });
+        });
+      },
+    );
 
     return relatedDiscussions.sort((a, b) => {
       const aNum = parseInt(a.sectionNumber || '0', 10);
@@ -538,13 +560,16 @@ function EditSchedulerPanel({
     });
   };
 
-  const hasDiscussions = (course: ClassSearchResult) => {
+  const hasDiscussions = (course: ClassSearchResult): boolean => {
     const sectionData = courseSections[course.courseId];
     if (!Array.isArray(sectionData)) return false;
-    
+
     // Check if there are any discussion sections
-    return (sectionData as EnrollmentPackage[]).some((enrollmentPackage: EnrollmentPackage) =>
-      enrollmentPackage.sections?.some((section: Section) => section.type === 'DIS')
+    return (sectionData as EnrollmentPackage[]).some(
+      (enrollmentPackage: EnrollmentPackage) =>
+        enrollmentPackage.sections?.some(
+          (section: Section) => section.type === 'DIS',
+        ),
     );
   };
 
@@ -553,7 +578,7 @@ function EditSchedulerPanel({
     const adjustedTime = timeMs - offsetMs;
     const hour = Math.floor(adjustedTime / (1000 * 60 * 60));
     const minute = Math.floor((adjustedTime % (1000 * 60 * 60)) / (1000 * 60));
-    
+
     const period = hour >= 12 ? 'PM' : 'AM';
     const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
     return `${displayHour}:${minute.toString().padStart(2, '0')} ${period}`;
@@ -562,44 +587,14 @@ function EditSchedulerPanel({
   const formatDays = (daysList: string[]): string => {
     const dayMap: { [key: string]: string } = {
       MONDAY: 'M',
-      TUESDAY: 'T', 
+      TUESDAY: 'T',
       WEDNESDAY: 'W',
       THURSDAY: 'R',
       FRIDAY: 'F',
       SATURDAY: 'S',
-      SUNDAY: 'U'
+      SUNDAY: 'U',
     };
-    return daysList.map(day => dayMap[day] || day).join(', ');
-  };
-
-  const getSectionDisplayInfo = (section: Section) => {
-    const instructorNames = section.instructors
-      ?.map((inst: Instructor) => `${inst.name.first} ${inst.name.last}`)
-      .join(', ') || 'TBA';
-
-    let timeAndDays = 'TBA';
-    let building = 'TBA';
-
-    if (section.classMeetings && section.classMeetings.length > 0) {
-      const meeting = section.classMeetings[0];
-      
-      if (meeting.meetingTimeStart && meeting.meetingTimeEnd) {
-        const startTime = formatTime(meeting.meetingTimeStart);
-        const endTime = formatTime(meeting.meetingTimeEnd);
-        const days = formatDays(meeting.meetingDaysList || []);
-        timeAndDays = `${days} ${startTime}-${endTime}`;
-      } else if (meeting.building?.buildingName === 'ONLINE') {
-        timeAndDays = 'ONLINE';
-      }
-
-      if (meeting.building?.buildingName && meeting.room) {
-        building = `${meeting.building.buildingName} ${meeting.room}`;
-      } else if (meeting.building?.buildingName) {
-        building = meeting.building.buildingName;
-      }
-    }
-
-    return { instructorNames, timeAndDays, building };
+    return daysList.map((day) => dayMap[day] || day).join(', ');
   };
 
   return (
@@ -769,7 +764,9 @@ function EditSchedulerPanel({
                 <FormControl fullWidth>
                   <Select
                     value={selectedLecture[course.courseId] || ''}
-                    onChange={(e) => handleLectureChange(course.courseId, e.target.value)}
+                    onChange={(e) =>
+                      handleLectureChange(course.courseId, e.target.value)
+                    }
                     onOpen={() => loadCourseSections(course)}
                     displayEmpty
                     sx={{
@@ -814,28 +811,52 @@ function EditSchedulerPanel({
                       },
                     }}
                   >
-                    <MenuItem value="" sx={{ color: 'darkGrey.main', opacity: 0.7 }}>
-                      <Typography variant="body3" sx={{ color: 'darkGrey.main', opacity: 0.7 }}>
-                        {loadingSections[course.courseId] ? 'Loading sections...' : 'Select section'}
+                    <MenuItem
+                      value=""
+                      sx={{ color: 'darkGrey.main', opacity: 0.7 }}
+                    >
+                      <Typography
+                        variant="body3"
+                        sx={{ color: 'darkGrey.main', opacity: 0.7 }}
+                      >
+                        {loadingSections[course.courseId]
+                          ? 'Loading sections...'
+                          : 'Select section'}
                       </Typography>
                     </MenuItem>
                     {getLectureOptions(course).map((lecture) => {
-                      const instructorNames = lecture.instructors
-                        ?.map((inst: Instructor) => `${inst.name.first} ${inst.name.last}`)
-                        .join(', ') || 'TBA';
+                      const instructorNames =
+                        lecture.instructors
+                          ?.map(
+                            (inst: Instructor) =>
+                              `${inst.name.first} ${inst.name.last}`,
+                          )
+                          .join(', ') || 'TBA';
 
                       let timeDisplay = 'TBA';
                       let locationDisplay = 'TBA';
 
-                      if (lecture.classMeetings && lecture.classMeetings.length > 0) {
+                      if (
+                        lecture.classMeetings &&
+                        lecture.classMeetings.length > 0
+                      ) {
                         const meeting = lecture.classMeetings[0];
-                        
-                        if (meeting.meetingTimeStart && meeting.meetingTimeEnd) {
-                          const startTime = formatTime(meeting.meetingTimeStart);
+
+                        if (
+                          meeting.meetingTimeStart &&
+                          meeting.meetingTimeEnd
+                        ) {
+                          const startTime = formatTime(
+                            meeting.meetingTimeStart,
+                          );
                           const endTime = formatTime(meeting.meetingTimeEnd);
-                          const days = formatDays(meeting.meetingDaysList || []);
+                          const days = formatDays(
+                            meeting.meetingDaysList || [],
+                          );
                           timeDisplay = `${days} ${startTime}-${endTime}`;
-                        } else if (meeting.building?.buildingName === 'ONLINE') {
+                        } else if (
+                          meeting.building?.buildingName === 'ONLINE'
+                        ) {
                           timeDisplay = 'ONLINE';
                         }
 
@@ -846,23 +867,61 @@ function EditSchedulerPanel({
                         }
                       }
 
-                      const sectionType = lecture.type === 'LEC' ? 'Lecture' : 
-                                          lecture.type === 'LAB' ? 'Lab' : 
-                                          lecture.type;
-                      
+                      const sectionType =
+                        lecture.type === 'LEC'
+                          ? 'Lecture'
+                          : lecture.type === 'LAB'
+                            ? 'Lab'
+                            : lecture.type;
+
                       return (
-                        <MenuItem key={lecture.sectionNumber} value={lecture.sectionNumber} sx={{ display: 'block', whiteSpace: 'normal' }}>
-                          <Box sx={{ width: '100%', py: 1, display: 'flex', flexDirection: 'column' }}>
-                            <Typography variant="body2" sx={{ color: 'darkGrey.main', mb: 0.5, display: 'block' }}>
+                        <MenuItem
+                          key={lecture.sectionNumber}
+                          value={lecture.sectionNumber}
+                          sx={{ display: 'block', whiteSpace: 'normal' }}
+                        >
+                          <Box
+                            sx={{
+                              width: '100%',
+                              py: 1,
+                              display: 'flex',
+                              flexDirection: 'column',
+                            }}
+                          >
+                            <Typography
+                              variant="body2"
+                              sx={{
+                                color: 'darkGrey.main',
+                                mb: 0.5,
+                                display: 'block',
+                              }}
+                            >
                               {sectionType} {lecture.sectionNumber}
                             </Typography>
-                            <Typography variant="body3" sx={{ color: 'darkGrey.main', mb: 0.5, display: 'block' }}>
+                            <Typography
+                              variant="body3"
+                              sx={{
+                                color: 'darkGrey.main',
+                                mb: 0.5,
+                                display: 'block',
+                              }}
+                            >
                               {instructorNames}
                             </Typography>
-                            <Typography variant="body3" sx={{ color: 'darkGrey.main', mb: 0.5, display: 'block' }}>
+                            <Typography
+                              variant="body3"
+                              sx={{
+                                color: 'darkGrey.main',
+                                mb: 0.5,
+                                display: 'block',
+                              }}
+                            >
                               {timeDisplay}
                             </Typography>
-                            <Typography variant="body3" sx={{ color: 'darkGrey.main', display: 'block' }}>
+                            <Typography
+                              variant="body3"
+                              sx={{ color: 'darkGrey.main', display: 'block' }}
+                            >
                               {locationDisplay}
                             </Typography>
                           </Box>
@@ -873,14 +932,17 @@ function EditSchedulerPanel({
                 </FormControl>
 
                 {/* Discussion Dropdown - Only show if discussions exist */}
-                {(loadingSections[course.courseId] || hasDiscussions(course)) && (
+                {(loadingSections[course.courseId] ||
+                  hasDiscussions(course)) && (
                   <FormControl fullWidth>
                     <Select
                       value={selectedDiscussion[course.courseId] || ''}
-                      onChange={(e) => setSelectedDiscussion(prev => ({
-                        ...prev,
-                        [course.courseId]: e.target.value
-                      }))}
+                      onChange={(e) =>
+                        setSelectedDiscussion((prev) => ({
+                          ...prev,
+                          [course.courseId]: e.target.value,
+                        }))
+                      }
                       onOpen={() => loadCourseSections(course)}
                       displayEmpty
                       sx={{
@@ -925,33 +987,57 @@ function EditSchedulerPanel({
                         },
                       }}
                     >
-                      <MenuItem value="" sx={{ color: 'darkGrey.main', opacity: 0.7 }}>
-                        <Typography variant="body3" sx={{ color: 'darkGrey.main', opacity: 0.7 }}>
-                          {loadingSections[course.courseId] 
-                            ? 'Loading discussions...' 
-                            : selectedLecture[course.courseId] 
+                      <MenuItem
+                        value=""
+                        sx={{ color: 'darkGrey.main', opacity: 0.7 }}
+                      >
+                        <Typography
+                          variant="body3"
+                          sx={{ color: 'darkGrey.main', opacity: 0.7 }}
+                        >
+                          {loadingSections[course.courseId]
+                            ? 'Loading discussions...'
+                            : selectedLecture[course.courseId]
                               ? 'Select discussion for this section'
-                              : 'Select section first or choose any discussion'
-                          }
+                              : 'Select section first or choose any discussion'}
                         </Typography>
                       </MenuItem>
-                      {getDiscussionOptions(course, selectedLecture[course.courseId]).map((discussion) => {
-                        const instructorNames = discussion.instructors
-                          ?.map((inst: Instructor) => `${inst.name.first} ${inst.name.last}`)
-                          .join(', ') || 'TBA';
+                      {getDiscussionOptions(
+                        course,
+                        selectedLecture[course.courseId],
+                      ).map((discussion) => {
+                        const instructorNames =
+                          discussion.instructors
+                            ?.map(
+                              (inst: Instructor) =>
+                                `${inst.name.first} ${inst.name.last}`,
+                            )
+                            .join(', ') || 'TBA';
 
                         let timeDisplay = 'TBA';
                         let locationDisplay = 'TBA';
 
-                        if (discussion.classMeetings && discussion.classMeetings.length > 0) {
+                        if (
+                          discussion.classMeetings &&
+                          discussion.classMeetings.length > 0
+                        ) {
                           const meeting = discussion.classMeetings[0];
-                          
-                          if (meeting.meetingTimeStart && meeting.meetingTimeEnd) {
-                            const startTime = formatTime(meeting.meetingTimeStart);
+
+                          if (
+                            meeting.meetingTimeStart &&
+                            meeting.meetingTimeEnd
+                          ) {
+                            const startTime = formatTime(
+                              meeting.meetingTimeStart,
+                            );
                             const endTime = formatTime(meeting.meetingTimeEnd);
-                            const days = formatDays(meeting.meetingDaysList || []);
+                            const days = formatDays(
+                              meeting.meetingDaysList || [],
+                            );
                             timeDisplay = `${days} ${startTime}-${endTime}`;
-                          } else if (meeting.building?.buildingName === 'ONLINE') {
+                          } else if (
+                            meeting.building?.buildingName === 'ONLINE'
+                          ) {
                             timeDisplay = 'ONLINE';
                           }
 
@@ -961,20 +1047,58 @@ function EditSchedulerPanel({
                             locationDisplay = meeting.building.buildingName;
                           }
                         }
-                        
+
                         return (
-                          <MenuItem key={discussion.sectionNumber} value={discussion.sectionNumber} sx={{ display: 'block', whiteSpace: 'normal' }}>
-                            <Box sx={{ width: '100%', py: 1, display: 'flex', flexDirection: 'column' }}>
-                              <Typography variant="body2" sx={{ color: 'darkGrey.main', mb: 0.5, display: 'block' }}>
+                          <MenuItem
+                            key={discussion.sectionNumber}
+                            value={discussion.sectionNumber}
+                            sx={{ display: 'block', whiteSpace: 'normal' }}
+                          >
+                            <Box
+                              sx={{
+                                width: '100%',
+                                py: 1,
+                                display: 'flex',
+                                flexDirection: 'column',
+                              }}
+                            >
+                              <Typography
+                                variant="body2"
+                                sx={{
+                                  color: 'darkGrey.main',
+                                  mb: 0.5,
+                                  display: 'block',
+                                }}
+                              >
                                 Discussion {discussion.sectionNumber}
                               </Typography>
-                              <Typography variant="body3" sx={{ color: 'darkGrey.main', mb: 0.5, display: 'block' }}>
+                              <Typography
+                                variant="body3"
+                                sx={{
+                                  color: 'darkGrey.main',
+                                  mb: 0.5,
+                                  display: 'block',
+                                }}
+                              >
                                 {instructorNames}
                               </Typography>
-                              <Typography variant="body3" sx={{ color: 'darkGrey.main', mb: 0.5, display: 'block' }}>
+                              <Typography
+                                variant="body3"
+                                sx={{
+                                  color: 'darkGrey.main',
+                                  mb: 0.5,
+                                  display: 'block',
+                                }}
+                              >
                                 {timeDisplay}
                               </Typography>
-                              <Typography variant="body3" sx={{ color: 'darkGrey.main', display: 'block' }}>
+                              <Typography
+                                variant="body3"
+                                sx={{
+                                  color: 'darkGrey.main',
+                                  display: 'block',
+                                }}
+                              >
                                 {locationDisplay}
                               </Typography>
                             </Box>
@@ -1029,67 +1153,79 @@ function EditSchedulerPanel({
                   onClick={async () => {
                     // First load sections if not already loaded
                     await loadCourseSections(course);
-                    
+
                     const selectedLec = selectedLecture[course.courseId];
                     const selectedDisc = selectedDiscussion[course.courseId];
-                    
+
                     // User-friendly validation
                     if (!selectedLec && !selectedDisc) {
                       const courseHasDiscussions = hasDiscussions(course);
                       if (courseHasDiscussions) {
-                        alert('Please select at least a section or discussion to add.');
+                        alert(
+                          'Please select at least a section or discussion to add.',
+                        );
                       } else {
                         alert('Please select a section to add.');
                       }
                       return;
                     }
-                    
+
                     // Get available options
                     const lectureOptions = getLectureOptions(course);
-                    const discussionOptions = getDiscussionOptions(course, selectedLec);
-                    
+
                     // Add selected lecture
                     if (selectedLec) {
-                      const lecture = lectureOptions.find(l => l.sectionNumber === selectedLec);
+                      const lecture = lectureOptions.find(
+                        (l) => l.sectionNumber === selectedLec,
+                      );
                       if (lecture) {
                         await handleAddSection(course, lecture);
                       }
                     }
-                    
+
                     // Add selected discussion (with validation for lecture-discussion compatibility)
                     if (selectedDisc) {
                       // If lecture is selected, get discussions for that lecture only
-                      const availableDiscussions = selectedLec 
+                      const availableDiscussions = selectedLec
                         ? getDiscussionOptions(course, selectedLec)
                         : getDiscussionOptions(course);
-                      
-                      const discussion = availableDiscussions.find(d => d.sectionNumber === selectedDisc);
+
+                      const discussion = availableDiscussions.find(
+                        (d) => d.sectionNumber === selectedDisc,
+                      );
                       if (discussion) {
                         await handleAddSection(course, discussion);
                       } else if (selectedLec) {
-                        alert(`Discussion ${selectedDisc} is not available for the selected lecture. Please choose a different discussion or lecture.`);
+                        alert(
+                          `Discussion ${selectedDisc} is not available for the selected lecture. Please choose a different discussion or lecture.`,
+                        );
                         return;
                       }
                     }
-                    
+
                     // Success feedback
                     const addedSections = [];
                     if (selectedLec) {
-                      const lecture = lectureOptions.find(l => l.sectionNumber === selectedLec);
-                      const sectionType = lecture?.type === 'LEC' ? 'Lecture' : 
-                                          lecture?.type === 'LAB' ? 'Lab' : 
-                                          lecture?.type || 'Section';
+                      const lecture = lectureOptions.find(
+                        (l) => l.sectionNumber === selectedLec,
+                      );
+                      const sectionType =
+                        lecture?.type === 'LEC'
+                          ? 'Lecture'
+                          : lecture?.type === 'LAB'
+                            ? 'Lab'
+                            : lecture?.type || 'Section';
                       addedSections.push(`${sectionType} ${selectedLec}`);
                     }
-                    if (selectedDisc) addedSections.push(`Discussion ${selectedDisc}`);
-                    
+                    if (selectedDisc)
+                      addedSections.push(`Discussion ${selectedDisc}`);
+
                     // Keep selections after successful add for easy color testing
                   }}
                 >
                   Add
                 </Button>
               </Box>
-
             </React.Fragment>
           ))
         )}
@@ -1104,7 +1240,7 @@ function EditSchedulerPanel({
           selectedClassId ? classColors[selectedClassId] : undefined
         }
       />
-      
+
       {/* Time Conflict Modal */}
       <Modal
         open={isConflictModalOpen}
