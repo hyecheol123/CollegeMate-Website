@@ -94,6 +94,17 @@ function SchedulerTable({
     return hourLabel % 2 === 0 ? 'whiteGrey.main' : 'white.main';
   };
 
+  // Function to reorder location string to put building number first
+  const formatLocation = (location: string): string => {
+    // Match pattern: "Building Name Number" -> "Number Building Name"
+    const match = location.match(/^(.+?)\s+(\d+)$/);
+    if (match) {
+      const [, buildingName, number] = match;
+      return `${number} ${buildingName}`;
+    }
+    return location;
+  };
+
   const getHourLabel = (hour: number): string => {
     const hour12 = hour % 12 === 0 ? 12 : hour % 12;
     return `${hour12}`;
@@ -342,7 +353,7 @@ function SchedulerTable({
                         color: getTextColor(event.color),
                       }}
                     >
-                      {event.location}
+                      {formatLocation(event.location)}
                     </Typography>
                   )}
                 </Box>
