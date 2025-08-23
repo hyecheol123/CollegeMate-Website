@@ -316,13 +316,12 @@ function SchedulerTable({
                     align="center"
                     sx={{
                       wordWrap: 'break-word',
-                      whiteSpace: windowWidth < 768 ? 'normal' : 'nowrap',
-                      textOverflow: windowWidth < 768 ? 'unset' : 'ellipsis',
+                      whiteSpace: 'normal',
                       overflow: 'hidden',
                       width: '100%',
-                      fontSize: windowWidth < 768 ? '11px' : 'inherit',
+                      fontSize: event.title.length > 15 ? (windowWidth < 768 ? '9px' : '10px') : (windowWidth < 768 ? '11px' : '12px'),
                       fontWeight: windowWidth < 768 ? '500' : 'inherit',
-                      lineHeight: windowWidth < 768 ? '1.2' : 'inherit',
+                      lineHeight: '1.1',
                       color: getTextColor(event.color),
                     }}
                   >
@@ -333,14 +332,13 @@ function SchedulerTable({
                       variant="body2"
                       align="center"
                       sx={{
-                        fontSize: windowWidth < 768 ? '8px' : '10px',
+                        fontSize: event.location.length > 12 ? (windowWidth < 768 ? '7px' : '8px') : (windowWidth < 768 ? '8px' : '9px'),
                         opacity: 0.8,
-                        whiteSpace: windowWidth < 768 ? 'normal' : 'nowrap',
-                        textOverflow: windowWidth < 768 ? 'unset' : 'ellipsis',
+                        whiteSpace: 'normal',
                         overflow: 'hidden',
                         width: '100%',
                         marginTop: '1px',
-                        lineHeight: windowWidth < 768 ? '1.0' : 'inherit',
+                        lineHeight: '1.0',
                         color: getTextColor(event.color),
                       }}
                     >
