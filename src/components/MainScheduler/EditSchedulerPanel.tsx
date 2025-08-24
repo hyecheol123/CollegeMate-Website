@@ -1,6 +1,6 @@
 /**
  * Edit Scheduler Panel component for searching and adding classes
- * @author Claude AI Assistant
+ * @author Daekyun Kim <daekyun97@gmail.com>
  */
 
 // React
@@ -403,8 +403,14 @@ function EditSchedulerPanel({
 
     // Check for time conflicts before adding events
     const conflictMessage = checkTimeConflict(events);
+    
     if (conflictMessage) {
-      setPendingEvents(events);
+      setPendingEvents(prev => {
+        // Avoid duplicates by filtering out events with same ID
+        const existingIds = new Set(prev.map(e => e.id));
+        const newEvents = events.filter(e => !existingIds.has(e.id));
+        return [...prev, ...newEvents];
+      });
       setIsConflictModalOpen(true);
       return;
     }
@@ -425,10 +431,19 @@ function EditSchedulerPanel({
       pendingEvents.length > 0 &&
       onRemoveConflictingEvents
     ) {
-      // Remove conflicting events
+      // Remove conflicting events - check both time conflicts and same course
+      const eventsToRemove = new Set<string>();
+      
       for (const newEvent of pendingEvents) {
+        const newCourseId = newEvent.id.split('-')[0];
+        
         for (const existingEvent of existingEvents) {
-          if (newEvent.day === existingEvent.day) {
+          const existingCourseId = existingEvent.id.split('-')[0];
+          
+          // Remove if same course OR time conflict
+          if (newCourseId === existingCourseId) {
+            eventsToRemove.add(existingEvent.id);
+          } else if (newEvent.day === existingEvent.day) {
             const newStart =
               newEvent.startTime.hour * 60 + newEvent.startTime.minute;
             const newEnd = newEvent.endTime.hour * 60 + newEvent.endTime.minute;
@@ -439,11 +454,16 @@ function EditSchedulerPanel({
               existingEvent.endTime.hour * 60 + existingEvent.endTime.minute;
 
             if (newStart < existingEnd && newEnd > existingStart) {
-              onRemoveConflictingEvents(existingEvent.id);
+              eventsToRemove.add(existingEvent.id);
             }
           }
         }
       }
+      
+      // Remove all identified events
+      eventsToRemove.forEach(eventId => {
+        onRemoveConflictingEvents(eventId);
+      });
 
       // Add new events
       pendingEvents.forEach((event) => {
@@ -1590,6 +1610,9 @@ function EditSchedulerPanel({
                     },
                   }}
                   onClick={async () => {
+                    // Clear any existing pending events before starting
+                    setPendingEvents([]);
+                    
                     // First load sections if not already loaded
                     await loadCourseSections(course);
 

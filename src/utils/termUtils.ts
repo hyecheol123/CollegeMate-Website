@@ -1,6 +1,6 @@
 /**
  * Utility functions for handling UW-Madison term codes
- * @author Generated for CollegeMate
+ * @author Daekyun Kim <daekyun97@gmail.com>
  */
 
 import type { Term } from '../data/Terms/getTerms';
