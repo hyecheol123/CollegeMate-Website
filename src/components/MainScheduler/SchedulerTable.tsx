@@ -369,6 +369,7 @@ function SchedulerTable({
                     height: '100%',
                     padding: '2px 4px',
                     textAlign: 'center',
+                    overflow: 'hidden',
                   }}
                 >
                   <Typography
@@ -398,20 +399,18 @@ function SchedulerTable({
                       variant="body2"
                       align="center"
                       sx={{
-                        fontSize: event.location.length > 20 ? (windowWidth < 768 ? '6px' : '7px') : event.location.length > 12 ? (windowWidth < 768 ? '7px' : '8px') : (windowWidth < 768 ? '8px' : '9px'),
+                        fontSize: event.location.length > 30 ? (windowWidth < 768 ? '5px' : '6px') : event.location.length > 20 ? (windowWidth < 768 ? '6px' : '7px') : event.location.length > 12 ? (windowWidth < 768 ? '7px' : '8px') : (windowWidth < 768 ? '8px' : '9px'),
                         opacity: 0.8,
                         whiteSpace: 'normal',
                         overflow: 'hidden',
                         width: '100%',
                         marginTop: '1px',
-                        lineHeight: '1.0',
+                        lineHeight: '0.9',
                         color: getTextColor(event.color),
-                        textOverflow: 'ellipsis',
-                        display: '-webkit-box',
-                        WebkitLineClamp: 1,
-                        WebkitBoxOrient: 'vertical',
                         textAlign: 'center',
                         margin: '1px auto 0',
+                        wordBreak: 'break-word',
+                        hyphens: 'auto',
                       }}
                     >
                       {formatLocation(event.location)}
