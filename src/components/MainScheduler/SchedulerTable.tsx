@@ -184,8 +184,7 @@ function SchedulerTable({
     <Box
       sx={{
         width: '100%',
-        minWidth: windowWidth < 768 ? 'unset' : '600px',
-        overflow: windowWidth < 768 ? 'auto' : 'visible',
+        overflow: 'visible',
       }}
     >
       <Modal
