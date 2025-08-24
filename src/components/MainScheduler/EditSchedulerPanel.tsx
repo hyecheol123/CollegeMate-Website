@@ -112,6 +112,9 @@ function EditSchedulerPanel({
   const [selectedDiscussion, setSelectedDiscussion] = useState<{
     [key: string]: string;
   }>({});
+  const [selectedLab, setSelectedLab] = useState<{
+    [key: string]: string;
+  }>({});
   const [loadingSections, setLoadingSections] = useState<{
     [key: string]: boolean;
   }>({});
@@ -435,8 +438,12 @@ function EditSchedulerPanel({
       [courseId]: lectureNumber,
     }));
 
-    // Reset discussion selection when lecture changes
+    // Reset discussion and lab selection when lecture changes
     setSelectedDiscussion((prev) => ({
+      ...prev,
+      [courseId]: '',
+    }));
+    setSelectedLab((prev) => ({
       ...prev,
       [courseId]: '',
     }));
@@ -449,11 +456,16 @@ function EditSchedulerPanel({
     const lectures: Section[] = [];
     const seenSections = new Set<string>();
 
-    (sectionData as EnrollmentPackage[]).forEach(
-      (enrollmentPackage: EnrollmentPackage) => {
-        enrollmentPackage.sections?.forEach((section: Section) => {
-          // Include LEC, LAB, and other non-DIS section types as "lectures"
-          if (section.type !== 'DIS') {
+    (sectionData as any[]).forEach(
+      (enrollmentPackage: any) => {
+        // Skip closed sections
+        if (enrollmentPackage.packageEnrollmentStatus?.status === 'CLOSED') {
+          return;
+        }
+        
+        enrollmentPackage.sections?.forEach((section: any) => {
+          // Include only LEC and other non-DIS, non-LAB section types as "lectures"
+          if (section.type !== 'DIS' && section.type !== 'LAB') {
             const sectionKey = `${section.type}-${section.sectionNumber}`;
             if (!seenSections.has(sectionKey)) {
               seenSections.add(sectionKey);
@@ -483,9 +495,14 @@ function EditSchedulerPanel({
       const discussions: Section[] = [];
       const seenSections = new Set<string>();
 
-      (sectionData as EnrollmentPackage[]).forEach(
-        (enrollmentPackage: EnrollmentPackage) => {
-          enrollmentPackage.sections?.forEach((section: Section) => {
+      (sectionData as any[]).forEach(
+        (enrollmentPackage: any) => {
+          // Skip closed sections
+          if (enrollmentPackage.packageEnrollmentStatus?.status === 'CLOSED') {
+            return;
+          }
+          
+          enrollmentPackage.sections?.forEach((section: any) => {
             if (section.type === 'DIS') {
               const sectionKey = `${section.type}-${section.sectionNumber}`;
               if (!seenSections.has(sectionKey)) {
@@ -505,10 +522,10 @@ function EditSchedulerPanel({
     }
 
     // Find the selected lecture first
-    let selectedLecture: Section | null = null;
-    (sectionData as EnrollmentPackage[]).forEach(
-      (enrollmentPackage: EnrollmentPackage) => {
-        enrollmentPackage.sections?.forEach((section: Section) => {
+    let selectedLecture: any | null = null;
+    (sectionData as any[]).forEach(
+      (enrollmentPackage: any) => {
+        enrollmentPackage.sections?.forEach((section: any) => {
           if (
             section.type === 'LEC' &&
             section.sectionNumber === selectedLectureNumber
@@ -524,20 +541,25 @@ function EditSchedulerPanel({
     // Get instructor of the selected lecture
     const lectureInstructor =
       selectedLecture.instructors
-        ?.map((inst) => `${inst.name.first} ${inst.name.last}`)
+        ?.map((inst: any) => `${inst.name.first} ${inst.name.last}`)
         .join(', ') || 'TBA';
 
     // Find discussions with the same instructor
     const relatedDiscussions: Section[] = [];
     const seenSections = new Set<string>();
 
-    (sectionData as EnrollmentPackage[]).forEach(
-      (enrollmentPackage: EnrollmentPackage) => {
-        enrollmentPackage.sections?.forEach((section: Section) => {
+    (sectionData as any[]).forEach(
+      (enrollmentPackage: any) => {
+        // Skip closed sections
+        if (enrollmentPackage.packageEnrollmentStatus?.status === 'CLOSED') {
+          return;
+        }
+        
+        enrollmentPackage.sections?.forEach((section: any) => {
           if (section.type === 'DIS') {
             const discussionInstructor =
               section.instructors
-                ?.map((inst) => `${inst.name.first} ${inst.name.last}`)
+                ?.map((inst: any) => `${inst.name.first} ${inst.name.last}`)
                 .join(', ') || 'TBA';
 
             // Match discussions with same instructor as the lecture
@@ -560,6 +582,99 @@ function EditSchedulerPanel({
     });
   };
 
+  const getLabOptions = (
+    course: ClassSearchResult,
+    selectedLectureNumber?: string,
+  ): Section[] => {
+    const sectionData = courseSections[course.courseId];
+    if (!Array.isArray(sectionData)) return [];
+
+    // If no lecture is selected, return all labs
+    if (!selectedLectureNumber) {
+      const labs: Section[] = [];
+      const seenSections = new Set<string>();
+
+      (sectionData as any[]).forEach(
+        (enrollmentPackage: any) => {
+          // Skip closed sections
+          if (enrollmentPackage.packageEnrollmentStatus?.status === 'CLOSED') {
+            return;
+          }
+          
+          enrollmentPackage.sections?.forEach((section: any) => {
+            if (section.type === 'LAB') {
+              const sectionKey = `${section.type}-${section.sectionNumber}`;
+              if (!seenSections.has(sectionKey)) {
+                seenSections.add(sectionKey);
+                labs.push(section);
+              }
+            }
+          });
+        },
+      );
+
+      return labs.sort((a, b) => {
+        const aNum = parseInt(a.sectionNumber || '0', 10);
+        const bNum = parseInt(b.sectionNumber || '0', 10);
+        return aNum - bNum;
+      });
+    }
+
+    // If lecture is selected, find related labs based on instructor matching
+    const selectedLectureSection = getLectureOptions(course).find(
+      (lec) => lec.sectionNumber === selectedLectureNumber,
+    );
+
+    if (!selectedLectureSection) return [];
+
+    const lectureInstructorNames = new Set(
+      selectedLectureSection.instructors?.map(
+        (inst: any) => `${inst.name.first} ${inst.name.last}`,
+      ) || [],
+    );
+
+    const relatedLabs: Section[] = [];
+    const seenSections = new Set<string>();
+
+    (sectionData as any[]).forEach(
+      (enrollmentPackage: any) => {
+        // Skip closed sections
+        if (enrollmentPackage.packageEnrollmentStatus?.status === 'CLOSED') {
+          return;
+        }
+        
+        enrollmentPackage.sections?.forEach((section: any) => {
+          if (section.type === 'LAB') {
+            const sectionKey = `${section.type}-${section.sectionNumber}`;
+            if (!seenSections.has(sectionKey)) {
+              // Check if lab has matching instructor with selected lecture
+              const labInstructorNames = new Set(
+                section.instructors?.map(
+                  (inst: any) => `${inst.name.first} ${inst.name.last}`,
+                ) || [],
+              );
+
+              const hasMatchingInstructor = Array.from(
+                lectureInstructorNames,
+              ).some((name) => labInstructorNames.has(name));
+
+              if (hasMatchingInstructor || lectureInstructorNames.size === 0) {
+                seenSections.add(sectionKey);
+                relatedLabs.push(section);
+              }
+            }
+          }
+        });
+      },
+    );
+
+    return relatedLabs.sort((a, b) => {
+      const aNum = parseInt(a.sectionNumber || '0', 10);
+      const bNum = parseInt(b.sectionNumber || '0', 10);
+      return aNum - bNum;
+    });
+  };
+
   const hasDiscussions = (course: ClassSearchResult): boolean => {
     const sectionData = courseSections[course.courseId];
     if (!Array.isArray(sectionData)) return false;
@@ -569,6 +684,19 @@ function EditSchedulerPanel({
       (enrollmentPackage: EnrollmentPackage) =>
         enrollmentPackage.sections?.some(
           (section: Section) => section.type === 'DIS',
+        ),
+    );
+  };
+
+  const hasLabs = (course: ClassSearchResult): boolean => {
+    const sectionData = courseSections[course.courseId];
+    if (!Array.isArray(sectionData)) return false;
+
+    // Check if there are any lab sections
+    return (sectionData as EnrollmentPackage[]).some(
+      (enrollmentPackage: EnrollmentPackage) =>
+        enrollmentPackage.sections?.some(
+          (section: Section) => section.type === 'LAB',
         ),
     );
   };
@@ -840,26 +968,23 @@ function EditSchedulerPanel({
                         lecture.classMeetings &&
                         lecture.classMeetings.length > 0
                       ) {
+                        // Show all meeting times
+                        const timeSlots = lecture.classMeetings.map(meeting => {
+                          if (meeting.meetingTimeStart && meeting.meetingTimeEnd) {
+                            const startTime = formatTime(meeting.meetingTimeStart);
+                            const endTime = formatTime(meeting.meetingTimeEnd);
+                            const days = formatDays(meeting.meetingDaysList || []);
+                            return `${days} ${startTime}-${endTime}`;
+                          } else if (meeting.building?.buildingName === 'ONLINE') {
+                            return 'ONLINE';
+                          }
+                          return null;
+                        }).filter(Boolean);
+                        
+                        timeDisplay = timeSlots.length > 0 ? timeSlots.join(', ') : 'TBA';
+
+                        // Use the first meeting for location display
                         const meeting = lecture.classMeetings[0];
-
-                        if (
-                          meeting.meetingTimeStart &&
-                          meeting.meetingTimeEnd
-                        ) {
-                          const startTime = formatTime(
-                            meeting.meetingTimeStart,
-                          );
-                          const endTime = formatTime(meeting.meetingTimeEnd);
-                          const days = formatDays(
-                            meeting.meetingDaysList || [],
-                          );
-                          timeDisplay = `${days} ${startTime}-${endTime}`;
-                        } else if (
-                          meeting.building?.buildingName === 'ONLINE'
-                        ) {
-                          timeDisplay = 'ONLINE';
-                        }
-
                         if (meeting.building?.buildingName && meeting.room) {
                           locationDisplay = `${meeting.building.buildingName} ${meeting.room}`;
                         } else if (meeting.building?.buildingName) {
@@ -1109,6 +1234,184 @@ function EditSchedulerPanel({
                   </FormControl>
                 )}
 
+                {/* Lab Dropdown - Only show if labs exist */}
+                {(loadingSections[course.courseId] ||
+                  hasLabs(course)) && (
+                  <FormControl fullWidth>
+                    <Select
+                      value={selectedLab[course.courseId] || ''}
+                      onChange={(e) =>
+                        setSelectedLab((prev) => ({
+                          ...prev,
+                          [course.courseId]: e.target.value,
+                        }))
+                      }
+                      onOpen={() => loadCourseSections(course)}
+                      displayEmpty
+                      sx={{
+                        backgroundColor: 'white.main',
+                        border: '1px solid',
+                        borderColor: 'grey.main',
+                        borderRadius: '6px',
+                        '& .MuiSelect-select': {
+                          padding: '8px 12px',
+                        },
+                        '& .MuiOutlinedInput-notchedOutline': {
+                          border: 'none',
+                        },
+                        '&:hover .MuiOutlinedInput-notchedOutline': {
+                          border: 'none',
+                        },
+                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                          border: '1px solid',
+                          borderColor: 'red.main',
+                        },
+                      }}
+                      MenuProps={{
+                        PaperProps: {
+                          sx: {
+                            maxHeight: 400,
+                            maxWidth: 400,
+                            '& .MuiMenuItem-root': {
+                              whiteSpace: 'normal',
+                              height: 'auto',
+                              minHeight: 'auto',
+                              maxWidth: '100%',
+                            },
+                          },
+                        },
+                        anchorOrigin: {
+                          vertical: 'bottom',
+                          horizontal: 'left',
+                        },
+                        transformOrigin: {
+                          vertical: 'top',
+                          horizontal: 'left',
+                        },
+                      }}
+                    >
+                      <MenuItem
+                        value=""
+                        sx={{ color: 'darkGrey.main', opacity: 0.7 }}
+                      >
+                        <Typography
+                          variant="body3"
+                          sx={{ color: 'darkGrey.main', opacity: 0.7 }}
+                        >
+                          {loadingSections[course.courseId]
+                            ? 'Loading labs...'
+                            : selectedLecture[course.courseId]
+                              ? 'Select lab for this section'
+                              : 'Select section first or choose any lab'}
+                        </Typography>
+                      </MenuItem>
+                      {getLabOptions(
+                        course,
+                        selectedLecture[course.courseId],
+                      ).map((lab) => {
+                        const instructorNames =
+                          lab.instructors
+                            ?.map(
+                              (inst: Instructor) =>
+                                `${inst.name.first} ${inst.name.last}`,
+                            )
+                            .join(', ') || 'TBA';
+
+                        let timeDisplay = 'TBA';
+                        let locationDisplay = 'TBA';
+
+                        if (
+                          lab.classMeetings &&
+                          lab.classMeetings.length > 0
+                        ) {
+                          const meeting = lab.classMeetings[0];
+
+                          if (
+                            meeting.meetingTimeStart &&
+                            meeting.meetingTimeEnd
+                          ) {
+                            const startTime = formatTime(
+                              meeting.meetingTimeStart,
+                            );
+                            const endTime = formatTime(meeting.meetingTimeEnd);
+                            const days = formatDays(
+                              meeting.meetingDaysList || [],
+                            );
+                            timeDisplay = `${days} ${startTime}-${endTime}`;
+                          } else if (
+                            meeting.building?.buildingName === 'ONLINE'
+                          ) {
+                            timeDisplay = 'ONLINE';
+                          }
+
+                          if (meeting.building?.buildingName && meeting.room) {
+                            locationDisplay = `${meeting.building.buildingName} ${meeting.room}`;
+                          } else if (meeting.building?.buildingName) {
+                            locationDisplay = meeting.building.buildingName;
+                          }
+                        }
+
+                        return (
+                          <MenuItem
+                            key={lab.sectionNumber}
+                            value={lab.sectionNumber}
+                            sx={{ display: 'block', whiteSpace: 'normal' }}
+                          >
+                            <Box
+                              sx={{
+                                width: '100%',
+                                py: 1,
+                                display: 'flex',
+                                flexDirection: 'column',
+                              }}
+                            >
+                              <Typography
+                                variant="body2"
+                                sx={{
+                                  color: 'darkGrey.main',
+                                  mb: 0.5,
+                                  display: 'block',
+                                }}
+                              >
+                                Lab {lab.sectionNumber}
+                              </Typography>
+                              <Typography
+                                variant="body3"
+                                sx={{
+                                  color: 'darkGrey.main',
+                                  mb: 0.5,
+                                  display: 'block',
+                                }}
+                              >
+                                {instructorNames}
+                              </Typography>
+                              <Typography
+                                variant="body3"
+                                sx={{
+                                  color: 'darkGrey.main',
+                                  mb: 0.5,
+                                  display: 'block',
+                                }}
+                              >
+                                {timeDisplay}
+                              </Typography>
+                              <Typography
+                                variant="body3"
+                                sx={{
+                                  color: 'darkGrey.main',
+                                  display: 'block',
+                                }}
+                              >
+                                {locationDisplay}
+                              </Typography>
+                            </Box>
+                          </MenuItem>
+                        );
+                      })}
+                    </Select>
+                  </FormControl>
+                )}
+
                 {/* Color Button */}
                 <Button
                   variant="outlined"
@@ -1156,13 +1459,23 @@ function EditSchedulerPanel({
 
                     const selectedLec = selectedLecture[course.courseId];
                     const selectedDisc = selectedDiscussion[course.courseId];
+                    const selectedLabSection = selectedLab[course.courseId];
 
                     // User-friendly validation
-                    if (!selectedLec && !selectedDisc) {
+                    if (!selectedLec && !selectedDisc && !selectedLabSection) {
                       const courseHasDiscussions = hasDiscussions(course);
-                      if (courseHasDiscussions) {
+                      const courseHasLabs = hasLabs(course);
+                      if (courseHasDiscussions && courseHasLabs) {
+                        alert(
+                          'Please select at least a section, discussion, or lab to add.',
+                        );
+                      } else if (courseHasDiscussions) {
                         alert(
                           'Please select at least a section or discussion to add.',
+                        );
+                      } else if (courseHasLabs) {
+                        alert(
+                          'Please select at least a section or lab to add.',
                         );
                       } else {
                         alert('Please select a section to add.');
@@ -1203,6 +1516,26 @@ function EditSchedulerPanel({
                       }
                     }
 
+                    // Add selected lab (with validation for lecture-lab compatibility)
+                    if (selectedLabSection) {
+                      // If lecture is selected, get labs for that lecture only
+                      const availableLabs = selectedLec
+                        ? getLabOptions(course, selectedLec)
+                        : getLabOptions(course);
+
+                      const lab = availableLabs.find(
+                        (l) => l.sectionNumber === selectedLabSection,
+                      );
+                      if (lab) {
+                        await handleAddSection(course, lab);
+                      } else if (selectedLec) {
+                        alert(
+                          `Lab ${selectedLabSection} is not available for the selected lecture. Please choose a different lab or lecture.`,
+                        );
+                        return;
+                      }
+                    }
+
                     // Success feedback
                     const addedSections = [];
                     if (selectedLec) {
@@ -1219,6 +1552,8 @@ function EditSchedulerPanel({
                     }
                     if (selectedDisc)
                       addedSections.push(`Discussion ${selectedDisc}`);
+                    if (selectedLabSection)
+                      addedSections.push(`Lab ${selectedLabSection}`);
 
                     // Keep selections after successful add for easy color testing
                   }}
