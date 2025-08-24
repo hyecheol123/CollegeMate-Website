@@ -31,6 +31,8 @@ import SearchIcon from '@mui/icons-material/Search';
 // Components
 import ColorSelectionModal from '../Common/ColorSelectionModal';
 import type { Term } from '../../data/Terms/getTerms';
+// Utils
+import { normalizeBuildingNameMemo } from '../../utils/buildingNameNormalizer';
 
 // Local interfaces for API data
 interface Instructor {
@@ -197,19 +199,18 @@ function EditSchedulerPanel({
         );
         setSearchResults(response.hits || []);
 
-        // Auto-scroll on mobile after search results are loaded
-        if (isMobile && searchInput.length >= 1 && !hasScrolledToResults) {
-          // Try immediate scroll first
-          window.scrollTo(0, 800);
-          // Then try smooth scroll
-          setTimeout(() => {
-            window.scrollTo({
-              top: 800,
-              behavior: 'smooth',
-            });
-          }, 50);
-          setHasScrolledToResults(true);
-        }
+        // Auto-scroll on mobile after search results are loaded (DISABLED - causing scroll issues)
+        // if (isMobile && searchInput.length >= 1 && !hasScrolledToResults && window.scrollY < 100) {
+        //   setTimeout(() => {
+        //     if (window.scrollY < 100) {
+        //       window.scrollTo({
+        //         top: 800,
+        //         behavior: 'smooth',
+        //       });
+        //     }
+        //   }, 100);
+        //   setHasScrolledToResults(true);
+        // }
       } catch (error) {
         setSearchError(
           error instanceof Error ? error.message : 'Search failed',
@@ -389,11 +390,11 @@ function EditSchedulerPanel({
           color: selectedColor,
           location:
             meeting.building?.buildingName === 'ONLINE'
-              ? 'ONLINE'
+              ? 'Online'
               : meeting.building?.buildingName && meeting.room
-                ? `${meeting.building.buildingName} ${meeting.room}`
+                ? `${normalizeBuildingNameMemo(meeting.building.buildingName)} ${meeting.room}`
                 : meeting.building?.buildingName
-                  ? meeting.building.buildingName
+                  ? normalizeBuildingNameMemo(meeting.building.buildingName)
                   : 'TBA',
           instructor: instructorNames,
           credits,
@@ -426,6 +427,8 @@ function EditSchedulerPanel({
   };
 
   const handleConflictResolve = (keepExisting: boolean): void => {
+    console.log('🔄 handleConflictResolve called:', { keepExisting, pendingEvents: pendingEvents.length, existingEvents: existingEvents.length });
+    
     if (
       !keepExisting &&
       pendingEvents.length > 0 &&
@@ -434,39 +437,54 @@ function EditSchedulerPanel({
       // Remove conflicting events - check both time conflicts and same course
       const eventsToRemove = new Set<string>();
       
+      console.log('📋 Pending events:', pendingEvents.map(e => ({ id: e.id, title: e.title, day: e.day, time: `${e.startTime.hour}:${e.startTime.minute}-${e.endTime.hour}:${e.endTime.minute}` })));
+      console.log('📋 Existing events:', existingEvents.map(e => ({ id: e.id, title: e.title, day: e.day, time: `${e.startTime.hour}:${e.startTime.minute}-${e.endTime.hour}:${e.endTime.minute}` })));
+      
+      // Simple logic: Find time conflicts, then remove entire conflicting courses
+      const conflictingCourseIds = new Set<string>();
+      
+      // Find all courses that have time conflicts
       for (const newEvent of pendingEvents) {
-        const newCourseId = newEvent.id.split('-')[0];
+        console.log(`🆕 Checking conflicts for: ${newEvent.id}`);
         
         for (const existingEvent of existingEvents) {
-          const existingCourseId = existingEvent.id.split('-')[0];
-          
-          // Remove if same course OR time conflict
-          if (newCourseId === existingCourseId) {
-            eventsToRemove.add(existingEvent.id);
-          } else if (newEvent.day === existingEvent.day) {
-            const newStart =
-              newEvent.startTime.hour * 60 + newEvent.startTime.minute;
+          // Check time conflicts
+          if (newEvent.day === existingEvent.day) {
+            const newStart = newEvent.startTime.hour * 60 + newEvent.startTime.minute;
             const newEnd = newEvent.endTime.hour * 60 + newEvent.endTime.minute;
-            const existingStart =
-              existingEvent.startTime.hour * 60 +
-              existingEvent.startTime.minute;
-            const existingEnd =
-              existingEvent.endTime.hour * 60 + existingEvent.endTime.minute;
+            const existingStart = existingEvent.startTime.hour * 60 + existingEvent.startTime.minute;
+            const existingEnd = existingEvent.endTime.hour * 60 + existingEvent.endTime.minute;
 
             if (newStart < existingEnd && newEnd > existingStart) {
-              eventsToRemove.add(existingEvent.id);
+              const conflictingCourseId = existingEvent.id.split('-')[0];
+              console.log(`⏰ TIME CONFLICT: ${newEvent.id} conflicts with ${existingEvent.id}`);
+              console.log(`📚 Will remove entire course: ${conflictingCourseId}`);
+              conflictingCourseIds.add(conflictingCourseId);
             }
           }
         }
       }
       
+      // Remove all events from conflicting courses
+      for (const existingEvent of existingEvents) {
+        const existingCourseId = existingEvent.id.split('-')[0];
+        if (conflictingCourseIds.has(existingCourseId)) {
+          console.log(`🗑️ Removing event from conflicting course: ${existingEvent.id}`);
+          eventsToRemove.add(existingEvent.id);
+        }
+      }
+      
+      console.log('🗑️ Events to remove:', Array.from(eventsToRemove));
+      
       // Remove all identified events
       eventsToRemove.forEach(eventId => {
+        console.log(`🗑️ Removing event: ${eventId}`);
         onRemoveConflictingEvents(eventId);
       });
 
       // Add new events
       pendingEvents.forEach((event) => {
+        console.log(`➕ Adding new event: ${event.id}`);
         onAddEvent?.(event);
       });
     }
@@ -879,9 +897,9 @@ function EditSchedulerPanel({
 
       {/* Results Header */}
       <Typography
-        variant="body2"
+        variant="body3"
         sx={{
-          marginBottom: isMobile ? '12px' : '6px',
+          marginBottom: '0px',
           marginLeft: isMobile ? '-10px' : '0px',
         }}
       >
@@ -899,7 +917,12 @@ function EditSchedulerPanel({
       {/* Class List */}
       <Box
         ref={resultsRef}
-        sx={{ display: 'flex', flexDirection: 'column', gap: '12px' }}
+        sx={{ 
+          display: 'flex', 
+          flexDirection: 'column', 
+          gap: '12px',
+          marginTop: isMobile ? '8px' : '6px'
+        }}
       >
         {searchError ? (
           <Card sx={{ padding: '20px', textAlign: 'center' }}>
@@ -908,17 +931,7 @@ function EditSchedulerPanel({
             </Typography>
           </Card>
         ) : searchResults.length === 0 && searchInput.trim() && !isSearching ? (
-          <Card
-            sx={{
-              padding: '20px',
-              textAlign: 'center',
-              marginBottom: isMobile ? '8px' : '0px',
-            }}
-          >
-            <Typography variant="body2">
-              No classes found matching your search.
-            </Typography>
-          </Card>
+          null
         ) : (
           searchResults.map((course, index) => (
             <React.Fragment
@@ -1117,10 +1130,10 @@ function EditSchedulerPanel({
                             classMeeting?.building?.buildingName &&
                             classMeeting.room
                           ) {
-                            locationDisplay = `${classMeeting.building.buildingName} ${classMeeting.room}`;
+                            locationDisplay = `${normalizeBuildingNameMemo(classMeeting.building.buildingName)} ${classMeeting.room}`;
                           } else if (classMeeting?.building?.buildingName) {
                             locationDisplay =
-                              classMeeting.building.buildingName;
+                              normalizeBuildingNameMemo(classMeeting.building.buildingName);
                           }
                         }
 
@@ -1309,13 +1322,13 @@ function EditSchedulerPanel({
                           } else if (
                             meeting.building?.buildingName === 'ONLINE'
                           ) {
-                            timeDisplay = 'ONLINE';
+                            timeDisplay = 'Online';
                           }
 
                           if (meeting.building?.buildingName && meeting.room) {
-                            locationDisplay = `${meeting.building.buildingName} ${meeting.room}`;
+                            locationDisplay = `${normalizeBuildingNameMemo(meeting.building.buildingName)} ${meeting.room}`;
                           } else if (meeting.building?.buildingName) {
-                            locationDisplay = meeting.building.buildingName;
+                            locationDisplay = normalizeBuildingNameMemo(meeting.building.buildingName);
                           }
                         }
 
@@ -1494,13 +1507,13 @@ function EditSchedulerPanel({
                           } else if (
                             meeting.building?.buildingName === 'ONLINE'
                           ) {
-                            timeDisplay = 'ONLINE';
+                            timeDisplay = 'Online';
                           }
 
                           if (meeting.building?.buildingName && meeting.room) {
-                            locationDisplay = `${meeting.building.buildingName} ${meeting.room}`;
+                            locationDisplay = `${normalizeBuildingNameMemo(meeting.building.buildingName)} ${meeting.room}`;
                           } else if (meeting.building?.buildingName) {
-                            locationDisplay = meeting.building.buildingName;
+                            locationDisplay = normalizeBuildingNameMemo(meeting.building.buildingName);
                           }
                         }
 
