@@ -854,6 +854,8 @@ function EditSchedulerPanel({
                     cursor: 'pointer',
                     border: '1px solid',
                     borderColor: 'grey.main',
+                    display: 'flex',
+                    flexDirection: 'column',
                     '&:hover': {
                       backgroundColor: 'grey.main',
                     },
@@ -882,9 +884,26 @@ function EditSchedulerPanel({
                     variant="body3"
                     sx={{
                       color: 'darkGrey.main',
+                      marginBottom: '8px',
                     }}
                   >
                     {course.subject.formalDescription}
+                  </Typography>
+                  <Typography
+                    variant="body3"
+                    sx={{
+                      color: 'darkGrey.main',
+                    }}
+                  >
+                    {course.credits?.min && course.credits?.max
+                      ? course.credits.min === course.credits.max
+                        ? `${course.credits.min} credits`
+                        : `${course.credits.min}-${course.credits.max} credits`
+                      : course.minimumCredits && course.maximumCredits
+                        ? course.minimumCredits === course.maximumCredits
+                          ? `${course.minimumCredits} credits`
+                          : `${course.minimumCredits}-${course.maximumCredits} credits`
+                        : 'Credits TBA'}
                   </Typography>
                 </Box>
 
