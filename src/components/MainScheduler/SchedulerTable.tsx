@@ -89,24 +89,13 @@ function SchedulerTable({
   };
 
   const handleRemoveEvent = (eventId: string): void => {
-    console.log('handleRemoveEvent called with:', eventId);
     if (onRemoveEvent) {
-      console.log('Calling onRemoveEvent for:', eventId);
       onRemoveEvent(eventId);
     }
   };
 
   const handleEventClick = (eventId: string): void => {
-    console.log(
-      'handleEventClick called with:',
-      eventId,
-      'isEditMode:',
-      isEditMode,
-      'onEventColorChange:',
-      !!onEventColorChange,
-    );
     if (isEditMode && onEventColorChange) {
-      console.log('Opening color modal for event:', eventId);
       setSelectedEventId(eventId);
       setIsColorModalOpen(true);
     }
@@ -363,18 +352,10 @@ function SchedulerTable({
                       : {},
                   }}
                   onClick={(e) => {
-                    console.log(
-                      'Block clicked:',
-                      event.id,
-                      'target:',
-                      e.target,
-                    );
                     if (!isEditMode) {
-                      console.log('Not in edit mode, returning');
                       return;
                     }
                     e.stopPropagation();
-                    console.log('Calling handleEventClick for:', event.id);
                     handleEventClick(event.id);
                   }}
                 >
@@ -482,7 +463,6 @@ function SchedulerTable({
                       justifyContent: 'center',
                     }}
                     onClick={(e): void => {
-                      console.log('X button clicked for:', event.id);
                       e.stopPropagation();
                       handleRemoveEvent(event.id);
                     }}

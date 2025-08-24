@@ -210,17 +210,14 @@ function EditSchedulerPanel({
 
         // Auto-scroll on mobile after search results are loaded
         if (isMobile && searchInput.length >= 1 && !hasScrolledToResults) {
-          console.log('Scrolling after API response...', window.scrollY);
           // Try immediate scroll first
           window.scrollTo(0, 800);
-          console.log('After immediate scroll, scrollY:', window.scrollY);
           // Then try smooth scroll
           setTimeout(() => {
             window.scrollTo({
               top: 800,
               behavior: 'smooth',
             });
-            console.log('After smooth scroll, scrollY:', window.scrollY);
           }, 50);
           setHasScrolledToResults(true);
         }
