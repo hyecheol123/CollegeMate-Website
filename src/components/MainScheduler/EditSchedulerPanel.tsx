@@ -132,6 +132,15 @@ function EditSchedulerPanel({
     });
   }, []);
 
+  // Auto-load sections when search results change
+  React.useEffect(() => {
+    searchResults.forEach((course) => {
+      if (!courseSections[course.courseId]) {
+        loadCourseSections(course);
+      }
+    });
+  }, [searchResults]);
+
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const resultsRef = React.useRef<HTMLDivElement>(null);
@@ -919,7 +928,6 @@ function EditSchedulerPanel({
                     onChange={(e) =>
                       handleLectureChange(course.courseId, e.target.value)
                     }
-                    onOpen={() => loadCourseSections(course)}
                     displayEmpty
                     sx={{
                       backgroundColor: 'white.main',
@@ -943,8 +951,7 @@ function EditSchedulerPanel({
                     MenuProps={{
                       PaperProps: {
                         sx: {
-                          maxHeight: 400,
-                          maxWidth: 400,
+                          maxHeight: '40vh',
                           '& .MuiMenuItem-root': {
                             whiteSpace: 'normal',
                             height: 'auto',
@@ -1037,6 +1044,7 @@ function EditSchedulerPanel({
                               py: 1,
                               display: 'flex',
                               flexDirection: 'column',
+                              overflow: 'visible',
                             }}
                           >
                             <Typography
@@ -1054,7 +1062,13 @@ function EditSchedulerPanel({
                               sx={{
                                 color: 'darkGrey.main',
                                 mb: 0.5,
-                                display: 'block',
+                                whiteSpace: 'normal',
+                                wordWrap: 'break-word',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                display: '-webkit-box',
+                                WebkitLineClamp: 2,
+                                WebkitBoxOrient: 'vertical',
                               }}
                             >
                               {instructorNames}
@@ -1095,8 +1109,7 @@ function EditSchedulerPanel({
                           [course.courseId]: e.target.value,
                         }))
                       }
-                      onOpen={() => loadCourseSections(course)}
-                      displayEmpty
+                        displayEmpty
                       sx={{
                         backgroundColor: 'white.main',
                         border: '1px solid',
@@ -1119,13 +1132,13 @@ function EditSchedulerPanel({
                       MenuProps={{
                         PaperProps: {
                           sx: {
-                            maxHeight: 400,
-                            maxWidth: 400,
+                            maxHeight: '40vh',
                             '& .MuiMenuItem-root': {
                               whiteSpace: 'normal',
                               height: 'auto',
                               minHeight: 'auto',
                               maxWidth: '100%',
+                              padding: '8px 16px',
                             },
                           },
                         },
@@ -1137,6 +1150,9 @@ function EditSchedulerPanel({
                           vertical: 'top',
                           horizontal: 'left',
                         },
+                        disableAutoFocusItem: true,
+                        autoFocus: false,
+                        variant: 'menu',
                       }}
                     >
                       <MenuItem
@@ -1229,7 +1245,13 @@ function EditSchedulerPanel({
                                 sx={{
                                   color: 'darkGrey.main',
                                   mb: 0.5,
-                                  display: 'block',
+                                  whiteSpace: 'normal',
+                                  wordWrap: 'break-word',
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                  display: '-webkit-box',
+                                  WebkitLineClamp: 2,
+                                  WebkitBoxOrient: 'vertical',
                                 }}
                               >
                                 {instructorNames}
@@ -1273,8 +1295,7 @@ function EditSchedulerPanel({
                           [course.courseId]: e.target.value,
                         }))
                       }
-                      onOpen={() => loadCourseSections(course)}
-                      displayEmpty
+                        displayEmpty
                       sx={{
                         backgroundColor: 'white.main',
                         border: '1px solid',
@@ -1297,13 +1318,13 @@ function EditSchedulerPanel({
                       MenuProps={{
                         PaperProps: {
                           sx: {
-                            maxHeight: 400,
-                            maxWidth: 400,
+                            maxHeight: '40vh',
                             '& .MuiMenuItem-root': {
                               whiteSpace: 'normal',
                               height: 'auto',
                               minHeight: 'auto',
                               maxWidth: '100%',
+                              padding: '8px 16px',
                             },
                           },
                         },
@@ -1315,6 +1336,9 @@ function EditSchedulerPanel({
                           vertical: 'top',
                           horizontal: 'left',
                         },
+                        disableAutoFocusItem: true,
+                        autoFocus: false,
+                        variant: 'menu',
                       }}
                     >
                       <MenuItem
@@ -1409,7 +1433,13 @@ function EditSchedulerPanel({
                                 sx={{
                                   color: 'darkGrey.main',
                                   mb: 0.5,
-                                  display: 'block',
+                                  whiteSpace: 'normal',
+                                  wordWrap: 'break-word',
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                  display: '-webkit-box',
+                                  WebkitLineClamp: 2,
+                                  WebkitBoxOrient: 'vertical',
                                 }}
                               >
                                 {instructorNames}
