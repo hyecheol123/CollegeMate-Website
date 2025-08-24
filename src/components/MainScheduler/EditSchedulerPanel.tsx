@@ -1083,7 +1083,8 @@ function EditSchedulerPanel({
                             .map((meeting: Meeting) => {
                               if (
                                 meeting.meetingTimeStart &&
-                                meeting.meetingTimeEnd
+                                meeting.meetingTimeEnd &&
+                                meeting.meetingType !== 'EXAM'
                               ) {
                                 const startTime = formatTime(
                                   meeting.meetingTimeStart,
@@ -1294,7 +1295,8 @@ function EditSchedulerPanel({
 
                           if (
                             meeting.meetingTimeStart &&
-                            meeting.meetingTimeEnd
+                            meeting.meetingTimeEnd &&
+                            meeting.meetingType !== 'EXAM'
                           ) {
                             const startTime = formatTime(
                               meeting.meetingTimeStart,
@@ -1478,7 +1480,8 @@ function EditSchedulerPanel({
 
                           if (
                             meeting.meetingTimeStart &&
-                            meeting.meetingTimeEnd
+                            meeting.meetingTimeEnd &&
+                            meeting.meetingType !== 'EXAM'
                           ) {
                             const startTime = formatTime(
                               meeting.meetingTimeStart,

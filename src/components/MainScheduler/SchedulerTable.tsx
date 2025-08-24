@@ -370,7 +370,7 @@ function SchedulerTable({
                       height: '100%',
                       padding: '2px 4px',
                       textAlign: 'center',
-                      overflow: 'hidden',
+                      overflow: 'visible',
                     }}
                   >
                     <Typography
@@ -429,7 +429,7 @@ function SchedulerTable({
                                     : '9px',
                           opacity: 0.8,
                           whiteSpace: 'normal',
-                          overflow: 'hidden',
+                          overflow: 'visible',
                           width: '100%',
                           marginTop: '1px',
                           lineHeight: '0.9',
