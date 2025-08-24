@@ -97,7 +97,14 @@ function SchedulerTable({
   };
 
   const handleEventClick = (eventId: string): void => {
-    console.log('handleEventClick called with:', eventId, 'isEditMode:', isEditMode, 'onEventColorChange:', !!onEventColorChange);
+    console.log(
+      'handleEventClick called with:',
+      eventId,
+      'isEditMode:',
+      isEditMode,
+      'onEventColorChange:',
+      !!onEventColorChange,
+    );
     if (isEditMode && onEventColorChange) {
       console.log('Opening color modal for event:', eventId);
       setSelectedEventId(eventId);
@@ -266,6 +273,7 @@ function SchedulerTable({
               bgcolor: 'red.main',
               display: 'flex',
               flexDirection: 'column',
+              borderRadius: '0 0 0 4px',
             }}
           >
             {majorHours.map((hourLabel, hourIndex) => {
@@ -347,12 +355,20 @@ function SchedulerTable({
                     alignItems: 'center',
                     justifyContent: 'center',
                     cursor: isEditMode ? 'pointer' : 'default',
-                    '&:hover': isEditMode ? {
-                      opacity: 0.8,
-                    } : {},
+                    borderRadius: '4px',
+                    '&:hover': isEditMode
+                      ? {
+                          opacity: 0.8,
+                        }
+                      : {},
                   }}
                   onClick={(e) => {
-                    console.log('Block clicked:', event.id, 'target:', e.target);
+                    console.log(
+                      'Block clicked:',
+                      event.id,
+                      'target:',
+                      e.target,
+                    );
                     if (!isEditMode) {
                       console.log('Not in edit mode, returning');
                       return;
@@ -362,63 +378,89 @@ function SchedulerTable({
                     handleEventClick(event.id);
                   }}
                 >
-                <Box
-                  sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    height: '100%',
-                    padding: '2px 4px',
-                    textAlign: 'center',
-                    overflow: 'hidden',
-                  }}
-                >
-                  <Typography
-                    variant="body2"
-                    align="center"
+                  <Box
                     sx={{
-                      wordWrap: 'break-word',
-                      whiteSpace: 'normal',
-                      overflow: 'hidden',
-                      width: '100%',
-                      fontSize: event.title.length > 20 ? (windowWidth < 768 ? '8px' : '9px') : event.title.length > 15 ? (windowWidth < 768 ? '9px' : '10px') : (windowWidth < 768 ? '10px' : '11px'),
-                      fontWeight: windowWidth < 768 ? '500' : 'inherit',
-                      lineHeight: '1.1',
-                      color: getTextColor(event.color),
-                      textOverflow: 'ellipsis',
-                      display: '-webkit-box',
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: 'vertical',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      height: '100%',
+                      padding: '2px 4px',
                       textAlign: 'center',
-                      margin: '0 auto',
+                      overflow: 'hidden',
                     }}
                   >
-                    {event.title}
-                  </Typography>
-                  {event.location && event.location !== 'TBA' && (
                     <Typography
                       variant="body2"
                       align="center"
                       sx={{
-                        fontSize: event.location.length > 30 ? (windowWidth < 768 ? '5px' : '6px') : event.location.length > 20 ? (windowWidth < 768 ? '6px' : '7px') : event.location.length > 12 ? (windowWidth < 768 ? '7px' : '8px') : (windowWidth < 768 ? '8px' : '9px'),
-                        opacity: 0.8,
+                        wordWrap: 'break-word',
                         whiteSpace: 'normal',
                         overflow: 'hidden',
                         width: '100%',
-                        marginTop: '1px',
-                        lineHeight: '0.9',
+                        fontSize:
+                          event.title.length > 20
+                            ? windowWidth < 768
+                              ? '8px'
+                              : '9px'
+                            : event.title.length > 15
+                              ? windowWidth < 768
+                                ? '9px'
+                                : '10px'
+                              : windowWidth < 768
+                                ? '10px'
+                                : '11px',
+                        fontWeight: windowWidth < 768 ? '500' : 'inherit',
+                        lineHeight: '1.1',
                         color: getTextColor(event.color),
+                        textOverflow: 'ellipsis',
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
                         textAlign: 'center',
-                        margin: '1px auto 0',
-                        wordBreak: 'break-word',
-                        hyphens: 'auto',
+                        margin: '0 auto',
                       }}
                     >
-                      {formatLocation(event.location)}
+                      {event.title}
                     </Typography>
-                  )}
-                </Box>
+                    {event.location && event.location !== 'TBA' && (
+                      <Typography
+                        variant="body2"
+                        align="center"
+                        sx={{
+                          fontSize:
+                            event.location.length > 30
+                              ? windowWidth < 768
+                                ? '5px'
+                                : '6px'
+                              : event.location.length > 20
+                                ? windowWidth < 768
+                                  ? '6px'
+                                  : '7px'
+                                : event.location.length > 12
+                                  ? windowWidth < 768
+                                    ? '7px'
+                                    : '8px'
+                                  : windowWidth < 768
+                                    ? '8px'
+                                    : '9px',
+                          opacity: 0.8,
+                          whiteSpace: 'normal',
+                          overflow: 'hidden',
+                          width: '100%',
+                          marginTop: '1px',
+                          lineHeight: '0.9',
+                          color: getTextColor(event.color),
+                          textAlign: 'center',
+                          margin: '1px auto 0',
+                          wordBreak: 'break-word',
+                          hyphens: 'auto',
+                        }}
+                      >
+                        {formatLocation(event.location)}
+                      </Typography>
+                    )}
+                  </Box>
                 </Box>
                 {isEditMode && (
                   <Box

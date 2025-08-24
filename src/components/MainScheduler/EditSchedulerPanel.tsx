@@ -425,29 +425,37 @@ function EditSchedulerPanel({
   };
 
   const handleConflictResolve = (keepExisting: boolean): void => {
-    if (!keepExisting && pendingEvents.length > 0 && onRemoveConflictingEvents) {
+    if (
+      !keepExisting &&
+      pendingEvents.length > 0 &&
+      onRemoveConflictingEvents
+    ) {
       // Remove conflicting events
       for (const newEvent of pendingEvents) {
         for (const existingEvent of existingEvents) {
           if (newEvent.day === existingEvent.day) {
-            const newStart = newEvent.startTime.hour * 60 + newEvent.startTime.minute;
+            const newStart =
+              newEvent.startTime.hour * 60 + newEvent.startTime.minute;
             const newEnd = newEvent.endTime.hour * 60 + newEvent.endTime.minute;
-            const existingStart = existingEvent.startTime.hour * 60 + existingEvent.startTime.minute;
-            const existingEnd = existingEvent.endTime.hour * 60 + existingEvent.endTime.minute;
-            
+            const existingStart =
+              existingEvent.startTime.hour * 60 +
+              existingEvent.startTime.minute;
+            const existingEnd =
+              existingEvent.endTime.hour * 60 + existingEvent.endTime.minute;
+
             if (newStart < existingEnd && newEnd > existingStart) {
               onRemoveConflictingEvents(existingEvent.id);
             }
           }
         }
       }
-      
+
       // Add new events
       pendingEvents.forEach((event) => {
         onAddEvent?.(event);
       });
     }
-    
+
     // Reset modal state
     setIsConflictModalOpen(false);
     setConflictMessage('');
@@ -502,25 +510,23 @@ function EditSchedulerPanel({
     const lectures: Section[] = [];
     const seenSections = new Set<string>();
 
-    (sectionData as any[]).forEach(
-      (enrollmentPackage: any) => {
-        // Skip closed sections
-        if (enrollmentPackage.packageEnrollmentStatus?.status === 'CLOSED') {
-          return;
-        }
-        
-        enrollmentPackage.sections?.forEach((section: any) => {
-          // Include only LEC and other non-DIS, non-LAB section types as "lectures"
-          if (section.type !== 'DIS' && section.type !== 'LAB') {
-            const sectionKey = `${section.type}-${section.sectionNumber}`;
-            if (!seenSections.has(sectionKey)) {
-              seenSections.add(sectionKey);
-              lectures.push(section);
-            }
+    (sectionData as any[]).forEach((enrollmentPackage: any) => {
+      // Skip closed sections
+      if (enrollmentPackage.packageEnrollmentStatus?.status === 'CLOSED') {
+        return;
+      }
+
+      enrollmentPackage.sections?.forEach((section: any) => {
+        // Include only LEC and other non-DIS, non-LAB section types as "lectures"
+        if (section.type !== 'DIS' && section.type !== 'LAB') {
+          const sectionKey = `${section.type}-${section.sectionNumber}`;
+          if (!seenSections.has(sectionKey)) {
+            seenSections.add(sectionKey);
+            lectures.push(section);
           }
-        });
-      },
-    );
+        }
+      });
+    });
 
     return lectures.sort((a, b) => {
       const aNum = parseInt(a.sectionNumber || '0', 10);
@@ -541,24 +547,22 @@ function EditSchedulerPanel({
       const discussions: Section[] = [];
       const seenSections = new Set<string>();
 
-      (sectionData as any[]).forEach(
-        (enrollmentPackage: any) => {
-          // Skip closed sections
-          if (enrollmentPackage.packageEnrollmentStatus?.status === 'CLOSED') {
-            return;
-          }
-          
-          enrollmentPackage.sections?.forEach((section: any) => {
-            if (section.type === 'DIS') {
-              const sectionKey = `${section.type}-${section.sectionNumber}`;
-              if (!seenSections.has(sectionKey)) {
-                seenSections.add(sectionKey);
-                discussions.push(section);
-              }
+      (sectionData as any[]).forEach((enrollmentPackage: any) => {
+        // Skip closed sections
+        if (enrollmentPackage.packageEnrollmentStatus?.status === 'CLOSED') {
+          return;
+        }
+
+        enrollmentPackage.sections?.forEach((section: any) => {
+          if (section.type === 'DIS') {
+            const sectionKey = `${section.type}-${section.sectionNumber}`;
+            if (!seenSections.has(sectionKey)) {
+              seenSections.add(sectionKey);
+              discussions.push(section);
             }
-          });
-        },
-      );
+          }
+        });
+      });
 
       return discussions.sort((a, b) => {
         const aNum = parseInt(a.sectionNumber || '0', 10);
@@ -569,18 +573,16 @@ function EditSchedulerPanel({
 
     // Find the selected lecture first
     let selectedLecture: any | null = null;
-    (sectionData as any[]).forEach(
-      (enrollmentPackage: any) => {
-        enrollmentPackage.sections?.forEach((section: any) => {
-          if (
-            section.type === 'LEC' &&
-            section.sectionNumber === selectedLectureNumber
-          ) {
-            selectedLecture = section;
-          }
-        });
-      },
-    );
+    (sectionData as any[]).forEach((enrollmentPackage: any) => {
+      enrollmentPackage.sections?.forEach((section: any) => {
+        if (
+          section.type === 'LEC' &&
+          section.sectionNumber === selectedLectureNumber
+        ) {
+          selectedLecture = section;
+        }
+      });
+    });
 
     if (!selectedLecture) return [];
 
@@ -588,32 +590,32 @@ function EditSchedulerPanel({
     const relatedDiscussions: Section[] = [];
     const seenSections = new Set<string>();
 
-    (sectionData as any[]).forEach(
-      (enrollmentPackage: any) => {
-        // Skip closed sections
-        if (enrollmentPackage.packageEnrollmentStatus?.status === 'CLOSED') {
-          return;
-        }
-        
-        // Check if this enrollmentPackage contains the selected lecture
-        const hasSelectedLecture = enrollmentPackage.sections?.some((section: any) => 
-          section.type === 'LEC' && section.sectionNumber === selectedLectureNumber
-        );
-        
-        if (hasSelectedLecture) {
-          // Include discussions only from this specific enrollmentPackage
-          enrollmentPackage.sections?.forEach((section: any) => {
-            if (section.type === 'DIS') {
-              const sectionKey = `${section.type}-${section.sectionNumber}`;
-              if (!seenSections.has(sectionKey)) {
-                seenSections.add(sectionKey);
-                relatedDiscussions.push(section);
-              }
+    (sectionData as any[]).forEach((enrollmentPackage: any) => {
+      // Skip closed sections
+      if (enrollmentPackage.packageEnrollmentStatus?.status === 'CLOSED') {
+        return;
+      }
+
+      // Check if this enrollmentPackage contains the selected lecture
+      const hasSelectedLecture = enrollmentPackage.sections?.some(
+        (section: any) =>
+          section.type === 'LEC' &&
+          section.sectionNumber === selectedLectureNumber,
+      );
+
+      if (hasSelectedLecture) {
+        // Include discussions only from this specific enrollmentPackage
+        enrollmentPackage.sections?.forEach((section: any) => {
+          if (section.type === 'DIS') {
+            const sectionKey = `${section.type}-${section.sectionNumber}`;
+            if (!seenSections.has(sectionKey)) {
+              seenSections.add(sectionKey);
+              relatedDiscussions.push(section);
             }
-          });
-        }
-      },
-    );
+          }
+        });
+      }
+    });
 
     return relatedDiscussions.sort((a, b) => {
       const aNum = parseInt(a.sectionNumber || '0', 10);
@@ -634,24 +636,22 @@ function EditSchedulerPanel({
       const labs: Section[] = [];
       const seenSections = new Set<string>();
 
-      (sectionData as any[]).forEach(
-        (enrollmentPackage: any) => {
-          // Skip closed sections
-          if (enrollmentPackage.packageEnrollmentStatus?.status === 'CLOSED') {
-            return;
-          }
-          
-          enrollmentPackage.sections?.forEach((section: any) => {
-            if (section.type === 'LAB') {
-              const sectionKey = `${section.type}-${section.sectionNumber}`;
-              if (!seenSections.has(sectionKey)) {
-                seenSections.add(sectionKey);
-                labs.push(section);
-              }
+      (sectionData as any[]).forEach((enrollmentPackage: any) => {
+        // Skip closed sections
+        if (enrollmentPackage.packageEnrollmentStatus?.status === 'CLOSED') {
+          return;
+        }
+
+        enrollmentPackage.sections?.forEach((section: any) => {
+          if (section.type === 'LAB') {
+            const sectionKey = `${section.type}-${section.sectionNumber}`;
+            if (!seenSections.has(sectionKey)) {
+              seenSections.add(sectionKey);
+              labs.push(section);
             }
-          });
-        },
-      );
+          }
+        });
+      });
 
       return labs.sort((a, b) => {
         const aNum = parseInt(a.sectionNumber || '0', 10);
@@ -667,24 +667,22 @@ function EditSchedulerPanel({
       const labs: Section[] = [];
       const seenSections = new Set<string>();
 
-      (sectionData as any[]).forEach(
-        (enrollmentPackage: any) => {
-          // Skip closed sections
-          if (enrollmentPackage.packageEnrollmentStatus?.status === 'CLOSED') {
-            return;
-          }
-          
-          enrollmentPackage.sections?.forEach((section: any) => {
-            if (section.type === 'LAB') {
-              const sectionKey = `${section.type}-${section.sectionNumber}`;
-              if (!seenSections.has(sectionKey)) {
-                seenSections.add(sectionKey);
-                labs.push(section);
-              }
+      (sectionData as any[]).forEach((enrollmentPackage: any) => {
+        // Skip closed sections
+        if (enrollmentPackage.packageEnrollmentStatus?.status === 'CLOSED') {
+          return;
+        }
+
+        enrollmentPackage.sections?.forEach((section: any) => {
+          if (section.type === 'LAB') {
+            const sectionKey = `${section.type}-${section.sectionNumber}`;
+            if (!seenSections.has(sectionKey)) {
+              seenSections.add(sectionKey);
+              labs.push(section);
             }
-          });
-        },
-      );
+          }
+        });
+      });
 
       return labs.sort((a, b) => {
         const aNum = parseInt(a.sectionNumber || '0', 10);
@@ -703,32 +701,32 @@ function EditSchedulerPanel({
     const relatedLabs: Section[] = [];
     const seenSections = new Set<string>();
 
-    (sectionData as any[]).forEach(
-      (enrollmentPackage: any) => {
-        // Skip closed sections
-        if (enrollmentPackage.packageEnrollmentStatus?.status === 'CLOSED') {
-          return;
-        }
-        
-        // Check if this enrollmentPackage contains the selected lecture
-        const hasSelectedLecture = enrollmentPackage.sections?.some((section: any) => 
-          section.type === 'LEC' && section.sectionNumber === selectedLectureNumber
-        );
-        
-        if (hasSelectedLecture) {
-          // Include labs only from this specific enrollmentPackage
-          enrollmentPackage.sections?.forEach((section: any) => {
-            if (section.type === 'LAB') {
-              const sectionKey = `${section.type}-${section.sectionNumber}`;
-              if (!seenSections.has(sectionKey)) {
-                seenSections.add(sectionKey);
-                relatedLabs.push(section);
-              }
+    (sectionData as any[]).forEach((enrollmentPackage: any) => {
+      // Skip closed sections
+      if (enrollmentPackage.packageEnrollmentStatus?.status === 'CLOSED') {
+        return;
+      }
+
+      // Check if this enrollmentPackage contains the selected lecture
+      const hasSelectedLecture = enrollmentPackage.sections?.some(
+        (section: any) =>
+          section.type === 'LEC' &&
+          section.sectionNumber === selectedLectureNumber,
+      );
+
+      if (hasSelectedLecture) {
+        // Include labs only from this specific enrollmentPackage
+        enrollmentPackage.sections?.forEach((section: any) => {
+          if (section.type === 'LAB') {
+            const sectionKey = `${section.type}-${section.sectionNumber}`;
+            if (!seenSections.has(sectionKey)) {
+              seenSections.add(sectionKey);
+              relatedLabs.push(section);
             }
-          });
-        }
-      },
-    );
+          }
+        });
+      }
+    });
 
     return relatedLabs.sort((a, b) => {
       const aNum = parseInt(a.sectionNumber || '0', 10);
@@ -971,179 +969,203 @@ function EditSchedulerPanel({
 
                 {/* Lecture Dropdown - Only show if lectures exist */}
                 {getLectureOptions(course).length > 0 && (
-                <FormControl fullWidth>
-                  <Select
-                    value={selectedLecture[course.courseId] || ''}
-                    onChange={(e) =>
-                      handleLectureChange(course.courseId, e.target.value)
-                    }
-                    displayEmpty
-                    sx={{
-                      backgroundColor: 'white.main',
-                      border: '1px solid',
-                      borderColor: 'grey.main',
-                      borderRadius: '6px',
-                      '& .MuiSelect-select': {
-                        padding: '8px 12px',
-                      },
-                      '& .MuiOutlinedInput-notchedOutline': {
-                        border: 'none',
-                      },
-                      '&:hover .MuiOutlinedInput-notchedOutline': {
-                        border: 'none',
-                      },
-                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                  <FormControl fullWidth>
+                    <Select
+                      value={selectedLecture[course.courseId] || ''}
+                      onChange={(e) =>
+                        handleLectureChange(course.courseId, e.target.value)
+                      }
+                      displayEmpty
+                      sx={{
+                        backgroundColor: 'white.main',
                         border: '1px solid',
-                        borderColor: 'red.main',
-                      },
-                    }}
-                    MenuProps={{
-                      PaperProps: {
-                        sx: {
-                          maxHeight: '40vh',
-                          '& .MuiMenuItem-root': {
-                            whiteSpace: 'normal',
-                            height: 'auto',
-                            minHeight: 'auto',
-                            maxWidth: '100%',
+                        borderColor: 'grey.main',
+                        borderRadius: '6px',
+                        '& .MuiSelect-select': {
+                          padding: '8px 12px',
+                        },
+                        '& .MuiOutlinedInput-notchedOutline': {
+                          border: 'none',
+                        },
+                        '&:hover .MuiOutlinedInput-notchedOutline': {
+                          border: 'none',
+                        },
+                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                          border: '1px solid',
+                          borderColor: 'red.main',
+                        },
+                      }}
+                      MenuProps={{
+                        PaperProps: {
+                          sx: {
+                            maxHeight: '40vh',
+                            '& .MuiMenuItem-root': {
+                              whiteSpace: 'normal',
+                              height: 'auto',
+                              minHeight: 'auto',
+                              maxWidth: '100%',
+                            },
                           },
                         },
-                      },
-                      anchorOrigin: {
-                        vertical: 'bottom',
-                        horizontal: 'left',
-                      },
-                      transformOrigin: {
-                        vertical: 'top',
-                        horizontal: 'left',
-                      },
-                    }}
-                  >
-                    <MenuItem
-                      value=""
-                      sx={{ color: 'darkGrey.main', opacity: 0.7 }}
+                        anchorOrigin: {
+                          vertical: 'bottom',
+                          horizontal: 'left',
+                        },
+                        transformOrigin: {
+                          vertical: 'top',
+                          horizontal: 'left',
+                        },
+                      }}
                     >
-                      <Typography
-                        variant="body3"
+                      <MenuItem
+                        value=""
                         sx={{ color: 'darkGrey.main', opacity: 0.7 }}
                       >
-                        {loadingSections[course.courseId]
-                          ? 'Loading sections...'
-                          : 'Select section'}
-                      </Typography>
-                    </MenuItem>
-                    {getLectureOptions(course).map((lecture) => {
-                      const instructorNames =
-                        lecture.instructors
-                          ?.map(
-                            (inst: Instructor) =>
-                              `${inst.name.first} ${inst.name.last}`,
-                          )
-                          .join(', ') || 'TBA';
-
-                      let timeDisplay = 'TBA';
-                      let locationDisplay = 'TBA';
-
-                      if (
-                        lecture.classMeetings &&
-                        lecture.classMeetings.length > 0
-                      ) {
-                        // Show all meeting times (exclude EXAM meetings)
-                        const timeSlots = lecture.classMeetings
-                          .filter((meeting: any) => meeting.meetingType !== 'EXAM')
-                          .map((meeting: any) => {
-                            if (meeting.meetingTimeStart && meeting.meetingTimeEnd) {
-                              const startTime = formatTime(meeting.meetingTimeStart);
-                              const endTime = formatTime(meeting.meetingTimeEnd);
-                              const days = formatDays(meeting.meetingDaysList || []);
-                              return `${days} ${startTime}-${endTime}`;
-                            } else if (meeting.building?.buildingName === 'ONLINE') {
-                              return 'ONLINE';
-                            }
-                            return null;
-                          }).filter(Boolean);
-                        
-                        timeDisplay = timeSlots.length > 0 ? timeSlots.join(', ') : 'TBA';
-
-                        // Use the first non-EXAM meeting for location display
-                        const classMeeting = lecture.classMeetings.find((meeting: any) => meeting.meetingType !== 'EXAM');
-                        if (classMeeting?.building?.buildingName && classMeeting.room) {
-                          locationDisplay = `${classMeeting.building.buildingName} ${classMeeting.room}`;
-                        } else if (classMeeting?.building?.buildingName) {
-                          locationDisplay = classMeeting.building.buildingName;
-                        }
-                      }
-
-                      const sectionType =
-                        lecture.type === 'LEC'
-                          ? 'Lecture'
-                          : lecture.type === 'LAB'
-                            ? 'Lab'
-                            : lecture.type;
-
-                      return (
-                        <MenuItem
-                          key={lecture.sectionNumber}
-                          value={lecture.sectionNumber}
-                          sx={{ display: 'block', whiteSpace: 'normal' }}
+                        <Typography
+                          variant="body3"
+                          sx={{ color: 'darkGrey.main', opacity: 0.7 }}
                         >
-                          <Box
-                            sx={{
-                              width: '100%',
-                              py: 1,
-                              display: 'flex',
-                              flexDirection: 'column',
-                              overflow: 'visible',
-                            }}
+                          {loadingSections[course.courseId]
+                            ? 'Loading sections...'
+                            : 'Select section'}
+                        </Typography>
+                      </MenuItem>
+                      {getLectureOptions(course).map((lecture) => {
+                        const instructorNames =
+                          lecture.instructors
+                            ?.map(
+                              (inst: Instructor) =>
+                                `${inst.name.first} ${inst.name.last}`,
+                            )
+                            .join(', ') || 'TBA';
+
+                        let timeDisplay = 'TBA';
+                        let locationDisplay = 'TBA';
+
+                        if (
+                          lecture.classMeetings &&
+                          lecture.classMeetings.length > 0
+                        ) {
+                          // Show all meeting times (exclude EXAM meetings)
+                          const timeSlots = lecture.classMeetings
+                            .filter(
+                              (meeting: any) => meeting.meetingType !== 'EXAM',
+                            )
+                            .map((meeting: any) => {
+                              if (
+                                meeting.meetingTimeStart &&
+                                meeting.meetingTimeEnd
+                              ) {
+                                const startTime = formatTime(
+                                  meeting.meetingTimeStart,
+                                );
+                                const endTime = formatTime(
+                                  meeting.meetingTimeEnd,
+                                );
+                                const days = formatDays(
+                                  meeting.meetingDaysList || [],
+                                );
+                                return `${days} ${startTime}-${endTime}`;
+                              } else if (
+                                meeting.building?.buildingName === 'ONLINE'
+                              ) {
+                                return 'ONLINE';
+                              }
+                              return null;
+                            })
+                            .filter(Boolean);
+
+                          timeDisplay =
+                            timeSlots.length > 0 ? timeSlots.join(', ') : 'TBA';
+
+                          // Use the first non-EXAM meeting for location display
+                          const classMeeting = lecture.classMeetings.find(
+                            (meeting: any) => meeting.meetingType !== 'EXAM',
+                          );
+                          if (
+                            classMeeting?.building?.buildingName &&
+                            classMeeting.room
+                          ) {
+                            locationDisplay = `${classMeeting.building.buildingName} ${classMeeting.room}`;
+                          } else if (classMeeting?.building?.buildingName) {
+                            locationDisplay =
+                              classMeeting.building.buildingName;
+                          }
+                        }
+
+                        const sectionType =
+                          lecture.type === 'LEC'
+                            ? 'Lecture'
+                            : lecture.type === 'LAB'
+                              ? 'Lab'
+                              : lecture.type;
+
+                        return (
+                          <MenuItem
+                            key={lecture.sectionNumber}
+                            value={lecture.sectionNumber}
+                            sx={{ display: 'block', whiteSpace: 'normal' }}
                           >
-                            <Typography
-                              variant="body2"
+                            <Box
                               sx={{
-                                color: 'darkGrey.main',
-                                mb: 0.5,
-                                display: 'block',
+                                width: '100%',
+                                py: 1,
+                                display: 'flex',
+                                flexDirection: 'column',
+                                overflow: 'visible',
                               }}
                             >
-                              {sectionType} {lecture.sectionNumber}
-                            </Typography>
-                            <Typography
-                              variant="body3"
-                              sx={{
-                                color: 'darkGrey.main',
-                                mb: 0.5,
-                                whiteSpace: 'normal',
-                                wordWrap: 'break-word',
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                display: '-webkit-box',
-                                WebkitLineClamp: 2,
-                                WebkitBoxOrient: 'vertical',
-                              }}
-                            >
-                              {instructorNames}
-                            </Typography>
-                            <Typography
-                              variant="body3"
-                              sx={{
-                                color: 'darkGrey.main',
-                                mb: 0.5,
-                                display: 'block',
-                              }}
-                            >
-                              {timeDisplay}
-                            </Typography>
-                            <Typography
-                              variant="body3"
-                              sx={{ color: 'darkGrey.main', display: 'block' }}
-                            >
-                              {locationDisplay}
-                            </Typography>
-                          </Box>
-                        </MenuItem>
-                      );
-                    })}
-                  </Select>
-                </FormControl>
+                              <Typography
+                                variant="body2"
+                                sx={{
+                                  color: 'darkGrey.main',
+                                  mb: 0.5,
+                                  display: 'block',
+                                }}
+                              >
+                                {sectionType} {lecture.sectionNumber}
+                              </Typography>
+                              <Typography
+                                variant="body3"
+                                sx={{
+                                  color: 'darkGrey.main',
+                                  mb: 0.5,
+                                  whiteSpace: 'normal',
+                                  wordWrap: 'break-word',
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                  display: '-webkit-box',
+                                  WebkitLineClamp: 2,
+                                  WebkitBoxOrient: 'vertical',
+                                }}
+                              >
+                                {instructorNames}
+                              </Typography>
+                              <Typography
+                                variant="body3"
+                                sx={{
+                                  color: 'darkGrey.main',
+                                  mb: 0.5,
+                                  display: 'block',
+                                }}
+                              >
+                                {timeDisplay}
+                              </Typography>
+                              <Typography
+                                variant="body3"
+                                sx={{
+                                  color: 'darkGrey.main',
+                                  display: 'block',
+                                }}
+                              >
+                                {locationDisplay}
+                              </Typography>
+                            </Box>
+                          </MenuItem>
+                        );
+                      })}
+                    </Select>
+                  </FormControl>
                 )}
 
                 {/* Discussion Dropdown - Only show if discussions exist */}
@@ -1158,7 +1180,7 @@ function EditSchedulerPanel({
                           [course.courseId]: e.target.value,
                         }))
                       }
-                        displayEmpty
+                      displayEmpty
                       sx={{
                         backgroundColor: 'white.main',
                         border: '1px solid',
@@ -1333,8 +1355,7 @@ function EditSchedulerPanel({
                 )}
 
                 {/* Lab Dropdown - Only show if labs exist */}
-                {(loadingSections[course.courseId] ||
-                  hasLabs(course)) && (
+                {(loadingSections[course.courseId] || hasLabs(course)) && (
                   <FormControl fullWidth>
                     <Select
                       value={selectedLab[course.courseId] || ''}
@@ -1344,7 +1365,7 @@ function EditSchedulerPanel({
                           [course.courseId]: e.target.value,
                         }))
                       }
-                        displayEmpty
+                      displayEmpty
                       sx={{
                         backgroundColor: 'white.main',
                         border: '1px solid',
@@ -1422,10 +1443,7 @@ function EditSchedulerPanel({
                         let timeDisplay = 'TBA';
                         let locationDisplay = 'TBA';
 
-                        if (
-                          lab.classMeetings &&
-                          lab.classMeetings.length > 0
-                        ) {
+                        if (lab.classMeetings && lab.classMeetings.length > 0) {
                           const meeting = lab.classMeetings[0];
 
                           if (
@@ -1712,7 +1730,6 @@ function EditSchedulerPanel({
               border: '1px solid rgba(0, 0, 0, 0.05)',
             }}
           >
-            
             <Typography
               variant="body1"
               sx={{
@@ -1727,8 +1744,10 @@ function EditSchedulerPanel({
               <br />
               events and add this new class?
             </Typography>
-            
-            <Box sx={{ mt: 4, display: 'flex', flexDirection: 'column', gap: 2 }}>
+
+            <Box
+              sx={{ mt: 4, display: 'flex', flexDirection: 'column', gap: 2 }}
+            >
               <Button
                 variant="outlined"
                 fullWidth
@@ -1749,7 +1768,7 @@ function EditSchedulerPanel({
               >
                 Keep Existing Events
               </Button>
-              
+
               <Button
                 variant="contained"
                 fullWidth

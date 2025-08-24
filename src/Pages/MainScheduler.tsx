@@ -205,10 +205,7 @@ function MainScheduler(): React.ReactElement {
     );
   };
 
-  const updateEventColorByEventId = (
-    eventId: string,
-    color: string,
-  ): void => {
+  const updateEventColorByEventId = (eventId: string, color: string): void => {
     // Extract sectionId from eventId (format: "courseId-sectionNumber-day")
     const parts = eventId.split('-');
     if (parts.length >= 2) {
@@ -221,55 +218,54 @@ function MainScheduler(): React.ReactElement {
     // Extract the class and section ID from the event ID (format: "courseId-sectionId-day")
     const courseId = eventId.split('-')[0];
     const sectionId = eventId.split('-')[1];
-    
+
     // Determine section type from the event title
-    const removedEvent = scheduleEvents.find(e => e.id === eventId);
+    const removedEvent = scheduleEvents.find((e) => e.id === eventId);
     if (!removedEvent) return;
-    
+
     const isDiscussion = removedEvent.title.includes('Discussion');
     const isLab = removedEvent.title.includes('Lab');
     const isLecture = !isDiscussion && !isLab;
-    
+
     // Get all sections for this course
-    const courseEvents = scheduleEvents.filter(event => 
-      event.id.startsWith(`${courseId}-`)
+    const courseEvents = scheduleEvents.filter((event) =>
+      event.id.startsWith(`${courseId}-`),
     );
-    
+
     let sectionsToRemove: string[] = [];
-    
+
     if (isDiscussion || isLab) {
       // If removing Discussion or Lab, also remove the related Lecture
       sectionsToRemove = courseEvents
-        .filter(event => {
+        .filter((event) => {
           const eventSectionId = event.id.split('-')[1];
           const eventIsDiscussion = event.title.includes('Discussion');
           const eventIsLab = event.title.includes('Lab');
           const eventIsLecture = !eventIsDiscussion && !eventIsLab;
-          
+
           // Remove the current section and any lecture from the same course
           return eventSectionId === sectionId || eventIsLecture;
         })
-        .map(event => event.id.split('-')[1]);
+        .map((event) => event.id.split('-')[1]);
     } else if (isLecture) {
       // If removing Lecture, also remove all related Discussion and Lab sections
-      sectionsToRemove = courseEvents
-        .map(event => event.id.split('-')[1]);
+      sectionsToRemove = courseEvents.map((event) => event.id.split('-')[1]);
     }
-    
+
     // Remove all events from the identified sections
     const sectionsToRemoveSet = new Set(sectionsToRemove);
     setScheduleEvents((prev) =>
       prev.filter((event) => {
         const eventCourseId = event.id.split('-')[0];
         const eventSectionId = event.id.split('-')[1];
-        
+
         if (eventCourseId !== courseId) return true;
         return !sectionsToRemoveSet.has(eventSectionId);
       }),
     );
 
     // Also remove corresponding online courses
-    sectionsToRemove.forEach(sectionToRemove => {
+    sectionsToRemove.forEach((sectionToRemove) => {
       const onlineCourseId = `${courseId}-${sectionToRemove}`;
       setOnlineCourses((prev) =>
         prev.filter((course) => course.id !== onlineCourseId),
