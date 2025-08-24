@@ -383,7 +383,9 @@ function EditSchedulerPanel({
               ? 'ONLINE'
               : meeting.building?.buildingName && meeting.room
                 ? `${meeting.building.buildingName} ${meeting.room}`
-                : 'TBA',
+                : meeting.building?.buildingName
+                  ? meeting.building.buildingName
+                  : 'TBA',
           instructor: instructorNames,
           credits,
         });
@@ -607,8 +609,41 @@ function EditSchedulerPanel({
       });
     }
 
+    // If no lectures exist for this course, show all labs
+    const lectureOptions = getLectureOptions(course);
+    if (lectureOptions.length === 0) {
+      // No lectures exist, return all labs
+      const labs: Section[] = [];
+      const seenSections = new Set<string>();
+
+      (sectionData as any[]).forEach(
+        (enrollmentPackage: any) => {
+          // Skip closed sections
+          if (enrollmentPackage.packageEnrollmentStatus?.status === 'CLOSED') {
+            return;
+          }
+          
+          enrollmentPackage.sections?.forEach((section: any) => {
+            if (section.type === 'LAB') {
+              const sectionKey = `${section.type}-${section.sectionNumber}`;
+              if (!seenSections.has(sectionKey)) {
+                seenSections.add(sectionKey);
+                labs.push(section);
+              }
+            }
+          });
+        },
+      );
+
+      return labs.sort((a, b) => {
+        const aNum = parseInt(a.sectionNumber || '0', 10);
+        const bNum = parseInt(b.sectionNumber || '0', 10);
+        return aNum - bNum;
+      });
+    }
+
     // If lecture is selected, find related labs based on instructor matching
-    const selectedLectureSection = getLectureOptions(course).find(
+    const selectedLectureSection = lectureOptions.find(
       (lec) => lec.sectionNumber === selectedLectureNumber,
     );
 
@@ -876,7 +911,8 @@ function EditSchedulerPanel({
                   </Typography>
                 </Box>
 
-                {/* Lecture Dropdown */}
+                {/* Lecture Dropdown - Only show if lectures exist */}
+                {getLectureOptions(course).length > 0 && (
                 <FormControl fullWidth>
                   <Select
                     value={selectedLecture[course.courseId] || ''}
@@ -1045,6 +1081,7 @@ function EditSchedulerPanel({
                     })}
                   </Select>
                 </FormControl>
+                )}
 
                 {/* Discussion Dropdown - Only show if discussions exist */}
                 {(loadingSections[course.courseId] ||
@@ -1292,12 +1329,14 @@ function EditSchedulerPanel({
                             ? 'Loading labs...'
                             : selectedLecture[course.courseId]
                               ? 'Select lab for this section'
-                              : 'Select section first or choose any lab'}
+                              : getLectureOptions(course).length === 0
+                                ? 'Select lab'
+                                : 'Select section first or choose any lab'}
                         </Typography>
                       </MenuItem>
                       {getLabOptions(
                         course,
-                        selectedLecture[course.courseId],
+                        selectedLecture[course.courseId] || undefined,
                       ).map((lab) => {
                         const instructorNames =
                           lab.instructors
