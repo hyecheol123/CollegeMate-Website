@@ -25,9 +25,11 @@ import EditSchedulerPanel from '../components/MainScheduler/EditSchedulerPanel';
 // API and Utils
 import { getTerms } from '../data/Terms/getTerms';
 import { getCurrentTerm, getUpcomingTerms } from '../utils/termUtils';
+import { downloadScheduleAsWallpaper } from '../utils/scheduleDownload';
 // Types
 import type { EventData } from '../types/event';
 import type { Term } from '../data/Terms/getTerms';
+import DownloadPopup from '../components/Schedule/Download';
 
 // Online course interface (matching EditSchedulerPanel)
 interface OnlineCourse {
@@ -62,34 +64,28 @@ function MainScheduler(): React.ReactElement {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const searchPanelRef = useRef<HTMLDivElement>(null);
   const schedulerRef = useRef<HTMLDivElement>(null);
+  const [isDownloadOpen, setIsDownloadOpen] = useState(false);
+  const [selectedSize, setSelectedSize] = useState<{
+    width: number;
+    height: number;
+  }>({ width: 0, height: 0 });
 
   const handleEditToggle = (): void => {
     setIsEditMode((prev) => !prev);
   };
 
-  const handleDownload = async (): Promise<void> => {
-    if (!schedulerRef.current) return;
-
+  const handleDownload = async (): Promise<boolean> => {
     try {
-      // Dynamically import html2canvas
-      const html2canvas = await import('html2canvas');
-
-      const canvas = await html2canvas.default(schedulerRef.current, {
-        backgroundColor: '#ffffff',
-        scale: 2, // Higher quality
-        useCORS: true,
-        allowTaint: true,
+      await downloadScheduleAsWallpaper({
+        schedulerRef,
+        selectedSize,
       });
-
-      // Create download link
-      const link = document.createElement('a');
-      link.download = `schedule_${currentTerm?.termCode || 'current'}.png`;
-      link.href = canvas.toDataURL('image/png');
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      // Reset selectedSize after successful download
+      setSelectedSize({ width: 0, height: 0 });
+      return true; // Download succeeded
     } catch (error) {
-      console.error('Failed to download schedule as image:', error);
+      console.error('Download failed:', error);
+      return false; // Download failed
     }
   };
 
@@ -322,7 +318,7 @@ function MainScheduler(): React.ReactElement {
         currentTerm={currentTerm}
         availableTerms={availableTerms}
         onTermChange={handleTermChange}
-        onDownload={handleDownload}
+        onDownloadClick={() => setIsDownloadOpen(true)}
       />
 
       {/* Main Content Area */}
@@ -800,6 +796,13 @@ function MainScheduler(): React.ReactElement {
             </Box>
           )}
         </Box>
+      )}
+      {isDownloadOpen && (
+        <DownloadPopup
+          onClose={() => setIsDownloadOpen(false)}
+          onDownload={handleDownload}
+          onSelectSize={(size) => setSelectedSize(size)}
+        />
       )}
     </Box>
   );
