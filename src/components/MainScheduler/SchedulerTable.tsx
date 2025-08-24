@@ -263,6 +263,8 @@ function SchedulerTable({
               display: 'flex',
               flexDirection: 'column',
               borderRadius: '0 0 0 4px',
+              position: 'relative',
+              overflow: 'hidden',
             }}
           >
             {majorHours.map((hourLabel, hourIndex) => {

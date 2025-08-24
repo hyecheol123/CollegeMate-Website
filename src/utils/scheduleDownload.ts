@@ -121,52 +121,54 @@ const captureSchedule = async (
 
       // Check if table height exceeds available space
       const maxTableHeight = baseMobileHeight - 60; // 60px total vertical padding
-      
+
       // If table is too tall, use maximum available space approach
       if (testCanvas.height > maxTableHeight) {
         console.log('Table too tall, switching to max space utilization');
-        
+
         // Calculate maximum usable dimensions with minimal padding
         const maxUsableWidth = baseMobileWidth - 40; // 20px padding each side
         const maxUsableHeight = baseMobileHeight - 60; // 40px bottom + 20px top minimum
-        
+
         // Find the optimal width that keeps table within height bounds
         // Start with max width and work down if needed
         let optimalWidth = maxUsableWidth;
-        
+
         // Estimate height reduction ratio based on width change
         // Wider table = shorter height (roughly proportional)
         const widthRatio = maxUsableWidth / contentWidth;
         const estimatedNewHeight = testCanvas.height / widthRatio;
-        
+
         if (estimatedNewHeight > maxUsableHeight) {
           // Still too tall even at max width, need to scale down
           const requiredHeightRatio = maxUsableHeight / testCanvas.height;
-          optimalWidth = Math.floor(contentWidth * Math.sqrt(requiredHeightRatio) * 0.95);
+          optimalWidth = Math.floor(
+            contentWidth * Math.sqrt(requiredHeightRatio) * 0.95,
+          );
         }
-        
+
         // Update element width to optimal
         element.style.width = `${optimalWidth}px`;
         element.style.maxWidth = `${optimalWidth}px`;
         element.style.minWidth = `${optimalWidth}px`;
-        
+
         // Update window.innerWidth
         Object.defineProperty(window, 'innerWidth', {
           writable: true,
           configurable: true,
           value: optimalWidth,
         });
-        
+
         // Trigger resize and wait
         const resizeEvent2 = new Event('resize');
         window.dispatchEvent(resizeEvent2);
         await new Promise((resolve) => setTimeout(resolve, 500));
-        
+
         // Update contentWidth and paddingPerSide for final capture
         contentWidth = optimalWidth;
         paddingPerSide = (baseMobileWidth - optimalWidth) / 2;
       }
-      
+
       // Now capture with proper scaling
       const tempCanvas = await html2canvas.default(element, {
         backgroundColor: WALLPAPER_CONFIG.canvas.backgroundColor,
