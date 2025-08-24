@@ -549,7 +549,7 @@ function EditSchedulerPanel({
 
     if (!selectedLecture) return [];
 
-    // Find all discussions for the selected lecture
+    // Find all discussions that are in the same enrollmentPackage as the selected lecture
     const relatedDiscussions: Section[] = [];
     const seenSections = new Set<string>();
 
@@ -560,16 +560,23 @@ function EditSchedulerPanel({
           return;
         }
         
-        enrollmentPackage.sections?.forEach((section: any) => {
-          if (section.type === 'DIS') {
-            // Include all discussions for the selected lecture
-            const sectionKey = `${section.type}-${section.sectionNumber}`;
-            if (!seenSections.has(sectionKey)) {
-              seenSections.add(sectionKey);
-              relatedDiscussions.push(section);
+        // Check if this enrollmentPackage contains the selected lecture
+        const hasSelectedLecture = enrollmentPackage.sections?.some((section: any) => 
+          section.type === 'LEC' && section.sectionNumber === selectedLectureNumber
+        );
+        
+        if (hasSelectedLecture) {
+          // Include discussions only from this specific enrollmentPackage
+          enrollmentPackage.sections?.forEach((section: any) => {
+            if (section.type === 'DIS') {
+              const sectionKey = `${section.type}-${section.sectionNumber}`;
+              if (!seenSections.has(sectionKey)) {
+                seenSections.add(sectionKey);
+                relatedDiscussions.push(section);
+              }
             }
-          }
-        });
+          });
+        }
       },
     );
 
@@ -668,16 +675,23 @@ function EditSchedulerPanel({
           return;
         }
         
-        enrollmentPackage.sections?.forEach((section: any) => {
-          if (section.type === 'LAB') {
-            const sectionKey = `${section.type}-${section.sectionNumber}`;
-            if (!seenSections.has(sectionKey)) {
-              // Include all labs for the selected lecture
-              seenSections.add(sectionKey);
-              relatedLabs.push(section);
+        // Check if this enrollmentPackage contains the selected lecture
+        const hasSelectedLecture = enrollmentPackage.sections?.some((section: any) => 
+          section.type === 'LEC' && section.sectionNumber === selectedLectureNumber
+        );
+        
+        if (hasSelectedLecture) {
+          // Include labs only from this specific enrollmentPackage
+          enrollmentPackage.sections?.forEach((section: any) => {
+            if (section.type === 'LAB') {
+              const sectionKey = `${section.type}-${section.sectionNumber}`;
+              if (!seenSections.has(sectionKey)) {
+                seenSections.add(sectionKey);
+                relatedLabs.push(section);
+              }
             }
-          }
-        });
+          });
+        }
       },
     );
 
