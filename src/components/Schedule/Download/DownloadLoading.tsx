@@ -4,8 +4,7 @@
  */
 
 import React, { useEffect } from 'react';
-import { PopupHeader } from '../../Common/Popup';
-import { DownloadLoadingInner, DownloadLoadingWrapper } from './';
+import ReactDOM from 'react-dom';
 import Loading from '../../Common/Loading/Loading';
 
 interface DownloadLoadingProps {
@@ -31,6 +30,9 @@ export default function DownloadLoading({
   onDownload,
 }: DownloadLoadingProps): React.ReactElement {
   useEffect(() => {
+    // Prevent body scroll while loading
+    document.body.style.overflow = 'hidden';
+
     const timer = setTimeout(() => {
       const runDownload = async (): Promise<void> => {
         try {
@@ -45,27 +47,50 @@ export default function DownloadLoading({
 
       runDownload();
     }, 1500);
-    return (): void => clearTimeout(timer);
+
+    return (): void => {
+      clearTimeout(timer);
+      // Restore body scroll
+      document.body.style.overflow = '';
+    };
   }, [onDownload, onSuccess, onError]);
 
   const message =
     type === 'image' ? 'Image Downloading' : 'Wallpaper Downloading';
 
-  return (
-    <>
-      <PopupHeader title={message} />
-      <DownloadLoadingWrapper
-        display="flex"
-        flexDirection="column"
-        alignItems="center"
-        m={4}
-        gap={2}
-        position="relative"
+  // Use fullscreen overlay to hide DOM changes during download
+  // Use React Portal to render outside of any parent container
+  return ReactDOM.createPortal(
+    <div
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        width: '100vw',
+        height: '100vh',
+        backgroundColor: 'rgba(255, 255, 255, 0.98)',
+        zIndex: 9999,
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}
+    >
+      <div style={{ marginBottom: '100px' }}>
+        <Loading />
+      </div>
+      <div
+        style={{
+          fontSize: '20px',
+          color: '#333',
+          fontWeight: 500,
+        }}
       >
-        <DownloadLoadingInner position="relative" m={5}>
-          <Loading />
-        </DownloadLoadingInner>
-      </DownloadLoadingWrapper>
-    </>
+        {message}
+      </div>
+    </div>,
+    document.body,
   );
 }
