@@ -75,19 +75,25 @@ const captureSchedule = async (
     const originalInnerWidth = window.innerWidth;
 
     try {
-      // Set container to mobile-friendly dimensions
-      element.style.width = `${baseMobileWidth}px`;
-      element.style.height = `${baseMobileHeight}px`;
-      element.style.maxWidth = `${baseMobileWidth}px`;
+      // Calculate content width (reduce by 10% for margins)
+      const paddingPerSide = Math.floor(baseMobileWidth * 0.05);
+      const contentWidth = baseMobileWidth - paddingPerSide * 2;
+
+      // Set container to reduced width for natural margins
+      element.style.width = `${contentWidth}px`;
+      // Don't force height - let it be natural to avoid empty space
+      element.style.height = 'auto';
+      element.style.maxWidth = `${contentWidth}px`;
+      // Set max-height but allow shorter content
       element.style.maxHeight = `${baseMobileHeight}px`;
-      element.style.minWidth = `${baseMobileWidth}px`;
+      element.style.minWidth = `${contentWidth}px`;
       element.style.overflow = 'hidden';
 
-      // Mock window.innerWidth to mobile size for proper component behavior
+      // Mock window.innerWidth to content width for proper responsive behavior
       Object.defineProperty(window, 'innerWidth', {
         writable: true,
         configurable: true,
-        value: baseMobileWidth,
+        value: contentWidth,
       });
 
       // Trigger resize event for mobile layout
@@ -98,16 +104,36 @@ const captureSchedule = async (
       await new Promise((resolve) => setTimeout(resolve, 300));
 
       // Capture with high pixel ratio for crisp output using html2canvas
-      const canvas = await html2canvas.default(element, {
+      const tempCanvas = await html2canvas.default(element, {
         backgroundColor: WALLPAPER_CONFIG.canvas.backgroundColor,
         scale: scaleFactor,
         useCORS: true,
         allowTaint: true,
-        width: baseMobileWidth,
-        height: baseMobileHeight,
+        width: contentWidth,
+        // Don't force height - let it capture actual content height
       });
 
-      return canvas;
+      // Create final canvas with correct aspect ratio
+      const finalCanvas = document.createElement('canvas');
+      finalCanvas.width = baseMobileWidth * scaleFactor;
+      finalCanvas.height = baseMobileHeight * scaleFactor;
+
+      const ctx = finalCanvas.getContext('2d');
+      if (!ctx) throw new Error('Failed to get canvas context');
+
+      // Fill background
+      ctx.fillStyle = WALLPAPER_CONFIG.canvas.backgroundColor;
+      ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
+
+      // Calculate vertical positioning - fixed bottom padding, rest on top
+      const xOffset = paddingPerSide * scaleFactor;
+      const bottomPadding = 40 * scaleFactor; // Fixed 20px bottom padding
+      const yOffset = finalCanvas.height - tempCanvas.height - bottomPadding;
+
+      // Draw the captured content with padding
+      ctx.drawImage(tempCanvas, xOffset, yOffset);
+
+      return finalCanvas;
     } finally {
       // Restore original element styles
       element.style.width = originalStyles.width;
