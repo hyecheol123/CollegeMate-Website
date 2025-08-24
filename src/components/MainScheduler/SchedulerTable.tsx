@@ -52,7 +52,7 @@ function SchedulerTable({
 
     // Return dark text for bright backgrounds, white text for dark backgrounds
     // Use higher threshold (0.7) so gray colors still use white text
-    return luminance > 0.7 ? '#000000' : '#FFFFFF';
+    return luminance > 0.7 ? '#494949' : '#FFFFFF';
   };
 
   useEffect(() => {
