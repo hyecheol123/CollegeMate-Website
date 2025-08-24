@@ -26,12 +26,10 @@ import {
   Select,
   MenuItem,
   FormControl,
-  IconButton,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 // Components
 import ColorSelectionModal from '../Common/ColorSelectionModal';
-import Modal from '../Common/Modal/Modal';
 import type { Term } from '../../data/Terms/getTerms';
 
 // Local interfaces for API data
@@ -46,6 +44,7 @@ interface Meeting {
   meetingTimeStart: number | null;
   meetingTimeEnd: number | null;
   meetingDaysList: string[];
+  meetingType?: string;
   building?: {
     buildingName: string;
   };
@@ -124,7 +123,6 @@ function EditSchedulerPanel({
 
   // Time conflict modal states
   const [isConflictModalOpen, setIsConflictModalOpen] = useState(false);
-  const [conflictMessage, setConflictMessage] = useState('');
   const [pendingEvents, setPendingEvents] = useState<EventData[]>([]);
 
   // Clear all cache on component mount
@@ -135,15 +133,6 @@ function EditSchedulerPanel({
       }
     });
   }, []);
-
-  // Auto-load sections when search results change
-  React.useEffect(() => {
-    searchResults.forEach((course) => {
-      if (!courseSections[course.courseId]) {
-        loadCourseSections(course);
-      }
-    });
-  }, [searchResults]);
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -248,35 +237,45 @@ function EditSchedulerPanel({
     }
   };
 
-  const loadCourseSections = async (
-    course: ClassSearchResult,
-  ): Promise<void> => {
-    if (
-      !currentTerm ||
-      courseSections[course.courseId] ||
-      loadingSections[course.courseId]
-    ) {
-      return;
-    }
+  const loadCourseSections = React.useCallback(
+    async (course: ClassSearchResult): Promise<void> => {
+      if (
+        !currentTerm ||
+        courseSections[course.courseId] ||
+        loadingSections[course.courseId]
+      ) {
+        return;
+      }
 
-    setLoadingSections((prev) => ({ ...prev, [course.courseId]: true }));
+      setLoadingSections((prev) => ({ ...prev, [course.courseId]: true }));
 
-    try {
-      const courseDetails = await getCourseDetails(
-        currentTerm.termCode,
-        course.subject.subjectCode,
-        course.courseId,
-      );
-      setCourseSections((prev) => ({
-        ...prev,
-        [course.courseId]: courseDetails,
-      }));
-    } catch (error) {
-      console.error('Failed to load course sections:', error);
-    } finally {
-      setLoadingSections((prev) => ({ ...prev, [course.courseId]: false }));
-    }
-  };
+      try {
+        const courseDetails = await getCourseDetails(
+          currentTerm.termCode,
+          course.subject.subjectCode,
+          course.courseId,
+        );
+        setCourseSections((prev) => ({
+          ...prev,
+          [course.courseId]: courseDetails,
+        }));
+      } catch (error) {
+        console.error('Failed to load course sections:', error);
+      } finally {
+        setLoadingSections((prev) => ({ ...prev, [course.courseId]: false }));
+      }
+    },
+    [currentTerm, courseSections, loadingSections],
+  );
+
+  // Auto-load sections when search results change
+  React.useEffect(() => {
+    searchResults.forEach((course) => {
+      if (!courseSections[course.courseId]) {
+        loadCourseSections(course);
+      }
+    });
+  }, [searchResults, loadCourseSections]);
 
   const handleAddSection = async (
     course: ClassSearchResult,
@@ -405,7 +404,6 @@ function EditSchedulerPanel({
     // Check for time conflicts before adding events
     const conflictMessage = checkTimeConflict(events);
     if (conflictMessage) {
-      setConflictMessage(conflictMessage);
       setPendingEvents(events);
       setIsConflictModalOpen(true);
       return;
@@ -455,7 +453,6 @@ function EditSchedulerPanel({
 
     // Reset modal state
     setIsConflictModalOpen(false);
-    setConflictMessage('');
     setPendingEvents([]);
   };
 
@@ -507,23 +504,25 @@ function EditSchedulerPanel({
     const lectures: Section[] = [];
     const seenSections = new Set<string>();
 
-    (sectionData as any[]).forEach((enrollmentPackage: any) => {
-      // Skip closed sections
-      if (enrollmentPackage.packageEnrollmentStatus?.status === 'CLOSED') {
-        return;
-      }
-
-      enrollmentPackage.sections?.forEach((section: any) => {
-        // Include only LEC and other non-DIS, non-LAB section types as "lectures"
-        if (section.type !== 'DIS' && section.type !== 'LAB') {
-          const sectionKey = `${section.type}-${section.sectionNumber}`;
-          if (!seenSections.has(sectionKey)) {
-            seenSections.add(sectionKey);
-            lectures.push(section);
-          }
+    (sectionData as EnrollmentPackage[]).forEach(
+      (enrollmentPackage: EnrollmentPackage) => {
+        // Skip closed sections
+        if (enrollmentPackage.packageEnrollmentStatus?.status === 'CLOSED') {
+          return;
         }
-      });
-    });
+
+        enrollmentPackage.sections?.forEach((section: Section) => {
+          // Include only LEC and other non-DIS, non-LAB section types as "lectures"
+          if (section.type !== 'DIS' && section.type !== 'LAB') {
+            const sectionKey = `${section.type}-${section.sectionNumber}`;
+            if (!seenSections.has(sectionKey)) {
+              seenSections.add(sectionKey);
+              lectures.push(section);
+            }
+          }
+        });
+      },
+    );
 
     return lectures.sort((a, b) => {
       const aNum = parseInt(a.sectionNumber || '0', 10);
@@ -544,22 +543,24 @@ function EditSchedulerPanel({
       const discussions: Section[] = [];
       const seenSections = new Set<string>();
 
-      (sectionData as any[]).forEach((enrollmentPackage: any) => {
-        // Skip closed sections
-        if (enrollmentPackage.packageEnrollmentStatus?.status === 'CLOSED') {
-          return;
-        }
-
-        enrollmentPackage.sections?.forEach((section: any) => {
-          if (section.type === 'DIS') {
-            const sectionKey = `${section.type}-${section.sectionNumber}`;
-            if (!seenSections.has(sectionKey)) {
-              seenSections.add(sectionKey);
-              discussions.push(section);
-            }
+      (sectionData as EnrollmentPackage[]).forEach(
+        (enrollmentPackage: EnrollmentPackage) => {
+          // Skip closed sections
+          if (enrollmentPackage.packageEnrollmentStatus?.status === 'CLOSED') {
+            return;
           }
-        });
-      });
+
+          enrollmentPackage.sections?.forEach((section: Section) => {
+            if (section.type === 'DIS') {
+              const sectionKey = `${section.type}-${section.sectionNumber}`;
+              if (!seenSections.has(sectionKey)) {
+                seenSections.add(sectionKey);
+                discussions.push(section);
+              }
+            }
+          });
+        },
+      );
 
       return discussions.sort((a, b) => {
         const aNum = parseInt(a.sectionNumber || '0', 10);
@@ -569,17 +570,19 @@ function EditSchedulerPanel({
     }
 
     // Find the selected lecture first
-    let selectedLecture: any | null = null;
-    (sectionData as any[]).forEach((enrollmentPackage: any) => {
-      enrollmentPackage.sections?.forEach((section: any) => {
-        if (
-          section.type === 'LEC' &&
-          section.sectionNumber === selectedLectureNumber
-        ) {
-          selectedLecture = section;
-        }
-      });
-    });
+    let selectedLecture: Section | null = null;
+    (sectionData as EnrollmentPackage[]).forEach(
+      (enrollmentPackage: EnrollmentPackage) => {
+        enrollmentPackage.sections?.forEach((section: Section) => {
+          if (
+            section.type === 'LEC' &&
+            section.sectionNumber === selectedLectureNumber
+          ) {
+            selectedLecture = section;
+          }
+        });
+      },
+    );
 
     if (!selectedLecture) return [];
 
@@ -587,32 +590,34 @@ function EditSchedulerPanel({
     const relatedDiscussions: Section[] = [];
     const seenSections = new Set<string>();
 
-    (sectionData as any[]).forEach((enrollmentPackage: any) => {
-      // Skip closed sections
-      if (enrollmentPackage.packageEnrollmentStatus?.status === 'CLOSED') {
-        return;
-      }
+    (sectionData as EnrollmentPackage[]).forEach(
+      (enrollmentPackage: EnrollmentPackage) => {
+        // Skip closed sections
+        if (enrollmentPackage.packageEnrollmentStatus?.status === 'CLOSED') {
+          return;
+        }
 
-      // Check if this enrollmentPackage contains the selected lecture
-      const hasSelectedLecture = enrollmentPackage.sections?.some(
-        (section: any) =>
-          section.type === 'LEC' &&
-          section.sectionNumber === selectedLectureNumber,
-      );
+        // Check if this enrollmentPackage contains the selected lecture
+        const hasSelectedLecture = enrollmentPackage.sections?.some(
+          (section: Section) =>
+            section.type === 'LEC' &&
+            section.sectionNumber === selectedLectureNumber,
+        );
 
-      if (hasSelectedLecture) {
-        // Include discussions only from this specific enrollmentPackage
-        enrollmentPackage.sections?.forEach((section: any) => {
-          if (section.type === 'DIS') {
-            const sectionKey = `${section.type}-${section.sectionNumber}`;
-            if (!seenSections.has(sectionKey)) {
-              seenSections.add(sectionKey);
-              relatedDiscussions.push(section);
+        if (hasSelectedLecture) {
+          // Include discussions only from this specific enrollmentPackage
+          enrollmentPackage.sections?.forEach((section: Section) => {
+            if (section.type === 'DIS') {
+              const sectionKey = `${section.type}-${section.sectionNumber}`;
+              if (!seenSections.has(sectionKey)) {
+                seenSections.add(sectionKey);
+                relatedDiscussions.push(section);
+              }
             }
-          }
-        });
-      }
-    });
+          });
+        }
+      },
+    );
 
     return relatedDiscussions.sort((a, b) => {
       const aNum = parseInt(a.sectionNumber || '0', 10);
@@ -633,22 +638,24 @@ function EditSchedulerPanel({
       const labs: Section[] = [];
       const seenSections = new Set<string>();
 
-      (sectionData as any[]).forEach((enrollmentPackage: any) => {
-        // Skip closed sections
-        if (enrollmentPackage.packageEnrollmentStatus?.status === 'CLOSED') {
-          return;
-        }
-
-        enrollmentPackage.sections?.forEach((section: any) => {
-          if (section.type === 'LAB') {
-            const sectionKey = `${section.type}-${section.sectionNumber}`;
-            if (!seenSections.has(sectionKey)) {
-              seenSections.add(sectionKey);
-              labs.push(section);
-            }
+      (sectionData as EnrollmentPackage[]).forEach(
+        (enrollmentPackage: EnrollmentPackage) => {
+          // Skip closed sections
+          if (enrollmentPackage.packageEnrollmentStatus?.status === 'CLOSED') {
+            return;
           }
-        });
-      });
+
+          enrollmentPackage.sections?.forEach((section: Section) => {
+            if (section.type === 'LAB') {
+              const sectionKey = `${section.type}-${section.sectionNumber}`;
+              if (!seenSections.has(sectionKey)) {
+                seenSections.add(sectionKey);
+                labs.push(section);
+              }
+            }
+          });
+        },
+      );
 
       return labs.sort((a, b) => {
         const aNum = parseInt(a.sectionNumber || '0', 10);
@@ -664,22 +671,24 @@ function EditSchedulerPanel({
       const labs: Section[] = [];
       const seenSections = new Set<string>();
 
-      (sectionData as any[]).forEach((enrollmentPackage: any) => {
-        // Skip closed sections
-        if (enrollmentPackage.packageEnrollmentStatus?.status === 'CLOSED') {
-          return;
-        }
-
-        enrollmentPackage.sections?.forEach((section: any) => {
-          if (section.type === 'LAB') {
-            const sectionKey = `${section.type}-${section.sectionNumber}`;
-            if (!seenSections.has(sectionKey)) {
-              seenSections.add(sectionKey);
-              labs.push(section);
-            }
+      (sectionData as EnrollmentPackage[]).forEach(
+        (enrollmentPackage: EnrollmentPackage) => {
+          // Skip closed sections
+          if (enrollmentPackage.packageEnrollmentStatus?.status === 'CLOSED') {
+            return;
           }
-        });
-      });
+
+          enrollmentPackage.sections?.forEach((section: Section) => {
+            if (section.type === 'LAB') {
+              const sectionKey = `${section.type}-${section.sectionNumber}`;
+              if (!seenSections.has(sectionKey)) {
+                seenSections.add(sectionKey);
+                labs.push(section);
+              }
+            }
+          });
+        },
+      );
 
       return labs.sort((a, b) => {
         const aNum = parseInt(a.sectionNumber || '0', 10);
@@ -698,32 +707,34 @@ function EditSchedulerPanel({
     const relatedLabs: Section[] = [];
     const seenSections = new Set<string>();
 
-    (sectionData as any[]).forEach((enrollmentPackage: any) => {
-      // Skip closed sections
-      if (enrollmentPackage.packageEnrollmentStatus?.status === 'CLOSED') {
-        return;
-      }
+    (sectionData as EnrollmentPackage[]).forEach(
+      (enrollmentPackage: EnrollmentPackage) => {
+        // Skip closed sections
+        if (enrollmentPackage.packageEnrollmentStatus?.status === 'CLOSED') {
+          return;
+        }
 
-      // Check if this enrollmentPackage contains the selected lecture
-      const hasSelectedLecture = enrollmentPackage.sections?.some(
-        (section: any) =>
-          section.type === 'LEC' &&
-          section.sectionNumber === selectedLectureNumber,
-      );
+        // Check if this enrollmentPackage contains the selected lecture
+        const hasSelectedLecture = enrollmentPackage.sections?.some(
+          (section: Section) =>
+            section.type === 'LEC' &&
+            section.sectionNumber === selectedLectureNumber,
+        );
 
-      if (hasSelectedLecture) {
-        // Include labs only from this specific enrollmentPackage
-        enrollmentPackage.sections?.forEach((section: any) => {
-          if (section.type === 'LAB') {
-            const sectionKey = `${section.type}-${section.sectionNumber}`;
-            if (!seenSections.has(sectionKey)) {
-              seenSections.add(sectionKey);
-              relatedLabs.push(section);
+        if (hasSelectedLecture) {
+          // Include labs only from this specific enrollmentPackage
+          enrollmentPackage.sections?.forEach((section: Section) => {
+            if (section.type === 'LAB') {
+              const sectionKey = `${section.type}-${section.sectionNumber}`;
+              if (!seenSections.has(sectionKey)) {
+                seenSections.add(sectionKey);
+                relatedLabs.push(section);
+              }
             }
-          }
-        });
-      }
-    });
+          });
+        }
+      },
+    );
 
     return relatedLabs.sort((a, b) => {
       const aNum = parseInt(a.sectionNumber || '0', 10);
@@ -1046,9 +1057,10 @@ function EditSchedulerPanel({
                           // Show all meeting times (exclude EXAM meetings)
                           const timeSlots = lecture.classMeetings
                             .filter(
-                              (meeting: any) => meeting.meetingType !== 'EXAM',
+                              (meeting: Meeting) =>
+                                meeting.meetingType !== 'EXAM',
                             )
-                            .map((meeting: any) => {
+                            .map((meeting: Meeting) => {
                               if (
                                 meeting.meetingTimeStart &&
                                 meeting.meetingTimeEnd
@@ -1077,7 +1089,8 @@ function EditSchedulerPanel({
 
                           // Use the first non-EXAM meeting for location display
                           const classMeeting = lecture.classMeetings.find(
-                            (meeting: any) => meeting.meetingType !== 'EXAM',
+                            (meeting: Meeting) =>
+                              meeting.meetingType !== 'EXAM',
                           );
                           if (
                             classMeeting?.building?.buildingName &&
