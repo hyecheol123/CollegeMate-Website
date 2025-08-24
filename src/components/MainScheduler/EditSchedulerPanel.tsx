@@ -286,7 +286,7 @@ function EditSchedulerPanel({
     }
 
     const sectionId = `${course.courseId}-${section.sectionNumber}`;
-    const selectedColor = classColors[sectionId] || '#9E9E9E';
+    const selectedColor = classColors[course.courseId] || classColors[sectionId] || '#9E9E9E';
 
     // Check if this is an online course
     const hasOnlineMeetings = section.classMeetings?.some(
