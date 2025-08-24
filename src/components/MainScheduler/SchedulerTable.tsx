@@ -9,12 +9,14 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { Box, Typography } from '@mui/material';
 // Components
 import Modal from '../Common/Modal/Modal';
+import ColorSelectionModal from '../Common/ColorSelectionModal/ColorSelectionModal';
 import getDummyEvents from '../../data/Schedule/getDummyEvents';
 import type { EventData } from '../../types/event';
 
 interface SchedulerTableProps {
   events?: EventData[];
   onRemoveEvent?: (eventId: string) => void;
+  onEventColorChange?: (eventId: string, color: string) => void;
   isEditMode?: boolean;
 }
 
@@ -27,12 +29,15 @@ interface SchedulerTableProps {
 function SchedulerTable({
   events,
   onRemoveEvent,
+  onEventColorChange,
   isEditMode = false,
 }: SchedulerTableProps): React.ReactElement {
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
   const [myEvents, setMyEvents] = useState<EventData[]>([]);
+  const [isColorModalOpen, setIsColorModalOpen] = useState(false);
+  const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
 
   // Function to determine text color based on background brightness
   const getTextColor = (backgroundColor: string): string => {
@@ -89,9 +94,40 @@ function SchedulerTable({
     }
   };
 
+  const handleEventClick = (eventId: string): void => {
+    if (isEditMode && onEventColorChange) {
+      setSelectedEventId(eventId);
+      setIsColorModalOpen(true);
+    }
+  };
+
+  const handleColorSelect = (color: string): void => {
+    if (selectedEventId && onEventColorChange) {
+      onEventColorChange(selectedEventId, color);
+    }
+    setIsColorModalOpen(false);
+    setSelectedEventId(null);
+  };
+
+  const handleColorModalClose = (): void => {
+    setIsColorModalOpen(false);
+    setSelectedEventId(null);
+  };
+
   // Function to determine the color based on the hour index
   const getColorForHourIndex = (hourLabel: number): string => {
     return hourLabel % 2 === 0 ? 'whiteGrey.main' : 'white.main';
+  };
+
+  // Function to reorder location string to put building number first
+  const formatLocation = (location: string): string => {
+    // Match pattern: "Building Name Number" -> "Number Building Name"
+    const match = location.match(/^(.+?)\s+(\d+)$/);
+    if (match) {
+      const [, buildingName, number] = match;
+      return `${number} ${buildingName}`;
+    }
+    return location;
   };
 
   const getHourLabel = (hour: number): string => {
@@ -144,8 +180,7 @@ function SchedulerTable({
     <Box
       sx={{
         width: '100%',
-        minWidth: windowWidth < 768 ? 'unset' : '600px',
-        overflow: windowWidth < 768 ? 'auto' : 'visible',
+        overflow: 'visible',
       }}
     >
       <Modal
@@ -172,10 +207,10 @@ function SchedulerTable({
             gridTemplateRows: `40px repeat(${(maxHour - minHour + 1) * 12}, 5px)`,
             width: '100%',
             height: `${40 + (maxHour - minHour + 1) * 60}px`,
-            borderRadius: '6px',
             overflow: 'visible',
             position: 'relative',
             alignItems: 'stretch',
+            borderRadius: '4px',
           }}
         >
           {/* Header Row */}
@@ -186,8 +221,8 @@ function SchedulerTable({
               display: 'grid',
               gridTemplateColumns: `${windowWidth < 300 ? '40px' : '45px'} repeat(${days.length}, 1fr)`,
               bgcolor: 'red.main',
-              borderRadius: '6px 6px 0 0',
               alignItems: 'stretch',
+              borderRadius: '4px 4px 0 0',
             }}
           >
             <Box
@@ -227,6 +262,7 @@ function SchedulerTable({
               bgcolor: 'red.main',
               display: 'flex',
               flexDirection: 'column',
+              borderRadius: '0 0 0 4px',
             }}
           >
             {majorHours.map((hourLabel, hourIndex) => {
@@ -288,71 +324,128 @@ function SchedulerTable({
 
             return (
               <Box
-                key={`event-${event.id}`}
+                key={`event-container-${event.id}`}
                 sx={{
                   gridColumn: dayIndex + 2,
                   gridRow: `${startGridRow} / ${endGridRow}`,
-                  backgroundColor: event.color,
-                  borderRadius: '4px',
                   position: 'relative',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'default',
                   zIndex: 10 + eventIndex,
                   minWidth: 0,
                   overflow: 'visible',
                 }}
               >
                 <Box
+                  key={`event-${event.id}`}
                   sx={{
+                    width: '100%',
+                    height: '100%',
+                    backgroundColor: event.color,
                     display: 'flex',
-                    flexDirection: 'column',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    height: '100%',
-                    padding: '4px',
+                    cursor: isEditMode ? 'pointer' : 'default',
+                    borderRadius: '4px',
+                    '&:hover': isEditMode
+                      ? {
+                          opacity: 0.8,
+                        }
+                      : {},
+                  }}
+                  onClick={(e) => {
+                    if (!isEditMode) {
+                      return;
+                    }
+                    e.stopPropagation();
+                    handleEventClick(event.id);
                   }}
                 >
-                  <Typography
-                    variant="body2"
-                    align="center"
+                  <Box
                     sx={{
-                      wordWrap: 'break-word',
-                      whiteSpace: windowWidth < 768 ? 'normal' : 'nowrap',
-                      textOverflow: windowWidth < 768 ? 'unset' : 'ellipsis',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      height: '100%',
+                      padding: '2px 4px',
+                      textAlign: 'center',
                       overflow: 'hidden',
-                      width: '100%',
-                      fontSize: windowWidth < 768 ? '11px' : 'inherit',
-                      fontWeight: windowWidth < 768 ? '500' : 'inherit',
-                      lineHeight: windowWidth < 768 ? '1.2' : 'inherit',
-                      color: getTextColor(event.color),
                     }}
                   >
-                    {event.title}
-                  </Typography>
-                  {event.location && event.location !== 'TBA' && (
                     <Typography
                       variant="body2"
                       align="center"
                       sx={{
-                        fontSize: windowWidth < 768 ? '8px' : '10px',
-                        opacity: 0.8,
-                        whiteSpace: windowWidth < 768 ? 'normal' : 'nowrap',
-                        textOverflow: windowWidth < 768 ? 'unset' : 'ellipsis',
+                        wordWrap: 'break-word',
+                        whiteSpace: 'normal',
                         overflow: 'hidden',
                         width: '100%',
-                        marginTop: '1px',
-                        lineHeight: windowWidth < 768 ? '1.0' : 'inherit',
+                        fontSize:
+                          event.title.length > 20
+                            ? windowWidth < 768
+                              ? '8px'
+                              : '9px'
+                            : event.title.length > 15
+                              ? windowWidth < 768
+                                ? '9px'
+                                : '10px'
+                              : windowWidth < 768
+                                ? '10px'
+                                : '11px',
+                        fontWeight: windowWidth < 768 ? '500' : 'inherit',
+                        lineHeight: '1.1',
                         color: getTextColor(event.color),
+                        textOverflow: 'ellipsis',
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        textAlign: 'center',
+                        margin: '0 auto',
                       }}
                     >
-                      {event.location}
+                      {event.title}
                     </Typography>
-                  )}
+                    {event.location && event.location !== 'TBA' && (
+                      <Typography
+                        variant="body2"
+                        align="center"
+                        sx={{
+                          fontSize:
+                            event.location.length > 30
+                              ? windowWidth < 768
+                                ? '5px'
+                                : '6px'
+                              : event.location.length > 20
+                                ? windowWidth < 768
+                                  ? '6px'
+                                  : '7px'
+                                : event.location.length > 12
+                                  ? windowWidth < 768
+                                    ? '7px'
+                                    : '8px'
+                                  : windowWidth < 768
+                                    ? '8px'
+                                    : '9px',
+                          opacity: 0.8,
+                          whiteSpace: 'normal',
+                          overflow: 'hidden',
+                          width: '100%',
+                          marginTop: '1px',
+                          lineHeight: '0.9',
+                          color: getTextColor(event.color),
+                          textAlign: 'center',
+                          margin: '1px auto 0',
+                          wordBreak: 'break-word',
+                          hyphens: 'auto',
+                        }}
+                      >
+                        {formatLocation(event.location)}
+                      </Typography>
+                    )}
+                  </Box>
                 </Box>
                 {isEditMode && (
                   <Box
+                    data-remove-button="true"
                     sx={{
                       position: 'absolute',
                       top: '-8px',
@@ -383,6 +476,16 @@ function SchedulerTable({
         </Box>
       </Box>
       {/* <InfoFooter>Remove due to mvp feature</InfoFooter> */}
+
+      {/* Color Selection Modal */}
+      <ColorSelectionModal
+        open={isColorModalOpen}
+        onClose={handleColorModalClose}
+        onColorSelect={handleColorSelect}
+        title="Change Event Color"
+        message="Select a new color for this class"
+        buttonText="Apply Color"
+      />
     </Box>
   );
 }
