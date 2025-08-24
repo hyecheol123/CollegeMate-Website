@@ -111,7 +111,7 @@ const captureSchedule = async (
       await new Promise((resolve) => setTimeout(resolve, 300));
 
       // First capture WITHOUT scaling to check actual height
-      let testCanvas = await html2canvas.default(element, {
+      const testCanvas = await html2canvas.default(element, {
         backgroundColor: WALLPAPER_CONFIG.canvas.backgroundColor,
         scale: 1, // No scaling for test
         useCORS: true,
