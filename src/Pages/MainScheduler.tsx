@@ -80,6 +80,8 @@ function MainScheduler(): React.ReactElement {
         schedulerRef,
         selectedSize,
       });
+      // Reset selectedSize after successful download
+      setSelectedSize({ width: 0, height: 0 });
       return true; // Download succeeded
     } catch (error) {
       console.error('Download failed:', error);

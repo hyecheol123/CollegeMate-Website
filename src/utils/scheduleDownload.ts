@@ -13,43 +13,10 @@ interface DownloadScheduleOptions {
 
 // Constants for wallpaper generation
 const WALLPAPER_CONFIG = {
-  padding: {
-    left: 0.06, // 6%
-    right: 0.06, // 6%
-    bottom: 0.035, // 3.5%
-    minTop: 0.1, // Minimum 10% top padding
-  },
-  deviceRatio: 2.1654135338, // Fixed aspect ratio for phone wallpaper
   canvas: {
     scale: 2, // Higher quality rendering
     backgroundColor: '#ffffff',
   },
-  text: {
-    font: 'bold 52px Roboto, sans-serif',
-    color: '#B20000', // red.main color
-    offsetY: 30, // Distance above schedule
-  },
-};
-
-// Creates a canvas with padding for wallpaper
-const createPaddedCanvas = (
-  originalCanvas: HTMLCanvasElement,
-  paddingTop: number,
-): HTMLCanvasElement => {
-  const { padding } = WALLPAPER_CONFIG;
-  const contentWidth = originalCanvas.width;
-  const contentHeight = originalCanvas.height;
-
-  // Calculate total dimensions with padding
-  const totalWidth = contentWidth / (1 - padding.left - padding.right);
-  const totalHeight = contentHeight / (1 - paddingTop - padding.bottom);
-
-  // Create new canvas
-  const paddedCanvas = document.createElement('canvas');
-  paddedCanvas.width = totalWidth;
-  paddedCanvas.height = totalHeight;
-
-  return paddedCanvas;
 };
 
 // Triggers the download of the canvas as an image
@@ -62,48 +29,117 @@ const triggerDownload = (canvas: HTMLCanvasElement, fileName: string): void => {
   document.body.removeChild(link);
 };
 
-// Captures the scheduler element as canvas
+// Captures the scheduler element as canvas with mobile simulation
 const captureSchedule = async (
   schedulerRef: React.RefObject<HTMLDivElement>,
+  targetSize?: { width: number; height: number },
 ): Promise<HTMLCanvasElement> => {
   const html2canvas = await import('html2canvas');
+  const element = schedulerRef.current!;
 
-  return html2canvas.default(schedulerRef.current!, {
+  // If targetSize is provided, capture for mobile wallpaper
+  if (targetSize) {
+    // Calculate aspect ratio and determine mobile-friendly base size
+    const aspectRatio = targetSize.width / targetSize.height;
+
+    // Base mobile dimensions that will look good on screen
+    let baseMobileWidth: number;
+    let baseMobileHeight: number;
+
+    if (aspectRatio > 1) {
+      // Landscape orientation (wider than tall)
+      baseMobileWidth = 600;
+      baseMobileHeight = Math.round(600 / aspectRatio);
+    } else {
+      // Portrait orientation (taller than wide)
+      baseMobileWidth = 400;
+      baseMobileHeight = Math.round(400 / aspectRatio);
+    }
+
+    // Calculate the scale factor for final output
+    const scaleFactorX = targetSize.width / baseMobileWidth;
+    const scaleFactorY = targetSize.height / baseMobileHeight;
+    const scaleFactor = Math.max(scaleFactorX, scaleFactorY);
+
+    // Store original styles
+    const originalStyles = {
+      width: element.style.width,
+      height: element.style.height,
+      maxWidth: element.style.maxWidth,
+      maxHeight: element.style.maxHeight,
+      minWidth: element.style.minWidth,
+      overflow: element.style.overflow,
+    };
+
+    // Store original window.innerWidth
+    const originalInnerWidth = window.innerWidth;
+
+    try {
+      // Set container to mobile-friendly dimensions
+      element.style.width = `${baseMobileWidth}px`;
+      element.style.height = `${baseMobileHeight}px`;
+      element.style.maxWidth = `${baseMobileWidth}px`;
+      element.style.maxHeight = `${baseMobileHeight}px`;
+      element.style.minWidth = `${baseMobileWidth}px`;
+      element.style.overflow = 'hidden';
+
+      // Mock window.innerWidth to mobile size for proper component behavior
+      Object.defineProperty(window, 'innerWidth', {
+        writable: true,
+        configurable: true,
+        value: baseMobileWidth,
+      });
+
+      // Trigger resize event for mobile layout
+      const resizeEvent = new Event('resize');
+      window.dispatchEvent(resizeEvent);
+
+      // Wait for layout to stabilize
+      await new Promise((resolve) => setTimeout(resolve, 300));
+
+      // Capture with high pixel ratio for crisp output using html2canvas
+      const canvas = await html2canvas.default(element, {
+        backgroundColor: WALLPAPER_CONFIG.canvas.backgroundColor,
+        scale: scaleFactor,
+        useCORS: true,
+        allowTaint: true,
+        width: baseMobileWidth,
+        height: baseMobileHeight,
+      });
+
+      return canvas;
+    } finally {
+      // Restore original element styles
+      element.style.width = originalStyles.width;
+      element.style.height = originalStyles.height;
+      element.style.maxWidth = originalStyles.maxWidth;
+      element.style.maxHeight = originalStyles.maxHeight;
+      element.style.minWidth = originalStyles.minWidth;
+      element.style.overflow = originalStyles.overflow;
+
+      // Restore original window.innerWidth
+      Object.defineProperty(window, 'innerWidth', {
+        writable: true,
+        configurable: true,
+        value: originalInnerWidth,
+      });
+
+      // Trigger resize to restore original layout
+      const restoreEvent = new Event('resize');
+      window.dispatchEvent(restoreEvent);
+
+      // Brief wait for restoration
+      await new Promise((resolve) => setTimeout(resolve, 300));
+    }
+  }
+
+  // Normal capture without size override
+  return html2canvas.default(element, {
     backgroundColor: WALLPAPER_CONFIG.canvas.backgroundColor,
     scale: WALLPAPER_CONFIG.canvas.scale,
     useCORS: true,
     allowTaint: true,
   });
-};
-
-// Renders the schedule on canvas and triggers download
-const renderAndDownload = async (
-  paddedCanvas: HTMLCanvasElement,
-  originalCanvas: HTMLCanvasElement,
-  x: number,
-  y: number,
-  fileName: string,
-): Promise<void> => {
-  const ctx = paddedCanvas.getContext('2d');
-  if (!ctx) {
-    throw new Error('Failed to get canvas context');
-  }
-
-  // Fill background
-  ctx.fillStyle = WALLPAPER_CONFIG.canvas.backgroundColor;
-  ctx.fillRect(0, 0, paddedCanvas.width, paddedCanvas.height);
-
-  // Draw the original schedule
-  ctx.drawImage(
-    originalCanvas,
-    x,
-    y,
-    originalCanvas.width,
-    originalCanvas.height,
-  );
-
-  // Trigger download
-  triggerDownload(paddedCanvas, fileName);
 };
 
 /**
@@ -117,48 +153,26 @@ export const downloadScheduleAsWallpaper = async ({
   schedulerRef,
   selectedSize,
 }: DownloadScheduleOptions): Promise<void> => {
-  if (!schedulerRef.current) return;
+  if (!schedulerRef.current) {
+    console.error('Scheduler reference is null');
+    return;
+  }
+
+  console.log('Starting download with selectedSize:', selectedSize);
 
   try {
-    // Capture the schedule as canvas
-    const originalCanvas = await captureSchedule(schedulerRef);
-
-    // Use custom device ratio if selectedSize is provided
     if (selectedSize && selectedSize.width > 0 && selectedSize.height > 0) {
-      // Calculate custom device ratio from selectedSize
-      const customDeviceRatio = selectedSize.height / selectedSize.width;
-
-      // Calculate dimensions with custom device ratio
-      const contentWidth = originalCanvas.width;
-      const contentHeight = originalCanvas.height;
-
-      // Calculate padding with custom device ratio
-      const calculatedPaddingTop =
-        0.9 - (contentHeight * 0.88) / (contentWidth * customDeviceRatio);
-      const paddingTop = Math.max(
-        WALLPAPER_CONFIG.padding.minTop,
-        calculatedPaddingTop,
-      );
-
-      // Create padded canvas
-      const paddedCanvas = createPaddedCanvas(originalCanvas, paddingTop);
-      const x = paddedCanvas.width * WALLPAPER_CONFIG.padding.left;
-      const y = paddedCanvas.height * paddingTop;
-
-      // Render and download
-      await renderAndDownload(
-        paddedCanvas,
-        originalCanvas,
-        x,
-        y,
-        'schedule_wallpaper.png',
-      );
+      // Capture with mobile simulation
+      const canvas = await captureSchedule(schedulerRef, selectedSize);
+      triggerDownload(canvas, 'schedule_wallpaper.png');
     } else {
-      // Simple padding for general download (uniform padding based on average dimension)
-      const avgDimension = (originalCanvas.width + originalCanvas.height) / 2;
-      const paddingPixels = avgDimension * 0.05; // 5% of average dimension
+      // Normal capture for general download
+      const originalCanvas = await captureSchedule(schedulerRef);
 
-      // Create canvas with uniform pixel padding
+      // Add simple padding
+      const avgDimension = (originalCanvas.width + originalCanvas.height) / 2;
+      const paddingPixels = avgDimension * 0.05;
+
       const totalWidth = originalCanvas.width + paddingPixels * 2;
       const totalHeight = originalCanvas.height + paddingPixels * 2;
 
@@ -166,21 +180,22 @@ export const downloadScheduleAsWallpaper = async ({
       paddedCanvas.width = totalWidth;
       paddedCanvas.height = totalHeight;
 
-      // Calculate content position (centered with uniform padding)
-      const x = paddingPixels;
-      const y = paddingPixels;
+      const ctx = paddedCanvas.getContext('2d');
+      if (!ctx) throw new Error('Failed to get canvas context');
 
-      // Render and download
-      await renderAndDownload(
-        paddedCanvas,
-        originalCanvas,
-        x,
-        y,
-        'schedule.png',
-      );
+      ctx.fillStyle = WALLPAPER_CONFIG.canvas.backgroundColor;
+      ctx.fillRect(0, 0, totalWidth, totalHeight);
+
+      ctx.drawImage(originalCanvas, paddingPixels, paddingPixels);
+
+      triggerDownload(paddedCanvas, 'schedule.png');
     }
   } catch (error) {
     console.error('Failed to download schedule:', error);
+    console.error('Error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+    });
     throw error;
   }
 };
