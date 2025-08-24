@@ -538,13 +538,7 @@ function EditSchedulerPanel({
 
     if (!selectedLecture) return [];
 
-    // Get instructor of the selected lecture
-    const lectureInstructor =
-      selectedLecture.instructors
-        ?.map((inst: any) => `${inst.name.first} ${inst.name.last}`)
-        .join(', ') || 'TBA';
-
-    // Find discussions with the same instructor
+    // Find all discussions for the selected lecture
     const relatedDiscussions: Section[] = [];
     const seenSections = new Set<string>();
 
@@ -557,18 +551,11 @@ function EditSchedulerPanel({
         
         enrollmentPackage.sections?.forEach((section: any) => {
           if (section.type === 'DIS') {
-            const discussionInstructor =
-              section.instructors
-                ?.map((inst: any) => `${inst.name.first} ${inst.name.last}`)
-                .join(', ') || 'TBA';
-
-            // Match discussions with same instructor as the lecture
-            if (discussionInstructor === lectureInstructor) {
-              const sectionKey = `${section.type}-${section.sectionNumber}`;
-              if (!seenSections.has(sectionKey)) {
-                seenSections.add(sectionKey);
-                relatedDiscussions.push(section);
-              }
+            // Include all discussions for the selected lecture
+            const sectionKey = `${section.type}-${section.sectionNumber}`;
+            if (!seenSections.has(sectionKey)) {
+              seenSections.add(sectionKey);
+              relatedDiscussions.push(section);
             }
           }
         });
@@ -627,12 +614,6 @@ function EditSchedulerPanel({
 
     if (!selectedLectureSection) return [];
 
-    const lectureInstructorNames = new Set(
-      selectedLectureSection.instructors?.map(
-        (inst: any) => `${inst.name.first} ${inst.name.last}`,
-      ) || [],
-    );
-
     const relatedLabs: Section[] = [];
     const seenSections = new Set<string>();
 
@@ -647,21 +628,9 @@ function EditSchedulerPanel({
           if (section.type === 'LAB') {
             const sectionKey = `${section.type}-${section.sectionNumber}`;
             if (!seenSections.has(sectionKey)) {
-              // Check if lab has matching instructor with selected lecture
-              const labInstructorNames = new Set(
-                section.instructors?.map(
-                  (inst: any) => `${inst.name.first} ${inst.name.last}`,
-                ) || [],
-              );
-
-              const hasMatchingInstructor = Array.from(
-                lectureInstructorNames,
-              ).some((name) => labInstructorNames.has(name));
-
-              if (hasMatchingInstructor || lectureInstructorNames.size === 0) {
-                seenSections.add(sectionKey);
-                relatedLabs.push(section);
-              }
+              // Include all labs for the selected lecture
+              seenSections.add(sectionKey);
+              relatedLabs.push(section);
             }
           }
         });
