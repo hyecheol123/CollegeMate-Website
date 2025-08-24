@@ -26,6 +26,7 @@ import {
   Select,
   MenuItem,
   FormControl,
+  IconButton,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 // Components
@@ -79,6 +80,7 @@ interface EditSchedulerPanelProps {
   onAddEvent?: (event: EventData) => void;
   onUpdateEventColor?: (classId: string, color: string) => void;
   onAddOnlineCourse?: (course: OnlineCourse) => void;
+  onRemoveConflictingEvents?: (eventId: string) => void;
   currentTerm?: Term | null;
   existingEvents?: EventData[];
 }
@@ -93,6 +95,7 @@ function EditSchedulerPanel({
   onAddEvent,
   onUpdateEventColor,
   onAddOnlineCourse,
+  onRemoveConflictingEvents,
   currentTerm,
   existingEvents = [],
 }: EditSchedulerPanelProps): React.ReactElement {
@@ -122,6 +125,7 @@ function EditSchedulerPanel({
   // Time conflict modal states
   const [isConflictModalOpen, setIsConflictModalOpen] = useState(false);
   const [conflictMessage, setConflictMessage] = useState('');
+  const [pendingEvents, setPendingEvents] = useState<EventData[]>([]);
 
   // Clear all cache on component mount
   React.useEffect(() => {
@@ -405,6 +409,7 @@ function EditSchedulerPanel({
     const conflictMessage = checkTimeConflict(events);
     if (conflictMessage) {
       setConflictMessage(conflictMessage);
+      setPendingEvents(events);
       setIsConflictModalOpen(true);
       return;
     }
@@ -417,6 +422,36 @@ function EditSchedulerPanel({
   const handleCustomizeColor = (sectionId: string): void => {
     setSelectedClassId(sectionId);
     setColorModalOpen(true);
+  };
+
+  const handleConflictResolve = (keepExisting: boolean): void => {
+    if (!keepExisting && pendingEvents.length > 0 && onRemoveConflictingEvents) {
+      // Remove conflicting events
+      for (const newEvent of pendingEvents) {
+        for (const existingEvent of existingEvents) {
+          if (newEvent.day === existingEvent.day) {
+            const newStart = newEvent.startTime.hour * 60 + newEvent.startTime.minute;
+            const newEnd = newEvent.endTime.hour * 60 + newEvent.endTime.minute;
+            const existingStart = existingEvent.startTime.hour * 60 + existingEvent.startTime.minute;
+            const existingEnd = existingEvent.endTime.hour * 60 + existingEvent.endTime.minute;
+            
+            if (newStart < existingEnd && newEnd > existingStart) {
+              onRemoveConflictingEvents(existingEvent.id);
+            }
+          }
+        }
+      }
+      
+      // Add new events
+      pendingEvents.forEach((event) => {
+        onAddEvent?.(event);
+      });
+    }
+    
+    // Reset modal state
+    setIsConflictModalOpen(false);
+    setConflictMessage('');
+    setPendingEvents([]);
   };
 
   const handleColorSelect = (color: string): void => {
@@ -1650,13 +1685,94 @@ function EditSchedulerPanel({
       />
 
       {/* Time Conflict Modal */}
-      <Modal
-        open={isConflictModalOpen}
-        onClose={() => setIsConflictModalOpen(false)}
-        title="Schedule Conflict"
-        message={conflictMessage}
-        buttonText="OK"
-      />
+      {isConflictModalOpen && (
+        <Box
+          sx={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.6)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 9999,
+          }}
+        >
+          <Box
+            sx={{
+              backgroundColor: '#ffffff',
+              borderRadius: '4px',
+              padding: '32px',
+              maxWidth: '400px',
+              width: '90%',
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
+              position: 'relative',
+              border: '1px solid rgba(0, 0, 0, 0.05)',
+            }}
+          >
+            
+            <Typography
+              variant="body1"
+              sx={{
+                textAlign: 'center',
+                color: 'text.primary',
+                mb: 2,
+              }}
+            >
+              Schedule conflict detected.
+              <br />
+              Do you want to remove conflicting
+              <br />
+              events and add this new class?
+            </Typography>
+            
+            <Box sx={{ mt: 4, display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <Button
+                variant="outlined"
+                fullWidth
+                onClick={() => handleConflictResolve(true)}
+                sx={{
+                  py: 1.5,
+                  borderRadius: '4px',
+                  textTransform: 'none',
+                  fontSize: '16px',
+                  fontWeight: 500,
+                  borderColor: 'grey.300',
+                  color: 'text.primary',
+                  '&:hover': {
+                    borderColor: 'grey.400',
+                    backgroundColor: 'grey.50',
+                  },
+                }}
+              >
+                Keep Existing Events
+              </Button>
+              
+              <Button
+                variant="contained"
+                fullWidth
+                onClick={() => handleConflictResolve(false)}
+                sx={{
+                  py: 1.5,
+                  borderRadius: '4px',
+                  textTransform: 'none',
+                  fontSize: '16px',
+                  fontWeight: 500,
+                  backgroundColor: 'red.main',
+                  color: 'white',
+                  '&:hover': {
+                    backgroundColor: 'red.dark',
+                  },
+                }}
+              >
+                Remove and Add New Class
+              </Button>
+            </Box>
+          </Box>
+        </Box>
+      )}
     </Box>
   );
 }

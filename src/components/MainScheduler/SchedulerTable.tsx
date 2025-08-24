@@ -214,6 +214,7 @@ function SchedulerTable({
             overflow: 'visible',
             position: 'relative',
             alignItems: 'stretch',
+            borderRadius: '4px',
           }}
         >
           {/* Header Row */}
@@ -225,6 +226,7 @@ function SchedulerTable({
               gridTemplateColumns: `${windowWidth < 300 ? '40px' : '45px'} repeat(${days.length}, 1fr)`,
               bgcolor: 'red.main',
               alignItems: 'stretch',
+              borderRadius: '4px 4px 0 0',
             }}
           >
             <Box
