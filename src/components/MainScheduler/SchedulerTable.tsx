@@ -9,12 +9,14 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { Box, Typography } from '@mui/material';
 // Components
 import Modal from '../Common/Modal/Modal';
+import ColorSelectionModal from '../Common/ColorSelectionModal/ColorSelectionModal';
 import getDummyEvents from '../../data/Schedule/getDummyEvents';
 import type { EventData } from '../../types/event';
 
 interface SchedulerTableProps {
   events?: EventData[];
   onRemoveEvent?: (eventId: string) => void;
+  onEventColorChange?: (eventId: string, color: string) => void;
   isEditMode?: boolean;
 }
 
@@ -27,12 +29,15 @@ interface SchedulerTableProps {
 function SchedulerTable({
   events,
   onRemoveEvent,
+  onEventColorChange,
   isEditMode = false,
 }: SchedulerTableProps): React.ReactElement {
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
   const [myEvents, setMyEvents] = useState<EventData[]>([]);
+  const [isColorModalOpen, setIsColorModalOpen] = useState(false);
+  const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
 
   // Function to determine text color based on background brightness
   const getTextColor = (backgroundColor: string): string => {
@@ -84,9 +89,33 @@ function SchedulerTable({
   };
 
   const handleRemoveEvent = (eventId: string): void => {
+    console.log('handleRemoveEvent called with:', eventId);
     if (onRemoveEvent) {
+      console.log('Calling onRemoveEvent for:', eventId);
       onRemoveEvent(eventId);
     }
+  };
+
+  const handleEventClick = (eventId: string): void => {
+    console.log('handleEventClick called with:', eventId, 'isEditMode:', isEditMode, 'onEventColorChange:', !!onEventColorChange);
+    if (isEditMode && onEventColorChange) {
+      console.log('Opening color modal for event:', eventId);
+      setSelectedEventId(eventId);
+      setIsColorModalOpen(true);
+    }
+  };
+
+  const handleColorSelect = (color: string): void => {
+    if (selectedEventId && onEventColorChange) {
+      onEventColorChange(selectedEventId, color);
+    }
+    setIsColorModalOpen(false);
+    setSelectedEventId(null);
+  };
+
+  const handleColorModalClose = (): void => {
+    setIsColorModalOpen(false);
+    setSelectedEventId(null);
   };
 
   // Function to determine the color based on the hour index
@@ -297,21 +326,41 @@ function SchedulerTable({
 
             return (
               <Box
-                key={`event-${event.id}`}
+                key={`event-container-${event.id}`}
                 sx={{
                   gridColumn: dayIndex + 2,
                   gridRow: `${startGridRow} / ${endGridRow}`,
-                  backgroundColor: event.color,
                   position: 'relative',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'default',
                   zIndex: 10 + eventIndex,
                   minWidth: 0,
                   overflow: 'visible',
                 }}
               >
+                <Box
+                  key={`event-${event.id}`}
+                  sx={{
+                    width: '100%',
+                    height: '100%',
+                    backgroundColor: event.color,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: isEditMode ? 'pointer' : 'default',
+                    '&:hover': isEditMode ? {
+                      opacity: 0.8,
+                    } : {},
+                  }}
+                  onClick={(e) => {
+                    console.log('Block clicked:', event.id, 'target:', e.target);
+                    if (!isEditMode) {
+                      console.log('Not in edit mode, returning');
+                      return;
+                    }
+                    e.stopPropagation();
+                    console.log('Calling handleEventClick for:', event.id);
+                    handleEventClick(event.id);
+                  }}
+                >
                 <Box
                   sx={{
                     display: 'flex',
@@ -357,8 +406,10 @@ function SchedulerTable({
                     </Typography>
                   )}
                 </Box>
+                </Box>
                 {isEditMode && (
                   <Box
+                    data-remove-button="true"
                     sx={{
                       position: 'absolute',
                       top: '-8px',
@@ -376,6 +427,7 @@ function SchedulerTable({
                       justifyContent: 'center',
                     }}
                     onClick={(e): void => {
+                      console.log('X button clicked for:', event.id);
                       e.stopPropagation();
                       handleRemoveEvent(event.id);
                     }}
@@ -389,6 +441,16 @@ function SchedulerTable({
         </Box>
       </Box>
       {/* <InfoFooter>Remove due to mvp feature</InfoFooter> */}
+
+      {/* Color Selection Modal */}
+      <ColorSelectionModal
+        open={isColorModalOpen}
+        onClose={handleColorModalClose}
+        onColorSelect={handleColorSelect}
+        title="Change Event Color"
+        message="Select a new color for this class"
+        buttonText="Apply Color"
+      />
     </Box>
   );
 }

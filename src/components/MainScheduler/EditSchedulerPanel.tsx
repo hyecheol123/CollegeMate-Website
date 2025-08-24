@@ -956,27 +956,29 @@ function EditSchedulerPanel({
                         lecture.classMeetings &&
                         lecture.classMeetings.length > 0
                       ) {
-                        // Show all meeting times
-                        const timeSlots = lecture.classMeetings.map(meeting => {
-                          if (meeting.meetingTimeStart && meeting.meetingTimeEnd) {
-                            const startTime = formatTime(meeting.meetingTimeStart);
-                            const endTime = formatTime(meeting.meetingTimeEnd);
-                            const days = formatDays(meeting.meetingDaysList || []);
-                            return `${days} ${startTime}-${endTime}`;
-                          } else if (meeting.building?.buildingName === 'ONLINE') {
-                            return 'ONLINE';
-                          }
-                          return null;
-                        }).filter(Boolean);
+                        // Show all meeting times (exclude EXAM meetings)
+                        const timeSlots = lecture.classMeetings
+                          .filter((meeting: any) => meeting.meetingType !== 'EXAM')
+                          .map((meeting: any) => {
+                            if (meeting.meetingTimeStart && meeting.meetingTimeEnd) {
+                              const startTime = formatTime(meeting.meetingTimeStart);
+                              const endTime = formatTime(meeting.meetingTimeEnd);
+                              const days = formatDays(meeting.meetingDaysList || []);
+                              return `${days} ${startTime}-${endTime}`;
+                            } else if (meeting.building?.buildingName === 'ONLINE') {
+                              return 'ONLINE';
+                            }
+                            return null;
+                          }).filter(Boolean);
                         
                         timeDisplay = timeSlots.length > 0 ? timeSlots.join(', ') : 'TBA';
 
-                        // Use the first meeting for location display
-                        const meeting = lecture.classMeetings[0];
-                        if (meeting.building?.buildingName && meeting.room) {
-                          locationDisplay = `${meeting.building.buildingName} ${meeting.room}`;
-                        } else if (meeting.building?.buildingName) {
-                          locationDisplay = meeting.building.buildingName;
+                        // Use the first non-EXAM meeting for location display
+                        const classMeeting = lecture.classMeetings.find((meeting: any) => meeting.meetingType !== 'EXAM');
+                        if (classMeeting?.building?.buildingName && classMeeting.room) {
+                          locationDisplay = `${classMeeting.building.buildingName} ${classMeeting.room}`;
+                        } else if (classMeeting?.building?.buildingName) {
+                          locationDisplay = classMeeting.building.buildingName;
                         }
                       }
 
