@@ -392,7 +392,7 @@ function EditSchedulerPanel({
             meeting.building?.buildingName === 'ONLINE'
               ? 'Online'
               : meeting.building?.buildingName && meeting.room
-                ? `${normalizeBuildingNameMemo(meeting.building.buildingName)} ${meeting.room}`
+                ? `${meeting.room} ${normalizeBuildingNameMemo(meeting.building.buildingName)}`
                 : meeting.building?.buildingName
                   ? normalizeBuildingNameMemo(meeting.building.buildingName)
                   : 'TBA',
@@ -1130,7 +1130,7 @@ function EditSchedulerPanel({
                             classMeeting?.building?.buildingName &&
                             classMeeting.room
                           ) {
-                            locationDisplay = `${normalizeBuildingNameMemo(classMeeting.building.buildingName)} ${classMeeting.room}`;
+                            locationDisplay = `${classMeeting.room} ${normalizeBuildingNameMemo(classMeeting.building.buildingName)}`;
                           } else if (classMeeting?.building?.buildingName) {
                             locationDisplay =
                               normalizeBuildingNameMemo(classMeeting.building.buildingName);
@@ -1326,7 +1326,7 @@ function EditSchedulerPanel({
                           }
 
                           if (meeting.building?.buildingName && meeting.room) {
-                            locationDisplay = `${normalizeBuildingNameMemo(meeting.building.buildingName)} ${meeting.room}`;
+                            locationDisplay = `${meeting.room} ${normalizeBuildingNameMemo(meeting.building.buildingName)}`;
                           } else if (meeting.building?.buildingName) {
                             locationDisplay = normalizeBuildingNameMemo(meeting.building.buildingName);
                           }
@@ -1511,7 +1511,7 @@ function EditSchedulerPanel({
                           }
 
                           if (meeting.building?.buildingName && meeting.room) {
-                            locationDisplay = `${normalizeBuildingNameMemo(meeting.building.buildingName)} ${meeting.room}`;
+                            locationDisplay = `${meeting.room} ${normalizeBuildingNameMemo(meeting.building.buildingName)}`;
                           } else if (meeting.building?.buildingName) {
                             locationDisplay = normalizeBuildingNameMemo(meeting.building.buildingName);
                           }
