@@ -52,8 +52,15 @@ const captureSchedule = async (
       baseMobileHeight = Math.round(600 / aspectRatio);
     } else {
       // Portrait orientation (taller than wide)
-      baseMobileWidth = 400;
-      baseMobileHeight = Math.round(400 / aspectRatio);
+      // Adjust base width based on aspect ratio for better fit
+      if (aspectRatio < 0.6) {
+        baseMobileWidth = 400; // Narrow screens (most iPhones)
+      } else if (aspectRatio < 0.8) {
+        baseMobileWidth = 500; // Wider screens (iPad)
+      } else {
+        baseMobileWidth = 550; // Even wider screens
+      }
+      baseMobileHeight = Math.round(baseMobileWidth / aspectRatio);
     }
 
     // Calculate the scale factor for final output
@@ -76,8 +83,8 @@ const captureSchedule = async (
 
     try {
       // Calculate content width (reduce by 10% for margins)
-      const paddingPerSide = Math.floor(baseMobileWidth * 0.05);
-      const contentWidth = baseMobileWidth - paddingPerSide * 2;
+      let paddingPerSide = Math.floor(baseMobileWidth * 0.05);
+      let contentWidth = baseMobileWidth - paddingPerSide * 2;
 
       // Set container to reduced width for natural margins
       element.style.width = `${contentWidth}px`;
@@ -103,14 +110,70 @@ const captureSchedule = async (
       // Wait for layout to stabilize
       await new Promise((resolve) => setTimeout(resolve, 300));
 
-      // Capture with high pixel ratio for crisp output using html2canvas
+      // First capture WITHOUT scaling to check actual height
+      let testCanvas = await html2canvas.default(element, {
+        backgroundColor: WALLPAPER_CONFIG.canvas.backgroundColor,
+        scale: 1, // No scaling for test
+        useCORS: true,
+        allowTaint: true,
+        width: contentWidth,
+      });
+
+      // Check if table height exceeds available space
+      const maxTableHeight = baseMobileHeight - 60; // 60px total vertical padding
+      
+      // If table is too tall, use maximum available space approach
+      if (testCanvas.height > maxTableHeight) {
+        console.log('Table too tall, switching to max space utilization');
+        
+        // Calculate maximum usable dimensions with minimal padding
+        const maxUsableWidth = baseMobileWidth - 40; // 20px padding each side
+        const maxUsableHeight = baseMobileHeight - 60; // 40px bottom + 20px top minimum
+        
+        // Find the optimal width that keeps table within height bounds
+        // Start with max width and work down if needed
+        let optimalWidth = maxUsableWidth;
+        
+        // Estimate height reduction ratio based on width change
+        // Wider table = shorter height (roughly proportional)
+        const widthRatio = maxUsableWidth / contentWidth;
+        const estimatedNewHeight = testCanvas.height / widthRatio;
+        
+        if (estimatedNewHeight > maxUsableHeight) {
+          // Still too tall even at max width, need to scale down
+          const requiredHeightRatio = maxUsableHeight / testCanvas.height;
+          optimalWidth = Math.floor(contentWidth * Math.sqrt(requiredHeightRatio) * 0.95);
+        }
+        
+        // Update element width to optimal
+        element.style.width = `${optimalWidth}px`;
+        element.style.maxWidth = `${optimalWidth}px`;
+        element.style.minWidth = `${optimalWidth}px`;
+        
+        // Update window.innerWidth
+        Object.defineProperty(window, 'innerWidth', {
+          writable: true,
+          configurable: true,
+          value: optimalWidth,
+        });
+        
+        // Trigger resize and wait
+        const resizeEvent2 = new Event('resize');
+        window.dispatchEvent(resizeEvent2);
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        
+        // Update contentWidth and paddingPerSide for final capture
+        contentWidth = optimalWidth;
+        paddingPerSide = (baseMobileWidth - optimalWidth) / 2;
+      }
+      
+      // Now capture with proper scaling
       const tempCanvas = await html2canvas.default(element, {
         backgroundColor: WALLPAPER_CONFIG.canvas.backgroundColor,
         scale: scaleFactor,
         useCORS: true,
         allowTaint: true,
         width: contentWidth,
-        // Don't force height - let it capture actual content height
       });
 
       // Create final canvas with correct aspect ratio
