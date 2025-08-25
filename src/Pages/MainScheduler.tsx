@@ -343,7 +343,7 @@ function MainScheduler(): React.ReactElement {
           {onlineCourses.length > 0 && (
             <Box
               sx={{
-                marginTop: '4px',
+                marginTop: '8px',
                 backgroundColor: 'white',
                 padding: '2px 0',
               }}
@@ -427,7 +427,7 @@ function MainScheduler(): React.ReactElement {
           {/* Credits Display - Always visible */}
           <Box
             sx={{
-              marginTop: '4px',
+              marginTop: '8px',
               backgroundColor: 'white',
               padding: '2px 0',
             }}
@@ -526,7 +526,7 @@ function MainScheduler(): React.ReactElement {
             {/* Online Classes Display - Always show credits */}
             <Box
               sx={{
-                marginTop: '4px',
+                marginTop: '8px',
                 backgroundColor: 'white',
                 padding: '2px 0',
               }}
@@ -538,7 +538,7 @@ function MainScheduler(): React.ReactElement {
                     alignItems: 'flex-start',
                     flexWrap: 'wrap',
                     gap: '4px',
-                    marginBottom: '4px',
+                    marginBottom: '0px',
                   }}
                 >
                   <Typography
@@ -606,6 +606,48 @@ function MainScheduler(): React.ReactElement {
                   ))}
                 </Box>
               )}
+
+              {/* Credits Display */}
+              <Typography
+                variant="body2"
+                sx={{
+                  fontSize: '14px',
+                  fontWeight: 'book',
+                  color: '#494949',
+                  marginTop: '8px',
+                }}
+              >
+                {((): string => {
+                  let totalCredits = 0;
+                  const allCourseIds = new Set<string>();
+
+                  // Add credits from online courses
+                  onlineCourses.forEach((course) => {
+                    if (course.credits) {
+                      const courseId = course.id.split('-')[0];
+                      allCourseIds.add(courseId);
+                      const creditValue =
+                        parseInt(course.credits.split('-')[0]) || 0;
+                      totalCredits += creditValue;
+                    }
+                  });
+
+                  // Add credits from scheduled events (only if not already counted as online)
+                  scheduleEvents.forEach((event) => {
+                    const parts = event.id.split('-');
+                    const courseId = parts[0];
+
+                    if (!allCourseIds.has(courseId) && event.credits) {
+                      allCourseIds.add(courseId);
+                      const creditValue =
+                        parseInt(event.credits.split('-')[0]) || 0;
+                      totalCredits += creditValue;
+                    }
+                  });
+
+                  return `${totalCredits} credits`;
+                })()}
+              </Typography>
             </Box>
           </Box>
 
@@ -641,16 +683,16 @@ function MainScheduler(): React.ReactElement {
             />
           </Box>
 
-          {/* Online Classes Display */}
-          {onlineCourses.length > 0 && (
-            <Box
-              sx={{
-                marginTop: '8px',
-                backgroundColor: 'white',
-                padding: '8px 0',
-                zIndex: 10,
-              }}
-            >
+          {/* Online Classes and Credits Display */}
+          <Box
+            sx={{
+              marginTop: '8px',
+              backgroundColor: 'white',
+              padding: '2px 0',
+            }}
+          >
+            {/* Online Classes Display */}
+            {onlineCourses.length > 0 && (
               <Box
                 sx={{
                   display: 'flex',
@@ -724,8 +766,50 @@ function MainScheduler(): React.ReactElement {
                   </Box>
                 ))}
               </Box>
-            </Box>
-          )}
+            )}
+
+            {/* Credits Display */}
+            <Typography
+              variant="body2"
+              sx={{
+                fontSize: '14px',
+                fontWeight: 'book',
+                color: '#494949',
+                marginTop: onlineCourses.length > 0 ? '8px' : '0px',
+              }}
+            >
+              {((): string => {
+                let totalCredits = 0;
+                const allCourseIds = new Set<string>();
+
+                // Add credits from online courses
+                onlineCourses.forEach((course) => {
+                  if (course.credits) {
+                    const courseId = course.id.split('-')[0];
+                    allCourseIds.add(courseId);
+                    const creditValue =
+                      parseInt(course.credits.split('-')[0]) || 0;
+                    totalCredits += creditValue;
+                  }
+                });
+
+                // Add credits from scheduled events (only if not already counted as online)
+                scheduleEvents.forEach((event) => {
+                  const parts = event.id.split('-');
+                  const courseId = parts[0];
+
+                  if (!allCourseIds.has(courseId) && event.credits) {
+                    allCourseIds.add(courseId);
+                    const creditValue =
+                      parseInt(event.credits.split('-')[0]) || 0;
+                    totalCredits += creditValue;
+                  }
+                });
+
+                return `${totalCredits} credits`;
+              })()}
+            </Typography>
+          </Box>
         </Box>
       )}
       {isDownloadOpen && (
