@@ -508,6 +508,7 @@ function MainScheduler(): React.ReactElement {
               <SchedulerTable
                 events={scheduleEvents}
                 onRemoveEvent={removeEvent}
+                onEventColorChange={updateEventColorByEventId}
                 isEditMode={isEditMode}
               />
             </Box>

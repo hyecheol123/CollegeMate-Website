@@ -470,38 +470,22 @@ function EditSchedulerPanel({
       return;
     }
 
-    // Add events with requestAnimationFrame to prevent scroll blocking
+    // Add events all at once
     events.forEach((event, index) => {
-      requestAnimationFrame(() => {
-        setTimeout(() => {
-          console.log(`🎯 Adding event ${index + 1}/${events.length}:`, event.id);
-          console.log('📊 Before onAddEvent - Scroll state:', {
-            body: document.body.style.overflow,
-            html: document.documentElement.style.overflow
-          });
-          
-          onAddEvent(event);
-          
-          console.log('📊 After onAddEvent - Scroll state:', {
-            body: document.body.style.overflow,
-            html: document.documentElement.style.overflow
-          });
-          
-          // Force enable scroll after adding event
-          if (index === events.length - 1) {
-            setTimeout(() => {
-              console.log('🔧 Forcing scroll enable after all events added');
-              document.body.style.overflow = 'auto';
-              document.documentElement.style.overflow = 'auto';
-              console.log('✅ Final scroll state:', {
-                body: document.body.style.overflow,
-                html: document.documentElement.style.overflow
-              });
-            }, 50);
-          }
-        }, index * 10); // Small delay between each event
-      });
+      console.log(`🎯 Adding event ${index + 1}/${events.length}:`, event.id);
+      onAddEvent(event);
     });
+    
+    // Force enable scroll after adding all events
+    setTimeout(() => {
+      console.log('🔧 Forcing scroll enable after all events added');
+      document.body.style.overflow = 'auto';
+      document.documentElement.style.overflow = 'auto';
+      console.log('✅ Final scroll state:', {
+        body: document.body.style.overflow,
+        html: document.documentElement.style.overflow
+      });
+    }, 50);
   };
 
   const handleCustomizeColor = (sectionId: string): void => {
