@@ -46,18 +46,44 @@ interface OnlineCourse {
  * - Mobile: Stacked layout with scheduler maintaining consistent size
  * @return {React.ReactElement} The rendered MainScheduler page
  */
+// Helper functions for localStorage
+const loadScheduleDataFromStorage = (termCode: string) => {
+  try {
+    const eventsKey = `collegemate_schedule_events_${termCode}`;
+    const coursesKey = `collegemate_online_courses_${termCode}`;
+    
+    const savedEvents = localStorage.getItem(eventsKey);
+    const savedCourses = localStorage.getItem(coursesKey);
+    
+    return {
+      events: savedEvents ? JSON.parse(savedEvents) : [],
+      courses: savedCourses ? JSON.parse(savedCourses) : []
+    };
+  } catch (error) {
+    console.error('Error loading schedule data from localStorage:', error);
+    return { events: [], courses: [] };
+  }
+};
+
+const saveScheduleDataToStorage = (termCode: string, events: EventData[], courses: OnlineCourse[]) => {
+  try {
+    const eventsKey = `collegemate_schedule_events_${termCode}`;
+    const coursesKey = `collegemate_online_courses_${termCode}`;
+    
+    localStorage.setItem(eventsKey, JSON.stringify(events));
+    localStorage.setItem(coursesKey, JSON.stringify(courses));
+    console.log(`💾 Schedule data saved for term ${termCode}`);
+  } catch (error) {
+    console.error('Error saving schedule data to localStorage:', error);
+  }
+};
+
 function MainScheduler(): React.ReactElement {
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
   const [scheduleEvents, setScheduleEvents] = useState<EventData[]>([]);
   const [onlineCourses, setOnlineCourses] = useState<OnlineCourse[]>([]);
   const [availableTerms, setAvailableTerms] = useState<Term[]>([]);
   const [currentTerm, setCurrentTerm] = useState<Term | null>(null);
-  const [scheduleEventsByTerm, setScheduleEventsByTerm] = useState<
-    Record<string, EventData[]>
-  >({});
-  const [onlineCoursesByTerm, setOnlineCoursesByTerm] = useState<
-    Record<string, OnlineCourse[]>
-  >({});
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const theme = useTheme();
@@ -116,7 +142,7 @@ function MainScheduler(): React.ReactElement {
 
         // Check cache first
         const CACHE_KEY = 'collegemate_terms_cache';
-        const CACHE_DURATION = 12 * 60 * 60 * 1000; // 12 hours in milliseconds
+        const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
         
         const cachedData = localStorage.getItem(CACHE_KEY);
         let termsData;
@@ -139,7 +165,7 @@ function MainScheduler(): React.ReactElement {
                 data: termsData,
                 timestamp: Date.now()
               }));
-              console.log('💾 Terms data cached for 12 hours');
+              console.log('💾 Terms data cached for 24 hours');
             }
           } catch (parseError) {
             console.log('❌ Cache parse error, fetching fresh data:', parseError);
@@ -172,14 +198,18 @@ function MainScheduler(): React.ReactElement {
         const current = getCurrentTerm(termsData.terms);
         if (current) {
           setCurrentTerm(current);
-          // Initialize with empty events and online courses for current term
-          setScheduleEvents([]);
-          setOnlineCourses([]);
+          // Load saved data for current term
+          const savedData = loadScheduleDataFromStorage(current.termCode);
+          setScheduleEvents(savedData.events);
+          setOnlineCourses(savedData.courses);
+          console.log(`📱 Loaded ${savedData.events.length} events and ${savedData.courses.length} online courses for term ${current.termCode}`);
         } else if (futureTerms.length > 0) {
           // If no current term, use the first available future term
           setCurrentTerm(futureTerms[0]);
-          setScheduleEvents([]);
-          setOnlineCourses([]);
+          const savedData = loadScheduleDataFromStorage(futureTerms[0].termCode);
+          setScheduleEvents(savedData.events);
+          setOnlineCourses(savedData.courses);
+          console.log(`📱 Loaded ${savedData.events.length} events and ${savedData.courses.length} online courses for term ${futureTerms[0].termCode}`);
         }
       } catch (error) {
         console.error('❌ Failed to load terms:', error);
@@ -195,28 +225,25 @@ function MainScheduler(): React.ReactElement {
     loadTerms();
   }, []);
 
+  // Auto-save schedule data when events or courses change
+  useEffect(() => {
+    if (currentTerm) {
+      saveScheduleDataToStorage(currentTerm.termCode, scheduleEvents, onlineCourses);
+    }
+  }, [scheduleEvents, onlineCourses, currentTerm]);
+
   // Handle term change
   const handleTermChange = (newTerm: Term): void => {
-    // Save current events and online courses for the current term
-    if (currentTerm) {
-      setScheduleEventsByTerm((prev) => ({
-        ...prev,
-        [currentTerm.termCode]: scheduleEvents,
-      }));
-      setOnlineCoursesByTerm((prev) => ({
-        ...prev,
-        [currentTerm.termCode]: onlineCourses,
-      }));
-    }
-
+    // Save current data to localStorage (handled by useEffect automatically)
+    
     // Switch to new term
     setCurrentTerm(newTerm);
 
-    // Load events and online courses for new term (if any saved)
-    const savedEvents = scheduleEventsByTerm[newTerm.termCode] || [];
-    const savedOnlineCourses = onlineCoursesByTerm[newTerm.termCode] || [];
-    setScheduleEvents(savedEvents);
-    setOnlineCourses(savedOnlineCourses);
+    // Load events and online courses for new term from localStorage
+    const savedData = loadScheduleDataFromStorage(newTerm.termCode);
+    setScheduleEvents(savedData.events);
+    setOnlineCourses(savedData.courses);
+    console.log(`🔄 Switched to term ${newTerm.termCode}, loaded ${savedData.events.length} events and ${savedData.courses.length} online courses`);
 
     // Exit edit mode when switching terms
     setIsEditMode(false);
