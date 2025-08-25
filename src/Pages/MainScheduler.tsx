@@ -71,7 +71,24 @@ function MainScheduler(): React.ReactElement {
   }>({ width: 0, height: 0 });
 
   const handleEditToggle = (): void => {
-    setIsEditMode((prev) => !prev);
+    setIsEditMode((prev) => {
+      const newEditMode = !prev;
+      
+      // Auto-scroll to search panel on mobile when entering edit mode
+      if (newEditMode && isMobile) {
+        // Small delay to ensure the panel is rendered before scrolling
+        setTimeout(() => {
+          if (searchPanelRef.current) {
+            searchPanelRef.current.scrollIntoView({
+              behavior: 'smooth',
+              block: 'start',
+            });
+          }
+        }, 100);
+      }
+      
+      return newEditMode;
+    });
   };
 
   const handleDownload = async (): Promise<boolean> => {
