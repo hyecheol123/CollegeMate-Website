@@ -343,7 +343,7 @@ function MainScheduler(): React.ReactElement {
           {onlineCourses.length > 0 && (
             <Box
               sx={{
-                marginTop: '8px',
+                marginTop: '9px',
                 backgroundColor: 'white',
                 padding: '2px 0',
               }}
@@ -427,9 +427,9 @@ function MainScheduler(): React.ReactElement {
           {/* Credits Display - Always visible */}
           <Box
             sx={{
-              marginTop: '8px',
+              marginTop: onlineCourses.length > 0 ? '4px' : '9px',
               backgroundColor: 'white',
-              padding: '2px 0',
+              padding: '0px 0',
             }}
           >
             <Typography
@@ -477,7 +477,7 @@ function MainScheduler(): React.ReactElement {
           {isEditMode && (
             <Box
               ref={searchPanelRef}
-              sx={{ marginTop: '8px', width: '100%', minHeight: 'auto' }}
+              sx={{ width: '100%', minHeight: 'auto', marginTop: '-3px' }}
             >
               <EditSchedulerPanel
                 onAddEvent={addEvent}

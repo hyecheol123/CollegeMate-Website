@@ -926,7 +926,7 @@ function EditSchedulerPanel({
         variant="h2"
         sx={{
           color: 'red.main',
-          marginBottom: isMobile ? '16px' : '20px',
+          marginBottom: isMobile ? '12px' : '20px',
           textAlign: 'left',
           marginLeft: isMobile ? '-15px' : '0px', // Align "E" with "2" from "2025 Summer" in mobile only
         }}
