@@ -100,6 +100,62 @@ function EditSchedulerPanel({
   currentTerm,
   existingEvents = [],
 }: EditSchedulerPanelProps): React.ReactElement {
+  // Enhanced debug function for scroll issues
+  const debugScrollState = (context: string = 'Unknown') => {
+    const timestamp = new Date().toLocaleTimeString();
+    const scrollInfo = {
+      context,
+      timestamp,
+      bodyOverflow: document.body.style.overflow,
+      htmlOverflow: document.documentElement.style.overflow,
+      bodyComputedOverflow: window.getComputedStyle(document.body).overflow,
+      htmlComputedOverflow: window.getComputedStyle(document.documentElement).overflow,
+      canScroll: window.innerHeight < document.body.scrollHeight,
+      scrollY: window.scrollY,
+      windowHeight: window.innerHeight,
+      documentHeight: document.body.scrollHeight,
+    };
+    console.log('🔍 Scroll Debug:', scrollInfo);
+    return scrollInfo;
+  };
+
+  // Safe auto-scroll to search results
+  const scrollToSearchResults = (): void => {
+    if (resultsRef.current) {
+      console.log('📜 Auto-scrolling to search results');
+      debugScrollState('Before auto-scroll');
+      
+      setTimeout(() => {
+        resultsRef.current?.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'nearest',
+          inline: 'nearest'
+        });
+        
+        // Log scroll state after scrolling
+        setTimeout(() => {
+          debugScrollState('After auto-scroll');
+        }, 500);
+      }, 100); // Small delay to ensure DOM is updated
+    }
+  };
+
+  // Global scroll monitoring
+  React.useEffect(() => {
+    const checkScrollPeriodically = (): void => {
+      const info = debugScrollState('Periodic Check');
+      if (info.bodyOverflow === 'hidden' || info.htmlOverflow === 'hidden') {
+        console.warn('⚠️ SCROLL FROZEN DETECTED! Auto-fixing...');
+        document.body.style.overflow = 'auto';
+        document.documentElement.style.overflow = 'auto';
+      }
+    };
+
+    const interval = setInterval(checkScrollPeriodically, 5000); // Check every 5 seconds
+    
+    return () => clearInterval(interval);
+  }, []);
+
   const [searchInput, setSearchInput] = useState<string>('');
   const [classColors, setClassColors] = useState<{ [key: string]: string }>({});
   const [colorModalOpen, setColorModalOpen] = useState(false);
@@ -142,6 +198,8 @@ function EditSchedulerPanel({
   const searchRef = React.useRef<HTMLDivElement>(null);
   const editTitleRef = React.useRef<HTMLHeadingElement>(null);
   const [hasScrolledToResults, setHasScrolledToResults] =
+    useState<boolean>(false);
+  const [hasAutoScrolledOnce, setHasAutoScrolledOnce] = 
     useState<boolean>(false);
 
   // Time conflict validation function
@@ -199,18 +257,12 @@ function EditSchedulerPanel({
         );
         setSearchResults(response.hits || []);
 
-        // Auto-scroll on mobile after search results are loaded (DISABLED - causing scroll issues)
-        // if (isMobile && searchInput.length >= 1 && !hasScrolledToResults && window.scrollY < 100) {
-        //   setTimeout(() => {
-        //     if (window.scrollY < 100) {
-        //       window.scrollTo({
-        //         top: 800,
-        //         behavior: 'smooth',
-        //       });
-        //     }
-        //   }, 100);
-        //   setHasScrolledToResults(true);
-        // }
+        // Safe auto-scroll to results when new search results appear (only first time)
+        if ((response.hits || []).length > 0 && !hasScrolledToResults && !hasAutoScrolledOnce) {
+          scrollToSearchResults();
+          setHasScrolledToResults(true);
+          setHasAutoScrolledOnce(true); // Never auto-scroll again in this session
+        }
       } catch (error) {
         setSearchError(
           error instanceof Error ? error.message : 'Search failed',
@@ -232,8 +284,10 @@ function EditSchedulerPanel({
     const newValue = event.target.value;
     setSearchInput(newValue);
 
-    // Only reset scroll flag when completely clearing the input
+    // Reset scroll flag when clearing input (but keep hasAutoScrolledOnce)
     if (newValue === '') {
+      setHasScrolledToResults(false);
+    } else if (newValue !== searchInput) {
       setHasScrolledToResults(false);
     }
   };
@@ -416,8 +470,37 @@ function EditSchedulerPanel({
       return;
     }
 
-    events.forEach((event) => {
-      onAddEvent(event);
+    // Add events with requestAnimationFrame to prevent scroll blocking
+    events.forEach((event, index) => {
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          console.log(`🎯 Adding event ${index + 1}/${events.length}:`, event.id);
+          console.log('📊 Before onAddEvent - Scroll state:', {
+            body: document.body.style.overflow,
+            html: document.documentElement.style.overflow
+          });
+          
+          onAddEvent(event);
+          
+          console.log('📊 After onAddEvent - Scroll state:', {
+            body: document.body.style.overflow,
+            html: document.documentElement.style.overflow
+          });
+          
+          // Force enable scroll after adding event
+          if (index === events.length - 1) {
+            setTimeout(() => {
+              console.log('🔧 Forcing scroll enable after all events added');
+              document.body.style.overflow = 'auto';
+              document.documentElement.style.overflow = 'auto';
+              console.log('✅ Final scroll state:', {
+                body: document.body.style.overflow,
+                html: document.documentElement.style.overflow
+              });
+            }, 50);
+          }
+        }, index * 10); // Small delay between each event
+      });
     });
   };
 
@@ -483,9 +566,19 @@ function EditSchedulerPanel({
       });
 
       // Add new events
-      pendingEvents.forEach((event) => {
-        console.log(`➕ Adding new event: ${event.id}`);
+      pendingEvents.forEach((event, index) => {
+        console.log(`➕ Adding pending event ${index + 1}/${pendingEvents.length}:`, event.id);
+        console.log('📊 Before pending onAddEvent - Scroll state:', {
+          body: document.body.style.overflow,
+          html: document.documentElement.style.overflow
+        });
+        
         onAddEvent?.(event);
+        
+        console.log('📊 After pending onAddEvent - Scroll state:', {
+          body: document.body.style.overflow,
+          html: document.documentElement.style.overflow
+        });
       });
     }
 
