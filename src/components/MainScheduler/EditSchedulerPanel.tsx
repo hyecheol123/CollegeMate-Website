@@ -119,10 +119,10 @@ function EditSchedulerPanel({
     return scrollInfo;
   };
 
-  // Safe auto-scroll to search results
+  // Safe auto-scroll to search results (mobile only)
   const scrollToSearchResults = (): void => {
-    if (resultsRef.current) {
-      console.log('📜 Auto-scrolling to search results');
+    if (resultsRef.current && isMobile) {
+      console.log('📜 Auto-scrolling to search results (mobile)');
       debugScrollState('Before auto-scroll');
       
       setTimeout(() => {
