@@ -994,6 +994,7 @@ function EditSchedulerPanel({
         sx={{
           marginBottom: '0px',
           marginLeft: isMobile ? '-10px' : '0px',
+          whiteSpace: 'nowrap',
         }}
       >
         {isSearching
