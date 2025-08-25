@@ -343,9 +343,9 @@ function MainScheduler(): React.ReactElement {
           {onlineCourses.length > 0 && (
             <Box
               sx={{
-                marginTop: '16px',
+                marginTop: '4px',
                 backgroundColor: 'white',
-                padding: '8px 0',
+                padding: '2px 0',
               }}
             >
               <Box
@@ -354,7 +354,7 @@ function MainScheduler(): React.ReactElement {
                   alignItems: 'flex-start',
                   flexWrap: 'wrap',
                   gap: '4px',
-                  marginBottom: '12px',
+                  marginBottom: '0px',
                 }}
               >
                 <Typography
@@ -421,48 +421,58 @@ function MainScheduler(): React.ReactElement {
                   </Box>
                 ))}
               </Box>
-              <Typography
-                variant="body2"
-                sx={{
-                  fontSize: '14px',
-                  fontWeight: 'book',
-                  color: '#494949',
-                }}
-              >
-                {((): string => {
-                  let totalCredits = 0;
-                  const allCourseIds = new Set<string>();
-
-                  // Add credits from online courses
-                  onlineCourses.forEach((course) => {
-                    if (course.credits) {
-                      allCourseIds.add(course.id);
-                      const creditValue =
-                        parseInt(course.credits.split('-')[0]) || 0;
-                      totalCredits += creditValue;
-                    }
-                  });
-
-                  // Add credits from scheduled events (only if not already counted as online)
-                  scheduleEvents.forEach((event) => {
-                    const parts = event.id.split('-');
-                    const courseId = parts[0];
-                    const sectionId = parts[1];
-                    const uniqueId = `${courseId}-${sectionId}`;
-
-                    if (!allCourseIds.has(uniqueId) && event.credits) {
-                      allCourseIds.add(uniqueId);
-                      const creditValue =
-                        parseInt(event.credits.split('-')[0]) || 0;
-                      totalCredits += creditValue;
-                    }
-                  });
-
-                  return `${totalCredits} credits`;
-                })()}
-              </Typography>
             </Box>
           )}
+
+          {/* Credits Display - Always visible */}
+          <Box
+            sx={{
+              marginTop: '4px',
+              backgroundColor: 'white',
+              padding: '2px 0',
+            }}
+          >
+            <Typography
+              variant="body2"
+              sx={{
+                fontSize: '14px',
+                fontWeight: 'book',
+                color: '#494949',
+              }}
+            >
+              {((): string => {
+                let totalCredits = 0;
+                const allCourseIds = new Set<string>();
+
+                // Add credits from online courses
+                onlineCourses.forEach((course) => {
+                  if (course.credits) {
+                    const courseId = course.id.split('-')[0];
+                    allCourseIds.add(courseId);
+                    const creditValue =
+                      parseInt(course.credits.split('-')[0]) || 0;
+                    totalCredits += creditValue;
+                  }
+                });
+
+                // Add credits from scheduled events (only if not already counted as online)
+                scheduleEvents.forEach((event) => {
+                  const parts = event.id.split('-');
+                  const courseId = parts[0];
+
+                  if (!allCourseIds.has(courseId) && event.credits) {
+                    allCourseIds.add(courseId);
+                    const creditValue =
+                      parseInt(event.credits.split('-')[0]) || 0;
+                    totalCredits += creditValue;
+                  }
+                });
+
+                return `${totalCredits} credits`;
+              })()}
+            </Typography>
+          </Box>
+
           {/* Mobile: Search panel below when in edit mode */}
           {isEditMode && (
             <Box
@@ -516,9 +526,9 @@ function MainScheduler(): React.ReactElement {
             {/* Online Classes Display - Always show credits */}
             <Box
               sx={{
-                marginTop: '8px',
+                marginTop: '4px',
                 backgroundColor: 'white',
-                padding: '8px 0',
+                padding: '2px 0',
               }}
             >
               {onlineCourses.length > 0 && (
@@ -596,46 +606,6 @@ function MainScheduler(): React.ReactElement {
                   ))}
                 </Box>
               )}
-              <Typography
-                variant="body2"
-                sx={{
-                  fontSize: '14px',
-                  fontWeight: 'book',
-                  color: '#494949',
-                }}
-              >
-                {((): string => {
-                  let totalCredits = 0;
-                  const allCourseIds = new Set<string>();
-
-                  // Add credits from online courses
-                  onlineCourses.forEach((course) => {
-                    if (course.credits) {
-                      allCourseIds.add(course.id);
-                      const creditValue =
-                        parseInt(course.credits.split('-')[0]) || 0;
-                      totalCredits += creditValue;
-                    }
-                  });
-
-                  // Add credits from scheduled events (only if not already counted as online)
-                  scheduleEvents.forEach((event) => {
-                    const parts = event.id.split('-');
-                    const courseId = parts[0];
-                    const sectionId = parts[1];
-                    const uniqueId = `${courseId}-${sectionId}`;
-
-                    if (!allCourseIds.has(uniqueId) && event.credits) {
-                      allCourseIds.add(uniqueId);
-                      const creditValue =
-                        parseInt(event.credits.split('-')[0]) || 0;
-                      totalCredits += creditValue;
-                    }
-                  });
-
-                  return `${totalCredits} credits`;
-                })()}
-              </Typography>
             </Box>
           </Box>
 
@@ -675,7 +645,7 @@ function MainScheduler(): React.ReactElement {
           {onlineCourses.length > 0 && (
             <Box
               sx={{
-                marginTop: '16px',
+                marginTop: '8px',
                 backgroundColor: 'white',
                 padding: '8px 0',
                 zIndex: 10,
@@ -687,7 +657,7 @@ function MainScheduler(): React.ReactElement {
                   alignItems: 'flex-start',
                   flexWrap: 'wrap',
                   gap: '4px',
-                  marginBottom: '12px',
+                  marginBottom: '0px',
                 }}
               >
                 <Typography
@@ -754,46 +724,6 @@ function MainScheduler(): React.ReactElement {
                   </Box>
                 ))}
               </Box>
-              <Typography
-                variant="body2"
-                sx={{
-                  fontSize: '14px',
-                  fontWeight: 'book',
-                  color: '#494949',
-                }}
-              >
-                {((): string => {
-                  let totalCredits = 0;
-                  const allCourseIds = new Set<string>();
-
-                  // Add credits from online courses
-                  onlineCourses.forEach((course) => {
-                    if (course.credits) {
-                      allCourseIds.add(course.id);
-                      const creditValue =
-                        parseInt(course.credits.split('-')[0]) || 0;
-                      totalCredits += creditValue;
-                    }
-                  });
-
-                  // Add credits from scheduled events (only if not already counted as online)
-                  scheduleEvents.forEach((event) => {
-                    const parts = event.id.split('-');
-                    const courseId = parts[0];
-                    const sectionId = parts[1];
-                    const uniqueId = `${courseId}-${sectionId}`;
-
-                    if (!allCourseIds.has(uniqueId) && event.credits) {
-                      allCourseIds.add(uniqueId);
-                      const creditValue =
-                        parseInt(event.credits.split('-')[0]) || 0;
-                      totalCredits += creditValue;
-                    }
-                  });
-
-                  return `${totalCredits} credits`;
-                })()}
-              </Typography>
             </Box>
           )}
         </Box>

@@ -1,5 +1,6 @@
 /**
  * Utility functions to normalize building names from inconsistent API data
+ * @author Daekyun Kim <daekyun97@gmail.com>
  */
 
 const specialCases: Record<string, string> = {
