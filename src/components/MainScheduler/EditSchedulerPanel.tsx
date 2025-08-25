@@ -128,7 +128,7 @@ function EditSchedulerPanel({
       setTimeout(() => {
         resultsRef.current?.scrollIntoView({ 
           behavior: 'smooth', 
-          block: 'nearest',
+          block: 'start',
           inline: 'nearest'
         });
         
@@ -136,7 +136,7 @@ function EditSchedulerPanel({
         setTimeout(() => {
           debugScrollState('After auto-scroll');
         }, 500);
-      }, 100); // Small delay to ensure DOM is updated
+      }, 300); // Increased delay to be less jarring
     }
   };
 
@@ -257,12 +257,12 @@ function EditSchedulerPanel({
         );
         setSearchResults(response.hits || []);
 
-        // Safe auto-scroll to results when new search results appear (only first time)
-        if ((response.hits || []).length > 0 && !hasScrolledToResults && !hasAutoScrolledOnce) {
-          scrollToSearchResults();
-          setHasScrolledToResults(true);
-          setHasAutoScrolledOnce(true); // Never auto-scroll again in this session
-        }
+        // Safe auto-scroll to results when new search results appear (only first time) - disabled for better UX
+        // if ((response.hits || []).length > 0 && !hasScrolledToResults && !hasAutoScrolledOnce) {
+        //   scrollToSearchResults();
+        //   setHasScrolledToResults(true);
+        //   setHasAutoScrolledOnce(true); // Never auto-scroll again in this session
+        // }
       } catch (error) {
         setSearchError(
           error instanceof Error ? error.message : 'Search failed',
