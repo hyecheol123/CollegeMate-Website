@@ -140,21 +140,21 @@ function EditSchedulerPanel({
     }
   };
 
-  // Global scroll monitoring
-  React.useEffect(() => {
-    const checkScrollPeriodically = (): void => {
-      const info = debugScrollState('Periodic Check');
-      if (info.bodyOverflow === 'hidden' || info.htmlOverflow === 'hidden') {
-        console.warn('⚠️ SCROLL FROZEN DETECTED! Auto-fixing...');
-        document.body.style.overflow = 'auto';
-        document.documentElement.style.overflow = 'auto';
-      }
-    };
+  // Global scroll monitoring - temporarily disabled
+  // React.useEffect(() => {
+  //   const checkScrollPeriodically = (): void => {
+  //     const info = debugScrollState('Periodic Check');
+  //     if (info.bodyOverflow === 'hidden' || info.htmlOverflow === 'hidden') {
+  //       console.warn('⚠️ SCROLL FROZEN DETECTED! Auto-fixing...');
+  //       document.body.style.overflow = 'auto';
+  //       document.documentElement.style.overflow = 'auto';
+  //     }
+  //   };
 
-    const interval = setInterval(checkScrollPeriodically, 5000); // Check every 5 seconds
+  //   const interval = setInterval(checkScrollPeriodically, 5000); // Check every 5 seconds
     
-    return () => clearInterval(interval);
-  }, []);
+  //   return () => clearInterval(interval);
+  // }, []);
 
   const [searchInput, setSearchInput] = useState<string>('');
   const [classColors, setClassColors] = useState<{ [key: string]: string }>({});
@@ -201,6 +201,7 @@ function EditSchedulerPanel({
     useState<boolean>(false);
   const [hasAutoScrolledOnce, setHasAutoScrolledOnce] = 
     useState<boolean>(false);
+  const [isAddingClass, setIsAddingClass] = useState<boolean>(false);
 
   // Time conflict validation function
   const checkTimeConflict = (newEvents: EventData[]): string | null => {
@@ -257,12 +258,12 @@ function EditSchedulerPanel({
         );
         setSearchResults(response.hits || []);
 
-        // Safe auto-scroll to results when new search results appear (only first time) - disabled for better UX
-        // if ((response.hits || []).length > 0 && !hasScrolledToResults && !hasAutoScrolledOnce) {
-        //   scrollToSearchResults();
-        //   setHasScrolledToResults(true);
-        //   setHasAutoScrolledOnce(true); // Never auto-scroll again in this session
-        // }
+        // Safe auto-scroll to results when new search results appear (only first time) - but not while adding class
+        if ((response.hits || []).length > 0 && !hasScrolledToResults && !hasAutoScrolledOnce && !isAddingClass) {
+          scrollToSearchResults();
+          setHasScrolledToResults(true);
+          setHasAutoScrolledOnce(true); // Never auto-scroll again in this session
+        }
       } catch (error) {
         setSearchError(
           error instanceof Error ? error.message : 'Search failed',
@@ -476,16 +477,16 @@ function EditSchedulerPanel({
       onAddEvent(event);
     });
     
-    // Force enable scroll after adding all events
-    setTimeout(() => {
-      console.log('🔧 Forcing scroll enable after all events added');
-      document.body.style.overflow = 'auto';
-      document.documentElement.style.overflow = 'auto';
-      console.log('✅ Final scroll state:', {
-        body: document.body.style.overflow,
-        html: document.documentElement.style.overflow
-      });
-    }, 50);
+    // Force enable scroll after adding all events - temporarily disabled
+    // setTimeout(() => {
+    //   console.log('🔧 Forcing scroll enable after all events added');
+    //   document.body.style.overflow = 'auto';
+    //   document.documentElement.style.overflow = 'auto';
+    //   console.log('✅ Final scroll state:', {
+    //     body: document.body.style.overflow,
+    //     html: document.documentElement.style.overflow
+    //   });
+    // }, 50);
   };
 
   const handleCustomizeColor = (sectionId: string): void => {
@@ -1704,6 +1705,9 @@ function EditSchedulerPanel({
                     },
                   }}
                   onClick={async () => {
+                    // Set adding state to prevent auto-scroll interference
+                    setIsAddingClass(true);
+                    
                     // Clear any existing pending events before starting
                     setPendingEvents([]);
                     
@@ -1733,6 +1737,7 @@ function EditSchedulerPanel({
                       } else {
                         alert('Please select a section to add.');
                       }
+                      setIsAddingClass(false);
                       return;
                     }
 
@@ -1765,6 +1770,7 @@ function EditSchedulerPanel({
                         alert(
                           `Discussion ${selectedDisc} is not available for the selected lecture. Please choose a different discussion or lecture.`,
                         );
+                        setIsAddingClass(false);
                         return;
                       }
                     }
@@ -1785,6 +1791,7 @@ function EditSchedulerPanel({
                         alert(
                           `Lab ${selectedLabSection} is not available for the selected lecture. Please choose a different lab or lecture.`,
                         );
+                        setIsAddingClass(false);
                         return;
                       }
                     }
@@ -1809,6 +1816,9 @@ function EditSchedulerPanel({
                       addedSections.push(`Lab ${selectedLabSection}`);
 
                     // Keep selections after successful add for easy color testing
+                    
+                    // Reset adding state
+                    setIsAddingClass(false);
                   }}
                 >
                   Add
