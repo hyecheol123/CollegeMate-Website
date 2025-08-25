@@ -277,7 +277,7 @@ function SchedulerTable({
                     alignItems: 'center',
                     justifyContent: 'center',
                     position: 'relative',
-                    top: '-24.2px',
+                    top: '-24px',
                   }}
                 >
                   <Typography variant="body2" color="white.main" align="center">
