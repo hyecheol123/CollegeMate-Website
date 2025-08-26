@@ -298,6 +298,12 @@ function SchedulerTable({
               const gridRowStart = 2 + hourIndex * 12 + i;
 
               days.forEach((day, dayIndex) => {
+                // Check if this is the bottom-right corner cell
+                const isLastHour = hourIndex === majorHours.length - 1;
+                const isLastMinuteSlot = i === 11;
+                const isLastDay = dayIndex === days.length - 1;
+                const isBottomRightCorner = isLastHour && isLastMinuteSlot && isLastDay;
+
                 cells.push(
                   <Box
                     key={`bg-${hour}-${i}-${day}`}
@@ -306,6 +312,9 @@ function SchedulerTable({
                       gridRow: gridRowStart,
                       backgroundColor: hourColor,
                       minHeight: '5px',
+                      ...(isBottomRightCorner && {
+                        borderRadius: '0 0 4px 0',
+                      }),
                     }}
                   />,
                 );
