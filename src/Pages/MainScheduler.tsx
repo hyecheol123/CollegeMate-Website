@@ -2,6 +2,7 @@
  * Main Scheduler page with edit functionality
  * Supports both mobile and desktop layouts with responsive design
  * @author Daekyun Kim <daekyun97@gmail.com>
+ * @param {string} termCode - The term code to load schedule for
  */
 
 // React
@@ -40,15 +41,15 @@ interface OnlineCourse {
   color: string;
 }
 
-/**
- * MainScheduler component with responsive layout
- * - Desktop: Side-by-side scheduler and edit panel (55%/45% split)
- * - Mobile: Stacked layout with scheduler maintaining consistent size
- * @param termCode
- * @return {React.ReactElement} The rendered MainScheduler page
- */
 // Helper functions for localStorage
-const loadScheduleDataFromStorage = (termCode: string) => {
+/**
+ * Load schedule data from localStorage for a given term
+ * @param {string} termCode - The term code to load data for
+ * @returns {{ events: EventData[]; courses: OnlineCourse[] }} The loaded schedule data
+ */
+const loadScheduleDataFromStorage = (
+  termCode: string,
+): { events: EventData[]; courses: OnlineCourse[] } => {
   try {
     const eventsKey = `collegemate_schedule_events_${termCode}`;
     const coursesKey = `collegemate_online_courses_${termCode}`;
@@ -70,7 +71,7 @@ const saveScheduleDataToStorage = (
   termCode: string,
   events: EventData[],
   courses: OnlineCourse[],
-) => {
+): void => {
   try {
     const eventsKey = `collegemate_schedule_events_${termCode}`;
     const coursesKey = `collegemate_online_courses_${termCode}`;
@@ -83,7 +84,10 @@ const saveScheduleDataToStorage = (
 };
 
 /**
- *
+ * MainScheduler component with responsive layout.
+ * Desktop: Side-by-side scheduler and edit panel (55%/45% split).
+ * Mobile: Stacked layout with scheduler maintaining consistent size.
+ * @returns {React.ReactElement} The rendered MainScheduler page
  */
 function MainScheduler(): React.ReactElement {
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
@@ -202,7 +206,7 @@ function MainScheduler(): React.ReactElement {
                 }),
               );
             }
-          } catch (parseError) {
+          } catch {
             termsData = await getTerms();
 
             // Cache the fresh data
@@ -237,7 +241,9 @@ function MainScheduler(): React.ReactElement {
           const savedData = loadScheduleDataFromStorage(current.termCode);
           setScheduleEvents(savedData.events);
           setOnlineCourses(savedData.courses);
-          `📱 Loaded ${savedData.events.length} events and ${savedData.courses.length} online courses for term ${current.termCode}`;
+          console.log(
+            `📱 Loaded ${savedData.events.length} events and ${savedData.courses.length} online courses for term ${current.termCode}`,
+          );
         } else if (futureTerms.length > 0) {
           // If no current term, use the first available future term
           setCurrentTerm(futureTerms[0]);
@@ -246,7 +252,9 @@ function MainScheduler(): React.ReactElement {
           );
           setScheduleEvents(savedData.events);
           setOnlineCourses(savedData.courses);
-          `📱 Loaded ${savedData.events.length} events and ${savedData.courses.length} online courses for term ${futureTerms[0].termCode}`;
+          console.log(
+            `📱 Loaded ${savedData.events.length} events and ${savedData.courses.length} online courses for term ${futureTerms[0].termCode}`,
+          );
         }
       } catch (error) {
         console.error('❌ Failed to load terms:', error);
@@ -272,7 +280,7 @@ function MainScheduler(): React.ReactElement {
         );
       }, 100); // 100ms debounce
 
-      return () => clearTimeout(timeoutId);
+      return (): void => clearTimeout(timeoutId);
     }
   }, [scheduleEvents, onlineCourses, currentTerm]);
 
@@ -287,7 +295,9 @@ function MainScheduler(): React.ReactElement {
     const savedData = loadScheduleDataFromStorage(newTerm.termCode);
     setScheduleEvents(savedData.events);
     setOnlineCourses(savedData.courses);
-    `🔄 Switched to term ${newTerm.termCode}, loaded ${savedData.events.length} events and ${savedData.courses.length} online courses`;
+    console.log(
+      `🔄 Switched to term ${newTerm.termCode}, loaded ${savedData.events.length} events and ${savedData.courses.length} online courses`,
+    );
 
     // Exit edit mode when switching terms
     setIsEditMode(false);
@@ -406,6 +416,12 @@ function MainScheduler(): React.ReactElement {
         prev.filter((course) => course.id !== onlineCourseId),
       );
     });
+  };
+
+  // Remove conflicting events - for conflict resolution only
+  const removeConflictingEvent = (eventId: string): void => {
+    console.log(`🗑️ Removing conflicting event: ${eventId}`);
+    setScheduleEvents((prev) => prev.filter((event) => event.id !== eventId));
   };
 
   // Show loading state
@@ -594,7 +610,7 @@ function MainScheduler(): React.ReactElement {
                 onAddEvent={addEvent}
                 onUpdateEventColor={updateEventColorsByClassId}
                 onAddOnlineCourse={addOnlineCourse}
-                onRemoveConflictingEvents={removeEvent}
+                onRemoveConflictingEvents={removeConflictingEvent}
                 currentTerm={currentTerm}
                 existingEvents={scheduleEvents}
               />
@@ -748,7 +764,7 @@ function MainScheduler(): React.ReactElement {
               onAddEvent={addEvent}
               onUpdateEventColor={updateEventColorsByClassId}
               onAddOnlineCourse={addOnlineCourse}
-              onRemoveConflictingEvents={removeEvent}
+              onRemoveConflictingEvents={removeConflictingEvent}
               currentTerm={currentTerm}
               existingEvents={scheduleEvents}
             />

@@ -27,11 +27,11 @@ interface TermSelectorProps {
 /**
  * TermSelector component renders a dropdown for selecting academic terms
  * Responsive design that adapts to mobile and desktop layouts
- * @param root0
- * @param root0.terms
- * @param root0.selectedTerm
- * @param root0.onTermChange
- * @param root0.disabled
+ * @param {TermSelectorProps} props - The component props
+ * @param {Term[]} props.terms - Array of available terms
+ * @param {Term | null} props.selectedTerm - Currently selected term
+ * @param {(term: Term) => void} props.onTermChange - Callback when term changes
+ * @param {boolean} [props.disabled] - Whether the selector is disabled
  */
 function TermSelector({
   terms,
