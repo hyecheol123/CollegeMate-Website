@@ -304,7 +304,8 @@ function SchedulerTable({
                 const isLastHour = hourIndex === majorHours.length - 1;
                 const isLastMinuteSlot = i === 11;
                 const isLastDay = dayIndex === days.length - 1;
-                const isBottomRightCorner = isLastHour && isLastMinuteSlot && isLastDay;
+                const isBottomRightCorner =
+                  isLastHour && isLastMinuteSlot && isLastDay;
 
                 cells.push(
                   <Box
@@ -385,18 +386,20 @@ function SchedulerTable({
                     }}
                   >
                     <Typography
-                      variant={isMobile ? "body2" : "body3"}
+                      variant={isMobile ? 'body2' : 'body3'}
                       align="center"
                       sx={{
                         wordWrap: 'break-word',
                         whiteSpace: 'normal',
                         overflow: 'hidden',
                         width: '100%',
-                        fontSize: isMobile ? (
-                          event.title.length > 20 ? '8px'
-                          : event.title.length > 15 ? '9px'
-                          : '10px'
-                        ) : undefined, // Use variant's default fontSize for desktop
+                        fontSize: isMobile
+                          ? event.title.length > 20
+                            ? '8px'
+                            : event.title.length > 15
+                              ? '9px'
+                              : '10px'
+                          : undefined, // Use variant's default fontSize for desktop
                         fontWeight: isMobile ? '500' : 'inherit',
                         lineHeight: isMobile ? '1.1' : undefined, // Use variant's default lineHeight for desktop
                         color: getTextColor(event.color),
@@ -412,15 +415,18 @@ function SchedulerTable({
                     </Typography>
                     {event.location && event.location !== 'TBA' && (
                       <Typography
-                        variant={isMobile ? "body2" : "body3"}
+                        variant={isMobile ? 'body2' : 'body3'}
                         align="center"
                         sx={{
-                          fontSize: isMobile ? (
-                            event.location.length > 30 ? '5px'
-                            : event.location.length > 20 ? '6px'
-                            : event.location.length > 12 ? '7px'
-                            : '8px'
-                          ) : '12px', // Slightly smaller than body3 for location on desktop
+                          fontSize: isMobile
+                            ? event.location.length > 30
+                              ? '5px'
+                              : event.location.length > 20
+                                ? '6px'
+                                : event.location.length > 12
+                                  ? '7px'
+                                  : '8px'
+                            : '12px', // Slightly smaller than body3 for location on desktop
                           opacity: 0.8,
                           whiteSpace: 'normal',
                           overflow: 'visible',

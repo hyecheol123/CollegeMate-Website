@@ -4,16 +4,17 @@
  */
 
 const specialCases: Record<string, string> = {
-  'ONLINE': 'Online',
-  'TBA': 'TBA',
-  'MORGRIDGE': 'Morgridge Institute',
-  'VILAS': 'Vilas Hall',
-  'STERLING': 'Sterling Hall',
-  'BASCOM': 'Bascom Hall',
+  ONLINE: 'Online',
+  TBA: 'TBA',
+  MORGRIDGE: 'Morgridge Institute',
+  VILAS: 'Vilas Hall',
+  STERLING: 'Sterling Hall',
+  BASCOM: 'Bascom Hall',
 };
 
 /**
  * Check if a string is all uppercase (excluding numbers and special characters)
+ * @param str
  */
 const isAllCaps = (str: string): boolean => {
   const letters = str.replace(/[^a-zA-Z]/g, '');
@@ -23,30 +24,31 @@ const isAllCaps = (str: string): boolean => {
 
 /**
  * Normalize building name to consistent proper case format
+ * @param buildingName
  */
 export const normalizeBuildingName = (buildingName: string): string => {
   if (!buildingName) return '';
-  
+
   const trimmed = buildingName.trim();
-  
+
   // Handle special cases first
   const upperKey = trimmed.toUpperCase();
   if (specialCases[upperKey]) {
     return specialCases[upperKey];
   }
-  
+
   // If it's all caps, convert to proper case
   if (isAllCaps(trimmed)) {
     return trimmed
       .toLowerCase()
       .split(' ')
-      .map(word => {
+      .map((word) => {
         if (word.length === 0) return word;
         return word.charAt(0).toUpperCase() + word.slice(1);
       })
       .join(' ');
   }
-  
+
   // If it's already in proper case, return as is
   return trimmed;
 };
@@ -56,12 +58,13 @@ const buildingCache = new Map<string, string>();
 
 /**
  * Memoized version of normalizeBuildingName for better performance
+ * @param buildingName
  */
 export const normalizeBuildingNameMemo = (buildingName: string): string => {
   if (buildingCache.has(buildingName)) {
     return buildingCache.get(buildingName)!;
   }
-  
+
   const normalized = normalizeBuildingName(buildingName);
   buildingCache.set(buildingName, normalized);
   return normalized;

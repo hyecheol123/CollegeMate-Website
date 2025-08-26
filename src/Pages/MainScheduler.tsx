@@ -44,6 +44,7 @@ interface OnlineCourse {
  * MainScheduler component with responsive layout
  * - Desktop: Side-by-side scheduler and edit panel (55%/45% split)
  * - Mobile: Stacked layout with scheduler maintaining consistent size
+ * @param termCode
  * @return {React.ReactElement} The rendered MainScheduler page
  */
 // Helper functions for localStorage
@@ -51,13 +52,13 @@ const loadScheduleDataFromStorage = (termCode: string) => {
   try {
     const eventsKey = `collegemate_schedule_events_${termCode}`;
     const coursesKey = `collegemate_online_courses_${termCode}`;
-    
+
     const savedEvents = localStorage.getItem(eventsKey);
     const savedCourses = localStorage.getItem(coursesKey);
-    
+
     return {
       events: savedEvents ? JSON.parse(savedEvents) : [],
-      courses: savedCourses ? JSON.parse(savedCourses) : []
+      courses: savedCourses ? JSON.parse(savedCourses) : [],
     };
   } catch (error) {
     console.error('Error loading schedule data from localStorage:', error);
@@ -65,11 +66,15 @@ const loadScheduleDataFromStorage = (termCode: string) => {
   }
 };
 
-const saveScheduleDataToStorage = (termCode: string, events: EventData[], courses: OnlineCourse[]) => {
+const saveScheduleDataToStorage = (
+  termCode: string,
+  events: EventData[],
+  courses: OnlineCourse[],
+) => {
   try {
     const eventsKey = `collegemate_schedule_events_${termCode}`;
     const coursesKey = `collegemate_online_courses_${termCode}`;
-    
+
     localStorage.setItem(eventsKey, JSON.stringify(events));
     localStorage.setItem(coursesKey, JSON.stringify(courses));
   } catch (error) {
@@ -77,6 +82,9 @@ const saveScheduleDataToStorage = (termCode: string, events: EventData[], course
   }
 };
 
+/**
+ *
+ */
 function MainScheduler(): React.ReactElement {
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
   const [scheduleEvents, setScheduleEvents] = useState<EventData[]>([]);
@@ -128,7 +136,7 @@ function MainScheduler(): React.ReactElement {
   const handleEditToggle = (): void => {
     setIsEditMode((prev) => {
       const newEditMode = !prev;
-      
+
       // Auto-scroll to search panel on mobile when entering edit mode
       if (newEditMode && isMobile) {
         // Small delay to ensure the panel is rendered before scrolling
@@ -141,7 +149,7 @@ function MainScheduler(): React.ReactElement {
           }
         }, 100);
       }
-      
+
       return newEditMode;
     });
   };
@@ -171,7 +179,7 @@ function MainScheduler(): React.ReactElement {
         // Check cache first
         const CACHE_KEY = 'collegemate_terms_cache';
         const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
-        
+
         const cachedData = localStorage.getItem(CACHE_KEY);
         let termsData;
 
@@ -179,35 +187,44 @@ function MainScheduler(): React.ReactElement {
           try {
             const parsed = JSON.parse(cachedData);
             const isExpired = Date.now() - parsed.timestamp > CACHE_DURATION;
-            
+
             if (!isExpired && parsed.data) {
               termsData = parsed.data;
             } else {
               termsData = await getTerms();
-              
+
               // Cache the fresh data
-              localStorage.setItem(CACHE_KEY, JSON.stringify({
-                data: termsData,
-                timestamp: Date.now()
-              }));
+              localStorage.setItem(
+                CACHE_KEY,
+                JSON.stringify({
+                  data: termsData,
+                  timestamp: Date.now(),
+                }),
+              );
             }
           } catch (parseError) {
             termsData = await getTerms();
-            
+
             // Cache the fresh data
-            localStorage.setItem(CACHE_KEY, JSON.stringify({
-              data: termsData,
-              timestamp: Date.now()
-            }));
+            localStorage.setItem(
+              CACHE_KEY,
+              JSON.stringify({
+                data: termsData,
+                timestamp: Date.now(),
+              }),
+            );
           }
         } else {
           termsData = await getTerms();
-          
+
           // Cache the data
-          localStorage.setItem(CACHE_KEY, JSON.stringify({
-            data: termsData,
-            timestamp: Date.now()
-          }));
+          localStorage.setItem(
+            CACHE_KEY,
+            JSON.stringify({
+              data: termsData,
+              timestamp: Date.now(),
+            }),
+          );
         }
         const futureTerms = getUpcomingTerms(termsData.terms, 6); // Get next 6 terms
         setAvailableTerms(futureTerms);
@@ -220,14 +237,16 @@ function MainScheduler(): React.ReactElement {
           const savedData = loadScheduleDataFromStorage(current.termCode);
           setScheduleEvents(savedData.events);
           setOnlineCourses(savedData.courses);
-          (`📱 Loaded ${savedData.events.length} events and ${savedData.courses.length} online courses for term ${current.termCode}`);
+          `📱 Loaded ${savedData.events.length} events and ${savedData.courses.length} online courses for term ${current.termCode}`;
         } else if (futureTerms.length > 0) {
           // If no current term, use the first available future term
           setCurrentTerm(futureTerms[0]);
-          const savedData = loadScheduleDataFromStorage(futureTerms[0].termCode);
+          const savedData = loadScheduleDataFromStorage(
+            futureTerms[0].termCode,
+          );
           setScheduleEvents(savedData.events);
           setOnlineCourses(savedData.courses);
-          (`📱 Loaded ${savedData.events.length} events and ${savedData.courses.length} online courses for term ${futureTerms[0].termCode}`);
+          `📱 Loaded ${savedData.events.length} events and ${savedData.courses.length} online courses for term ${futureTerms[0].termCode}`;
         }
       } catch (error) {
         console.error('❌ Failed to load terms:', error);
@@ -246,7 +265,11 @@ function MainScheduler(): React.ReactElement {
   useEffect(() => {
     if (currentTerm) {
       const timeoutId = setTimeout(() => {
-        saveScheduleDataToStorage(currentTerm.termCode, scheduleEvents, onlineCourses);
+        saveScheduleDataToStorage(
+          currentTerm.termCode,
+          scheduleEvents,
+          onlineCourses,
+        );
       }, 100); // 100ms debounce
 
       return () => clearTimeout(timeoutId);
@@ -256,7 +279,7 @@ function MainScheduler(): React.ReactElement {
   // Handle term change
   const handleTermChange = (newTerm: Term): void => {
     // Save current data to localStorage (handled by useEffect automatically)
-    
+
     // Switch to new term
     setCurrentTerm(newTerm);
 
@@ -264,7 +287,7 @@ function MainScheduler(): React.ReactElement {
     const savedData = loadScheduleDataFromStorage(newTerm.termCode);
     setScheduleEvents(savedData.events);
     setOnlineCourses(savedData.courses);
-    (`🔄 Switched to term ${newTerm.termCode}, loaded ${savedData.events.length} events and ${savedData.courses.length} online courses`);
+    `🔄 Switched to term ${newTerm.termCode}, loaded ${savedData.events.length} events and ${savedData.courses.length} online courses`;
 
     // Exit edit mode when switching terms
     setIsEditMode(false);
