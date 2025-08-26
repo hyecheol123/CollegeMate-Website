@@ -14,7 +14,7 @@ const specialCases: Record<string, string> = {
 
 /**
  * Check if a string is all uppercase (excluding numbers and special characters)
- * @param str
+ * @param {string} str - The string to check
  */
 const isAllCaps = (str: string): boolean => {
   const letters = str.replace(/[^a-zA-Z]/g, '');
@@ -24,7 +24,7 @@ const isAllCaps = (str: string): boolean => {
 
 /**
  * Normalize building name to consistent proper case format
- * @param buildingName
+ * @param {string} buildingName - The building name to normalize
  */
 export const normalizeBuildingName = (buildingName: string): string => {
   if (!buildingName) return '';
@@ -58,7 +58,7 @@ const buildingCache = new Map<string, string>();
 
 /**
  * Memoized version of normalizeBuildingName for better performance
- * @param buildingName
+ * @param {string} buildingName - The building name to normalize
  */
 export const normalizeBuildingNameMemo = (buildingName: string): string => {
   if (buildingCache.has(buildingName)) {

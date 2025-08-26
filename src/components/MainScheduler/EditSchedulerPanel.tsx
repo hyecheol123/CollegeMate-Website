@@ -453,31 +453,15 @@ function EditSchedulerPanel({
     return AVAILABLE_COLORS[colorIndex];
   };
 
-  const handleAddSection = async (
+  // Helper function to create events from a section without adding them immediately
+  const createEventsFromSection = (
     course: ClassSearchResult,
     section: Section,
-  ): Promise<void> => {
-    if (!currentTerm) {
-      return;
-    }
+    selectedColor: string,
+  ): EventData[] => {
+    if (!currentTerm) return [];
 
-    const sectionId = `${course.courseId}-${section.sectionNumber}`;
-    let selectedColor = classColors[course.courseId] || classColors[sectionId];
-
-    // If no color is assigned yet, assign the next sequential color and save it
-    if (!selectedColor) {
-      selectedColor = getNextSequentialColor();
-      setClassColors((prev) => ({
-        ...prev,
-        [course.courseId]: selectedColor,
-      }));
-    }
-
-    // Check if this is an online course
-    const hasOnlineMeetings = section.classMeetings?.some(
-      (meeting) => !meeting.meetingTimeStart || !meeting.meetingTimeEnd,
-    );
-
+    const events: EventData[] = [];
     const instructorNames =
       section.instructors
         ?.map((inst: Instructor) => `${inst.name.first} ${inst.name.last}`)
@@ -494,36 +478,8 @@ function EditSchedulerPanel({
             : `${course.credits.min}-${course.credits.max}`
           : '';
 
-    // Only add to online courses if there are actual online meetings
-    if (hasOnlineMeetings && onAddOnlineCourse) {
-      onAddOnlineCourse({
-        id: `${course.courseId}-${section.sectionNumber}`,
-        designation: course.courseDesignation,
-        instructor: instructorNames,
-        credits,
-        color: selectedColor,
-      });
-    }
-
-    // If it's online-only (no scheduled meetings), we're done
-    if (
-      hasOnlineMeetings &&
-      !section.classMeetings?.some(
-        (meeting) => meeting.meetingTimeStart && meeting.meetingTimeEnd,
-      )
-    ) {
-      return;
-    }
-
-    if (!onAddEvent) {
-      return;
-    }
-
-    // Handle regular scheduled courses
-    const events: EventData[] = [];
-
     section.classMeetings?.forEach((meeting: Meeting) => {
-      // Skip online meetings (already handled above)
+      // Skip online meetings
       if (!meeting.meetingTimeStart || !meeting.meetingTimeEnd) {
         return;
       }
@@ -541,7 +497,7 @@ function EditSchedulerPanel({
         const day = dayMap[fullDay] || fullDay;
 
         // Apply 6-hour offset correction for local time
-        const offsetMs = 6 * 60 * 60 * 1000; // 6 hours in milliseconds
+        const offsetMs = 6 * 60 * 60 * 1000;
         const correctedStartMs = meeting.meetingTimeStart! - offsetMs;
         const correctedEndMs = meeting.meetingTimeEnd! - offsetMs;
 
@@ -556,11 +512,6 @@ function EditSchedulerPanel({
           hour: Math.floor(correctedEndMs / (1000 * 60 * 60)),
           minute: Math.floor((correctedEndMs % (1000 * 60 * 60)) / (1000 * 60)),
         };
-
-        const instructorNames =
-          section.instructors
-            ?.map((inst: Instructor) => `${inst.name.first} ${inst.name.last}`)
-            .join(', ') || 'TBA';
 
         const sectionId = section.sectionNumber || 'default';
         const eventId = `${course.courseId}-${sectionId}-${day}`;
@@ -586,35 +537,7 @@ function EditSchedulerPanel({
       });
     });
 
-    // Check for time conflicts before adding events
-    const conflictMessage = checkTimeConflict(events);
-
-    if (conflictMessage) {
-      setPendingEvents((prev) => {
-        // Avoid duplicates by filtering out events with same ID
-        const existingIds = new Set(prev.map((e) => e.id));
-        const newEvents = events.filter((e) => !existingIds.has(e.id));
-        return [...prev, ...newEvents];
-      });
-      console.log('⚠️ 시간 충돌 모달 열기');
-      debugScrollState('충돌 모달 열기 시점');
-      setIsConflictModalOpen(true);
-      return;
-    }
-
-    // Add events all at once
-    events.forEach((event) => {
-      onAddEvent(event);
-    });
-
-    // Force enable scroll after adding all events - temporarily disabled
-    // setTimeout(() => {
-    //   document.body.style.overflow = 'auto';
-    //   document.documentElement.style.overflow = 'auto';
-    //     body: document.body.style.overflow,
-    //     html: document.documentElement.style.overflow
-    //   });
-    // }, 50);
+    return events;
   };
 
   const handleCustomizeColor = (sectionId: string): void => {
@@ -639,16 +562,13 @@ function EditSchedulerPanel({
       onRemoveConflictingEvents
     ) {
       console.log('기존 이벤트 제거 후 새 이벤트 추가 시작');
-      // Remove conflicting events - check both time conflicts and same course
-      const eventsToRemove = new Set<string>();
-
-      // Simple logic: Find time conflicts, then remove entire conflicting courses
+      // Simple logic: Remove all events from conflicting courses (including dependencies)
       const conflictingCourseIds = new Set<string>();
 
-      // Find all courses that have time conflicts
+      // Find courses that have time conflicts
       for (const newEvent of pendingEvents) {
         for (const existingEvent of existingEvents) {
-          // Check time conflicts
+          // Check if same day and time overlap
           if (newEvent.day === existingEvent.day) {
             const newStart =
               newEvent.startTime.hour * 60 + newEvent.startTime.minute;
@@ -659,23 +579,24 @@ function EditSchedulerPanel({
             const existingEnd =
               existingEvent.endTime.hour * 60 + existingEvent.endTime.minute;
 
+            // If any overlap (even 1 minute), mark entire course for removal
             if (newStart < existingEnd && newEnd > existingStart) {
-              const conflictingCourseId = existingEvent.id.split('-')[0];
-              conflictingCourseIds.add(conflictingCourseId);
+              const courseId = existingEvent.id.split('-')[0]; // e.g., "COMPSCI577"
+              conflictingCourseIds.add(courseId);
             }
           }
         }
       }
 
-      // Remove all events from conflicting courses
+      // Remove all events from conflicting courses (Lecture + Discussion + Lab)
+      const eventsToRemove = new Set<string>();
       for (const existingEvent of existingEvents) {
-        const existingCourseId = existingEvent.id.split('-')[0];
-        if (conflictingCourseIds.has(existingCourseId)) {
+        const eventCourseId = existingEvent.id.split('-')[0];
+        if (conflictingCourseIds.has(eventCourseId)) {
           eventsToRemove.add(existingEvent.id);
         }
       }
 
-      // Remove all identified events
       eventsToRemove.forEach((eventId) => {
         onRemoveConflictingEvents(eventId);
       });
@@ -2068,13 +1989,33 @@ function EditSchedulerPanel({
                     // Get available options
                     const lectureOptions = getLectureOptions(course);
 
+                    // Get color for the course
+                    let selectedColor = classColors[course.courseId];
+                    if (!selectedColor) {
+                      selectedColor = getNextSequentialColor();
+                      setClassColors((prev) => ({
+                        ...prev,
+                        [course.courseId]: selectedColor,
+                      }));
+                    }
+
+                    // Collect all events from selected sections
+                    const allEvents: EventData[] = [];
+                    const sectionsToAdd = [];
+
                     // Add selected lecture
                     if (selectedLec) {
                       const lecture = lectureOptions.find(
                         (l) => l.sectionNumber === selectedLec,
                       );
                       if (lecture) {
-                        await handleAddSection(course, lecture);
+                        sectionsToAdd.push(lecture);
+                        const lectureEvents = createEventsFromSection(
+                          course,
+                          lecture,
+                          selectedColor,
+                        );
+                        allEvents.push(...lectureEvents);
                       }
                     }
 
@@ -2089,7 +2030,13 @@ function EditSchedulerPanel({
                         (d) => d.sectionNumber === selectedDisc,
                       );
                       if (discussion) {
-                        await handleAddSection(course, discussion);
+                        sectionsToAdd.push(discussion);
+                        const discussionEvents = createEventsFromSection(
+                          course,
+                          discussion,
+                          selectedColor,
+                        );
+                        allEvents.push(...discussionEvents);
                       } else if (selectedLec) {
                         alert(
                           `Discussion ${selectedDisc} is not available for the selected lecture. Please choose a different discussion or lecture.`,
@@ -2110,7 +2057,13 @@ function EditSchedulerPanel({
                         (l) => l.sectionNumber === selectedLabSection,
                       );
                       if (lab) {
-                        await handleAddSection(course, lab);
+                        sectionsToAdd.push(lab);
+                        const labEvents = createEventsFromSection(
+                          course,
+                          lab,
+                          selectedColor,
+                        );
+                        allEvents.push(...labEvents);
                       } else if (selectedLec) {
                         alert(
                           `Lab ${selectedLabSection} is not available for the selected lecture. Please choose a different lab or lecture.`,
@@ -2118,6 +2071,61 @@ function EditSchedulerPanel({
                         setIsAddingClass(false);
                         return;
                       }
+                    }
+
+                    // Check for time conflicts with all events together
+                    const conflictMessage = checkTimeConflict(allEvents);
+
+                    if (conflictMessage) {
+                      // Set all events as pending
+                      setPendingEvents(allEvents);
+                      setIsConflictModalOpen(true);
+                      console.log(
+                        '⚠️ 시간 충돌 모달 열기 - 모든 이벤트:',
+                        allEvents.length,
+                      );
+                    } else {
+                      // No conflicts, add all events directly
+                      // Handle online courses first
+                      sectionsToAdd.forEach((section) => {
+                        const hasOnlineMeetings = section.classMeetings?.some(
+                          (meeting) =>
+                            !meeting.meetingTimeStart ||
+                            !meeting.meetingTimeEnd,
+                        );
+                        if (hasOnlineMeetings && onAddOnlineCourse) {
+                          const instructorNames =
+                            section.instructors
+                              ?.map(
+                                (inst: Instructor) =>
+                                  `${inst.name.first} ${inst.name.last}`,
+                              )
+                              .join(', ') || 'TBA';
+                          const credits =
+                            course.minimumCredits && course.maximumCredits
+                              ? course.minimumCredits === course.maximumCredits
+                                ? `${course.minimumCredits}`
+                                : `${course.minimumCredits}-${course.maximumCredits}`
+                              : course.credits
+                                ? course.credits.min === course.credits.max
+                                  ? `${course.credits.min}`
+                                  : `${course.credits.min}-${course.credits.max}`
+                                : '';
+
+                          onAddOnlineCourse({
+                            id: `${course.courseId}-${section.sectionNumber}`,
+                            designation: course.courseDesignation,
+                            instructor: instructorNames,
+                            credits,
+                            color: selectedColor,
+                          });
+                        }
+                      });
+
+                      // Add all regular events
+                      allEvents.forEach((event) => {
+                        onAddEvent?.(event);
+                      });
                     }
 
                     // Success feedback
