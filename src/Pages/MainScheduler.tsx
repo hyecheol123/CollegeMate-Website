@@ -72,7 +72,6 @@ const saveScheduleDataToStorage = (termCode: string, events: EventData[], course
     
     localStorage.setItem(eventsKey, JSON.stringify(events));
     localStorage.setItem(coursesKey, JSON.stringify(courses));
-    console.log(`💾 Schedule data saved for term ${termCode}`);
   } catch (error) {
     console.error('Error saving schedule data to localStorage:', error);
   }
@@ -134,7 +133,6 @@ function MainScheduler(): React.ReactElement {
 
   // Load terms on component mount
   useEffect(() => {
-    console.log('🔄 MainScheduler useEffect triggered - loading terms');
     const loadTerms = async (): Promise<void> => {
       try {
         setLoading(true);
@@ -153,43 +151,33 @@ function MainScheduler(): React.ReactElement {
             const isExpired = Date.now() - parsed.timestamp > CACHE_DURATION;
             
             if (!isExpired && parsed.data) {
-              console.log('📦 Using cached terms data (valid for', Math.round((CACHE_DURATION - (Date.now() - parsed.timestamp)) / 1000 / 60), 'more minutes)');
               termsData = parsed.data;
             } else {
-              console.log('⏰ Cache expired, fetching fresh terms data');
               termsData = await getTerms();
-              console.log('📅 Terms API call completed:', termsData);
               
               // Cache the fresh data
               localStorage.setItem(CACHE_KEY, JSON.stringify({
                 data: termsData,
                 timestamp: Date.now()
               }));
-              console.log('💾 Terms data cached for 24 hours');
             }
           } catch (parseError) {
-            console.log('❌ Cache parse error, fetching fresh data:', parseError);
             termsData = await getTerms();
-            console.log('📅 Terms API call completed:', termsData);
             
             // Cache the fresh data
             localStorage.setItem(CACHE_KEY, JSON.stringify({
               data: termsData,
               timestamp: Date.now()
             }));
-            console.log('💾 Terms data cached for 12 hours');
           }
         } else {
-          console.log('📅 No cache found, loading terms API call started...');
           termsData = await getTerms();
-          console.log('📅 Terms API call completed:', termsData);
           
           // Cache the data
           localStorage.setItem(CACHE_KEY, JSON.stringify({
             data: termsData,
             timestamp: Date.now()
           }));
-          console.log('💾 Terms data cached for 12 hours');
         }
         const futureTerms = getUpcomingTerms(termsData.terms, 6); // Get next 6 terms
         setAvailableTerms(futureTerms);
@@ -202,14 +190,14 @@ function MainScheduler(): React.ReactElement {
           const savedData = loadScheduleDataFromStorage(current.termCode);
           setScheduleEvents(savedData.events);
           setOnlineCourses(savedData.courses);
-          console.log(`📱 Loaded ${savedData.events.length} events and ${savedData.courses.length} online courses for term ${current.termCode}`);
+          (`📱 Loaded ${savedData.events.length} events and ${savedData.courses.length} online courses for term ${current.termCode}`);
         } else if (futureTerms.length > 0) {
           // If no current term, use the first available future term
           setCurrentTerm(futureTerms[0]);
           const savedData = loadScheduleDataFromStorage(futureTerms[0].termCode);
           setScheduleEvents(savedData.events);
           setOnlineCourses(savedData.courses);
-          console.log(`📱 Loaded ${savedData.events.length} events and ${savedData.courses.length} online courses for term ${futureTerms[0].termCode}`);
+          (`📱 Loaded ${savedData.events.length} events and ${savedData.courses.length} online courses for term ${futureTerms[0].termCode}`);
         }
       } catch (error) {
         console.error('❌ Failed to load terms:', error);
@@ -217,7 +205,6 @@ function MainScheduler(): React.ReactElement {
           error instanceof Error ? error.message : 'Failed to load terms',
         );
       } finally {
-        console.log('🏁 Terms loading finished (success or error)');
         setLoading(false);
       }
     };
@@ -243,7 +230,7 @@ function MainScheduler(): React.ReactElement {
     const savedData = loadScheduleDataFromStorage(newTerm.termCode);
     setScheduleEvents(savedData.events);
     setOnlineCourses(savedData.courses);
-    console.log(`🔄 Switched to term ${newTerm.termCode}, loaded ${savedData.events.length} events and ${savedData.courses.length} online courses`);
+    (`🔄 Switched to term ${newTerm.termCode}, loaded ${savedData.events.length} events and ${savedData.courses.length} online courses`);
 
     // Exit edit mode when switching terms
     setIsEditMode(false);
@@ -261,7 +248,6 @@ function MainScheduler(): React.ReactElement {
       );
 
       if (isDuplicate) {
-        console.log('⚠️ Duplicate online course detected:', course.designation);
         return prev; // Don't add duplicate
       }
 

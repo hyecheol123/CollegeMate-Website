@@ -26,6 +26,9 @@ import {
   Select,
   MenuItem,
   FormControl,
+  Dialog,
+  DialogContent,
+  DialogActions,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 // Components
@@ -115,14 +118,12 @@ function EditSchedulerPanel({
       windowHeight: window.innerHeight,
       documentHeight: document.body.scrollHeight,
     };
-    console.log('🔍 Scroll Debug:', scrollInfo);
     return scrollInfo;
   };
 
   // Safe auto-scroll to search results (mobile only)
   const scrollToSearchResults = (): void => {
     if (resultsRef.current && isMobile) {
-      console.log('📜 Auto-scrolling to search results (mobile)');
       debugScrollState('Before auto-scroll');
       
       setTimeout(() => {
@@ -202,6 +203,57 @@ function EditSchedulerPanel({
   const [hasAutoScrolledOnce, setHasAutoScrolledOnce] = 
     useState<boolean>(false);
   const [isAddingClass, setIsAddingClass] = useState<boolean>(false);
+  const [isDependencyModalOpen, setIsDependencyModalOpen] = useState<boolean>(false);
+  const [dependencyModalMessage, setDependencyModalMessage] = useState<string>('');
+
+  // Validate dependencies between Lecture/Discussion/Lab
+  const validateDependencies = (course: ClassSearchResult, selectedLec: string, selectedDisc: string, selectedLabSection: string): string | null => {
+    const lectureOptions = getLectureOptions(course);
+    const discussionOptions = getDiscussionOptions(course);
+    const labOptions = getLabOptions(course);
+
+    // If no lectures exist, this is an independent course (lab-only, discussion-only) - no validation needed
+    if (lectureOptions.length === 0) {
+      return null;
+    }
+
+    // Case 1: Only Discussion selected but Lectures exist (need Lecture)
+    if (selectedDisc && !selectedLec && lectureOptions.length > 0) {
+      return 'Please select Lecture';
+    }
+
+    // Case 2: Only Lab selected but Lectures exist (need Lecture) 
+    if (selectedLabSection && !selectedLec && lectureOptions.length > 0) {
+      return 'Please select Lecture';
+    }
+
+    // Case 3: Only Lecture selected but Discussion available (need Discussion)
+    if (selectedLec && !selectedDisc && !selectedLabSection && discussionOptions.length > 0 && labOptions.length === 0) {
+      return 'Please select Discussion';
+    }
+
+    // Case 4: Only Lecture selected but Lab available (need Lab)
+    if (selectedLec && !selectedDisc && !selectedLabSection && labOptions.length > 0 && discussionOptions.length === 0) {
+      return 'Please select Lab';
+    }
+
+    // Case 5: Only Lecture selected but both Discussion and Lab available (need both)
+    if (selectedLec && !selectedDisc && !selectedLabSection && discussionOptions.length > 0 && labOptions.length > 0) {
+      return 'Please select Discussion and Lab';
+    }
+
+    // Case 6: Lecture + Discussion selected but Lab missing (when Lab is available)
+    if (selectedLec && selectedDisc && !selectedLabSection && labOptions.length > 0) {
+      return 'Please select Lab';
+    }
+
+    // Case 7: Lecture + Lab selected but Discussion missing (when Discussion is available)
+    if (selectedLec && !selectedDisc && selectedLabSection && discussionOptions.length > 0) {
+      return 'Please select Discussion';
+    }
+
+    return null; // All good
+  };
 
   // Time conflict validation function
   const checkTimeConflict = (newEvents: EventData[]): string | null => {
@@ -473,16 +525,13 @@ function EditSchedulerPanel({
 
     // Add events all at once
     events.forEach((event, index) => {
-      console.log(`🎯 Adding event ${index + 1}/${events.length}:`, event.id);
       onAddEvent(event);
     });
     
     // Force enable scroll after adding all events - temporarily disabled
     // setTimeout(() => {
-    //   console.log('🔧 Forcing scroll enable after all events added');
     //   document.body.style.overflow = 'auto';
     //   document.documentElement.style.overflow = 'auto';
-    //   console.log('✅ Final scroll state:', {
     //     body: document.body.style.overflow,
     //     html: document.documentElement.style.overflow
     //   });
@@ -495,7 +544,6 @@ function EditSchedulerPanel({
   };
 
   const handleConflictResolve = (keepExisting: boolean): void => {
-    console.log('🔄 handleConflictResolve called:', { keepExisting, pendingEvents: pendingEvents.length, existingEvents: existingEvents.length });
     
     if (
       !keepExisting &&
@@ -505,15 +553,12 @@ function EditSchedulerPanel({
       // Remove conflicting events - check both time conflicts and same course
       const eventsToRemove = new Set<string>();
       
-      console.log('📋 Pending events:', pendingEvents.map(e => ({ id: e.id, title: e.title, day: e.day, time: `${e.startTime.hour}:${e.startTime.minute}-${e.endTime.hour}:${e.endTime.minute}` })));
-      console.log('📋 Existing events:', existingEvents.map(e => ({ id: e.id, title: e.title, day: e.day, time: `${e.startTime.hour}:${e.startTime.minute}-${e.endTime.hour}:${e.endTime.minute}` })));
       
       // Simple logic: Find time conflicts, then remove entire conflicting courses
       const conflictingCourseIds = new Set<string>();
       
       // Find all courses that have time conflicts
       for (const newEvent of pendingEvents) {
-        console.log(`🆕 Checking conflicts for: ${newEvent.id}`);
         
         for (const existingEvent of existingEvents) {
           // Check time conflicts
@@ -525,8 +570,6 @@ function EditSchedulerPanel({
 
             if (newStart < existingEnd && newEnd > existingStart) {
               const conflictingCourseId = existingEvent.id.split('-')[0];
-              console.log(`⏰ TIME CONFLICT: ${newEvent.id} conflicts with ${existingEvent.id}`);
-              console.log(`📚 Will remove entire course: ${conflictingCourseId}`);
               conflictingCourseIds.add(conflictingCourseId);
             }
           }
@@ -537,33 +580,19 @@ function EditSchedulerPanel({
       for (const existingEvent of existingEvents) {
         const existingCourseId = existingEvent.id.split('-')[0];
         if (conflictingCourseIds.has(existingCourseId)) {
-          console.log(`🗑️ Removing event from conflicting course: ${existingEvent.id}`);
           eventsToRemove.add(existingEvent.id);
         }
       }
       
-      console.log('🗑️ Events to remove:', Array.from(eventsToRemove));
       
       // Remove all identified events
       eventsToRemove.forEach(eventId => {
-        console.log(`🗑️ Removing event: ${eventId}`);
         onRemoveConflictingEvents(eventId);
       });
 
       // Add new events
       pendingEvents.forEach((event, index) => {
-        console.log(`➕ Adding pending event ${index + 1}/${pendingEvents.length}:`, event.id);
-        console.log('📊 Before pending onAddEvent - Scroll state:', {
-          body: document.body.style.overflow,
-          html: document.documentElement.style.overflow
-        });
-        
         onAddEvent?.(event);
-        
-        console.log('📊 After pending onAddEvent - Scroll state:', {
-          body: document.body.style.overflow,
-          html: document.documentElement.style.overflow
-        });
       });
     }
 
@@ -745,11 +774,16 @@ function EditSchedulerPanel({
   const getLabOptions = (
     course: ClassSearchResult,
     selectedLectureNumber?: string,
+    selectedDiscussionNumber?: string,
   ): Section[] => {
+    
     const sectionData = courseSections[course.courseId];
-    if (!Array.isArray(sectionData)) return [];
+    if (!Array.isArray(sectionData)) {
+      return [];
+    }
+    
 
-    // If no lecture is selected, return all labs
+    // If no lecture is selected, return all labs (with discussion filtering if applicable)
     if (!selectedLectureNumber) {
       const labs: Section[] = [];
       const seenSections = new Set<string>();
@@ -763,6 +797,35 @@ function EditSchedulerPanel({
 
           enrollmentPackage.sections?.forEach((section: Section) => {
             if (section.type === 'LAB') {
+              // If discussion is selected, filter labs based on API enrollment packages
+              if (selectedDiscussionNumber) {
+                
+                // Find which enrollment packages contain both the selected discussion and this lab
+                let isCompatible = false;
+                
+                (sectionData as any[]).forEach((pkg: any) => {
+                  
+                  // Check if this package contains both the discussion and lab
+                  const hasSelectedDiscussion = pkg.sections?.some((s: any) => 
+                    s.type === 'DIS' && s.sectionNumber === selectedDiscussionNumber
+                  );
+                  const hasThisLab = pkg.sections?.some((s: any) => 
+                    s.type === 'LAB' && s.sectionNumber === section.sectionNumber
+                  );
+                  
+                  
+                  if (hasSelectedDiscussion && hasThisLab) {
+                    isCompatible = true;
+                  }
+                });
+                
+                
+                // Only include labs that are compatible with selected discussion
+                if (!isCompatible) {
+                  return;
+                }
+              }
+
               const sectionKey = `${section.type}-${section.sectionNumber}`;
               if (!seenSections.has(sectionKey)) {
                 seenSections.add(sectionKey);
@@ -841,6 +904,23 @@ function EditSchedulerPanel({
           // Include labs only from this specific enrollmentPackage
           enrollmentPackage.sections?.forEach((section: Section) => {
             if (section.type === 'LAB') {
+              
+              // If discussion is selected, filter labs based on discussion compatibility
+              if (selectedDiscussionNumber) {
+                
+                // Check if this enrollment package contains both the selected discussion and this lab
+                const hasSelectedDiscussion = enrollmentPackage.sections?.some((s: Section) => 
+                  s.type === 'DIS' && s.sectionNumber === selectedDiscussionNumber
+                );
+                
+                
+                // Only include labs that are in the same package as the selected discussion
+                if (!hasSelectedDiscussion) {
+                  return;
+                }
+                
+              }
+              
               const sectionKey = `${section.type}-${section.sectionNumber}`;
               if (!seenSections.has(sectionKey)) {
                 seenSections.add(sectionKey);
@@ -1555,6 +1635,7 @@ function EditSchedulerPanel({
                       {getLabOptions(
                         course,
                         selectedLecture[course.courseId] || undefined,
+                        selectedDiscussion[course.courseId] || undefined,
                       ).map((lab) => {
                         const instructorNames =
                           lab.instructors
@@ -1741,6 +1822,15 @@ function EditSchedulerPanel({
                       return;
                     }
 
+                    // Dependency validation
+                    const dependencyError = validateDependencies(course, selectedLec, selectedDisc, selectedLabSection);
+                    if (dependencyError) {
+                      setDependencyModalMessage(dependencyError);
+                      setIsDependencyModalOpen(true);
+                      setIsAddingClass(false);
+                      return;
+                    }
+
                     // Get available options
                     const lectureOptions = getLectureOptions(course);
 
@@ -1779,8 +1869,8 @@ function EditSchedulerPanel({
                     if (selectedLabSection) {
                       // If lecture is selected, get labs for that lecture only
                       const availableLabs = selectedLec
-                        ? getLabOptions(course, selectedLec)
-                        : getLabOptions(course);
+                        ? getLabOptions(course, selectedLec, selectedDisc)
+                        : getLabOptions(course, undefined, selectedDisc);
 
                       const lab = availableLabs.find(
                         (l) => l.sectionNumber === selectedLabSection,
@@ -1929,6 +2019,36 @@ function EditSchedulerPanel({
           </Box>
         </Box>
       )}
+
+      {/* Dependency Validation Modal */}
+      <Dialog
+        open={isDependencyModalOpen}
+        onClose={() => setIsDependencyModalOpen(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogContent>
+          <Typography variant="body1" sx={{ textAlign: 'center', padding: '16px 0' }}>
+            {dependencyModalMessage}
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ justifyContent: 'center', paddingBottom: '24px' }}>
+          <Button
+            onClick={() => setIsDependencyModalOpen(false)}
+            variant="contained"
+            sx={{
+              backgroundColor: 'red.main',
+              color: 'white',
+              minWidth: '80px',
+              '&:hover': {
+                backgroundColor: 'red.dark',
+              },
+            }}
+          >
+            OK
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }
