@@ -5,7 +5,7 @@
  */
 
 // React
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 // Material UI
 import {
   Box,
@@ -87,6 +87,36 @@ function MainScheduler(): React.ReactElement {
   const [error, setError] = useState<string | null>(null);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
+  // Calculate total credits with useMemo
+  const totalCreditsText = useMemo(() => {
+    let totalCredits = 0;
+    const allCourseIds = new Set<string>();
+
+    // Add credits from online courses
+    onlineCourses.forEach((course) => {
+      if (course.credits) {
+        const courseId = course.id.split('-')[0];
+        allCourseIds.add(courseId);
+        const creditValue = parseInt(course.credits.split('-')[0]) || 0;
+        totalCredits += creditValue;
+      }
+    });
+
+    // Add credits from scheduled events (only if not already counted as online)
+    scheduleEvents.forEach((event) => {
+      const parts = event.id.split('-');
+      const courseId = parts[0];
+
+      if (!allCourseIds.has(courseId) && event.credits) {
+        allCourseIds.add(courseId);
+        const creditValue = parseInt(event.credits.split('-')[0]) || 0;
+        totalCredits += creditValue;
+      }
+    });
+
+    return `${totalCredits} credits`;
+  }, [scheduleEvents, onlineCourses]);
   const searchPanelRef = useRef<HTMLDivElement>(null);
   const schedulerRef = useRef<HTMLDivElement>(null);
   const [isDownloadOpen, setIsDownloadOpen] = useState(false);
@@ -212,10 +242,14 @@ function MainScheduler(): React.ReactElement {
     loadTerms();
   }, []);
 
-  // Auto-save schedule data when events or courses change
+  // Auto-save schedule data when events or courses change (with debouncing)
   useEffect(() => {
     if (currentTerm) {
-      saveScheduleDataToStorage(currentTerm.termCode, scheduleEvents, onlineCourses);
+      const timeoutId = setTimeout(() => {
+        saveScheduleDataToStorage(currentTerm.termCode, scheduleEvents, onlineCourses);
+      }, 100); // 100ms debounce
+
+      return () => clearTimeout(timeoutId);
     }
   }, [scheduleEvents, onlineCourses, currentTerm]);
 
@@ -509,9 +543,12 @@ function MainScheduler(): React.ReactElement {
           {/* Credits Display - Always visible */}
           <Box
             sx={{
-              marginTop: onlineCourses.length > 0 ? '4px' : '9px',
+              marginTop: '8px',
               backgroundColor: 'white',
               padding: '0px 0',
+              minHeight: '20px',
+              display: 'flex',
+              alignItems: 'center',
             }}
           >
             <Typography
@@ -522,36 +559,7 @@ function MainScheduler(): React.ReactElement {
                 color: '#494949',
               }}
             >
-              {((): string => {
-                let totalCredits = 0;
-                const allCourseIds = new Set<string>();
-
-                // Add credits from online courses
-                onlineCourses.forEach((course) => {
-                  if (course.credits) {
-                    const courseId = course.id.split('-')[0];
-                    allCourseIds.add(courseId);
-                    const creditValue =
-                      parseInt(course.credits.split('-')[0]) || 0;
-                    totalCredits += creditValue;
-                  }
-                });
-
-                // Add credits from scheduled events (only if not already counted as online)
-                scheduleEvents.forEach((event) => {
-                  const parts = event.id.split('-');
-                  const courseId = parts[0];
-
-                  if (!allCourseIds.has(courseId) && event.credits) {
-                    allCourseIds.add(courseId);
-                    const creditValue =
-                      parseInt(event.credits.split('-')[0]) || 0;
-                    totalCredits += creditValue;
-                  }
-                });
-
-                return `${totalCredits} credits`;
-              })()}
+              {totalCreditsText}
             </Typography>
           </Box>
 
@@ -699,36 +707,7 @@ function MainScheduler(): React.ReactElement {
                   marginTop: '8px',
                 }}
               >
-                {((): string => {
-                  let totalCredits = 0;
-                  const allCourseIds = new Set<string>();
-
-                  // Add credits from online courses
-                  onlineCourses.forEach((course) => {
-                    if (course.credits) {
-                      const courseId = course.id.split('-')[0];
-                      allCourseIds.add(courseId);
-                      const creditValue =
-                        parseInt(course.credits.split('-')[0]) || 0;
-                      totalCredits += creditValue;
-                    }
-                  });
-
-                  // Add credits from scheduled events (only if not already counted as online)
-                  scheduleEvents.forEach((event) => {
-                    const parts = event.id.split('-');
-                    const courseId = parts[0];
-
-                    if (!allCourseIds.has(courseId) && event.credits) {
-                      allCourseIds.add(courseId);
-                      const creditValue =
-                        parseInt(event.credits.split('-')[0]) || 0;
-                      totalCredits += creditValue;
-                    }
-                  });
-
-                  return `${totalCredits} credits`;
-                })()}
+                {totalCreditsText}
               </Typography>
             </Box>
           </Box>
@@ -737,9 +716,9 @@ function MainScheduler(): React.ReactElement {
           <Box
             ref={searchPanelRef}
             sx={{
-              flex: '1 1 40%',
+              flex: '1 1 35%',
               minWidth: '350px',
-              maxWidth: '500px',
+              maxWidth: '420px',
               height: 'calc(100vh - 140px)',
               overflowY: 'auto',
             }}
@@ -857,39 +836,10 @@ function MainScheduler(): React.ReactElement {
                 fontSize: '14px',
                 fontWeight: 'book',
                 color: '#494949',
-                marginTop: onlineCourses.length > 0 ? '8px' : '0px',
+                marginTop: '8px',
               }}
             >
-              {((): string => {
-                let totalCredits = 0;
-                const allCourseIds = new Set<string>();
-
-                // Add credits from online courses
-                onlineCourses.forEach((course) => {
-                  if (course.credits) {
-                    const courseId = course.id.split('-')[0];
-                    allCourseIds.add(courseId);
-                    const creditValue =
-                      parseInt(course.credits.split('-')[0]) || 0;
-                    totalCredits += creditValue;
-                  }
-                });
-
-                // Add credits from scheduled events (only if not already counted as online)
-                scheduleEvents.forEach((event) => {
-                  const parts = event.id.split('-');
-                  const courseId = parts[0];
-
-                  if (!allCourseIds.has(courseId) && event.credits) {
-                    allCourseIds.add(courseId);
-                    const creditValue =
-                      parseInt(event.credits.split('-')[0]) || 0;
-                    totalCredits += creditValue;
-                  }
-                });
-
-                return `${totalCredits} credits`;
-              })()}
+              {totalCreditsText}
             </Typography>
           </Box>
         </Box>
