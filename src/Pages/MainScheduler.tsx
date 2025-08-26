@@ -395,12 +395,10 @@ function MainScheduler(): React.ReactElement {
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
-            height: '200px',
-            gap: 2,
+            height: '100vh',
           }}
         >
-          <CircularProgress size={24} />
-          <Typography>Loading terms...</Typography>
+          <CircularProgress size={40} />
         </Box>
       </Box>
     );
