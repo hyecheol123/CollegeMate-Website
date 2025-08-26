@@ -385,6 +385,43 @@ function EditSchedulerPanel({
     });
   }, [searchResults, loadCourseSections]);
 
+  // Available color palette
+  const AVAILABLE_COLORS = [
+    '#758EA8', // Dusty Blue
+    '#A6DDFF', // Sky Blue
+    '#D9F6FF', // Aqua Blue
+    '#CFF3E7', // Pale Mint
+    '#B20000', // Red
+    '#D46478', // Rose Pink
+    '#F3B8DF', // Baby Pink
+    '#F3ADA3', // Coral Pink
+    '#00D0C5', // Mint
+    '#D7DF5A', // Lime
+    '#FFA944', // Tangerine
+    '#F4EF56', // Lemon
+    '#000000', // Black
+    '#494949', // Dark Gray
+    '#A0A0A0', // Mild Gray
+    '#E8E8E8', // Light Gray
+  ];
+
+  // Function to get next sequential color (with relay when all used)
+  const getNextSequentialColor = (): string => {
+    const usedColors = new Set(Object.values(classColors));
+    
+    // Find first unused color in sequence
+    for (const color of AVAILABLE_COLORS) {
+      if (!usedColors.has(color)) {
+        return color;
+      }
+    }
+    
+    // If all colors are used, start relay from beginning
+    const totalAssignedColors = Object.keys(classColors).length;
+    const colorIndex = totalAssignedColors % AVAILABLE_COLORS.length;
+    return AVAILABLE_COLORS[colorIndex];
+  };
+
   const handleAddSection = async (
     course: ClassSearchResult,
     section: Section,
@@ -394,7 +431,16 @@ function EditSchedulerPanel({
     }
 
     const sectionId = `${course.courseId}-${section.sectionNumber}`;
-    const selectedColor = classColors[course.courseId] || classColors[sectionId] || '#9E9E9E';
+    let selectedColor = classColors[course.courseId] || classColors[sectionId];
+    
+    // If no color is assigned yet, assign the next sequential color and save it
+    if (!selectedColor) {
+      selectedColor = getNextSequentialColor();
+      setClassColors((prev) => ({
+        ...prev,
+        [course.courseId]: selectedColor,
+      }));
+    }
 
     // Check if this is an online course
     const hasOnlineMeetings = section.classMeetings?.some(
