@@ -1,6 +1,6 @@
 /**
  * Term selector dropdown component for switching between academic terms
- * @author Generated for CollegeMate
+ * @author Daekyun Kim <daekyun97@gmail.com>
  */
 
 import React from 'react';

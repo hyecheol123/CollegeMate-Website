@@ -5,7 +5,7 @@
  */
 
 // React
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 // Material UI
 import {
   Box,
@@ -44,7 +44,46 @@ interface OnlineCourse {
  * MainScheduler component with responsive layout
  * - Desktop: Side-by-side scheduler and edit panel (55%/45% split)
  * - Mobile: Stacked layout with scheduler maintaining consistent size
+ * @param termCode
  * @return {React.ReactElement} The rendered MainScheduler page
+ */
+// Helper functions for localStorage
+const loadScheduleDataFromStorage = (termCode: string) => {
+  try {
+    const eventsKey = `collegemate_schedule_events_${termCode}`;
+    const coursesKey = `collegemate_online_courses_${termCode}`;
+
+    const savedEvents = localStorage.getItem(eventsKey);
+    const savedCourses = localStorage.getItem(coursesKey);
+
+    return {
+      events: savedEvents ? JSON.parse(savedEvents) : [],
+      courses: savedCourses ? JSON.parse(savedCourses) : [],
+    };
+  } catch (error) {
+    console.error('Error loading schedule data from localStorage:', error);
+    return { events: [], courses: [] };
+  }
+};
+
+const saveScheduleDataToStorage = (
+  termCode: string,
+  events: EventData[],
+  courses: OnlineCourse[],
+) => {
+  try {
+    const eventsKey = `collegemate_schedule_events_${termCode}`;
+    const coursesKey = `collegemate_online_courses_${termCode}`;
+
+    localStorage.setItem(eventsKey, JSON.stringify(events));
+    localStorage.setItem(coursesKey, JSON.stringify(courses));
+  } catch (error) {
+    console.error('Error saving schedule data to localStorage:', error);
+  }
+};
+
+/**
+ *
  */
 function MainScheduler(): React.ReactElement {
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
@@ -52,16 +91,40 @@ function MainScheduler(): React.ReactElement {
   const [onlineCourses, setOnlineCourses] = useState<OnlineCourse[]>([]);
   const [availableTerms, setAvailableTerms] = useState<Term[]>([]);
   const [currentTerm, setCurrentTerm] = useState<Term | null>(null);
-  const [scheduleEventsByTerm, setScheduleEventsByTerm] = useState<
-    Record<string, EventData[]>
-  >({});
-  const [onlineCoursesByTerm, setOnlineCoursesByTerm] = useState<
-    Record<string, OnlineCourse[]>
-  >({});
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
+  // Calculate total credits with useMemo
+  const totalCreditsText = useMemo(() => {
+    let totalCredits = 0;
+    const allCourseIds = new Set<string>();
+
+    // Add credits from online courses
+    onlineCourses.forEach((course) => {
+      if (course.credits) {
+        const courseId = course.id.split('-')[0];
+        allCourseIds.add(courseId);
+        const creditValue = parseInt(course.credits.split('-')[0]) || 0;
+        totalCredits += creditValue;
+      }
+    });
+
+    // Add credits from scheduled events (only if not already counted as online)
+    scheduleEvents.forEach((event) => {
+      const parts = event.id.split('-');
+      const courseId = parts[0];
+
+      if (!allCourseIds.has(courseId) && event.credits) {
+        allCourseIds.add(courseId);
+        const creditValue = parseInt(event.credits.split('-')[0]) || 0;
+        totalCredits += creditValue;
+      }
+    });
+
+    return `${totalCredits} credits`;
+  }, [scheduleEvents, onlineCourses]);
   const searchPanelRef = useRef<HTMLDivElement>(null);
   const schedulerRef = useRef<HTMLDivElement>(null);
   const [isDownloadOpen, setIsDownloadOpen] = useState(false);
@@ -71,7 +134,24 @@ function MainScheduler(): React.ReactElement {
   }>({ width: 0, height: 0 });
 
   const handleEditToggle = (): void => {
-    setIsEditMode((prev) => !prev);
+    setIsEditMode((prev) => {
+      const newEditMode = !prev;
+
+      // Auto-scroll to search panel on mobile when entering edit mode
+      if (newEditMode && isMobile) {
+        // Small delay to ensure the panel is rendered before scrolling
+        setTimeout(() => {
+          if (searchPanelRef.current) {
+            searchPanelRef.current.scrollIntoView({
+              behavior: 'smooth',
+              block: 'start',
+            });
+          }
+        }, 100);
+      }
+
+      return newEditMode;
+    });
   };
 
   const handleDownload = async (): Promise<boolean> => {
@@ -96,7 +176,56 @@ function MainScheduler(): React.ReactElement {
         setLoading(true);
         setError(null);
 
-        const termsData = await getTerms();
+        // Check cache first
+        const CACHE_KEY = 'collegemate_terms_cache';
+        const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+
+        const cachedData = localStorage.getItem(CACHE_KEY);
+        let termsData;
+
+        if (cachedData) {
+          try {
+            const parsed = JSON.parse(cachedData);
+            const isExpired = Date.now() - parsed.timestamp > CACHE_DURATION;
+
+            if (!isExpired && parsed.data) {
+              termsData = parsed.data;
+            } else {
+              termsData = await getTerms();
+
+              // Cache the fresh data
+              localStorage.setItem(
+                CACHE_KEY,
+                JSON.stringify({
+                  data: termsData,
+                  timestamp: Date.now(),
+                }),
+              );
+            }
+          } catch (parseError) {
+            termsData = await getTerms();
+
+            // Cache the fresh data
+            localStorage.setItem(
+              CACHE_KEY,
+              JSON.stringify({
+                data: termsData,
+                timestamp: Date.now(),
+              }),
+            );
+          }
+        } else {
+          termsData = await getTerms();
+
+          // Cache the data
+          localStorage.setItem(
+            CACHE_KEY,
+            JSON.stringify({
+              data: termsData,
+              timestamp: Date.now(),
+            }),
+          );
+        }
         const futureTerms = getUpcomingTerms(termsData.terms, 6); // Get next 6 terms
         setAvailableTerms(futureTerms);
 
@@ -104,17 +233,23 @@ function MainScheduler(): React.ReactElement {
         const current = getCurrentTerm(termsData.terms);
         if (current) {
           setCurrentTerm(current);
-          // Initialize with empty events and online courses for current term
-          setScheduleEvents([]);
-          setOnlineCourses([]);
+          // Load saved data for current term
+          const savedData = loadScheduleDataFromStorage(current.termCode);
+          setScheduleEvents(savedData.events);
+          setOnlineCourses(savedData.courses);
+          `📱 Loaded ${savedData.events.length} events and ${savedData.courses.length} online courses for term ${current.termCode}`;
         } else if (futureTerms.length > 0) {
           // If no current term, use the first available future term
           setCurrentTerm(futureTerms[0]);
-          setScheduleEvents([]);
-          setOnlineCourses([]);
+          const savedData = loadScheduleDataFromStorage(
+            futureTerms[0].termCode,
+          );
+          setScheduleEvents(savedData.events);
+          setOnlineCourses(savedData.courses);
+          `📱 Loaded ${savedData.events.length} events and ${savedData.courses.length} online courses for term ${futureTerms[0].termCode}`;
         }
       } catch (error) {
-        console.error('Failed to load terms:', error);
+        console.error('❌ Failed to load terms:', error);
         setError(
           error instanceof Error ? error.message : 'Failed to load terms',
         );
@@ -126,28 +261,33 @@ function MainScheduler(): React.ReactElement {
     loadTerms();
   }, []);
 
+  // Auto-save schedule data when events or courses change (with debouncing)
+  useEffect(() => {
+    if (currentTerm) {
+      const timeoutId = setTimeout(() => {
+        saveScheduleDataToStorage(
+          currentTerm.termCode,
+          scheduleEvents,
+          onlineCourses,
+        );
+      }, 100); // 100ms debounce
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [scheduleEvents, onlineCourses, currentTerm]);
+
   // Handle term change
   const handleTermChange = (newTerm: Term): void => {
-    // Save current events and online courses for the current term
-    if (currentTerm) {
-      setScheduleEventsByTerm((prev) => ({
-        ...prev,
-        [currentTerm.termCode]: scheduleEvents,
-      }));
-      setOnlineCoursesByTerm((prev) => ({
-        ...prev,
-        [currentTerm.termCode]: onlineCourses,
-      }));
-    }
+    // Save current data to localStorage (handled by useEffect automatically)
 
     // Switch to new term
     setCurrentTerm(newTerm);
 
-    // Load events and online courses for new term (if any saved)
-    const savedEvents = scheduleEventsByTerm[newTerm.termCode] || [];
-    const savedOnlineCourses = onlineCoursesByTerm[newTerm.termCode] || [];
-    setScheduleEvents(savedEvents);
-    setOnlineCourses(savedOnlineCourses);
+    // Load events and online courses for new term from localStorage
+    const savedData = loadScheduleDataFromStorage(newTerm.termCode);
+    setScheduleEvents(savedData.events);
+    setOnlineCourses(savedData.courses);
+    `🔄 Switched to term ${newTerm.termCode}, loaded ${savedData.events.length} events and ${savedData.courses.length} online courses`;
 
     // Exit edit mode when switching terms
     setIsEditMode(false);
@@ -165,7 +305,6 @@ function MainScheduler(): React.ReactElement {
       );
 
       if (isDuplicate) {
-        console.log('⚠️ Duplicate online course detected:', course.designation);
         return prev; // Don't add duplicate
       }
 
@@ -279,12 +418,10 @@ function MainScheduler(): React.ReactElement {
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
-            height: '200px',
-            gap: 2,
+            height: '100vh',
           }}
         >
-          <CircularProgress size={24} />
-          <Typography>Loading terms...</Typography>
+          <CircularProgress size={40} />
         </Box>
       </Box>
     );
@@ -343,9 +480,9 @@ function MainScheduler(): React.ReactElement {
           {onlineCourses.length > 0 && (
             <Box
               sx={{
-                marginTop: '16px',
+                marginTop: '9px',
                 backgroundColor: 'white',
-                padding: '8px 0',
+                padding: '2px 0',
               }}
             >
               <Box
@@ -354,7 +491,7 @@ function MainScheduler(): React.ReactElement {
                   alignItems: 'flex-start',
                   flexWrap: 'wrap',
                   gap: '4px',
-                  marginBottom: '12px',
+                  marginBottom: '0px',
                 }}
               >
                 <Typography
@@ -421,53 +558,37 @@ function MainScheduler(): React.ReactElement {
                   </Box>
                 ))}
               </Box>
-              <Typography
-                variant="body2"
-                sx={{
-                  fontSize: '14px',
-                  fontWeight: 'book',
-                  color: '#494949',
-                }}
-              >
-                {((): string => {
-                  let totalCredits = 0;
-                  const allCourseIds = new Set<string>();
-
-                  // Add credits from online courses
-                  onlineCourses.forEach((course) => {
-                    if (course.credits) {
-                      allCourseIds.add(course.id);
-                      const creditValue =
-                        parseInt(course.credits.split('-')[0]) || 0;
-                      totalCredits += creditValue;
-                    }
-                  });
-
-                  // Add credits from scheduled events (only if not already counted as online)
-                  scheduleEvents.forEach((event) => {
-                    const parts = event.id.split('-');
-                    const courseId = parts[0];
-                    const sectionId = parts[1];
-                    const uniqueId = `${courseId}-${sectionId}`;
-
-                    if (!allCourseIds.has(uniqueId) && event.credits) {
-                      allCourseIds.add(uniqueId);
-                      const creditValue =
-                        parseInt(event.credits.split('-')[0]) || 0;
-                      totalCredits += creditValue;
-                    }
-                  });
-
-                  return `${totalCredits} credits`;
-                })()}
-              </Typography>
             </Box>
           )}
+
+          {/* Credits Display - Always visible */}
+          <Box
+            sx={{
+              marginTop: '8px',
+              backgroundColor: 'white',
+              padding: '0px 0',
+              minHeight: '20px',
+              display: 'flex',
+              alignItems: 'center',
+            }}
+          >
+            <Typography
+              variant="body2"
+              sx={{
+                fontSize: '14px',
+                fontWeight: 'book',
+                color: '#494949',
+              }}
+            >
+              {totalCreditsText}
+            </Typography>
+          </Box>
+
           {/* Mobile: Search panel below when in edit mode */}
           {isEditMode && (
             <Box
               ref={searchPanelRef}
-              sx={{ marginTop: '8px', width: '100%', minHeight: 'auto' }}
+              sx={{ width: '100%', minHeight: 'auto', marginTop: '-3px' }}
             >
               <EditSchedulerPanel
                 onAddEvent={addEvent}
@@ -508,6 +629,7 @@ function MainScheduler(): React.ReactElement {
               <SchedulerTable
                 events={scheduleEvents}
                 onRemoveEvent={removeEvent}
+                onEventColorChange={updateEventColorByEventId}
                 isEditMode={isEditMode}
               />
             </Box>
@@ -517,7 +639,7 @@ function MainScheduler(): React.ReactElement {
               sx={{
                 marginTop: '8px',
                 backgroundColor: 'white',
-                padding: '8px 0',
+                padding: '2px 0',
               }}
             >
               {onlineCourses.length > 0 && (
@@ -527,7 +649,7 @@ function MainScheduler(): React.ReactElement {
                     alignItems: 'flex-start',
                     flexWrap: 'wrap',
                     gap: '4px',
-                    marginBottom: '4px',
+                    marginBottom: '0px',
                   }}
                 >
                   <Typography
@@ -595,45 +717,18 @@ function MainScheduler(): React.ReactElement {
                   ))}
                 </Box>
               )}
+
+              {/* Credits Display */}
               <Typography
                 variant="body2"
                 sx={{
                   fontSize: '14px',
                   fontWeight: 'book',
                   color: '#494949',
+                  marginTop: '8px',
                 }}
               >
-                {((): string => {
-                  let totalCredits = 0;
-                  const allCourseIds = new Set<string>();
-
-                  // Add credits from online courses
-                  onlineCourses.forEach((course) => {
-                    if (course.credits) {
-                      allCourseIds.add(course.id);
-                      const creditValue =
-                        parseInt(course.credits.split('-')[0]) || 0;
-                      totalCredits += creditValue;
-                    }
-                  });
-
-                  // Add credits from scheduled events (only if not already counted as online)
-                  scheduleEvents.forEach((event) => {
-                    const parts = event.id.split('-');
-                    const courseId = parts[0];
-                    const sectionId = parts[1];
-                    const uniqueId = `${courseId}-${sectionId}`;
-
-                    if (!allCourseIds.has(uniqueId) && event.credits) {
-                      allCourseIds.add(uniqueId);
-                      const creditValue =
-                        parseInt(event.credits.split('-')[0]) || 0;
-                      totalCredits += creditValue;
-                    }
-                  });
-
-                  return `${totalCredits} credits`;
-                })()}
+                {totalCreditsText}
               </Typography>
             </Box>
           </Box>
@@ -642,9 +737,9 @@ function MainScheduler(): React.ReactElement {
           <Box
             ref={searchPanelRef}
             sx={{
-              flex: '1 1 40%',
+              flex: '1 1 35%',
               minWidth: '350px',
-              maxWidth: '500px',
+              maxWidth: '420px',
               height: 'calc(100vh - 140px)',
               overflowY: 'auto',
             }}
@@ -670,23 +765,23 @@ function MainScheduler(): React.ReactElement {
             />
           </Box>
 
-          {/* Online Classes Display */}
-          {onlineCourses.length > 0 && (
-            <Box
-              sx={{
-                marginTop: '16px',
-                backgroundColor: 'white',
-                padding: '8px 0',
-                zIndex: 10,
-              }}
-            >
+          {/* Online Classes and Credits Display */}
+          <Box
+            sx={{
+              marginTop: '8px',
+              backgroundColor: 'white',
+              padding: '2px 0',
+            }}
+          >
+            {/* Online Classes Display */}
+            {onlineCourses.length > 0 && (
               <Box
                 sx={{
                   display: 'flex',
                   alignItems: 'flex-start',
                   flexWrap: 'wrap',
                   gap: '4px',
-                  marginBottom: '12px',
+                  marginBottom: '0px',
                 }}
               >
                 <Typography
@@ -753,48 +848,21 @@ function MainScheduler(): React.ReactElement {
                   </Box>
                 ))}
               </Box>
-              <Typography
-                variant="body2"
-                sx={{
-                  fontSize: '14px',
-                  fontWeight: 'book',
-                  color: '#494949',
-                }}
-              >
-                {((): string => {
-                  let totalCredits = 0;
-                  const allCourseIds = new Set<string>();
+            )}
 
-                  // Add credits from online courses
-                  onlineCourses.forEach((course) => {
-                    if (course.credits) {
-                      allCourseIds.add(course.id);
-                      const creditValue =
-                        parseInt(course.credits.split('-')[0]) || 0;
-                      totalCredits += creditValue;
-                    }
-                  });
-
-                  // Add credits from scheduled events (only if not already counted as online)
-                  scheduleEvents.forEach((event) => {
-                    const parts = event.id.split('-');
-                    const courseId = parts[0];
-                    const sectionId = parts[1];
-                    const uniqueId = `${courseId}-${sectionId}`;
-
-                    if (!allCourseIds.has(uniqueId) && event.credits) {
-                      allCourseIds.add(uniqueId);
-                      const creditValue =
-                        parseInt(event.credits.split('-')[0]) || 0;
-                      totalCredits += creditValue;
-                    }
-                  });
-
-                  return `${totalCredits} credits`;
-                })()}
-              </Typography>
-            </Box>
-          )}
+            {/* Credits Display */}
+            <Typography
+              variant="body2"
+              sx={{
+                fontSize: '14px',
+                fontWeight: 'book',
+                color: '#494949',
+                marginTop: '8px',
+              }}
+            >
+              {totalCreditsText}
+            </Typography>
+          </Box>
         </Box>
       )}
       {isDownloadOpen && (

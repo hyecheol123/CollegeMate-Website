@@ -1,6 +1,6 @@
 /**
  * Edit Scheduler Panel component for searching and adding classes
- * @author Claude AI Assistant
+ * @author Daekyun Kim <daekyun97@gmail.com>
  */
 
 // React
@@ -26,11 +26,16 @@ import {
   Select,
   MenuItem,
   FormControl,
+  Dialog,
+  DialogContent,
+  DialogActions,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 // Components
 import ColorSelectionModal from '../Common/ColorSelectionModal';
 import type { Term } from '../../data/Terms/getTerms';
+// Utils
+import { normalizeBuildingNameMemo } from '../../utils/buildingNameNormalizer';
 
 // Local interfaces for API data
 interface Instructor {
@@ -98,6 +103,44 @@ function EditSchedulerPanel({
   currentTerm,
   existingEvents = [],
 }: EditSchedulerPanelProps): React.ReactElement {
+  // Enhanced debug function for scroll issues
+  const debugScrollState = (
+    context: string = 'Unknown',
+  ): Record<string, string | number | boolean> => {
+    const timestamp = new Date().toLocaleTimeString();
+    const scrollInfo = {
+      context,
+      timestamp,
+      bodyOverflow: document.body.style.overflow,
+      htmlOverflow: document.documentElement.style.overflow,
+      bodyComputedOverflow: window.getComputedStyle(document.body).overflow,
+      htmlComputedOverflow: window.getComputedStyle(document.documentElement)
+        .overflow,
+      canScroll: window.innerHeight < document.body.scrollHeight,
+      scrollY: window.scrollY,
+      windowHeight: window.innerHeight,
+      documentHeight: document.body.scrollHeight,
+    };
+    console.log(`스크롤 상태 체크 - ${context}:`, scrollInfo);
+    return scrollInfo;
+  };
+
+  // Global scroll monitoring - temporarily disabled
+  // React.useEffect(() => {
+  //   const checkScrollPeriodically = (): void => {
+  //     const info = debugScrollState('Periodic Check');
+  //     if (info.bodyOverflow === 'hidden' || info.htmlOverflow === 'hidden') {
+  //       console.warn('⚠️ SCROLL FROZEN DETECTED! Auto-fixing...');
+  //       document.body.style.overflow = 'auto';
+  //       document.documentElement.style.overflow = 'auto';
+  //     }
+  //   };
+
+  //   const interval = setInterval(checkScrollPeriodically, 5000); // Check every 5 seconds
+
+  //   return () => clearInterval(interval);
+  // }, []);
+
   const [searchInput, setSearchInput] = useState<string>('');
   const [classColors, setClassColors] = useState<{ [key: string]: string }>({});
   const [colorModalOpen, setColorModalOpen] = useState(false);
@@ -127,11 +170,28 @@ function EditSchedulerPanel({
 
   // Clear all cache on component mount
   React.useEffect(() => {
+    console.log('EditSchedulerPanel 컴포넌트 마운트');
+    debugScrollState('컴포넌트 마운트 시점');
+
     Object.keys(localStorage).forEach((key) => {
       if (key.startsWith('uw_')) {
         localStorage.removeItem(key);
       }
     });
+
+    // Add window resize event listener for debugging
+    const handleResize = (): void => {
+      console.log('📱 윈도우 리사이즈 이벤트 발생');
+      debugScrollState('윈도우 리사이즈 시점');
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    return (): void => {
+      console.log('EditSchedulerPanel 컴포넌트 언마운트');
+      debugScrollState('컴포넌트 언마운트 시점');
+      window.removeEventListener('resize', handleResize);
+    };
   }, []);
 
   const theme = useTheme();
@@ -141,6 +201,42 @@ function EditSchedulerPanel({
   const editTitleRef = React.useRef<HTMLHeadingElement>(null);
   const [hasScrolledToResults, setHasScrolledToResults] =
     useState<boolean>(false);
+  const [hasAutoScrolledOnce, setHasAutoScrolledOnce] =
+    useState<boolean>(false);
+  const [isAddingClass, setIsAddingClass] = useState<boolean>(false);
+  const [isDependencyModalOpen, setIsDependencyModalOpen] =
+    useState<boolean>(false);
+  const [dependencyModalMessage, setDependencyModalMessage] =
+    useState<string>('');
+
+  // Safe auto-scroll to search results (mobile only)
+  const scrollToSearchResults = React.useCallback((): void => {
+    console.log('자동 스크롤 시도 시작');
+    if (resultsRef.current && isMobile) {
+      debugScrollState('자동 스크롤 실행 전');
+
+      setTimeout(() => {
+        console.log('자동 스크롤 실행 중');
+        resultsRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+          inline: 'nearest',
+        });
+
+        // Log scroll state after scrolling
+        setTimeout(() => {
+          debugScrollState('자동 스크롤 실행 후');
+        }, 500);
+      }, 300); // Increased delay to be less jarring
+    } else {
+      console.log(
+        '자동 스크롤 조건 불충족 - isMobile:',
+        isMobile,
+        'resultsRef:',
+        !!resultsRef.current,
+      );
+    }
+  }, [isMobile]);
 
   // Time conflict validation function
   const checkTimeConflict = (newEvents: EventData[]): string | null => {
@@ -176,17 +272,23 @@ function EditSchedulerPanel({
   // Perform search when search input changes
   useEffect(() => {
     const performSearch = async (): Promise<void> => {
+      console.log('검색 실행 시작 - 입력값:', searchInput);
+      debugScrollState('검색 시작 전');
+
       if (!searchInput.trim() || !currentTerm) {
+        console.log('검색 조건 불충족 - 검색 결과 초기화');
         setSearchResults([]);
         return;
       }
 
       if (searchInput.length < 2) {
+        console.log('검색어 너무 짧음 - 검색 중단');
         return; // Don't search for very short queries
       }
 
       setIsSearching(true);
       setSearchError(null);
+      console.log('API 검색 호출 시작');
 
       try {
         const response = await searchClasses(
@@ -195,58 +297,91 @@ function EditSchedulerPanel({
           1,
           10,
         );
+        console.log('검색 완료 - 결과 개수:', response.hits?.length || 0);
         setSearchResults(response.hits || []);
 
-        // Auto-scroll on mobile after search results are loaded
-        if (isMobile && searchInput.length >= 1 && !hasScrolledToResults) {
-          // Try immediate scroll first
-          window.scrollTo(0, 800);
-          // Then try smooth scroll
-          setTimeout(() => {
-            window.scrollTo({
-              top: 800,
-              behavior: 'smooth',
-            });
-          }, 50);
+        // Safe auto-scroll to results when new search results appear (only first time) - but not while adding class
+        if (
+          (response.hits || []).length > 0 &&
+          !hasScrolledToResults &&
+          !hasAutoScrolledOnce &&
+          !isAddingClass
+        ) {
+          console.log('자동 스크롤 트리거 조건 만족');
+          scrollToSearchResults();
           setHasScrolledToResults(true);
+          setHasAutoScrolledOnce(true); // Never auto-scroll again in this session
+        } else {
+          console.log(
+            '자동 스크롤 조건 불만족 - hasScrolled:',
+            hasScrolledToResults,
+            'hasAutoScrolled:',
+            hasAutoScrolledOnce,
+            'isAdding:',
+            isAddingClass,
+          );
         }
+
+        debugScrollState('검색 완료 후');
       } catch (error) {
+        console.log('검색 에러 발생:', error);
         setSearchError(
           error instanceof Error ? error.message : 'Search failed',
         );
         setSearchResults([]);
       } finally {
         setIsSearching(false);
+        console.log('검색 프로세스 완료');
       }
     };
 
     // Debounce search
     const timeoutId = setTimeout(performSearch, 500);
     return (): void => clearTimeout(timeoutId);
-  }, [searchInput, currentTerm, hasScrolledToResults, isMobile]);
+  }, [
+    searchInput,
+    currentTerm,
+    hasScrolledToResults,
+    isMobile,
+    hasAutoScrolledOnce,
+    isAddingClass,
+    scrollToSearchResults,
+  ]);
 
   const handleSearchChange = (
     event: React.ChangeEvent<HTMLInputElement>,
   ): void => {
     const newValue = event.target.value;
+    console.log('검색어 입력 변경 - 이전:', searchInput, '새값:', newValue);
+    debugScrollState('검색어 입력 변경 시점');
+
     setSearchInput(newValue);
 
-    // Only reset scroll flag when completely clearing the input
+    // Reset scroll flag when clearing input (but keep hasAutoScrolledOnce)
     if (newValue === '') {
+      console.log('검색어 초기화 - 스크롤 플래그 리셋');
+      setHasScrolledToResults(false);
+    } else if (newValue !== searchInput) {
+      console.log('새로운 검색어 입력 - 스크롤 플래그 리셋');
       setHasScrolledToResults(false);
     }
   };
 
   const loadCourseSections = React.useCallback(
     async (course: ClassSearchResult): Promise<void> => {
+      console.log('코스 섹션 로딩 시도 - 코스ID:', course.courseId);
+      debugScrollState('코스 섹션 로딩 시작 전');
+
       if (
         !currentTerm ||
         courseSections[course.courseId] ||
         loadingSections[course.courseId]
       ) {
+        console.log('코스 섹션 로딩 스킵 - 이미 로딩 중이거나 완료됨');
         return;
       }
 
+      console.log('코스 섹션 로딩 시작');
       setLoadingSections((prev) => ({ ...prev, [course.courseId]: true }));
 
       try {
@@ -255,14 +390,18 @@ function EditSchedulerPanel({
           course.subject.subjectCode,
           course.courseId,
         );
+        console.log('코스 섹션 API 호출 성공');
         setCourseSections((prev) => ({
           ...prev,
           [course.courseId]: courseDetails,
         }));
+        debugScrollState('코스 섹션 로딩 완료 후');
       } catch (error) {
+        console.log('코스 섹션 로딩 실패:', error);
         console.error('Failed to load course sections:', error);
       } finally {
         setLoadingSections((prev) => ({ ...prev, [course.courseId]: false }));
+        console.log('코스 섹션 로딩 상태 리셋');
       }
     },
     [currentTerm, courseSections, loadingSections],
@@ -275,7 +414,44 @@ function EditSchedulerPanel({
         loadCourseSections(course);
       }
     });
-  }, [searchResults, loadCourseSections]);
+  }, [searchResults, loadCourseSections, courseSections]);
+
+  // Available color palette
+  const AVAILABLE_COLORS = [
+    '#758EA8', // Dusty Blue
+    '#A6DDFF', // Sky Blue
+    '#D9F6FF', // Aqua Blue
+    '#CFF3E7', // Pale Mint
+    '#B20000', // Red
+    '#D46478', // Rose Pink
+    '#F3B8DF', // Baby Pink
+    '#F3ADA3', // Coral Pink
+    '#00D0C5', // Mint
+    '#D7DF5A', // Lime
+    '#FFA944', // Tangerine
+    '#F4EF56', // Lemon
+    '#000000', // Black
+    '#494949', // Dark Gray
+    '#A0A0A0', // Mild Gray
+    '#E8E8E8', // Light Gray
+  ];
+
+  // Function to get next sequential color (with relay when all used)
+  const getNextSequentialColor = (): string => {
+    const usedColors = new Set(Object.values(classColors));
+
+    // Find first unused color in sequence
+    for (const color of AVAILABLE_COLORS) {
+      if (!usedColors.has(color)) {
+        return color;
+      }
+    }
+
+    // If all colors are used, start relay from beginning
+    const totalAssignedColors = Object.keys(classColors).length;
+    const colorIndex = totalAssignedColors % AVAILABLE_COLORS.length;
+    return AVAILABLE_COLORS[colorIndex];
+  };
 
   const handleAddSection = async (
     course: ClassSearchResult,
@@ -286,7 +462,16 @@ function EditSchedulerPanel({
     }
 
     const sectionId = `${course.courseId}-${section.sectionNumber}`;
-    const selectedColor = classColors[sectionId] || '#9E9E9E';
+    let selectedColor = classColors[course.courseId] || classColors[sectionId];
+
+    // If no color is assigned yet, assign the next sequential color and save it
+    if (!selectedColor) {
+      selectedColor = getNextSequentialColor();
+      setClassColors((prev) => ({
+        ...prev,
+        [course.courseId]: selectedColor,
+      }));
+    }
 
     // Check if this is an online course
     const hasOnlineMeetings = section.classMeetings?.some(
@@ -389,11 +574,11 @@ function EditSchedulerPanel({
           color: selectedColor,
           location:
             meeting.building?.buildingName === 'ONLINE'
-              ? 'ONLINE'
+              ? 'Online'
               : meeting.building?.buildingName && meeting.room
-                ? `${meeting.building.buildingName} ${meeting.room}`
+                ? `${meeting.room} ${normalizeBuildingNameMemo(meeting.building.buildingName)}`
                 : meeting.building?.buildingName
-                  ? meeting.building.buildingName
+                  ? normalizeBuildingNameMemo(meeting.building.buildingName)
                   : 'TBA',
           instructor: instructorNames,
           credits,
@@ -403,31 +588,67 @@ function EditSchedulerPanel({
 
     // Check for time conflicts before adding events
     const conflictMessage = checkTimeConflict(events);
+
     if (conflictMessage) {
-      setPendingEvents(events);
+      setPendingEvents((prev) => {
+        // Avoid duplicates by filtering out events with same ID
+        const existingIds = new Set(prev.map((e) => e.id));
+        const newEvents = events.filter((e) => !existingIds.has(e.id));
+        return [...prev, ...newEvents];
+      });
+      console.log('⚠️ 시간 충돌 모달 열기');
+      debugScrollState('충돌 모달 열기 시점');
       setIsConflictModalOpen(true);
       return;
     }
 
+    // Add events all at once
     events.forEach((event) => {
       onAddEvent(event);
     });
+
+    // Force enable scroll after adding all events - temporarily disabled
+    // setTimeout(() => {
+    //   document.body.style.overflow = 'auto';
+    //   document.documentElement.style.overflow = 'auto';
+    //     body: document.body.style.overflow,
+    //     html: document.documentElement.style.overflow
+    //   });
+    // }, 50);
   };
 
   const handleCustomizeColor = (sectionId: string): void => {
+    console.log('컬러 모달 열기 시도');
+    debugScrollState('컬러 모달 열기 전');
     setSelectedClassId(sectionId);
     setColorModalOpen(true);
   };
 
   const handleConflictResolve = (keepExisting: boolean): void => {
+    console.log(
+      '충돌 해결 모달 - 기존 유지:',
+      keepExisting,
+      '대기 이벤트 수:',
+      pendingEvents.length,
+    );
+    debugScrollState('충돌 해결 시작 전');
+
     if (
       !keepExisting &&
       pendingEvents.length > 0 &&
       onRemoveConflictingEvents
     ) {
-      // Remove conflicting events
+      console.log('기존 이벤트 제거 후 새 이벤트 추가 시작');
+      // Remove conflicting events - check both time conflicts and same course
+      const eventsToRemove = new Set<string>();
+
+      // Simple logic: Find time conflicts, then remove entire conflicting courses
+      const conflictingCourseIds = new Set<string>();
+
+      // Find all courses that have time conflicts
       for (const newEvent of pendingEvents) {
         for (const existingEvent of existingEvents) {
+          // Check time conflicts
           if (newEvent.day === existingEvent.day) {
             const newStart =
               newEvent.startTime.hour * 60 + newEvent.startTime.minute;
@@ -439,11 +660,25 @@ function EditSchedulerPanel({
               existingEvent.endTime.hour * 60 + existingEvent.endTime.minute;
 
             if (newStart < existingEnd && newEnd > existingStart) {
-              onRemoveConflictingEvents(existingEvent.id);
+              const conflictingCourseId = existingEvent.id.split('-')[0];
+              conflictingCourseIds.add(conflictingCourseId);
             }
           }
         }
       }
+
+      // Remove all events from conflicting courses
+      for (const existingEvent of existingEvents) {
+        const existingCourseId = existingEvent.id.split('-')[0];
+        if (conflictingCourseIds.has(existingCourseId)) {
+          eventsToRemove.add(existingEvent.id);
+        }
+      }
+
+      // Remove all identified events
+      eventsToRemove.forEach((eventId) => {
+        onRemoveConflictingEvents(eventId);
+      });
 
       // Add new events
       pendingEvents.forEach((event) => {
@@ -452,6 +687,9 @@ function EditSchedulerPanel({
     }
 
     // Reset modal state
+    console.log('충돌 해결 모달 상태 리셋');
+    debugScrollState('충돌 해결 완료 후');
+    console.log('⚠️ 시간 충돌 모달 닫기');
     setIsConflictModalOpen(false);
     setPendingEvents([]);
   };
@@ -473,6 +711,8 @@ function EditSchedulerPanel({
   };
 
   const handleColorModalClose = (): void => {
+    console.log('컬러 모달 닫기');
+    debugScrollState('컬러 모달 닫기 후');
     setColorModalOpen(false);
     setSelectedClassId(null);
   };
@@ -481,6 +721,9 @@ function EditSchedulerPanel({
     courseId: string,
     lectureNumber: string,
   ): void => {
+    console.log('렉처 선택 변경 - 코스ID:', courseId, '렉처:', lectureNumber);
+    debugScrollState('렉처 선택 변경 시점');
+
     setSelectedLecture((prev) => ({
       ...prev,
       [courseId]: lectureNumber,
@@ -495,6 +738,7 @@ function EditSchedulerPanel({
       ...prev,
       [courseId]: '',
     }));
+    console.log('렉처 변경으로 인한 디스커션/랩 초기화 완료');
   };
 
   const getLectureOptions = (course: ClassSearchResult): Section[] => {
@@ -629,11 +873,14 @@ function EditSchedulerPanel({
   const getLabOptions = (
     course: ClassSearchResult,
     selectedLectureNumber?: string,
+    selectedDiscussionNumber?: string,
   ): Section[] => {
     const sectionData = courseSections[course.courseId];
-    if (!Array.isArray(sectionData)) return [];
+    if (!Array.isArray(sectionData)) {
+      return [];
+    }
 
-    // If no lecture is selected, return all labs
+    // If no lecture is selected, return all labs (with discussion filtering if applicable)
     if (!selectedLectureNumber) {
       const labs: Section[] = [];
       const seenSections = new Set<string>();
@@ -647,6 +894,37 @@ function EditSchedulerPanel({
 
           enrollmentPackage.sections?.forEach((section: Section) => {
             if (section.type === 'LAB') {
+              // If discussion is selected, filter labs based on API enrollment packages
+              if (selectedDiscussionNumber) {
+                // Find which enrollment packages contain both the selected discussion and this lab
+                let isCompatible = false;
+
+                (sectionData as EnrollmentPackage[]).forEach(
+                  (pkg: EnrollmentPackage) => {
+                    // Check if this package contains both the discussion and lab
+                    const hasSelectedDiscussion = pkg.sections?.some(
+                      (s: Section) =>
+                        s.type === 'DIS' &&
+                        s.sectionNumber === selectedDiscussionNumber,
+                    );
+                    const hasThisLab = pkg.sections?.some(
+                      (s: Section) =>
+                        s.type === 'LAB' &&
+                        s.sectionNumber === section.sectionNumber,
+                    );
+
+                    if (hasSelectedDiscussion && hasThisLab) {
+                      isCompatible = true;
+                    }
+                  },
+                );
+
+                // Only include labs that are compatible with selected discussion
+                if (!isCompatible) {
+                  return;
+                }
+              }
+
               const sectionKey = `${section.type}-${section.sectionNumber}`;
               if (!seenSections.has(sectionKey)) {
                 seenSections.add(sectionKey);
@@ -725,6 +1003,21 @@ function EditSchedulerPanel({
           // Include labs only from this specific enrollmentPackage
           enrollmentPackage.sections?.forEach((section: Section) => {
             if (section.type === 'LAB') {
+              // If discussion is selected, filter labs based on discussion compatibility
+              if (selectedDiscussionNumber) {
+                // Check if this enrollment package contains both the selected discussion and this lab
+                const hasSelectedDiscussion = enrollmentPackage.sections?.some(
+                  (s: Section) =>
+                    s.type === 'DIS' &&
+                    s.sectionNumber === selectedDiscussionNumber,
+                );
+
+                // Only include labs that are in the same package as the selected discussion
+                if (!hasSelectedDiscussion) {
+                  return;
+                }
+              }
+
               const sectionKey = `${section.type}-${section.sectionNumber}`;
               if (!seenSections.has(sectionKey)) {
                 seenSections.add(sectionKey);
@@ -769,6 +1062,88 @@ function EditSchedulerPanel({
     );
   };
 
+  // Validate dependencies between Lecture/Discussion/Lab
+  const validateDependencies = (
+    course: ClassSearchResult,
+    selectedLec: string,
+    selectedDisc: string,
+    selectedLabSection: string,
+  ): string | null => {
+    const lectureOptions = getLectureOptions(course);
+    const discussionOptions = getDiscussionOptions(course);
+    const labOptions = getLabOptions(course);
+
+    // If no lectures exist, this is an independent course (lab-only, discussion-only) - no validation needed
+    if (lectureOptions.length === 0) {
+      return null;
+    }
+
+    // Case 1: Only Discussion selected but Lectures exist (need Lecture)
+    if (selectedDisc && !selectedLec && lectureOptions.length > 0) {
+      return 'Please select Lecture';
+    }
+
+    // Case 2: Only Lab selected but Lectures exist (need Lecture)
+    if (selectedLabSection && !selectedLec && lectureOptions.length > 0) {
+      return 'Please select Lecture';
+    }
+
+    // Case 3: Only Lecture selected but Discussion available (need Discussion)
+    if (
+      selectedLec &&
+      !selectedDisc &&
+      !selectedLabSection &&
+      discussionOptions.length > 0 &&
+      labOptions.length === 0
+    ) {
+      return 'Please select Discussion';
+    }
+
+    // Case 4: Only Lecture selected but Lab available (need Lab)
+    if (
+      selectedLec &&
+      !selectedDisc &&
+      !selectedLabSection &&
+      labOptions.length > 0 &&
+      discussionOptions.length === 0
+    ) {
+      return 'Please select Lab';
+    }
+
+    // Case 5: Only Lecture selected but both Discussion and Lab available (need both)
+    if (
+      selectedLec &&
+      !selectedDisc &&
+      !selectedLabSection &&
+      discussionOptions.length > 0 &&
+      labOptions.length > 0
+    ) {
+      return 'Please select Discussion and Lab';
+    }
+
+    // Case 6: Lecture + Discussion selected but Lab missing (when Lab is available)
+    if (
+      selectedLec &&
+      selectedDisc &&
+      !selectedLabSection &&
+      labOptions.length > 0
+    ) {
+      return 'Please select Lab';
+    }
+
+    // Case 7: Lecture + Lab selected but Discussion missing (when Discussion is available)
+    if (
+      selectedLec &&
+      !selectedDisc &&
+      selectedLabSection &&
+      discussionOptions.length > 0
+    ) {
+      return 'Please select Discussion';
+    }
+
+    return null; // All good
+  };
+
   const formatTime = (timeMs: number): string => {
     const offsetMs = 6 * 60 * 60 * 1000; // 6 hours offset
     const adjustedTime = timeMs - offsetMs;
@@ -800,8 +1175,24 @@ function EditSchedulerPanel({
         margin: 0,
         padding: isMobile ? '16px 16px 0px 16px' : '24px',
         backgroundColor: isMobile ? 'transparent' : 'whiteGrey.main',
-        borderRadius: isMobile ? '0px' : '8px',
+        borderRadius: isMobile ? '0px' : '4px',
         border: isMobile ? 'none' : '1px solid #e0e0e0',
+      }}
+      onMouseDown={() => {
+        console.log('🖱️ 메인 컨테이너 마우스 다운');
+        debugScrollState('메인 컨테이너 마우스 다운 시점');
+      }}
+      onMouseUp={() => {
+        console.log('🖱️ 메인 컨테이너 마우스 업');
+        debugScrollState('메인 컨테이너 마우스 업 시점');
+      }}
+      onTouchStart={() => {
+        console.log('👆 메인 컨테이너 터치 시작');
+        debugScrollState('메인 컨테이너 터치 시작 시점');
+      }}
+      onTouchEnd={() => {
+        console.log('👆 메인 컨테이너 터치 종료');
+        debugScrollState('메인 컨테이너 터치 종료 시점');
       }}
     >
       {/* Panel Title */}
@@ -810,7 +1201,7 @@ function EditSchedulerPanel({
         variant="h2"
         sx={{
           color: 'red.main',
-          marginBottom: isMobile ? '16px' : '20px',
+          marginBottom: isMobile ? '12px' : '20px',
           textAlign: 'left',
           marginLeft: isMobile ? '-15px' : '0px', // Align "E" with "2" from "2025 Summer" in mobile only
         }}
@@ -830,6 +1221,14 @@ function EditSchedulerPanel({
         }
         value={searchInput}
         onChange={handleSearchChange}
+        onFocus={() => {
+          console.log('🔍 검색 입력칸 포커스 가져옴');
+          debugScrollState('검색 입력칸 포커스 시점');
+        }}
+        onBlur={() => {
+          console.log('🔍 검색 입력칸 포커스 잃어버림');
+          debugScrollState('검색 입력칸 포커스 잃실 시점');
+        }}
         size={isMobile ? 'small' : 'medium'}
         sx={{
           marginBottom: isMobile ? '8px' : '6px',
@@ -859,10 +1258,11 @@ function EditSchedulerPanel({
 
       {/* Results Header */}
       <Typography
-        variant="body2"
+        variant="body3"
         sx={{
-          marginBottom: isMobile ? '12px' : '6px',
+          marginBottom: '0px',
           marginLeft: isMobile ? '-10px' : '0px',
+          whiteSpace: 'nowrap',
         }}
       >
         {isSearching
@@ -879,7 +1279,12 @@ function EditSchedulerPanel({
       {/* Class List */}
       <Box
         ref={resultsRef}
-        sx={{ display: 'flex', flexDirection: 'column', gap: '12px' }}
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '12px',
+          marginTop: isMobile ? '8px' : '6px',
+        }}
       >
         {searchError ? (
           <Card sx={{ padding: '20px', textAlign: 'center' }}>
@@ -887,19 +1292,9 @@ function EditSchedulerPanel({
               Error: {searchError}
             </Typography>
           </Card>
-        ) : searchResults.length === 0 && searchInput.trim() && !isSearching ? (
-          <Card
-            sx={{
-              padding: '20px',
-              textAlign: 'center',
-              marginBottom: isMobile ? '8px' : '0px',
-            }}
-          >
-            <Typography variant="body2">
-              No classes found matching your search.
-            </Typography>
-          </Card>
-        ) : (
+        ) : searchResults.length === 0 &&
+          searchInput.trim() &&
+          !isSearching ? null : (
           searchResults.map((course, index) => (
             <React.Fragment
               key={`${course.courseId}-${course.subject.subjectCode}-${index}`}
@@ -917,7 +1312,7 @@ function EditSchedulerPanel({
                   sx={{
                     backgroundColor: 'whiteGrey.main',
                     padding: '16px',
-                    borderRadius: '8px',
+                    borderRadius: '4px',
                     minHeight: '120px',
                     cursor: 'pointer',
                     border: '1px solid',
@@ -928,7 +1323,11 @@ function EditSchedulerPanel({
                       backgroundColor: 'grey.main',
                     },
                   }}
-                  onClick={() => loadCourseSections(course)}
+                  onClick={() => {
+                    console.log('🎯 클래스 정보 박스 클릭:', course.title);
+                    debugScrollState('클래스 정보 박스 클릭 시점');
+                    loadCourseSections(course);
+                  }}
                 >
                   <Typography
                     variant="h3"
@@ -988,7 +1387,7 @@ function EditSchedulerPanel({
                         backgroundColor: 'white.main',
                         border: '1px solid',
                         borderColor: 'grey.main',
-                        borderRadius: '6px',
+                        borderRadius: '4px',
                         '& .MuiSelect-select': {
                           padding: '8px 12px',
                         },
@@ -1063,7 +1462,8 @@ function EditSchedulerPanel({
                             .map((meeting: Meeting) => {
                               if (
                                 meeting.meetingTimeStart &&
-                                meeting.meetingTimeEnd
+                                meeting.meetingTimeEnd &&
+                                meeting.meetingType !== 'EXAM'
                               ) {
                                 const startTime = formatTime(
                                   meeting.meetingTimeStart,
@@ -1096,10 +1496,11 @@ function EditSchedulerPanel({
                             classMeeting?.building?.buildingName &&
                             classMeeting.room
                           ) {
-                            locationDisplay = `${classMeeting.building.buildingName} ${classMeeting.room}`;
+                            locationDisplay = `${classMeeting.room} ${normalizeBuildingNameMemo(classMeeting.building.buildingName)}`;
                           } else if (classMeeting?.building?.buildingName) {
-                            locationDisplay =
-                              classMeeting.building.buildingName;
+                            locationDisplay = normalizeBuildingNameMemo(
+                              classMeeting.building.buildingName,
+                            );
                           }
                         }
 
@@ -1184,18 +1585,24 @@ function EditSchedulerPanel({
                   <FormControl fullWidth>
                     <Select
                       value={selectedDiscussion[course.courseId] || ''}
-                      onChange={(e) =>
+                      onChange={(e) => {
+                        console.log(
+                          '📝 토론반 선택 변경:',
+                          course.title,
+                          e.target.value,
+                        );
+                        debugScrollState('토론반 드롭다운 변경 시점');
                         setSelectedDiscussion((prev) => ({
                           ...prev,
                           [course.courseId]: e.target.value,
-                        }))
-                      }
+                        }));
+                      }}
                       displayEmpty
                       sx={{
                         backgroundColor: 'white.main',
                         border: '1px solid',
                         borderColor: 'grey.main',
-                        borderRadius: '6px',
+                        borderRadius: '4px',
                         '& .MuiSelect-select': {
                           padding: '8px 12px',
                         },
@@ -1274,7 +1681,8 @@ function EditSchedulerPanel({
 
                           if (
                             meeting.meetingTimeStart &&
-                            meeting.meetingTimeEnd
+                            meeting.meetingTimeEnd &&
+                            meeting.meetingType !== 'EXAM'
                           ) {
                             const startTime = formatTime(
                               meeting.meetingTimeStart,
@@ -1287,13 +1695,15 @@ function EditSchedulerPanel({
                           } else if (
                             meeting.building?.buildingName === 'ONLINE'
                           ) {
-                            timeDisplay = 'ONLINE';
+                            timeDisplay = 'Online';
                           }
 
                           if (meeting.building?.buildingName && meeting.room) {
-                            locationDisplay = `${meeting.building.buildingName} ${meeting.room}`;
+                            locationDisplay = `${meeting.room} ${normalizeBuildingNameMemo(meeting.building.buildingName)}`;
                           } else if (meeting.building?.buildingName) {
-                            locationDisplay = meeting.building.buildingName;
+                            locationDisplay = normalizeBuildingNameMemo(
+                              meeting.building.buildingName,
+                            );
                           }
                         }
 
@@ -1369,18 +1779,24 @@ function EditSchedulerPanel({
                   <FormControl fullWidth>
                     <Select
                       value={selectedLab[course.courseId] || ''}
-                      onChange={(e) =>
+                      onChange={(e) => {
+                        console.log(
+                          '🧪 실습반 선택 변경:',
+                          course.title,
+                          e.target.value,
+                        );
+                        debugScrollState('실습반 드롭다운 변경 시점');
                         setSelectedLab((prev) => ({
                           ...prev,
                           [course.courseId]: e.target.value,
-                        }))
-                      }
+                        }));
+                      }}
                       displayEmpty
                       sx={{
                         backgroundColor: 'white.main',
                         border: '1px solid',
                         borderColor: 'grey.main',
-                        borderRadius: '6px',
+                        borderRadius: '4px',
                         '& .MuiSelect-select': {
                           padding: '8px 12px',
                         },
@@ -1441,6 +1857,7 @@ function EditSchedulerPanel({
                       {getLabOptions(
                         course,
                         selectedLecture[course.courseId] || undefined,
+                        selectedDiscussion[course.courseId] || undefined,
                       ).map((lab) => {
                         const instructorNames =
                           lab.instructors
@@ -1458,7 +1875,8 @@ function EditSchedulerPanel({
 
                           if (
                             meeting.meetingTimeStart &&
-                            meeting.meetingTimeEnd
+                            meeting.meetingTimeEnd &&
+                            meeting.meetingType !== 'EXAM'
                           ) {
                             const startTime = formatTime(
                               meeting.meetingTimeStart,
@@ -1471,13 +1889,15 @@ function EditSchedulerPanel({
                           } else if (
                             meeting.building?.buildingName === 'ONLINE'
                           ) {
-                            timeDisplay = 'ONLINE';
+                            timeDisplay = 'Online';
                           }
 
                           if (meeting.building?.buildingName && meeting.room) {
-                            locationDisplay = `${meeting.building.buildingName} ${meeting.room}`;
+                            locationDisplay = `${meeting.room} ${normalizeBuildingNameMemo(meeting.building.buildingName)}`;
                           } else if (meeting.building?.buildingName) {
-                            locationDisplay = meeting.building.buildingName;
+                            locationDisplay = normalizeBuildingNameMemo(
+                              meeting.building.buildingName,
+                            );
                           }
                         }
 
@@ -1557,7 +1977,7 @@ function EditSchedulerPanel({
                     color: 'darkGrey.main',
                     border: '1px solid',
                     borderColor: 'grey.main',
-                    borderRadius: '6px',
+                    borderRadius: '4px',
                     padding: '10px',
                     fontWeight: 500,
                     textTransform: 'none',
@@ -1579,7 +1999,7 @@ function EditSchedulerPanel({
                     backgroundColor: 'red.main',
                     color: 'white.main',
                     border: 'none',
-                    borderRadius: '6px',
+                    borderRadius: '4px',
                     padding: '10px',
                     fontWeight: 600,
                     textTransform: 'none',
@@ -1590,8 +2010,19 @@ function EditSchedulerPanel({
                     },
                   }}
                   onClick={async () => {
+                    console.log('클래스 추가 버튼 클릭');
+                    debugScrollState('클래스 추가 시작 전');
+
+                    // Set adding state to prevent auto-scroll interference
+                    setIsAddingClass(true);
+                    console.log('클래스 추가 상태 활성화');
+
+                    // Clear any existing pending events before starting
+                    setPendingEvents([]);
+
                     // First load sections if not already loaded
                     await loadCourseSections(course);
+                    console.log('코스 섹션 로딩 완료');
 
                     const selectedLec = selectedLecture[course.courseId];
                     const selectedDisc = selectedDiscussion[course.courseId];
@@ -1616,6 +2047,21 @@ function EditSchedulerPanel({
                       } else {
                         alert('Please select a section to add.');
                       }
+                      setIsAddingClass(false);
+                      return;
+                    }
+
+                    // Dependency validation
+                    const dependencyError = validateDependencies(
+                      course,
+                      selectedLec,
+                      selectedDisc,
+                      selectedLabSection,
+                    );
+                    if (dependencyError) {
+                      setDependencyModalMessage(dependencyError);
+                      setIsDependencyModalOpen(true);
+                      setIsAddingClass(false);
                       return;
                     }
 
@@ -1648,6 +2094,7 @@ function EditSchedulerPanel({
                         alert(
                           `Discussion ${selectedDisc} is not available for the selected lecture. Please choose a different discussion or lecture.`,
                         );
+                        setIsAddingClass(false);
                         return;
                       }
                     }
@@ -1656,8 +2103,8 @@ function EditSchedulerPanel({
                     if (selectedLabSection) {
                       // If lecture is selected, get labs for that lecture only
                       const availableLabs = selectedLec
-                        ? getLabOptions(course, selectedLec)
-                        : getLabOptions(course);
+                        ? getLabOptions(course, selectedLec, selectedDisc)
+                        : getLabOptions(course, undefined, selectedDisc);
 
                       const lab = availableLabs.find(
                         (l) => l.sectionNumber === selectedLabSection,
@@ -1668,6 +2115,7 @@ function EditSchedulerPanel({
                         alert(
                           `Lab ${selectedLabSection} is not available for the selected lecture. Please choose a different lab or lecture.`,
                         );
+                        setIsAddingClass(false);
                         return;
                       }
                     }
@@ -1692,6 +2140,11 @@ function EditSchedulerPanel({
                       addedSections.push(`Lab ${selectedLabSection}`);
 
                     // Keep selections after successful add for easy color testing
+
+                    // Reset adding state
+                    console.log('클래스 추가 완료 - 상태 리셋');
+                    debugScrollState('클래스 추가 완료 후');
+                    setIsAddingClass(false);
                   }}
                 >
                   Add
@@ -1802,6 +2255,39 @@ function EditSchedulerPanel({
           </Box>
         </Box>
       )}
+
+      {/* Dependency Validation Modal */}
+      <Dialog
+        open={isDependencyModalOpen}
+        onClose={() => setIsDependencyModalOpen(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogContent>
+          <Typography
+            variant="body1"
+            sx={{ textAlign: 'center', padding: '16px 0' }}
+          >
+            {dependencyModalMessage}
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ justifyContent: 'center', paddingBottom: '24px' }}>
+          <Button
+            onClick={() => setIsDependencyModalOpen(false)}
+            variant="contained"
+            sx={{
+              backgroundColor: 'red.main',
+              color: 'white',
+              minWidth: '80px',
+              '&:hover': {
+                backgroundColor: 'red.dark',
+              },
+            }}
+          >
+            OK
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

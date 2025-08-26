@@ -6,7 +6,7 @@
 // React
 import React, { useState, useMemo, useEffect } from 'react';
 // Material UI
-import { Box, Typography } from '@mui/material';
+import { Box, Typography, useTheme, useMediaQuery } from '@mui/material';
 // Components
 import Modal from '../Common/Modal/Modal';
 import ColorSelectionModal from '../Common/ColorSelectionModal/ColorSelectionModal';
@@ -33,6 +33,8 @@ function SchedulerTable({
   isEditMode = false,
 }: SchedulerTableProps): React.ReactElement {
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
   const [myEvents, setMyEvents] = useState<EventData[]>([]);
@@ -52,7 +54,7 @@ function SchedulerTable({
 
     // Return dark text for bright backgrounds, white text for dark backgrounds
     // Use higher threshold (0.7) so gray colors still use white text
-    return luminance > 0.7 ? '#000000' : '#FFFFFF';
+    return luminance > 0.7 ? '#494949' : '#FFFFFF';
   };
 
   useEffect(() => {
@@ -277,7 +279,7 @@ function SchedulerTable({
                     alignItems: 'center',
                     justifyContent: 'center',
                     position: 'relative',
-                    top: '-25px',
+                    top: '-24px',
                   }}
                 >
                   <Typography variant="body2" color="white.main" align="center">
@@ -298,6 +300,13 @@ function SchedulerTable({
               const gridRowStart = 2 + hourIndex * 12 + i;
 
               days.forEach((day, dayIndex) => {
+                // Check if this is the bottom-right corner cell
+                const isLastHour = hourIndex === majorHours.length - 1;
+                const isLastMinuteSlot = i === 11;
+                const isLastDay = dayIndex === days.length - 1;
+                const isBottomRightCorner =
+                  isLastHour && isLastMinuteSlot && isLastDay;
+
                 cells.push(
                   <Box
                     key={`bg-${hour}-${i}-${day}`}
@@ -306,6 +315,9 @@ function SchedulerTable({
                       gridRow: gridRowStart,
                       backgroundColor: hourColor,
                       minHeight: '5px',
+                      ...(isBottomRightCorner && {
+                        borderRadius: '0 0 4px 0',
+                      }),
                     }}
                   />,
                 );
@@ -370,31 +382,26 @@ function SchedulerTable({
                       height: '100%',
                       padding: '2px 4px',
                       textAlign: 'center',
-                      overflow: 'hidden',
+                      overflow: 'visible',
                     }}
                   >
                     <Typography
-                      variant="body2"
+                      variant={isMobile ? 'body2' : 'body3'}
                       align="center"
                       sx={{
                         wordWrap: 'break-word',
                         whiteSpace: 'normal',
                         overflow: 'hidden',
                         width: '100%',
-                        fontSize:
-                          event.title.length > 20
-                            ? windowWidth < 768
-                              ? '8px'
-                              : '9px'
+                        fontSize: isMobile
+                          ? event.title.length > 20
+                            ? '8px'
                             : event.title.length > 15
-                              ? windowWidth < 768
-                                ? '9px'
-                                : '10px'
-                              : windowWidth < 768
-                                ? '10px'
-                                : '11px',
-                        fontWeight: windowWidth < 768 ? '500' : 'inherit',
-                        lineHeight: '1.1',
+                              ? '9px'
+                              : '10px'
+                          : undefined, // Use variant's default fontSize for desktop
+                        fontWeight: isMobile ? '500' : 'inherit',
+                        lineHeight: isMobile ? '1.1' : undefined, // Use variant's default lineHeight for desktop
                         color: getTextColor(event.color),
                         textOverflow: 'ellipsis',
                         display: '-webkit-box',
@@ -408,31 +415,24 @@ function SchedulerTable({
                     </Typography>
                     {event.location && event.location !== 'TBA' && (
                       <Typography
-                        variant="body2"
+                        variant={isMobile ? 'body2' : 'body3'}
                         align="center"
                         sx={{
-                          fontSize:
-                            event.location.length > 30
-                              ? windowWidth < 768
-                                ? '5px'
-                                : '6px'
+                          fontSize: isMobile
+                            ? event.location.length > 30
+                              ? '5px'
                               : event.location.length > 20
-                                ? windowWidth < 768
-                                  ? '6px'
-                                  : '7px'
+                                ? '6px'
                                 : event.location.length > 12
-                                  ? windowWidth < 768
-                                    ? '7px'
-                                    : '8px'
-                                  : windowWidth < 768
-                                    ? '8px'
-                                    : '9px',
+                                  ? '7px'
+                                  : '8px'
+                            : '12px', // Slightly smaller than body3 for location on desktop
                           opacity: 0.8,
                           whiteSpace: 'normal',
-                          overflow: 'hidden',
+                          overflow: 'visible',
                           width: '100%',
                           marginTop: '1px',
-                          lineHeight: '0.9',
+                          lineHeight: isMobile ? '0.9' : '1.2',
                           color: getTextColor(event.color),
                           textAlign: 'center',
                           margin: '1px auto 0',
@@ -454,7 +454,7 @@ function SchedulerTable({
                       right: '-6px',
                       width: '24px',
                       height: '24px',
-                      color: '#494949',
+                      color: event.color === '#494949' ? '#ffffff' : '#494949',
                       fontSize: '24px',
                       fontWeight: '200',
                       cursor: 'pointer',
