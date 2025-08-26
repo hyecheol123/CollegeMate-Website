@@ -463,7 +463,7 @@ function SchedulerTable({
                       right: '-6px',
                       width: '24px',
                       height: '24px',
-                      color: '#494949',
+                      color: event.color === '#494949' ? '#ffffff' : '#494949',
                       fontSize: '24px',
                       fontWeight: '200',
                       cursor: 'pointer',
