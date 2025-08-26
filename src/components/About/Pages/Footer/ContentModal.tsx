@@ -34,7 +34,7 @@ function ContentModal(props: ContentModalProps): React.ReactElement {
     height: '90%',
     maxHeight: '90%',
     overflowY: 'auto',
-    borderRadius: '10px',
+    borderRadius: '4px',
     padding: '24px',
     background: '#ffffff',
     boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.15)',

@@ -1042,7 +1042,7 @@ function EditSchedulerPanel({
         margin: 0,
         padding: isMobile ? '16px 16px 0px 16px' : '24px',
         backgroundColor: isMobile ? 'transparent' : 'whiteGrey.main',
-        borderRadius: isMobile ? '0px' : '8px',
+        borderRadius: isMobile ? '0px' : '4px',
         border: isMobile ? 'none' : '1px solid #e0e0e0',
       }}
     >
@@ -1155,7 +1155,7 @@ function EditSchedulerPanel({
                   sx={{
                     backgroundColor: 'whiteGrey.main',
                     padding: '16px',
-                    borderRadius: '8px',
+                    borderRadius: '4px',
                     minHeight: '120px',
                     cursor: 'pointer',
                     border: '1px solid',
@@ -1226,7 +1226,7 @@ function EditSchedulerPanel({
                         backgroundColor: 'white.main',
                         border: '1px solid',
                         borderColor: 'grey.main',
-                        borderRadius: '6px',
+                        borderRadius: '4px',
                         '& .MuiSelect-select': {
                           padding: '8px 12px',
                         },
@@ -1434,7 +1434,7 @@ function EditSchedulerPanel({
                         backgroundColor: 'white.main',
                         border: '1px solid',
                         borderColor: 'grey.main',
-                        borderRadius: '6px',
+                        borderRadius: '4px',
                         '& .MuiSelect-select': {
                           padding: '8px 12px',
                         },
@@ -1620,7 +1620,7 @@ function EditSchedulerPanel({
                         backgroundColor: 'white.main',
                         border: '1px solid',
                         borderColor: 'grey.main',
-                        borderRadius: '6px',
+                        borderRadius: '4px',
                         '& .MuiSelect-select': {
                           padding: '8px 12px',
                         },
@@ -1799,7 +1799,7 @@ function EditSchedulerPanel({
                     color: 'darkGrey.main',
                     border: '1px solid',
                     borderColor: 'grey.main',
-                    borderRadius: '6px',
+                    borderRadius: '4px',
                     padding: '10px',
                     fontWeight: 500,
                     textTransform: 'none',
@@ -1821,7 +1821,7 @@ function EditSchedulerPanel({
                     backgroundColor: 'red.main',
                     color: 'white.main',
                     border: 'none',
-                    borderRadius: '6px',
+                    borderRadius: '4px',
                     padding: '10px',
                     fontWeight: 600,
                     textTransform: 'none',

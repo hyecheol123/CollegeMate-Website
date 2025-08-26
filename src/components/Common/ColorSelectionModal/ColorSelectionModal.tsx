@@ -85,7 +85,7 @@ function ColorSelectionModal({
       fullWidth
       PaperProps={{
         sx: {
-          borderRadius: '12px',
+          borderRadius: '4px',
           padding: '8px',
         },
       }}
