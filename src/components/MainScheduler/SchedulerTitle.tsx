@@ -20,6 +20,10 @@ import {
 import Download from '@mui/icons-material/FileDownloadOutlined';
 import Edit from '@mui/icons-material/EditOutlined';
 import Save from '@mui/icons-material/SaveOutlined';
+// Custom Icons
+import EditIcon from '../../assets/edit.svg';
+import SaveIcon from '../../assets/save.svg';
+import DownloadIcon from '../../assets/download.svg';
 // Types and Utils
 import type { Term } from '../../data/Terms/getTerms';
 import { formatTermCode } from '../../utils/termUtils';
@@ -220,7 +224,14 @@ function SchedulerTitle({
               fontSize: iconSize === 'small' ? '1.25rem' : 'inherit',
             }}
           >
-            <Download fontSize={iconSize} />
+            <img 
+              src={DownloadIcon} 
+              alt="Download"
+              style={{
+                width: '20px',
+                height: '20px',
+              }}
+            />
           </IconButton>
         </Tooltip>
         <Tooltip title={isEditMode ? 'Save Changes' : 'Edit Schedule'}>
@@ -232,17 +243,26 @@ function SchedulerTitle({
               backgroundColor: isEditMode
                 ? 'rgba(178, 0, 0, 0.1)'
                 : 'transparent',
-              '&:hover': {
-                backgroundColor: isEditMode
-                  ? 'rgba(178, 0, 0, 0.2)'
-                  : 'rgba(0, 0, 0, 0.04)',
-              },
             }}
           >
             {isEditMode ? (
-              <Save fontSize={iconSize} />
+              <img 
+                src={SaveIcon} 
+                alt="Save"
+                style={{
+                  width: '30px',
+                  height: '18px',
+                }}
+              />
             ) : (
-              <Edit fontSize={iconSize} />
+              <img 
+                src={EditIcon} 
+                alt="Edit"
+                style={{
+                  width: '24px',
+                  height: '18px',
+                }}
+              />
             )}
           </IconButton>
         </Tooltip>
