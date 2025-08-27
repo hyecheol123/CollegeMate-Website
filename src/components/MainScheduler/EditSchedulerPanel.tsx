@@ -1275,7 +1275,7 @@ function EditSchedulerPanel({
                       marginBottom: '8px',
                     }}
                   >
-                    {course.subject.formalDescription}
+                    {course.subject.formalDescription.toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase())}
                   </Typography>
                   <Typography
                     variant="body3"
