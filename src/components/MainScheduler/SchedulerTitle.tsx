@@ -18,7 +18,6 @@ import {
 } from '@mui/material';
 // Material UI Icon
 import Download from '@mui/icons-material/FileDownloadOutlined';
-import Share from '@mui/icons-material/IosShareOutlined';
 import Edit from '@mui/icons-material/EditOutlined';
 import Save from '@mui/icons-material/SaveOutlined';
 // Types and Utils
@@ -222,17 +221,6 @@ function SchedulerTitle({
             }}
           >
             <Download fontSize={iconSize} />
-          </IconButton>
-        </Tooltip>
-        <Tooltip title="Share">
-          <IconButton
-            disabled={isEditMode}
-            sx={{
-              color: isEditMode ? 'rgba(0,0,0,0.26)' : 'darkGrey.main',
-              fontSize: iconSize === 'small' ? '1.25rem' : 'inherit',
-            }}
-          >
-            <Share fontSize={iconSize} />
           </IconButton>
         </Tooltip>
         <Tooltip title={isEditMode ? 'Save Changes' : 'Edit Schedule'}>
