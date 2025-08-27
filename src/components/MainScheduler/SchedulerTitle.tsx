@@ -220,8 +220,8 @@ function SchedulerTitle({
               fontSize: iconSize === 'small' ? '1.25rem' : 'inherit',
             }}
           >
-            <img 
-              src={DownloadIcon} 
+            <img
+              src={DownloadIcon}
               alt="Download"
               style={{
                 width: '20px',
@@ -244,8 +244,8 @@ function SchedulerTitle({
             }}
           >
             {isEditMode ? (
-              <img 
-                src={SaveIcon} 
+              <img
+                src={SaveIcon}
                 alt="Save"
                 style={{
                   width: '30px',
@@ -253,8 +253,8 @@ function SchedulerTitle({
                 }}
               />
             ) : (
-              <img 
-                src={EditIcon} 
+              <img
+                src={EditIcon}
                 alt="Edit"
                 style={{
                   width: '24px',
