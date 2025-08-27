@@ -16,14 +16,10 @@ import {
   Menu,
   MenuItem,
 } from '@mui/material';
-// Material UI Icon
-import Download from '@mui/icons-material/FileDownloadOutlined';
-import Edit from '@mui/icons-material/EditOutlined';
-import Save from '@mui/icons-material/SaveOutlined';
 // Custom Icons
-import EditIcon from '../../assets/edit.svg';
-import SaveIcon from '../../assets/save.svg';
-import DownloadIcon from '../../assets/download.svg';
+import EditIcon from '../../../assets/edit.svg';
+import SaveIcon from '../../../assets/save.svg';
+import DownloadIcon from '../../../assets/download.svg';
 // Types and Utils
 import type { Term } from '../../data/Terms/getTerms';
 import { formatTermCode } from '../../utils/termUtils';
@@ -243,6 +239,8 @@ function SchedulerTitle({
               backgroundColor: isEditMode
                 ? 'rgba(178, 0, 0, 0.1)'
                 : 'transparent',
+              minWidth: '48px',
+              width: '48px',
             }}
           >
             {isEditMode ? (
