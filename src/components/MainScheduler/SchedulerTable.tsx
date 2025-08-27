@@ -409,6 +409,7 @@ function SchedulerTable({
                         WebkitBoxOrient: 'vertical',
                         textAlign: 'center',
                         margin: '0 auto',
+                        marginBottom: '2px',
                       }}
                     >
                       {event.title}
@@ -450,8 +451,8 @@ function SchedulerTable({
                     data-remove-button="true"
                     sx={{
                       position: 'absolute',
-                      top: '-8px',
-                      right: '-6px',
+                      top: '-4px',
+                      right: '-2px',
                       width: '24px',
                       height: '24px',
                       color: event.color === '#494949' ? '#ffffff' : '#494949',
