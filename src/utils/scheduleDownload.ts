@@ -41,8 +41,8 @@ const captureSchedule = async (
   const html2canvas = await import('html2canvas');
   const element = schedulerRef.current!;
 
-  // If targetSize is provided, capture for mobile wallpaper
-  if (targetSize) {
+  // If targetSize is provided with valid dimensions, capture for mobile wallpaper
+  if (targetSize && targetSize.width > 0 && targetSize.height > 0) {
     // Calculate aspect ratio and determine mobile-friendly base size
     const aspectRatio = targetSize.width / targetSize.height;
 
@@ -284,13 +284,65 @@ const captureSchedule = async (
     }
   }
 
-  // Normal capture without size override
-  return html2canvas.default(element, {
-    backgroundColor: WALLPAPER_CONFIG.canvas.backgroundColor,
-    scale: WALLPAPER_CONFIG.canvas.scale,
-    useCORS: true,
-    allowTaint: true,
-  });
+  // Normal capture without size override - ensure clean desktop layout
+  // Store original values for all potentially affected properties
+  const originalStyles = {
+    width: element.style.width,
+    height: element.style.height,
+    maxWidth: element.style.maxWidth,
+    maxHeight: element.style.maxHeight,
+    minWidth: element.style.minWidth,
+    overflow: element.style.overflow,
+    transform: element.style.transform,
+    transformOrigin: element.style.transformOrigin,
+  };
+
+  // Store original window.innerWidth before any modifications
+  const originalInnerWidth = window.innerWidth;
+
+  try {
+    // Force complete reset to clean desktop layout
+    element.style.cssText = ''; // Clear ALL inline styles
+    
+    // Get the ACTUAL current window size (not the mocked one)
+    const actualWindowWidth = document.documentElement.clientWidth || document.body.clientWidth || window.outerWidth;
+    
+    // Reset window.innerWidth to actual current size
+    delete (window as any).innerWidth; // Delete the property first
+    Object.defineProperty(window, 'innerWidth', {
+      writable: true, 
+      configurable: true,
+      value: actualWindowWidth,
+    });
+
+    // Force MANY resize events with different timings to ensure React hooks respond
+    for (let i = 0; i < 5; i++) {
+      const resizeEvent = new Event('resize');
+      window.dispatchEvent(resizeEvent);
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+    
+    // Additional forced reflow
+    element.offsetHeight;
+    element.offsetWidth;
+
+    return html2canvas.default(element, {
+      backgroundColor: WALLPAPER_CONFIG.canvas.backgroundColor,
+      scale: WALLPAPER_CONFIG.canvas.scale,
+      useCORS: true,
+      allowTaint: true,
+    });
+  } finally {
+    // Restore only non-empty original styles
+    if (originalStyles.width) element.style.width = originalStyles.width;
+    if (originalStyles.height) element.style.height = originalStyles.height;
+    if (originalStyles.maxWidth) element.style.maxWidth = originalStyles.maxWidth;
+    if (originalStyles.maxHeight) element.style.maxHeight = originalStyles.maxHeight;
+    if (originalStyles.minWidth) element.style.minWidth = originalStyles.minWidth;
+    if (originalStyles.overflow) element.style.overflow = originalStyles.overflow;
+    if (originalStyles.transform) element.style.transform = originalStyles.transform;
+    if (originalStyles.transformOrigin) element.style.transformOrigin = originalStyles.transformOrigin;
+  }
 };
 
 /**

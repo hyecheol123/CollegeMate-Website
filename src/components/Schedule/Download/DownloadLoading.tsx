@@ -11,7 +11,7 @@ interface DownloadLoadingProps {
   type: 'image' | 'wallpaper';
   onSuccess: () => void;
   onError: () => void;
-  onDownload: () => Promise<boolean>;
+  onDownload: (type: 'image' | 'wallpaper') => Promise<boolean>;
 }
 
 /**
@@ -36,7 +36,7 @@ export default function DownloadLoading({
     const timer = setTimeout(() => {
       const runDownload = async (): Promise<void> => {
         try {
-          const result = await onDownload();
+          const result = await onDownload(type);
           if (result) onSuccess();
           else onError();
         } catch (e) {
@@ -53,7 +53,7 @@ export default function DownloadLoading({
       // Restore body scroll
       document.body.style.overflow = '';
     };
-  }, [onDownload, onSuccess, onError]);
+  }, [type, onDownload, onSuccess, onError]);
 
   const message =
     type === 'image' ? 'Image Downloading' : 'Wallpaper Downloading';

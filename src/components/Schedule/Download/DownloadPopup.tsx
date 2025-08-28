@@ -18,7 +18,7 @@ export type DownloadType = 'image' | 'wallpaper';
 
 interface DownloadPopupProps {
   onClose: () => void;
-  onDownload: () => Promise<boolean>;
+  onDownload: (type: DownloadType) => Promise<boolean>;
   onSelectSize: (
     size: { width: number; height: number },
     device: string,
@@ -45,6 +45,8 @@ export default function DownloadPopup({
   const handleTypeSelect = (type: DownloadType): void => {
     setDownloadType(type);
     if (type === 'image') {
+      // Reset size for image download to use default behavior
+      onSelectSize({ width: 0, height: 0 }, '');
       setView('loading');
     } else {
       setView('device');
