@@ -924,7 +924,7 @@ function MainScheduler(): React.ReactElement {
 
       {/* Footer */}
       <AppFooter />
-      
+
       {/* Guided Tour */}
       <GuidedTour
         isOpen={showTour}
