@@ -1578,7 +1578,7 @@ function EditSchedulerPanel({
                             ? 'Loading discussions...'
                             : selectedLecture[course.courseId]
                               ? 'Select discussion for this section'
-                              : 'Select section first or choose any discussion'}
+                              : 'Select Discussion'}
                         </Typography>
                       </MenuItem>
                       {getDiscussionOptions(
