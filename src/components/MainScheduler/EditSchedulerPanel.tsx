@@ -1519,6 +1519,28 @@ function EditSchedulerPanel({
                           ...prev,
                           [course.courseId]: e.target.value,
                         }));
+                        
+                        // Clear lab selection if it's not compatible with the new discussion
+                        const newDiscussion = e.target.value;
+                        const currentLab = selectedLab[course.courseId];
+                        
+                        if (currentLab && newDiscussion) {
+                          const compatibleLabs = getLabOptions(
+                            course,
+                            selectedLecture[course.courseId] || undefined,
+                            newDiscussion,
+                          );
+                          const isCurrentLabCompatible = compatibleLabs.some(
+                            lab => lab.sectionNumber === currentLab
+                          );
+                          
+                          if (!isCurrentLabCompatible) {
+                            setSelectedLab((prev) => ({
+                              ...prev,
+                              [course.courseId]: '',
+                            }));
+                          }
+                        }
                       }}
                       displayEmpty
                       sx={{
