@@ -297,20 +297,24 @@ const captureSchedule = async (
     transformOrigin: element.style.transformOrigin,
   };
 
-  // Store original window.innerWidth before any modifications
-  const originalInnerWidth = window.innerWidth;
+  // Store original window.innerWidth before any modifications (unused but kept for clarity)
+  // const originalInnerWidth = window.innerWidth;
 
   try {
     // Force complete reset to clean desktop layout
     element.style.cssText = ''; // Clear ALL inline styles
-    
+
     // Get the ACTUAL current window size (not the mocked one)
-    const actualWindowWidth = document.documentElement.clientWidth || document.body.clientWidth || window.outerWidth;
-    
+    const actualWindowWidth =
+      document.documentElement.clientWidth ||
+      document.body.clientWidth ||
+      window.outerWidth;
+
     // Reset window.innerWidth to actual current size
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     delete (window as any).innerWidth; // Delete the property first
     Object.defineProperty(window, 'innerWidth', {
-      writable: true, 
+      writable: true,
       configurable: true,
       value: actualWindowWidth,
     });
@@ -321,9 +325,11 @@ const captureSchedule = async (
       window.dispatchEvent(resizeEvent);
       await new Promise((resolve) => setTimeout(resolve, 100));
     }
-    
+
     // Additional forced reflow
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     element.offsetHeight;
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     element.offsetWidth;
 
     return html2canvas.default(element, {
@@ -336,12 +342,18 @@ const captureSchedule = async (
     // Restore only non-empty original styles
     if (originalStyles.width) element.style.width = originalStyles.width;
     if (originalStyles.height) element.style.height = originalStyles.height;
-    if (originalStyles.maxWidth) element.style.maxWidth = originalStyles.maxWidth;
-    if (originalStyles.maxHeight) element.style.maxHeight = originalStyles.maxHeight;
-    if (originalStyles.minWidth) element.style.minWidth = originalStyles.minWidth;
-    if (originalStyles.overflow) element.style.overflow = originalStyles.overflow;
-    if (originalStyles.transform) element.style.transform = originalStyles.transform;
-    if (originalStyles.transformOrigin) element.style.transformOrigin = originalStyles.transformOrigin;
+    if (originalStyles.maxWidth)
+      element.style.maxWidth = originalStyles.maxWidth;
+    if (originalStyles.maxHeight)
+      element.style.maxHeight = originalStyles.maxHeight;
+    if (originalStyles.minWidth)
+      element.style.minWidth = originalStyles.minWidth;
+    if (originalStyles.overflow)
+      element.style.overflow = originalStyles.overflow;
+    if (originalStyles.transform)
+      element.style.transform = originalStyles.transform;
+    if (originalStyles.transformOrigin)
+      element.style.transformOrigin = originalStyles.transformOrigin;
   }
 };
 
@@ -350,7 +362,7 @@ const captureSchedule = async (
  * @param {object} options - Download options
  * @param {object} options.schedulerRef - Reference to scheduler element
  * @param {object} options.selectedSize - Selected image size
- * @param options.selectedDevice
+ * @param {string} options.selectedDevice - Selected device type for wallpaper generation
  * @returns {Promise<void>}
  */
 export const downloadScheduleAsWallpaper = async ({
