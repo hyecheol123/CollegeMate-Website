@@ -106,8 +106,9 @@ export default function DownloadDeviceSelect({
   const [autoMatched, setAutoMatched] = useState('');
   useEffect(() => {
     const updateMatch = (): void => {
-      const width = window.innerWidth;
-      const height = window.innerHeight;
+      const dpr = window.devicePixelRatio || 1;
+      const width = Math.round(window.innerWidth * dpr);
+      const height = Math.round(window.innerHeight * dpr);
       setAutoMatched(`${width}px × ${height}px`);
     };
     if (value === 'Auto-match for device') {
@@ -140,11 +141,12 @@ export default function DownloadDeviceSelect({
             textColor: 'white.main',
             onClick: (): void => {
               const selected = value;
+              const dpr = window.devicePixelRatio || 1;
               const size =
                 value === 'Auto-match for device'
                   ? ({
-                      width: window.innerWidth,
-                      height: window.innerHeight,
+                      width: Math.round(window.innerWidth * dpr),
+                      height: Math.round(window.innerHeight * dpr),
                     } as { width: number; height: number })
                   : DEVICE_DIMENSIONS[value];
 
@@ -155,9 +157,7 @@ export default function DownloadDeviceSelect({
       />
       <PopupHelperText
         text={
-          value === 'Auto-match for device'
-            ? `Current Device: ${autoMatched} `
-            : 'Wallpaper dimension differs depending on selected device model.'
+          'The wallpaper download may have some margins as it includes the clock part at the top.'
         }
       />
     </>
