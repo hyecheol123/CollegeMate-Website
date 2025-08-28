@@ -138,6 +138,7 @@ function MainScheduler(): React.ReactElement {
     width: number;
     height: number;
   }>({ width: 0, height: 0 });
+  const [selectedDevice, setSelectedDevice] = useState<string>('');
   const [showTour, setShowTour] = useState<boolean>(false);
 
   const handleEditToggle = (): void => {
@@ -166,9 +167,11 @@ function MainScheduler(): React.ReactElement {
       await downloadScheduleAsWallpaper({
         schedulerRef,
         selectedSize,
+        selectedDevice,
       });
-      // Reset selectedSize after successful download
+      // Reset selectedSize and device after successful download
       setSelectedSize({ width: 0, height: 0 });
+      setSelectedDevice('');
       return true; // Download succeeded
     } catch (error) {
       console.error('Download failed:', error);
@@ -918,7 +921,10 @@ function MainScheduler(): React.ReactElement {
         <DownloadPopup
           onClose={() => setIsDownloadOpen(false)}
           onDownload={handleDownload}
-          onSelectSize={(size) => setSelectedSize(size)}
+          onSelectSize={(size, device) => {
+            setSelectedSize(size);
+            setSelectedDevice(device);
+          }}
         />
       )}
 

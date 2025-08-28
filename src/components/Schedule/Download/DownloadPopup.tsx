@@ -19,7 +19,10 @@ export type DownloadType = 'image' | 'wallpaper';
 interface DownloadPopupProps {
   onClose: () => void;
   onDownload: () => Promise<boolean>;
-  onSelectSize: (size: { width: number; height: number }) => void;
+  onSelectSize: (
+    size: { width: number; height: number },
+    device: string,
+  ) => void;
 }
 
 /**
@@ -59,7 +62,7 @@ export default function DownloadPopup({
             onChange={setDevice}
             onNext={({ device, size }) => {
               setDevice(device); // 여전히 문자열 저장
-              onSelectSize(size); // 사이즈 정보는 MainScheduler로 전달
+              onSelectSize(size, device); // 사이즈와 디바이스 정보 전달
               setView('loading');
             }}
           />

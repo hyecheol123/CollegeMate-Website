@@ -9,6 +9,7 @@ interface DownloadScheduleOptions {
     width: number;
     height: number;
   };
+  selectedDevice?: string;
 }
 
 // Constants for wallpaper generation
@@ -17,6 +18,44 @@ const WALLPAPER_CONFIG = {
     scale: 2, // Higher quality rendering
     backgroundColor: '#ffffff',
   },
+};
+
+// Lockscreen clock safe zones (in pixels from top)
+const LOCKSCREEN_CLOCK_ZONES: Record<string, number> = {
+  // iPhone 16 series - Dynamic Island devices have larger clock
+  'iPhone 16 Pro Max': 500,
+  'iPhone 16 Pro': 480,
+  'iPhone 16 Plus': 490,
+  'iPhone 16': 460,
+
+  // Older iPhones with notch
+  'iPhone 13': 440,
+  'iPhone mini': 400,
+
+  // Samsung Galaxy - varies by model
+  'Galaxy S25 Ultra': 550,
+  'Galaxy S25+': 550,
+  'Galaxy S25': 500,
+  'Galaxy S24 Ultra': 550,
+  'Galaxy S24+': 550,
+  'Galaxy S24': 500,
+  'Galaxy Note 20': 500,
+
+  // Galaxy Z Flip series
+  'Galaxy Z Flip7': 520,
+  'Galaxy Z Flip6': 520,
+  'Galaxy Z Flip5': 520,
+
+  // iPad - smaller clock relative to screen
+  'iPad Pro 13-inch (M4)': 400,
+  'iPad Pro 11-inch (M4)': 380,
+  'iPad Air 13-inch (M2/M3)': 400,
+  'iPad Air 11-inch (M2/M3)': 380,
+  'iPad (10th gen, 10.9-inch)': 380,
+  'iPad mini (6th gen)': 350,
+
+  // Default fallback
+  'Auto-match for device': 450,
 };
 
 // Triggers the download of the canvas as an image
@@ -33,6 +72,7 @@ const triggerDownload = (canvas: HTMLCanvasElement, fileName: string): void => {
 const captureSchedule = async (
   schedulerRef: React.RefObject<HTMLDivElement>,
   targetSize?: { width: number; height: number },
+  device?: string,
 ): Promise<HTMLCanvasElement> => {
   const html2canvas = await import('html2canvas');
   const element = schedulerRef.current!;
@@ -83,8 +123,8 @@ const captureSchedule = async (
 
     try {
       // Calculate content width (reduce by 10% for margins)
-      let paddingPerSide = Math.floor(baseMobileWidth * 0.05);
-      let contentWidth = baseMobileWidth - paddingPerSide * 2;
+      const paddingPerSide = Math.floor(baseMobileWidth * 0.05);
+      const contentWidth = baseMobileWidth - paddingPerSide * 2;
 
       // Set container to reduced width for natural margins
       element.style.width = `${contentWidth}px`;
@@ -119,54 +159,41 @@ const captureSchedule = async (
         width: contentWidth,
       });
 
-      // Check if table height exceeds available space
-      const maxTableHeight = baseMobileHeight - 60; // 60px total vertical padding
+      // Get clock safe zone for this device
+      const clockZoneHeight = device
+        ? LOCKSCREEN_CLOCK_ZONES[device] || 450
+        : 450;
+
+      // Calculate available height considering clock zone
+      // Scale the clock zone proportionally to base dimensions
+      const scaledClockZone =
+        (clockZoneHeight / targetSize.height) * baseMobileHeight;
+      const topPaddingBase = 40; // Extra padding below clock (20px more)
+      const bottomPaddingBase = 80; // Extra bottom padding (20px more)
+      const maxTableHeight =
+        baseMobileHeight - scaledClockZone - topPaddingBase - bottomPaddingBase;
 
       // If table is too tall, use maximum available space approach
       if (testCanvas.height > maxTableHeight) {
-        console.log('Table too tall, switching to max space utilization');
+        console.log('Table too tall, need to reduce width to fit');
+        console.log(
+          `Current height: ${testCanvas.height}, Max allowed: ${maxTableHeight}`,
+        );
 
-        // Calculate maximum usable dimensions with minimal padding
-        const maxUsableWidth = baseMobileWidth - 40; // 20px padding each side
-        const maxUsableHeight = baseMobileHeight - 60; // 40px bottom + 20px top minimum
+        // Calculate how much we need to scale down the entire table
+        const scaleRatio = maxTableHeight / testCanvas.height;
+        console.log(`Need to scale table by ${scaleRatio} to fit`);
 
-        // Find the optimal width that keeps table within height bounds
-        // Start with max width and work down if needed
-        let optimalWidth = maxUsableWidth;
+        // Apply CSS transform scale to entire element
+        const scaleValue = Math.min(scaleRatio * 0.95, 1); // 0.95 for safety margin
+        element.style.transform = `scale(${scaleValue})`;
+        element.style.transformOrigin = 'top left';
 
-        // Estimate height reduction ratio based on width change
-        // Wider table = shorter height (roughly proportional)
-        const widthRatio = maxUsableWidth / contentWidth;
-        const estimatedNewHeight = testCanvas.height / widthRatio;
+        // Keep original width but scale the entire element
+        console.log(`Scaling entire table by ${scaleValue}`);
 
-        if (estimatedNewHeight > maxUsableHeight) {
-          // Still too tall even at max width, need to scale down
-          const requiredHeightRatio = maxUsableHeight / testCanvas.height;
-          optimalWidth = Math.floor(
-            contentWidth * Math.sqrt(requiredHeightRatio) * 0.95,
-          );
-        }
-
-        // Update element width to optimal
-        element.style.width = `${optimalWidth}px`;
-        element.style.maxWidth = `${optimalWidth}px`;
-        element.style.minWidth = `${optimalWidth}px`;
-
-        // Update window.innerWidth
-        Object.defineProperty(window, 'innerWidth', {
-          writable: true,
-          configurable: true,
-          value: optimalWidth,
-        });
-
-        // Trigger resize and wait
-        const resizeEvent2 = new Event('resize');
-        window.dispatchEvent(resizeEvent2);
-        await new Promise((resolve) => setTimeout(resolve, 500));
-
-        // Update contentWidth and paddingPerSide for final capture
-        contentWidth = optimalWidth;
-        paddingPerSide = (baseMobileWidth - optimalWidth) / 2;
+        // Wait for transform to apply
+        await new Promise((resolve) => setTimeout(resolve, 300));
       }
 
       // Now capture with proper scaling
@@ -190,12 +217,68 @@ const captureSchedule = async (
       ctx.fillStyle = WALLPAPER_CONFIG.canvas.backgroundColor;
       ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
 
-      // Calculate vertical positioning - fixed bottom padding, rest on top
-      const xOffset = paddingPerSide * scaleFactor;
-      const bottomPadding = 40 * scaleFactor; // Fixed 20px bottom padding
-      const yOffset = finalCanvas.height - tempCanvas.height - bottomPadding;
+      // Calculate positioning considering clock zone and centering scaled content
+      const clockZoneScaled =
+        (clockZoneHeight / targetSize.height) * finalCanvas.height;
 
-      // Draw the captured content with padding
+      // Debug logging
+      console.log(
+        'Final canvas dimensions:',
+        finalCanvas.width,
+        'x',
+        finalCanvas.height,
+      );
+      console.log('Clock zone height:', clockZoneScaled);
+      console.log(
+        'Content dimensions:',
+        tempCanvas.width,
+        'x',
+        tempCanvas.height,
+      );
+
+      // Check if content fits within canvas
+      const availableSpace = finalCanvas.height - clockZoneScaled;
+      console.log('Available space below clock:', availableSpace);
+      console.log('Content + clock will end at:', clockZoneScaled + tempCanvas.height);
+
+      // Calculate actual scaled width for proper centering
+      // Check if scaling was applied by looking for transform in the element
+      const wasScaled = element.style.transform.includes('scale');
+      let actualContentWidth = tempCanvas.width;
+      
+      if (wasScaled) {
+        // Extract scale value from transform
+        const scaleMatch = element.style.transform.match(/scale\(([^)]+)\)/);
+        if (scaleMatch) {
+          const scaleValue = parseFloat(scaleMatch[1]);
+          actualContentWidth = tempCanvas.width * scaleValue;
+          console.log(`Content was scaled by ${scaleValue}, actual width: ${actualContentWidth}`);
+        }
+      }
+      
+      // Center based on actual scaled width
+      const xOffset = (finalCanvas.width - actualContentWidth) / 2;
+
+      // If content is still too tall, position it right after clock zone
+      // Otherwise center it in available space
+      let yOffset;
+      if (tempCanvas.height > availableSpace * 0.9) {
+        // Too tall, position right after clock with extra padding (20px more)
+        yOffset = clockZoneScaled + 40 * scaleFactor;
+        console.log('Content too tall, positioning at top with extra padding');
+      } else {
+        // Fits well, center it with extra padding
+        const topMargin = clockZoneScaled + (availableSpace - tempCanvas.height) / 2;
+        const minTopPadding = clockZoneScaled + 60 * scaleFactor; // 20px more
+        yOffset = Math.max(minTopPadding, topMargin);
+        console.log('Content fits, centering with extra padding');
+      }
+
+      console.log('Final positioning at:', xOffset, yOffset);
+      console.log('Content will end at:', yOffset + tempCanvas.height);
+      console.log('Bottom margin:', finalCanvas.height - (yOffset + tempCanvas.height));
+
+      // Draw the captured content centered
       ctx.drawImage(tempCanvas, xOffset, yOffset);
 
       return finalCanvas;
@@ -207,6 +290,8 @@ const captureSchedule = async (
       element.style.maxHeight = originalStyles.maxHeight;
       element.style.minWidth = originalStyles.minWidth;
       element.style.overflow = originalStyles.overflow;
+      element.style.transform = ''; // Reset transform
+      element.style.transformOrigin = '';
 
       // Restore original window.innerWidth
       Object.defineProperty(window, 'innerWidth', {
@@ -238,23 +323,34 @@ const captureSchedule = async (
  * @param {object} options - Download options
  * @param {object} options.schedulerRef - Reference to scheduler element
  * @param {object} options.selectedSize - Selected image size
+ * @param options.selectedDevice
  * @returns {Promise<void>}
  */
 export const downloadScheduleAsWallpaper = async ({
   schedulerRef,
   selectedSize,
+  selectedDevice,
 }: DownloadScheduleOptions): Promise<void> => {
   if (!schedulerRef.current) {
     console.error('Scheduler reference is null');
     return;
   }
 
-  console.log('Starting download with selectedSize:', selectedSize);
+  console.log(
+    'Starting download with selectedSize:',
+    selectedSize,
+    'device:',
+    selectedDevice,
+  );
 
   try {
     if (selectedSize && selectedSize.width > 0 && selectedSize.height > 0) {
       // Capture with mobile simulation
-      const canvas = await captureSchedule(schedulerRef, selectedSize);
+      const canvas = await captureSchedule(
+        schedulerRef,
+        selectedSize,
+        selectedDevice,
+      );
       triggerDownload(canvas, 'schedule_wallpaper.png');
     } else {
       // Normal capture for general download
