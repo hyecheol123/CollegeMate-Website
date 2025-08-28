@@ -210,7 +210,7 @@ function SchedulerTitle({
       </Box>
 
       {/* Right side: Action icons */}
-      <Box sx={iconBoxStyle}>
+      <Box sx={iconBoxStyle} id="scheduler-actions">
         <Tooltip title="Download">
           <IconButton
             disabled={isEditMode}

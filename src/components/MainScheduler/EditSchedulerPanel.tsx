@@ -1519,6 +1519,28 @@ function EditSchedulerPanel({
                           ...prev,
                           [course.courseId]: e.target.value,
                         }));
+
+                        // Clear lab selection if it's not compatible with the new discussion
+                        const newDiscussion = e.target.value;
+                        const currentLab = selectedLab[course.courseId];
+
+                        if (currentLab && newDiscussion) {
+                          const compatibleLabs = getLabOptions(
+                            course,
+                            selectedLecture[course.courseId] || undefined,
+                            newDiscussion,
+                          );
+                          const isCurrentLabCompatible = compatibleLabs.some(
+                            (lab) => lab.sectionNumber === currentLab,
+                          );
+
+                          if (!isCurrentLabCompatible) {
+                            setSelectedLab((prev) => ({
+                              ...prev,
+                              [course.courseId]: '',
+                            }));
+                          }
+                        }
                       }}
                       displayEmpty
                       sx={{
@@ -1578,7 +1600,7 @@ function EditSchedulerPanel({
                             ? 'Loading discussions...'
                             : selectedLecture[course.courseId]
                               ? 'Select discussion for this section'
-                              : 'Select section first or choose any discussion'}
+                              : 'Select Discussion'}
                         </Typography>
                       </MenuItem>
                       {getDiscussionOptions(
@@ -1953,23 +1975,6 @@ function EditSchedulerPanel({
 
                     // User-friendly validation
                     if (!selectedLec && !selectedDisc && !selectedLabSection) {
-                      const courseHasDiscussions = hasDiscussions(course);
-                      const courseHasLabs = hasLabs(course);
-                      if (courseHasDiscussions && courseHasLabs) {
-                        alert(
-                          'Please select at least a section, discussion, or lab to add.',
-                        );
-                      } else if (courseHasDiscussions) {
-                        alert(
-                          'Please select at least a section or discussion to add.',
-                        );
-                      } else if (courseHasLabs) {
-                        alert(
-                          'Please select at least a section or lab to add.',
-                        );
-                      } else {
-                        alert('Please select a section to add.');
-                      }
                       setIsAddingClass(false);
                       return;
                     }
@@ -2040,9 +2045,6 @@ function EditSchedulerPanel({
                         );
                         allEvents.push(...discussionEvents);
                       } else if (selectedLec) {
-                        alert(
-                          `Discussion ${selectedDisc} is not available for the selected lecture. Please choose a different discussion or lecture.`,
-                        );
                         setIsAddingClass(false);
                         return;
                       }
@@ -2067,9 +2069,6 @@ function EditSchedulerPanel({
                         );
                         allEvents.push(...labEvents);
                       } else if (selectedLec) {
-                        alert(
-                          `Lab ${selectedLabSection} is not available for the selected lecture. Please choose a different lab or lecture.`,
-                        );
                         setIsAddingClass(false);
                         return;
                       }
