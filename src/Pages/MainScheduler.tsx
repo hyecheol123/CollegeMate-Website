@@ -23,6 +23,7 @@ import SchedulerTable from '../components/MainScheduler/SchedulerTable';
 import SchedulerTitle from '../components/MainScheduler/SchedulerTitle';
 import SimpleHeader from '../components/Mvp/SimpleHeader/SimpleHeader';
 import EditSchedulerPanel from '../components/MainScheduler/EditSchedulerPanel';
+import AppFooter from '../components/Common/AppFooter';
 // API and Utils
 import { getTerms } from '../data/Terms/getTerms';
 import { getCurrentTerm, getUpcomingTerms } from '../utils/termUtils';
@@ -463,7 +464,11 @@ function MainScheduler(): React.ReactElement {
   }
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+    <Box sx={{ 
+      display: 'flex', 
+      flexDirection: 'column',
+      minHeight: '100vh'
+    }}>
       <SimpleHeader />
       <SchedulerTitle
         onEditClick={handleEditToggle}
@@ -581,6 +586,7 @@ function MainScheduler(): React.ReactElement {
           <Box
             sx={{
               marginTop: '8px',
+              marginBottom: '32px',
               backgroundColor: 'white',
               padding: '0px 0',
               minHeight: '20px',
@@ -742,6 +748,7 @@ function MainScheduler(): React.ReactElement {
                   fontWeight: 'book',
                   color: '#494949',
                   marginTop: '8px',
+                  marginBottom: '32px',
                 }}
               >
                 {totalCreditsText}
@@ -874,6 +881,7 @@ function MainScheduler(): React.ReactElement {
                 fontWeight: 'book',
                 color: '#494949',
                 marginTop: '8px',
+                marginBottom: '32px',
               }}
             >
               {totalCreditsText}
@@ -888,6 +896,9 @@ function MainScheduler(): React.ReactElement {
           onSelectSize={(size) => setSelectedSize(size)}
         />
       )}
+      
+      {/* Footer */}
+      <AppFooter />
     </Box>
   );
 }
