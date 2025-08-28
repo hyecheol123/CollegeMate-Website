@@ -24,6 +24,7 @@ import SchedulerTitle from '../components/MainScheduler/SchedulerTitle';
 import SimpleHeader from '../components/Mvp/SimpleHeader/SimpleHeader';
 import EditSchedulerPanel from '../components/MainScheduler/EditSchedulerPanel';
 import AppFooter from '../components/Common/AppFooter';
+import GuidedTour from '../components/Common/GuidedTour';
 // API and Utils
 import { getTerms } from '../data/Terms/getTerms';
 import { getCurrentTerm, getUpcomingTerms } from '../utils/termUtils';
@@ -137,6 +138,7 @@ function MainScheduler(): React.ReactElement {
     width: number;
     height: number;
   }>({ width: 0, height: 0 });
+  const [showTour, setShowTour] = useState<boolean>(false);
 
   const handleEditToggle = (): void => {
     setIsEditMode((prev) => {
@@ -173,6 +175,27 @@ function MainScheduler(): React.ReactElement {
       return false; // Download failed
     }
   };
+
+  const handleTourComplete = (): void => {
+    localStorage.setItem('collegemate-tour-completed', 'true');
+    setShowTour(false);
+  };
+
+  const handleTourSkip = (): void => {
+    localStorage.setItem('collegemate-tour-completed', 'true');
+    setShowTour(false);
+  };
+
+  // Check if first visit and show tour
+  useEffect(() => {
+    const hasVisitedBefore = localStorage.getItem('collegemate-tour-completed');
+    if (!hasVisitedBefore) {
+      // Small delay to ensure page is fully loaded
+      setTimeout(() => {
+        setShowTour(true);
+      }, 1000);
+    }
+  }, []);
 
   // Load terms on component mount
   useEffect(() => {
@@ -464,11 +487,13 @@ function MainScheduler(): React.ReactElement {
   }
 
   return (
-    <Box sx={{ 
-      display: 'flex', 
-      flexDirection: 'column',
-      minHeight: '100vh'
-    }}>
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        minHeight: '100vh',
+      }}
+    >
       <SimpleHeader />
       <SchedulerTitle
         onEditClick={handleEditToggle}
@@ -896,9 +921,16 @@ function MainScheduler(): React.ReactElement {
           onSelectSize={(size) => setSelectedSize(size)}
         />
       )}
-      
+
       {/* Footer */}
       <AppFooter />
+      
+      {/* Guided Tour */}
+      <GuidedTour
+        isOpen={showTour}
+        onComplete={handleTourComplete}
+        onSkip={handleTourSkip}
+      />
     </Box>
   );
 }

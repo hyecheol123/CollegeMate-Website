@@ -203,6 +203,7 @@ function SchedulerTable({
         {/* start of the scheduler box */}
 
         <Box
+          id="scheduler-grid"
           sx={{
             display: 'grid',
             gridTemplateColumns: `${windowWidth < 300 ? '40px' : '45px'} repeat(${days.length}, 1fr)`,

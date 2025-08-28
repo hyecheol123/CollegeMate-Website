@@ -25,7 +25,7 @@ const footerContainerStyle = {
  */
 function AppFooter(): React.ReactElement {
   const currentYear = new Date().getFullYear();
-  
+
   return (
     <Box sx={footerContainerStyle}>
       <Box sx={{ textAlign: 'center' }}>
