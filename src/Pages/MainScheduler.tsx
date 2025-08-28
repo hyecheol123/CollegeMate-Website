@@ -152,7 +152,7 @@ function MainScheduler(): React.ReactElement {
               block: 'start',
             });
           }
-        }, 100);
+        }, 50);
       }
 
       return newEditMode;
