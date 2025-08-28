@@ -20,43 +20,7 @@ const WALLPAPER_CONFIG = {
   },
 };
 
-// Lockscreen clock safe zones (in pixels from top)
-const LOCKSCREEN_CLOCK_ZONES: Record<string, number> = {
-  // iPhone 16 series - Dynamic Island devices have larger clock
-  'iPhone 16 Pro Max': 500,
-  'iPhone 16 Pro': 480,
-  'iPhone 16 Plus': 490,
-  'iPhone 16': 460,
-
-  // Older iPhones with notch
-  'iPhone 13': 440,
-  'iPhone mini': 400,
-
-  // Samsung Galaxy - varies by model
-  'Galaxy S25 Ultra': 550,
-  'Galaxy S25+': 550,
-  'Galaxy S25': 500,
-  'Galaxy S24 Ultra': 550,
-  'Galaxy S24+': 550,
-  'Galaxy S24': 500,
-  'Galaxy Note 20': 500,
-
-  // Galaxy Z Flip series
-  'Galaxy Z Flip7': 520,
-  'Galaxy Z Flip6': 520,
-  'Galaxy Z Flip5': 520,
-
-  // iPad - smaller clock relative to screen
-  'iPad Pro 13-inch (M4)': 400,
-  'iPad Pro 11-inch (M4)': 380,
-  'iPad Air 13-inch (M2/M3)': 400,
-  'iPad Air 11-inch (M2/M3)': 380,
-  'iPad (10th gen, 10.9-inch)': 380,
-  'iPad mini (6th gen)': 350,
-
-  // Default fallback
-  'Auto-match for device': 450,
-};
+import { LOCKSCREEN_CLOCK_ZONES } from '../data/deviceSpecs';
 
 // Triggers the download of the canvas as an image
 const triggerDownload = (canvas: HTMLCanvasElement, fileName: string): void => {
@@ -169,7 +133,7 @@ const captureSchedule = async (
       const scaledClockZone =
         (clockZoneHeight / targetSize.height) * baseMobileHeight;
       const topPaddingBase = 40; // Extra padding below clock (20px more)
-      const bottomPaddingBase = 80; // Extra bottom padding (20px more)
+      const bottomPaddingBase = 60; // Extra bottom padding (20px more)
       const maxTableHeight =
         baseMobileHeight - scaledClockZone - topPaddingBase - bottomPaddingBase;
 
@@ -239,23 +203,28 @@ const captureSchedule = async (
       // Check if content fits within canvas
       const availableSpace = finalCanvas.height - clockZoneScaled;
       console.log('Available space below clock:', availableSpace);
-      console.log('Content + clock will end at:', clockZoneScaled + tempCanvas.height);
+      console.log(
+        'Content + clock will end at:',
+        clockZoneScaled + tempCanvas.height,
+      );
 
       // Calculate actual scaled width for proper centering
       // Check if scaling was applied by looking for transform in the element
       const wasScaled = element.style.transform.includes('scale');
       let actualContentWidth = tempCanvas.width;
-      
+
       if (wasScaled) {
         // Extract scale value from transform
         const scaleMatch = element.style.transform.match(/scale\(([^)]+)\)/);
         if (scaleMatch) {
           const scaleValue = parseFloat(scaleMatch[1]);
           actualContentWidth = tempCanvas.width * scaleValue;
-          console.log(`Content was scaled by ${scaleValue}, actual width: ${actualContentWidth}`);
+          console.log(
+            `Content was scaled by ${scaleValue}, actual width: ${actualContentWidth}`,
+          );
         }
       }
-      
+
       // Center based on actual scaled width
       const xOffset = (finalCanvas.width - actualContentWidth) / 2;
 
@@ -263,20 +232,26 @@ const captureSchedule = async (
       // Otherwise center it in available space
       let yOffset;
       if (tempCanvas.height > availableSpace * 0.9) {
-        // Too tall, position right after clock with extra padding (20px more)
-        yOffset = clockZoneScaled + 40 * scaleFactor;
-        console.log('Content too tall, positioning at top with extra padding');
+        // Too tall, position right after clock with minimal padding
+        yOffset = clockZoneScaled + 20 * scaleFactor;
+        console.log(
+          'Content too tall, positioning at top with minimal padding',
+        );
       } else {
-        // Fits well, center it with extra padding
-        const topMargin = clockZoneScaled + (availableSpace - tempCanvas.height) / 2;
-        const minTopPadding = clockZoneScaled + 60 * scaleFactor; // 20px more
+        // Fits well, center it
+        const topMargin =
+          clockZoneScaled + (availableSpace - tempCanvas.height) / 2;
+        const minTopPadding = clockZoneScaled + 40 * scaleFactor;
         yOffset = Math.max(minTopPadding, topMargin);
-        console.log('Content fits, centering with extra padding');
+        console.log('Content fits, centering');
       }
 
       console.log('Final positioning at:', xOffset, yOffset);
       console.log('Content will end at:', yOffset + tempCanvas.height);
-      console.log('Bottom margin:', finalCanvas.height - (yOffset + tempCanvas.height));
+      console.log(
+        'Bottom margin:',
+        finalCanvas.height - (yOffset + tempCanvas.height),
+      );
 
       // Draw the captured content centered
       ctx.drawImage(tempCanvas, xOffset, yOffset);
