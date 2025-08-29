@@ -1,7 +1,7 @@
 /**
  * API integration for UW-Madison enrollment terms
  * Uses Express.js proxy to handle CORS issues
- * @author Generated for CollegeMate
+ * @author Daekyun Kim <daekyun97@gmail.com>
  */
 
 export interface Term {

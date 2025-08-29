@@ -1,7 +1,7 @@
 /**
  * API integration for UW-Madison course details
  * Fetches detailed enrollment packages for specific courses
- * @author Generated for CollegeMate
+ * @author Daekyun Kim <daekyun97@gmail.com>
  */
 
 export interface CourseInstructor {

@@ -128,7 +128,7 @@ function EditSchedulerPanel({
   // Global scroll monitoring - temporarily disabled
   // React.useEffect(() => {
   //   const checkScrollPeriodically = (): void => {
-  //     const info = debugScrollState('Periodic Check');
+  //     const info = // debugScrollState('Periodic Check');
   //     if (info.bodyOverflow === 'hidden' || info.htmlOverflow === 'hidden') {
   //       console.warn('⚠️ SCROLL FROZEN DETECTED! Auto-fixing...');
   //       document.body.style.overflow = 'auto';
@@ -171,7 +171,6 @@ function EditSchedulerPanel({
   // Clear all cache on component mount
   React.useEffect(() => {
     console.log('EditSchedulerPanel 컴포넌트 마운트');
-    debugScrollState('컴포넌트 마운트 시점');
 
     Object.keys(localStorage).forEach((key) => {
       if (key.startsWith('uw_')) {
@@ -182,14 +181,14 @@ function EditSchedulerPanel({
     // Add window resize event listener for debugging
     const handleResize = (): void => {
       console.log('📱 윈도우 리사이즈 이벤트 발생');
-      debugScrollState('윈도우 리사이즈 시점');
+      // debugScrollState('윈도우 리사이즈 시점');
     };
 
     window.addEventListener('resize', handleResize);
 
     return (): void => {
       console.log('EditSchedulerPanel 컴포넌트 언마운트');
-      debugScrollState('컴포넌트 언마운트 시점');
+      // debugScrollState('컴포넌트 언마운트 시점');
       window.removeEventListener('resize', handleResize);
     };
   }, []);
@@ -211,12 +210,12 @@ function EditSchedulerPanel({
 
   // Safe auto-scroll to search results (mobile only)
   const scrollToSearchResults = React.useCallback((): void => {
-    console.log('자동 스크롤 시도 시작');
+    // console.log('자동 스크롤 시도 시작');
     if (resultsRef.current && isMobile) {
-      debugScrollState('자동 스크롤 실행 전');
+      // debugScrollState('자동 스크롤 실행 전');
 
       setTimeout(() => {
-        console.log('자동 스크롤 실행 중');
+        // console.log('자동 스크롤 실행 중');
         resultsRef.current?.scrollIntoView({
           behavior: 'smooth',
           block: 'start',
@@ -225,7 +224,7 @@ function EditSchedulerPanel({
 
         // Log scroll state after scrolling
         setTimeout(() => {
-          debugScrollState('자동 스크롤 실행 후');
+          // debugScrollState('자동 스크롤 실행 후');
         }, 500);
       }, 300); // Increased delay to be less jarring
     } else {
@@ -273,7 +272,7 @@ function EditSchedulerPanel({
   useEffect(() => {
     const performSearch = async (): Promise<void> => {
       console.log('검색 실행 시작 - 입력값:', searchInput);
-      debugScrollState('검색 시작 전');
+      // debugScrollState('검색 시작 전');
 
       if (!searchInput.trim() || !currentTerm) {
         console.log('검색 조건 불충족 - 검색 결과 초기화');
@@ -282,7 +281,7 @@ function EditSchedulerPanel({
       }
 
       if (searchInput.length < 2) {
-        console.log('검색어 너무 짧음 - 검색 중단');
+        // console.log('검색어 너무 짧음 - 검색 중단');
         return; // Don't search for very short queries
       }
 
@@ -307,7 +306,7 @@ function EditSchedulerPanel({
           !hasAutoScrolledOnce &&
           !isAddingClass
         ) {
-          console.log('자동 스크롤 트리거 조건 만족');
+          // console.log('자동 스크롤 트리거 조건 만족');
           scrollToSearchResults();
           setHasScrolledToResults(true);
           setHasAutoScrolledOnce(true); // Never auto-scroll again in this session
@@ -322,7 +321,7 @@ function EditSchedulerPanel({
           );
         }
 
-        debugScrollState('검색 완료 후');
+        // debugScrollState('검색 완료 후');
       } catch (error) {
         console.log('검색 에러 발생:', error);
         setSearchError(
@@ -352,14 +351,14 @@ function EditSchedulerPanel({
     event: React.ChangeEvent<HTMLInputElement>,
   ): void => {
     const newValue = event.target.value;
-    console.log('검색어 입력 변경 - 이전:', searchInput, '새값:', newValue);
-    debugScrollState('검색어 입력 변경 시점');
+    // console.log('검색어 입력 변경 - 이전:', searchInput, '새값:', newValue);
+    // debugScrollState('검색어 입력 변경 시점');
 
     setSearchInput(newValue);
 
     // Reset scroll flag when clearing input (but keep hasAutoScrolledOnce)
     if (newValue === '') {
-      console.log('검색어 초기화 - 스크롤 플래그 리셋');
+      // console.log('검색어 초기화 - 스크롤 플래그 리셋');
       setHasScrolledToResults(false);
     } else if (newValue !== searchInput) {
       console.log('새로운 검색어 입력 - 스크롤 플래그 리셋');
@@ -370,7 +369,7 @@ function EditSchedulerPanel({
   const loadCourseSections = React.useCallback(
     async (course: ClassSearchResult): Promise<void> => {
       console.log('코스 섹션 로딩 시도 - 코스ID:', course.courseId);
-      debugScrollState('코스 섹션 로딩 시작 전');
+      // debugScrollState('코스 섹션 로딩 시작 전');
 
       if (
         !currentTerm ||
@@ -391,11 +390,20 @@ function EditSchedulerPanel({
           course.courseId,
         );
         console.log('코스 섹션 API 호출 성공');
+        console.log('🔍 courseDetails raw data:', courseDetails);
+        console.log('📊 Number of sections returned:', courseDetails.length);
+        courseDetails.forEach((pkg, index) => {
+          console.log(`📋 Package ${index + 1}:`, {
+            id: pkg.id,
+            status: pkg.packageEnrollmentStatus?.status,
+            sections: pkg.sections?.map(s => ({ type: s.type, sectionNumber: s.sectionNumber }))
+          });
+        });
         setCourseSections((prev) => ({
           ...prev,
           [course.courseId]: courseDetails,
         }));
-        debugScrollState('코스 섹션 로딩 완료 후');
+        // debugScrollState('코스 섹션 로딩 완료 후');
       } catch (error) {
         console.log('코스 섹션 로딩 실패:', error);
         console.error('Failed to load course sections:', error);
@@ -541,8 +549,8 @@ function EditSchedulerPanel({
   };
 
   const handleCustomizeColor = (sectionId: string): void => {
-    console.log('컬러 모달 열기 시도');
-    debugScrollState('컬러 모달 열기 전');
+    // console.log('컬러 모달 열기 시도');
+    // debugScrollState('컬러 모달 열기 전');
     setSelectedClassId(sectionId);
     setColorModalOpen(true);
   };
@@ -554,7 +562,7 @@ function EditSchedulerPanel({
       '대기 이벤트 수:',
       pendingEvents.length,
     );
-    debugScrollState('충돌 해결 시작 전');
+    // debugScrollState('충돌 해결 시작 전');
 
     if (
       !keepExisting &&
@@ -609,7 +617,7 @@ function EditSchedulerPanel({
 
     // Reset modal state
     console.log('충돌 해결 모달 상태 리셋');
-    debugScrollState('충돌 해결 완료 후');
+    // debugScrollState('충돌 해결 완료 후');
     console.log('⚠️ 시간 충돌 모달 닫기');
     setIsConflictModalOpen(false);
     setPendingEvents([]);
@@ -632,8 +640,8 @@ function EditSchedulerPanel({
   };
 
   const handleColorModalClose = (): void => {
-    console.log('컬러 모달 닫기');
-    debugScrollState('컬러 모달 닫기 후');
+    // console.log('컬러 모달 닫기');
+    // debugScrollState('컬러 모달 닫기 후');
     setColorModalOpen(false);
     setSelectedClassId(null);
   };
@@ -643,7 +651,7 @@ function EditSchedulerPanel({
     lectureNumber: string,
   ): void => {
     console.log('렉처 선택 변경 - 코스ID:', courseId, '렉처:', lectureNumber);
-    debugScrollState('렉처 선택 변경 시점');
+    // debugScrollState('렉처 선택 변경 시점');
 
     setSelectedLecture((prev) => ({
       ...prev,
@@ -672,9 +680,10 @@ function EditSchedulerPanel({
     (sectionData as EnrollmentPackage[]).forEach(
       (enrollmentPackage: EnrollmentPackage) => {
         // Skip closed sections
-        if (enrollmentPackage.packageEnrollmentStatus?.status === 'CLOSED') {
-          return;
-        }
+        // Show all packages including CLOSED ones
+        // if (enrollmentPackage.packageEnrollmentStatus?.status === 'CLOSED') {
+        //   return;
+        // }
 
         enrollmentPackage.sections?.forEach((section: Section) => {
           // Include only LEC and other non-DIS, non-LAB section types as "lectures"
@@ -711,9 +720,10 @@ function EditSchedulerPanel({
       (sectionData as EnrollmentPackage[]).forEach(
         (enrollmentPackage: EnrollmentPackage) => {
           // Skip closed sections
-          if (enrollmentPackage.packageEnrollmentStatus?.status === 'CLOSED') {
-            return;
-          }
+          // Show all packages including CLOSED ones  
+          // if (enrollmentPackage.packageEnrollmentStatus?.status === 'CLOSED') {
+          //   return;
+          // }
 
           enrollmentPackage.sections?.forEach((section: Section) => {
             if (section.type === 'DIS') {
@@ -758,9 +768,10 @@ function EditSchedulerPanel({
     (sectionData as EnrollmentPackage[]).forEach(
       (enrollmentPackage: EnrollmentPackage) => {
         // Skip closed sections
-        if (enrollmentPackage.packageEnrollmentStatus?.status === 'CLOSED') {
-          return;
-        }
+        // Show all packages including CLOSED ones
+        // if (enrollmentPackage.packageEnrollmentStatus?.status === 'CLOSED') {
+        //   return;
+        // }
 
         // Check if this enrollmentPackage contains the selected lecture
         const hasSelectedLecture = enrollmentPackage.sections?.some(
@@ -809,9 +820,10 @@ function EditSchedulerPanel({
       (sectionData as EnrollmentPackage[]).forEach(
         (enrollmentPackage: EnrollmentPackage) => {
           // Skip closed sections
-          if (enrollmentPackage.packageEnrollmentStatus?.status === 'CLOSED') {
-            return;
-          }
+          // Show all packages including CLOSED ones  
+          // if (enrollmentPackage.packageEnrollmentStatus?.status === 'CLOSED') {
+          //   return;
+          // }
 
           enrollmentPackage.sections?.forEach((section: Section) => {
             if (section.type === 'LAB') {
@@ -873,9 +885,10 @@ function EditSchedulerPanel({
       (sectionData as EnrollmentPackage[]).forEach(
         (enrollmentPackage: EnrollmentPackage) => {
           // Skip closed sections
-          if (enrollmentPackage.packageEnrollmentStatus?.status === 'CLOSED') {
-            return;
-          }
+          // Show all packages including CLOSED ones  
+          // if (enrollmentPackage.packageEnrollmentStatus?.status === 'CLOSED') {
+          //   return;
+          // }
 
           enrollmentPackage.sections?.forEach((section: Section) => {
             if (section.type === 'LAB') {
@@ -909,9 +922,10 @@ function EditSchedulerPanel({
     (sectionData as EnrollmentPackage[]).forEach(
       (enrollmentPackage: EnrollmentPackage) => {
         // Skip closed sections
-        if (enrollmentPackage.packageEnrollmentStatus?.status === 'CLOSED') {
-          return;
-        }
+        // Show all packages including CLOSED ones
+        // if (enrollmentPackage.packageEnrollmentStatus?.status === 'CLOSED') {
+        //   return;
+        // }
 
         // Check if this enrollmentPackage contains the selected lecture
         const hasSelectedLecture = enrollmentPackage.sections?.some(
@@ -1101,19 +1115,19 @@ function EditSchedulerPanel({
       }}
       onMouseDown={() => {
         console.log('🖱️ 메인 컨테이너 마우스 다운');
-        debugScrollState('메인 컨테이너 마우스 다운 시점');
+        // debugScrollState('메인 컨테이너 마우스 다운 시점');
       }}
       onMouseUp={() => {
         console.log('🖱️ 메인 컨테이너 마우스 업');
-        debugScrollState('메인 컨테이너 마우스 업 시점');
+        // debugScrollState('메인 컨테이너 마우스 업 시점');
       }}
       onTouchStart={() => {
         console.log('👆 메인 컨테이너 터치 시작');
-        debugScrollState('메인 컨테이너 터치 시작 시점');
+        // debugScrollState('메인 컨테이너 터치 시작 시점');
       }}
       onTouchEnd={() => {
         console.log('👆 메인 컨테이너 터치 종료');
-        debugScrollState('메인 컨테이너 터치 종료 시점');
+        // debugScrollState('메인 컨테이너 터치 종료 시점');
       }}
     >
       {/* Panel Title */}
@@ -1144,11 +1158,11 @@ function EditSchedulerPanel({
         onChange={handleSearchChange}
         onFocus={() => {
           console.log('🔍 검색 입력칸 포커스 가져옴');
-          debugScrollState('검색 입력칸 포커스 시점');
+          // debugScrollState('검색 입력칸 포커스 시점');
         }}
         onBlur={() => {
           console.log('🔍 검색 입력칸 포커스 잃어버림');
-          debugScrollState('검색 입력칸 포커스 잃실 시점');
+          // debugScrollState('검색 입력칸 포커스 잃실 시점');
         }}
         size={isMobile ? 'small' : 'medium'}
         sx={{
@@ -1246,7 +1260,7 @@ function EditSchedulerPanel({
                   }}
                   onClick={() => {
                     console.log('🎯 클래스 정보 박스 클릭:', course.title);
-                    debugScrollState('클래스 정보 박스 클릭 시점');
+                    // debugScrollState('클래스 정보 박스 클릭 시점');
                     loadCourseSections(course);
                   }}
                 >
@@ -1514,7 +1528,7 @@ function EditSchedulerPanel({
                           course.title,
                           e.target.value,
                         );
-                        debugScrollState('토론반 드롭다운 변경 시점');
+                        // debugScrollState('토론반 드롭다운 변경 시점');
                         setSelectedDiscussion((prev) => ({
                           ...prev,
                           [course.courseId]: e.target.value,
@@ -1730,7 +1744,7 @@ function EditSchedulerPanel({
                           course.title,
                           e.target.value,
                         );
-                        debugScrollState('실습반 드롭다운 변경 시점');
+                        // debugScrollState('실습반 드롭다운 변경 시점');
                         setSelectedLab((prev) => ({
                           ...prev,
                           [course.courseId]: e.target.value,
@@ -1956,7 +1970,7 @@ function EditSchedulerPanel({
                   }}
                   onClick={async () => {
                     console.log('클래스 추가 버튼 클릭');
-                    debugScrollState('클래스 추가 시작 전');
+                    // debugScrollState('클래스 추가 시작 전');
 
                     // Set adding state to prevent auto-scroll interference
                     setIsAddingClass(true);
@@ -2152,7 +2166,7 @@ function EditSchedulerPanel({
 
                     // Reset adding state
                     console.log('클래스 추가 완료 - 상태 리셋');
-                    debugScrollState('클래스 추가 완료 후');
+                    // debugScrollState('클래스 추가 완료 후');
                     setIsAddingClass(false);
                   }}
                 >
