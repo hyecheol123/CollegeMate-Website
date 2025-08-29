@@ -138,6 +138,7 @@ function MainScheduler(): React.ReactElement {
     width: number;
     height: number;
   }>({ width: 0, height: 0 });
+  const [selectedDevice, setSelectedDevice] = useState<string>('');
   const [showTour, setShowTour] = useState<boolean>(false);
 
   const handleEditToggle = (): void => {
@@ -161,14 +162,29 @@ function MainScheduler(): React.ReactElement {
     });
   };
 
-  const handleDownload = async (): Promise<boolean> => {
+  const handleDownload = async (
+    type: 'image' | 'wallpaper',
+  ): Promise<boolean> => {
     try {
-      await downloadScheduleAsWallpaper({
-        schedulerRef,
-        selectedSize,
-      });
-      // Reset selectedSize after successful download
+      if (type === 'image') {
+        // Force image download with no size constraints
+        await downloadScheduleAsWallpaper({
+          schedulerRef,
+          selectedSize: { width: 0, height: 0 },
+          selectedDevice: '',
+        });
+      } else {
+        // Use current selected size and device for wallpaper
+        await downloadScheduleAsWallpaper({
+          schedulerRef,
+          selectedSize,
+          selectedDevice,
+        });
+      }
+
+      // Reset selectedSize and device after successful download
       setSelectedSize({ width: 0, height: 0 });
+      setSelectedDevice('');
       return true; // Download succeeded
     } catch (error) {
       console.error('Download failed:', error);
@@ -918,7 +934,10 @@ function MainScheduler(): React.ReactElement {
         <DownloadPopup
           onClose={() => setIsDownloadOpen(false)}
           onDownload={handleDownload}
-          onSelectSize={(size) => setSelectedSize(size)}
+          onSelectSize={(size, device) => {
+            setSelectedSize(size);
+            setSelectedDevice(device);
+          }}
         />
       )}
 

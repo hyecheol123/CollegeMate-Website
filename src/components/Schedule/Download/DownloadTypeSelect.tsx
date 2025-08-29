@@ -37,7 +37,10 @@ export default function DownloadTypeSelect({
           },
         ]}
       />
-      <PopupHelperText text="Wallpaper dimension differs depend on phone model." />
+      <PopupHelperText
+        text="
+            The wallpaper download may have some margins as it includes the clock part at the top."
+      />
     </>
   );
 }
