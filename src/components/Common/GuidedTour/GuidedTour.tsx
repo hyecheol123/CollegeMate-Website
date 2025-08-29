@@ -24,7 +24,8 @@ const tourSteps: TourStep[] = [
   {
     target: 'scheduler-table',
     title: '',
-    content: 'Customize your schedule with different colors and quickly check your schedule on the go!',
+    content:
+      'Customize your schedule with different colors and quickly check your schedule on the go!',
     position: 'top',
   },
   {
@@ -76,6 +77,8 @@ function GuidedTour({
 }: GuidedTourProps): React.ReactElement | null {
   const [currentStep, setCurrentStep] = useState(0);
   const [targetElement, setTargetElement] = useState<HTMLElement | null>(null);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [, forceUpdate] = useState({});
 
   useEffect(() => {
     if (isOpen && currentStep < tourSteps.length) {
@@ -108,36 +111,56 @@ function GuidedTour({
     }
   }, [isOpen, currentStep]);
 
+  // Simple scroll handler to update spotlight position
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleScroll = (): void => {
+      forceUpdate({});
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return (): void => window.removeEventListener('scroll', handleScroll);
+  }, [isOpen]);
+
   const handleNext = (): void => {
-    // Clear target element first to prevent flickering
-    setTargetElement(null);
-    
+    if (isTransitioning) return;
+
+    setIsTransitioning(true);
+
     if (currentStep < tourSteps.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
       onComplete();
     }
+
+    // Reset transition state after a brief delay
+    setTimeout((): void => setIsTransitioning(false), 100);
   };
 
   const handlePrevious = (): void => {
-    // Clear target element first to prevent flickering
-    setTargetElement(null);
-    
+    if (isTransitioning) return;
+
+    setIsTransitioning(true);
+
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1);
     }
+
+    // Reset transition state after a brief delay
+    setTimeout((): void => setIsTransitioning(false), 100);
   };
 
-  const getSpotlightOverlays = () => {
+  const getSpotlightOverlays = (): Array<Record<string, unknown>> => {
     if (!targetElement) return [];
-    
+
     const rect = targetElement.getBoundingClientRect();
-    
+
     // Check if this is the scheduler table step (step 1, index 1)
     if (currentStep === 1) {
-      // Rectangular spotlight for scheduler table with 2px padding
-      const padding = 2;
-      
+      // Rectangular spotlight for scheduler table with slight padding to account for rounded corners
+      const padding = 1; // Small padding to slightly cover rounded corners naturally
+
       return [
         // Top overlay
         {
@@ -150,7 +173,7 @@ function GuidedTour({
           zIndex: 9998,
           pointerEvents: 'none' as const,
         },
-        // Bottom overlay  
+        // Bottom overlay
         {
           position: 'fixed' as const,
           bottom: 0,
@@ -188,8 +211,8 @@ function GuidedTour({
       // Circular spotlight for buttons (edit, download)
       const centerX = rect.left + rect.width / 2;
       const centerY = rect.top + rect.height / 2;
-      const radius = Math.max(rect.width, rect.height) / 2 + 2; // 2px padding for circular spotlight
-      
+      const radius = Math.max(rect.width, rect.height) / 2 - 2; // Negative padding for much tighter fit
+
       return [
         {
           position: 'fixed' as const,
@@ -218,14 +241,27 @@ function GuidedTour({
             70% { box-shadow: 0 0 0 10px rgba(178, 0, 0, 0); }
             100% { box-shadow: 0 0 0 0 rgba(178, 0, 0, 0); }
           }
+          
+          .spotlight-overlay {
+            transition: opacity 0.15s ease-in-out;
+          }
+          
+          .spotlight-overlay.transitioning {
+            opacity: 0;
+          }
         `}
       </style>
 
       <Box sx={overlayStyle}>
         {/* Spotlight overlays - darkens everything except target */}
-        {targetElement && getSpotlightOverlays().map((overlayStyle, index) => (
-          <Box key={index} sx={overlayStyle} />
-        ))}
+        {targetElement &&
+          getSpotlightOverlays().map((overlayStyle, index) => (
+            <Box
+              key={`${currentStep}-${index}`}
+              className={`spotlight-overlay ${isTransitioning ? 'transitioning' : ''}`}
+              sx={overlayStyle}
+            />
+          ))}
 
         {/* Tooltip */}
         <Paper
@@ -254,17 +290,17 @@ function GuidedTour({
               },
             }}
           >
-            <svg 
-              width="11.87" 
-              height="11.87" 
-              viewBox="0 0 13 13" 
-              fill="none" 
+            <svg
+              width="11.87"
+              height="11.87"
+              viewBox="0 0 13 13"
+              fill="none"
               xmlns="http://www.w3.org/2000/svg"
             >
-              <path 
-                fillRule="evenodd" 
-                clipRule="evenodd" 
-                d="M12.4585 1.84735C12.7579 1.54795 12.7579 1.06252 12.4585 0.763124C12.1591 0.463724 11.6737 0.463724 11.3743 0.763124L6.74974 5.38768L2.1252 0.763124C1.82578 0.463724 1.34036 0.463724 1.04096 0.763124C0.741556 1.06252 0.741556 1.54795 1.04096 1.84735L5.66552 6.47191L1.04096 11.0965C0.741556 11.3959 0.741556 11.8813 1.04096 12.1807C1.34036 12.4801 1.82578 12.4801 2.1252 12.1807L6.74974 7.55614L11.3743 12.1807C11.6737 12.4801 12.1591 12.4801 12.4585 12.1807C12.7579 11.8813 12.7579 11.3959 12.4585 11.0965L7.83397 6.47191L12.4585 1.84735Z" 
+              <path
+                fillRule="evenodd"
+                clipRule="evenodd"
+                d="M12.4585 1.84735C12.7579 1.54795 12.7579 1.06252 12.4585 0.763124C12.1591 0.463724 11.6737 0.463724 11.3743 0.763124L6.74974 5.38768L2.1252 0.763124C1.82578 0.463724 1.34036 0.463724 1.04096 0.763124C0.741556 1.06252 0.741556 1.54795 1.04096 1.84735L5.66552 6.47191L1.04096 11.0965C0.741556 11.3959 0.741556 11.8813 1.04096 12.1807C1.34036 12.4801 1.82578 12.4801 2.1252 12.1807L6.74974 7.55614L11.3743 12.1807C11.6737 12.4801 12.1591 12.4801 12.4585 12.1807C12.7579 11.8813 12.7579 11.3959 12.4585 11.0965L7.83397 6.47191L12.4585 1.84735Z"
                 fill="#494949"
               />
             </svg>
@@ -319,25 +355,10 @@ function GuidedTour({
               paddingRight: '8px',
             }}
           >
-
             <Box sx={{ display: 'flex' }}>
-              {currentStep > 0 ? (
+              {currentStep > 0 && (
                 <Button
                   onClick={handlePrevious}
-                  sx={{
-                    color: 'darkGrey.main',
-                    fontSize: '16px',
-                    fontWeight: 500,
-                    minWidth: 'auto',
-                    padding: '6px 24px',
-                    textTransform: 'none',
-                  }}
-                >
-                  Back
-                </Button>
-              ) : (
-                <Button
-                  onClick={onSkip}
                   sx={{
                     color: 'darkGrey.main',
                     fontSize: '16px',
@@ -367,7 +388,7 @@ function GuidedTour({
                   },
                 }}
               >
-                {currentStep < tourSteps.length - 1 ? 'Next' : 'Got it!'}
+                {currentStep < tourSteps.length - 1 ? 'Next' : 'Close'}
               </Button>
             </Box>
           </Box>
