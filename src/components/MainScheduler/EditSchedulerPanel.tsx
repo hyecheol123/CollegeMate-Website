@@ -868,12 +868,12 @@ function EditSchedulerPanel({
 
     // Case 1: Only Discussion selected but Lectures exist (need Lecture)
     if (selectedDisc && !selectedLec && lectureOptions.length > 0) {
-      return 'Please select Lecture';
+      return 'Please select lecture';
     }
 
     // Case 2: Only Lab selected but Lectures exist (need Lecture)
     if (selectedLabSection && !selectedLec && lectureOptions.length > 0) {
-      return 'Please select Lecture';
+      return 'Please select lecture';
     }
 
     // Case 3: Only Lecture selected but Discussion available (need Discussion)
@@ -884,7 +884,7 @@ function EditSchedulerPanel({
       discussionOptions.length > 0 &&
       labOptions.length === 0
     ) {
-      return 'Please select Discussion';
+      return 'Please select discussion';
     }
 
     // Case 4: Only Lecture selected but Lab available (need Lab)
@@ -895,7 +895,7 @@ function EditSchedulerPanel({
       labOptions.length > 0 &&
       discussionOptions.length === 0
     ) {
-      return 'Please select Lab';
+      return 'Please select lab';
     }
 
     // Case 5: Only Lecture selected but both Discussion and Lab available (need both)
@@ -906,7 +906,7 @@ function EditSchedulerPanel({
       discussionOptions.length > 0 &&
       labOptions.length > 0
     ) {
-      return 'Please select Discussion and Lab';
+      return 'Please select discussion and lab';
     }
 
     // Case 6: Lecture + Discussion selected but Lab missing (when Lab is available)
@@ -916,7 +916,7 @@ function EditSchedulerPanel({
       !selectedLabSection &&
       labOptions.length > 0
     ) {
-      return 'Please select Lab';
+      return 'Please select lab';
     }
 
     // Case 7: Lecture + Lab selected but Discussion missing (when Discussion is available)
@@ -926,7 +926,7 @@ function EditSchedulerPanel({
       selectedLabSection &&
       discussionOptions.length > 0
     ) {
-      return 'Please select Discussion';
+      return 'Please select discussion';
     }
 
     return null; // All good
@@ -1078,17 +1078,10 @@ function EditSchedulerPanel({
                     padding: '16px',
                     borderRadius: '4px',
                     minHeight: '120px',
-                    cursor: 'pointer',
                     border: '1px solid',
                     borderColor: 'grey.main',
                     display: 'flex',
                     flexDirection: 'column',
-                    '&:hover': {
-                      backgroundColor: 'grey.main',
-                    },
-                  }}
-                  onClick={() => {
-                    loadCourseSections(course);
                   }}
                 >
                   <Typography
@@ -1198,7 +1191,7 @@ function EditSchedulerPanel({
                         >
                           {loadingSections[course.courseId]
                             ? 'Loading sections...'
-                            : 'Select section'}
+                            : 'Select Section'}
                         </Typography>
                       </MenuItem>
                       {getLectureOptions(course).map((lecture) => {
@@ -1435,7 +1428,7 @@ function EditSchedulerPanel({
                           {loadingSections[course.courseId]
                             ? 'Loading discussions...'
                             : selectedLecture[course.courseId]
-                              ? 'Select discussion for this section'
+                              ? 'Select Discussion for this section'
                               : 'Select Discussion'}
                         </Typography>
                       </MenuItem>
@@ -1624,10 +1617,10 @@ function EditSchedulerPanel({
                           {loadingSections[course.courseId]
                             ? 'Loading labs...'
                             : selectedLecture[course.courseId]
-                              ? 'Select lab for this section'
+                              ? 'Select Lab for this section'
                               : getLectureOptions(course).length === 0
-                                ? 'Select lab'
-                                : 'Select section first or choose any lab'}
+                                ? 'Select Lab'
+                                : 'Select Lab'}
                         </Typography>
                       </MenuItem>
                       {getLabOptions(

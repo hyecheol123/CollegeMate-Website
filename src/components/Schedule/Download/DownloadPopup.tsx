@@ -40,7 +40,7 @@ export default function DownloadPopup({
 }: DownloadPopupProps): React.ReactElement {
   const [view, setView] = useState<DownloadView>('type');
   const [downloadType, setDownloadType] = useState<DownloadType>('image');
-  const [device, setDevice] = useState<string>('Auto-match for device');
+  const [device, setDevice] = useState<string>('');
 
   const handleTypeSelect = (type: DownloadType): void => {
     setDownloadType(type);

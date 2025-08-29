@@ -46,19 +46,23 @@ export default function DownloadDeviceSelect({
         items={DEVICE_OPTIONS}
         value={value}
         onChange={handleChange}
+        placeholder="Select Device"
       />
       <PopupButton
         buttons={[
           {
             label: 'Download',
             variant: 'contained',
-            backgroundColor: 'red.main',
+            backgroundColor: value ? 'red.main' : 'grey.main',
             textColor: 'white.main',
+            disabled: !value,
             onClick: (): void => {
+              if (!value) return;
+
               const selected = value;
               const dpr = window.devicePixelRatio || 1;
               const size =
-                value === 'Auto-match for device'
+                value === 'Auto-match for your device'
                   ? ({
                       width: Math.round(window.innerWidth * dpr),
                       height: Math.round(window.innerHeight * dpr),

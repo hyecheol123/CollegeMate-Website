@@ -267,7 +267,7 @@ export const DEVICE_SPECS: Record<string, DeviceSpec> = {
   },
 
   // Auto-match fallback
-  'Auto-match for device': {
+  'Auto-match for your device': {
     width: 1179,
     height: 2556,
     clockZone: 450,
@@ -277,8 +277,6 @@ export const DEVICE_SPECS: Record<string, DeviceSpec> = {
 
 // Generate device options list from specs
 export const DEVICE_OPTIONS: string[] = [
-  'Auto-match for device',
-
   // iPhone 16 series
   'iPhone 16 Pro Max',
   'iPhone 16 Pro',
@@ -342,6 +340,9 @@ export const DEVICE_OPTIONS: string[] = [
   'iPad Air 11-inch (M2/M3)',
   'iPad (10th gen, 10.9-inch)',
   'iPad mini (6th gen)',
+
+  // Auto-match for device (at the bottom)
+  'Auto-match for your device',
 ];
 
 // Legacy compatibility - extract dimensions only
