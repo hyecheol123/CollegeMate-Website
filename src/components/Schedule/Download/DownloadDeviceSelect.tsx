@@ -76,7 +76,7 @@ export default function DownloadDeviceSelect({
       />
       <PopupHelperText
         text={
-          'The wallpaper download may have some margins as it includes the clock part at the top.'
+          'Wallpaper schedule has a gap at the top to make space for time and widgets.'
         }
       />
     </>
