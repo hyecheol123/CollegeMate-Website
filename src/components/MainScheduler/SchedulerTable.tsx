@@ -444,21 +444,35 @@ function SchedulerTable({
                         variant={isMobile ? 'body2' : 'body3'}
                         align="center"
                         sx={{
-                          fontSize: isMobile
-                            ? event.location.length > 30
-                              ? '5px'
-                              : event.location.length > 20
-                                ? '6px'
-                                : event.location.length > 12
-                                  ? '7px'
-                                  : '8px'
-                            : '12px', // Slightly smaller than body3 for location on desktop
+                          fontSize: isMobile ? '7px' : '12px',
                           opacity: 0.8,
                           whiteSpace: 'normal',
                           overflow: 'visible',
                           width: '100%',
                           marginTop: '1px',
-                          lineHeight: isMobile ? '1.2' : '1.2',
+                          lineHeight: isMobile
+                            ? ((): string => {
+                                const duration =
+                                  (event.endTime.hour - event.startTime.hour) *
+                                    60 +
+                                  (event.endTime.minute -
+                                    event.startTime.minute);
+
+                                // 1시간 이상이면 무조건 1.2
+                                if (duration >= 60) {
+                                  return '1.2';
+                                }
+
+                                // 1시간 미만인 경우 location 길이로 판단
+                                if (event.location.length > 35) {
+                                  return '0.8'; // 매우 긴 location
+                                } else if (event.location.length > 25) {
+                                  return '1.0'; // 긴 location
+                                }
+
+                                return '1.2'; // 짧은 location
+                              })()
+                            : '1.2',
                           color: getTextColor(event.color),
                           textAlign: 'center',
                           margin: '1px auto 0',
