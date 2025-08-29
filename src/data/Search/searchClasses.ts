@@ -1,7 +1,7 @@
 /**
  * API integration for UW-Madison class search
  * Uses Express.js proxy to handle CORS issues
- * @author Generated for CollegeMate
+ * @author Daekyun Kim <daekyun97@gmail.com>
  */
 
 export interface ClassSearchResult {
@@ -66,7 +66,8 @@ export async function searchClasses(
                     must: [
                       {
                         match: {
-                          'packageEnrollmentStatus.status': 'OPEN WAITLISTED',
+                          'packageEnrollmentStatus.status':
+                            'OPEN WAITLISTED CLOSED',
                         },
                       },
                       {

@@ -70,7 +70,7 @@ export default function DownloadLoading({
         bottom: 0,
         width: '100vw',
         height: '100vh',
-        backgroundColor: 'rgba(255, 255, 255, 0.98)',
+        backgroundColor: 'rgba(255, 255, 255, 1)',
         zIndex: 9999,
         display: 'flex',
         flexDirection: 'column',

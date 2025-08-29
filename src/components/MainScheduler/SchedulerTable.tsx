@@ -139,12 +139,26 @@ function SchedulerTable({
   };
 
   const { minHour, maxHour } = useMemo(() => {
+    const MIN_DISPLAY_HOURS = 8;
     let min = 9;
     let max = 17;
-    myEvents.forEach((event) => {
-      min = Math.min(min, event.startTime.hour);
-      max = Math.max(max, event.endTime.hour);
-    });
+
+    if (myEvents.length > 0) {
+      min = Math.min(...myEvents.map((event) => event.startTime.hour));
+      max = Math.max(...myEvents.map((event) => event.endTime.hour));
+
+      const currentRange = max - min;
+      if (currentRange < MIN_DISPLAY_HOURS) {
+        const expandBy = Math.floor((MIN_DISPLAY_HOURS - currentRange) / 2);
+        min = Math.max(0, min - expandBy);
+        max = Math.min(23, max + (MIN_DISPLAY_HOURS - (max - min)));
+
+        if (max - min < MIN_DISPLAY_HOURS) {
+          min = Math.max(0, max - MIN_DISPLAY_HOURS);
+        }
+      }
+    }
+
     return { minHour: min, maxHour: max };
   }, [myEvents]);
 
@@ -206,7 +220,7 @@ function SchedulerTable({
           id="scheduler-grid"
           sx={{
             display: 'grid',
-            gridTemplateColumns: `${windowWidth < 300 ? '40px' : '45px'} repeat(${days.length}, 1fr)`,
+            gridTemplateColumns: `${windowWidth < 300 ? '30px' : '32px'} repeat(${days.length}, 1fr)`,
             gridTemplateRows: `40px repeat(${(maxHour - minHour + 1) * 12}, 5px)`,
             width: '100%',
             height: `${40 + (maxHour - minHour + 1) * 60}px`,
@@ -222,7 +236,7 @@ function SchedulerTable({
               gridColumn: '1 / -1',
               gridRow: '1',
               display: 'grid',
-              gridTemplateColumns: `${windowWidth < 300 ? '40px' : '45px'} repeat(${days.length}, 1fr)`,
+              gridTemplateColumns: `${windowWidth < 300 ? '30px' : '32px'} repeat(${days.length}, 1fr)`,
               bgcolor: 'red.main',
               alignItems: 'stretch',
               borderRadius: '4px 4px 0 0',
@@ -261,15 +275,23 @@ function SchedulerTable({
           <Box
             sx={{
               gridColumn: '1',
-              gridRow: '2 / -1',
+              gridRow: '1 / -1',
               bgcolor: 'red.main',
               display: 'flex',
               flexDirection: 'column',
-              borderRadius: '0 0 0 4px',
+              borderRadius: '4px 0 0 4px',
               position: 'relative',
-              overflow: 'hidden',
+              overflow: 'visible',
             }}
           >
+            <Box
+              sx={{
+                height: '40px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            ></Box>
             {majorHours.map((hourLabel, hourIndex) => {
               return (
                 <Box
@@ -280,7 +302,7 @@ function SchedulerTable({
                     alignItems: 'center',
                     justifyContent: 'center',
                     position: 'relative',
-                    top: '-24px',
+                    top: '-30px',
                   }}
                 >
                   <Typography variant="body2" color="white.main" align="center">
@@ -316,6 +338,8 @@ function SchedulerTable({
                       gridRow: gridRowStart,
                       backgroundColor: hourColor,
                       minHeight: '5px',
+                      outline: `1px solid ${hourColor}`,
+                      outlineOffset: '-1px',
                       ...(isBottomRightCorner && {
                         borderRadius: '0 0 4px 0',
                       }),

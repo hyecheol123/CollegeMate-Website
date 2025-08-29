@@ -1,6 +1,7 @@
 /**
  * Device specifications for wallpaper generation
  * Contains display dimensions and clock safe zones for various mobile devices
+ * @author Daekyun Kim <daekyun97@gmail.com>
  */
 
 export interface DeviceSpec {
