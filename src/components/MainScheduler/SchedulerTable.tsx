@@ -275,15 +275,24 @@ function SchedulerTable({
           <Box
             sx={{
               gridColumn: '1',
-              gridRow: '2 / -1',
+              gridRow: '1 / -1',
               bgcolor: 'red.main',
               display: 'flex',
               flexDirection: 'column',
-              borderRadius: '0 0 0 4px',
+              borderRadius: '4px 0 0 4px',
               position: 'relative',
               overflow: 'visible',
             }}
           >
+            <Box
+              sx={{
+                height: '40px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+            </Box>
             {majorHours.map((hourLabel, hourIndex) => {
               return (
                 <Box
@@ -330,6 +339,8 @@ function SchedulerTable({
                       gridRow: gridRowStart,
                       backgroundColor: hourColor,
                       minHeight: '5px',
+                      outline: `1px solid ${hourColor}`,
+                      outlineOffset: '-1px',
                       ...(isBottomRightCorner && {
                         borderRadius: '0 0 4px 0',
                       }),
