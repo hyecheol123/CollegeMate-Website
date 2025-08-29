@@ -86,7 +86,7 @@ export async function searchClasses(
     ],
   };
 
-  const response = await fetch('/api/search', {
+  const response = await fetch('https://api.collegemate.app/api/search', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
