@@ -868,12 +868,12 @@ function EditSchedulerPanel({
 
     // Case 1: Only Discussion selected but Lectures exist (need Lecture)
     if (selectedDisc && !selectedLec && lectureOptions.length > 0) {
-      return 'Please Select Lecture';
+      return 'Please select lecture';
     }
 
     // Case 2: Only Lab selected but Lectures exist (need Lecture)
     if (selectedLabSection && !selectedLec && lectureOptions.length > 0) {
-      return 'Please Select Lecture';
+      return 'Please select lecture';
     }
 
     // Case 3: Only Lecture selected but Discussion available (need Discussion)
@@ -884,7 +884,7 @@ function EditSchedulerPanel({
       discussionOptions.length > 0 &&
       labOptions.length === 0
     ) {
-      return 'Please Select Discussion';
+      return 'Please select discussion';
     }
 
     // Case 4: Only Lecture selected but Lab available (need Lab)
@@ -895,7 +895,7 @@ function EditSchedulerPanel({
       labOptions.length > 0 &&
       discussionOptions.length === 0
     ) {
-      return 'Please Select Lab';
+      return 'Please select lab';
     }
 
     // Case 5: Only Lecture selected but both Discussion and Lab available (need both)
@@ -906,7 +906,7 @@ function EditSchedulerPanel({
       discussionOptions.length > 0 &&
       labOptions.length > 0
     ) {
-      return 'Please Select Discussion and Lab';
+      return 'Please select discussion and lab';
     }
 
     // Case 6: Lecture + Discussion selected but Lab missing (when Lab is available)
@@ -916,7 +916,7 @@ function EditSchedulerPanel({
       !selectedLabSection &&
       labOptions.length > 0
     ) {
-      return 'Please Select Lab';
+      return 'Please select lab';
     }
 
     // Case 7: Lecture + Lab selected but Discussion missing (when Discussion is available)
@@ -926,7 +926,7 @@ function EditSchedulerPanel({
       selectedLabSection &&
       discussionOptions.length > 0
     ) {
-      return 'Please Select Discussion';
+      return 'Please select discussion';
     }
 
     return null; // All good

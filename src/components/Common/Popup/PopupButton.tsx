@@ -12,6 +12,7 @@ interface PopupButton {
   backgroundColor?: string;
   textColor?: string;
   variant?: 'text' | 'outlined' | 'contained';
+  disabled?: boolean;
   onClick?: () => void;
 }
 
@@ -35,6 +36,7 @@ export default function PopupButton({
     backgroundColor: 'white.main',
     variant: 'outlined',
     textColor: 'darkGrey.main',
+    disabled: false,
     onClick: () => {},
   };
   return (
@@ -46,6 +48,7 @@ export default function PopupButton({
             key={idx}
             variant={merged.variant}
             onClick={merged.onClick}
+            disabled={merged.disabled}
             fullWidth
             sx={{
               color: merged.textColor,
