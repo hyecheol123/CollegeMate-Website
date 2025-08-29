@@ -17,22 +17,21 @@ interface TourStep {
 const tourSteps: TourStep[] = [
   {
     target: 'edit-button',
-    title: 'Edit Your Schedule',
-    content: 'Click here to add or remove classes from your schedule.',
-    position: 'bottom',
-  },
-  {
-    target: 'download-button',
-    title: 'Save as Image',
-    content: 'Download your schedule as a wallpaper for your phone!',
+    title: '',
+    content: 'Search classes. Add or remove them as needed!',
     position: 'bottom',
   },
   {
     target: 'scheduler-table',
-    title: 'Your Classes',
-    content:
-      'Your schedule will appear here. Colors help you identify different courses.',
+    title: '',
+    content: 'Customize your schedule with different colors and quickly check your schedule on the go!',
     position: 'top',
+  },
+  {
+    target: 'download-button',
+    title: '',
+    content: 'Download your schedule that perfectly fits your phone screen!',
+    position: 'bottom',
   },
 ];
 
@@ -57,8 +56,10 @@ const overlayStyle = {
 
 const tooltipStyle = {
   backgroundColor: 'white.main',
-  borderRadius: '8px',
+  borderRadius: '4px',
   padding: '20px',
+  width: '300px',
+  minWidth: '300px',
   maxWidth: '300px',
   boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
 };
@@ -164,26 +165,79 @@ function GuidedTour({
         <Paper
           sx={{
             ...tooltipStyle,
+            position: 'relative',
           }}
         >
-          <Typography
-            variant="h3"
+          {/* Close button with X icon */}
+          <Box
+            onClick={onSkip}
             sx={{
-              color: 'red.main',
-              fontWeight: 'bold',
-              marginBottom: '8px',
-              fontSize: '18px', // Override h3 size to be smaller like h6
+              position: 'absolute',
+              top: '12px',
+              right: '12px',
+              width: '24px',
+              height: '24px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              '&:hover': {
+                backgroundColor: 'rgba(0, 0, 0, 0.05)',
+                borderRadius: '50%',
+              },
             }}
           >
-            {step.title}
+            <svg 
+              width="11.87" 
+              height="11.87" 
+              viewBox="0 0 13 13" 
+              fill="none" 
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path 
+                fillRule="evenodd" 
+                clipRule="evenodd" 
+                d="M12.4585 1.84735C12.7579 1.54795 12.7579 1.06252 12.4585 0.763124C12.1591 0.463724 11.6737 0.463724 11.3743 0.763124L6.74974 5.38768L2.1252 0.763124C1.82578 0.463724 1.34036 0.463724 1.04096 0.763124C0.741556 1.06252 0.741556 1.54795 1.04096 1.84735L5.66552 6.47191L1.04096 11.0965C0.741556 11.3959 0.741556 11.8813 1.04096 12.1807C1.34036 12.4801 1.82578 12.4801 2.1252 12.1807L6.74974 7.55614L11.3743 12.1807C11.6737 12.4801 12.1591 12.4801 12.4585 12.1807C12.7579 11.8813 12.7579 11.3959 12.4585 11.0965L7.83397 6.47191L12.4585 1.84735Z" 
+                fill="#494949"
+              />
+            </svg>
+          </Box>
+
+          {/* Step indicator at top center */}
+          <Typography
+            variant="body3"
+            sx={{
+              color: '#C0C0C0',
+              textAlign: 'center',
+              width: '100%',
+              display: 'block',
+              marginBottom: '16px',
+            }}
+          >
+            {currentStep + 1} of {tourSteps.length}
           </Typography>
 
+          {step.title && (
+            <Typography
+              variant="h3"
+              sx={{
+                color: 'red.main',
+                fontWeight: 'bold',
+                marginBottom: '8px',
+                fontSize: '18px', // Override h3 size to be smaller like h6
+              }}
+            >
+              {step.title}
+            </Typography>
+          )}
+
           <Typography
-            variant="body2"
+            variant="body1"
             sx={{
               color: 'darkGrey.main',
               marginBottom: '16px',
               lineHeight: 1.4,
+              textAlign: 'center',
             }}
           >
             {step.content}
@@ -192,29 +246,38 @@ function GuidedTour({
           <Box
             sx={{
               display: 'flex',
-              justifyContent: 'space-between',
+              justifyContent: 'flex-end',
               alignItems: 'center',
+              gap: '8px',
+              paddingRight: '8px',
             }}
           >
-            <Typography
-              variant="body2"
-              sx={{
-                color: 'lightGrey.main',
-                fontSize: '12px',
-              }}
-            >
-              {currentStep + 1} of {tourSteps.length}
-            </Typography>
 
-            <Box sx={{ display: 'flex', gap: '8px' }}>
-              {currentStep > 0 && (
+            <Box sx={{ display: 'flex' }}>
+              {currentStep > 0 ? (
                 <Button
                   onClick={handlePrevious}
                   sx={{
                     color: 'darkGrey.main',
-                    fontSize: '14px',
+                    fontSize: '16px',
+                    fontWeight: 500,
                     minWidth: 'auto',
-                    padding: '4px 8px',
+                    padding: '6px 24px',
+                    textTransform: 'none',
+                  }}
+                >
+                  Back
+                </Button>
+              ) : (
+                <Button
+                  onClick={onSkip}
+                  sx={{
+                    color: 'darkGrey.main',
+                    fontSize: '16px',
+                    fontWeight: 500,
+                    minWidth: 'auto',
+                    padding: '6px 24px',
+                    textTransform: 'none',
                   }}
                 >
                   Back
@@ -222,26 +285,16 @@ function GuidedTour({
               )}
 
               <Button
-                onClick={onSkip}
-                sx={{
-                  color: 'darkGrey.main',
-                  fontSize: '14px',
-                  minWidth: 'auto',
-                  padding: '4px 8px',
-                }}
-              >
-                Skip
-              </Button>
-
-              <Button
                 onClick={handleNext}
                 variant="contained"
                 sx={{
                   backgroundColor: 'red.main',
                   color: 'white.main',
-                  fontSize: '14px',
+                  fontSize: '16px',
+                  fontWeight: 500,
                   minWidth: 'auto',
-                  padding: '6px 16px',
+                  padding: '6px 32px',
+                  textTransform: 'none',
                   '&:hover': {
                     backgroundColor: '#990000',
                   },
