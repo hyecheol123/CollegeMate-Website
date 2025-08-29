@@ -1078,17 +1078,10 @@ function EditSchedulerPanel({
                     padding: '16px',
                     borderRadius: '4px',
                     minHeight: '120px',
-                    cursor: 'pointer',
                     border: '1px solid',
                     borderColor: 'grey.main',
                     display: 'flex',
                     flexDirection: 'column',
-                    '&:hover': {
-                      backgroundColor: 'grey.main',
-                    },
-                  }}
-                  onClick={() => {
-                    loadCourseSections(course);
                   }}
                 >
                   <Typography
