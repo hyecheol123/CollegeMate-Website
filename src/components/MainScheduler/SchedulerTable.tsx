@@ -458,7 +458,7 @@ function SchedulerTable({
                           overflow: 'visible',
                           width: '100%',
                           marginTop: '1px',
-                          lineHeight: isMobile ? '0.9' : '1.2',
+                          lineHeight: isMobile ? '1.2' : '1.2',
                           color: getTextColor(event.color),
                           textAlign: 'center',
                           margin: '1px auto 0',
