@@ -220,7 +220,7 @@ function SchedulerTable({
           id="scheduler-grid"
           sx={{
             display: 'grid',
-            gridTemplateColumns: `${windowWidth < 300 ? '40px' : '45px'} repeat(${days.length}, 1fr)`,
+            gridTemplateColumns: `${windowWidth < 300 ? '30px' : '32px'} repeat(${days.length}, 1fr)`,
             gridTemplateRows: `40px repeat(${(maxHour - minHour + 1) * 12}, 5px)`,
             width: '100%',
             height: `${40 + (maxHour - minHour + 1) * 60}px`,
@@ -236,7 +236,7 @@ function SchedulerTable({
               gridColumn: '1 / -1',
               gridRow: '1',
               display: 'grid',
-              gridTemplateColumns: `${windowWidth < 300 ? '40px' : '45px'} repeat(${days.length}, 1fr)`,
+              gridTemplateColumns: `${windowWidth < 300 ? '30px' : '32px'} repeat(${days.length}, 1fr)`,
               bgcolor: 'red.main',
               alignItems: 'stretch',
               borderRadius: '4px 4px 0 0',
@@ -281,7 +281,7 @@ function SchedulerTable({
               flexDirection: 'column',
               borderRadius: '0 0 0 4px',
               position: 'relative',
-              overflow: 'hidden',
+              overflow: 'visible',
             }}
           >
             {majorHours.map((hourLabel, hourIndex) => {
@@ -294,7 +294,7 @@ function SchedulerTable({
                     alignItems: 'center',
                     justifyContent: 'center',
                     position: 'relative',
-                    top: '-24px',
+                    top: '-30px',
                   }}
                 >
                   <Typography variant="body2" color="white.main" align="center">
