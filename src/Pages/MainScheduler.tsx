@@ -281,9 +281,6 @@ function MainScheduler(): React.ReactElement {
           const savedData = loadScheduleDataFromStorage(current.termCode);
           setScheduleEvents(savedData.events);
           setOnlineCourses(savedData.courses);
-          console.log(
-            `📱 Loaded ${savedData.events.length} events and ${savedData.courses.length} online courses for term ${current.termCode}`,
-          );
         } else if (futureTerms.length > 0) {
           // If no current term, use the first available future term
           setCurrentTerm(futureTerms[0]);
@@ -292,9 +289,6 @@ function MainScheduler(): React.ReactElement {
           );
           setScheduleEvents(savedData.events);
           setOnlineCourses(savedData.courses);
-          console.log(
-            `📱 Loaded ${savedData.events.length} events and ${savedData.courses.length} online courses for term ${futureTerms[0].termCode}`,
-          );
         }
       } catch (error) {
         console.error('❌ Failed to load terms:', error);
