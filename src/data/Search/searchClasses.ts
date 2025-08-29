@@ -66,7 +66,8 @@ export async function searchClasses(
                     must: [
                       {
                         match: {
-                          'packageEnrollmentStatus.status': 'OPEN WAITLISTED CLOSED',
+                          'packageEnrollmentStatus.status':
+                            'OPEN WAITLISTED CLOSED',
                         },
                       },
                       {

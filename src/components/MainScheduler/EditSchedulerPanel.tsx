@@ -103,27 +103,6 @@ function EditSchedulerPanel({
   currentTerm,
   existingEvents = [],
 }: EditSchedulerPanelProps): React.ReactElement {
-  // Enhanced debug function for scroll issues
-  const debugScrollState = (
-    context: string = 'Unknown',
-  ): Record<string, string | number | boolean> => {
-    const timestamp = new Date().toLocaleTimeString();
-    const scrollInfo = {
-      context,
-      timestamp,
-      bodyOverflow: document.body.style.overflow,
-      htmlOverflow: document.documentElement.style.overflow,
-      bodyComputedOverflow: window.getComputedStyle(document.body).overflow,
-      htmlComputedOverflow: window.getComputedStyle(document.documentElement)
-        .overflow,
-      canScroll: window.innerHeight < document.body.scrollHeight,
-      scrollY: window.scrollY,
-      windowHeight: window.innerHeight,
-      documentHeight: document.body.scrollHeight,
-    };
-    return scrollInfo;
-  };
-
   const [searchInput, setSearchInput] = useState<string>('');
   const [classColors, setClassColors] = useState<{ [key: string]: string }>({});
   const [colorModalOpen, setColorModalOpen] = useState(false);
@@ -153,7 +132,6 @@ function EditSchedulerPanel({
 
   // Clear all cache on component mount
   React.useEffect(() => {
-
     Object.keys(localStorage).forEach((key) => {
       if (key.startsWith('uw_')) {
         localStorage.removeItem(key);
@@ -161,8 +139,7 @@ function EditSchedulerPanel({
     });
 
     // Add window resize event listener for debugging
-    const handleResize = (): void => {
-    };
+    const handleResize = (): void => {};
 
     window.addEventListener('resize', handleResize);
 
@@ -189,7 +166,6 @@ function EditSchedulerPanel({
   // Safe auto-scroll to search results (mobile only)
   const scrollToSearchResults = React.useCallback((): void => {
     if (resultsRef.current && isMobile) {
-
       setTimeout(() => {
         resultsRef.current?.scrollIntoView({
           behavior: 'smooth',
@@ -197,8 +173,7 @@ function EditSchedulerPanel({
           inline: 'nearest',
         });
 
-        setTimeout(() => {
-        }, 500);
+        setTimeout(() => {}, 500);
       }, 300); // Increased delay to be less jarring
     }
   }, [isMobile]);
@@ -237,7 +212,6 @@ function EditSchedulerPanel({
   // Perform search when search input changes
   useEffect(() => {
     const performSearch = async (): Promise<void> => {
-
       if (!searchInput.trim() || !currentTerm) {
         setSearchResults([]);
         return;
@@ -270,7 +244,6 @@ function EditSchedulerPanel({
           setHasScrolledToResults(true);
           setHasAutoScrolledOnce(true); // Never auto-scroll again in this session
         }
-
       } catch (error) {
         setSearchError(
           error instanceof Error ? error.message : 'Search failed',
@@ -310,7 +283,6 @@ function EditSchedulerPanel({
 
   const loadCourseSections = React.useCallback(
     async (course: ClassSearchResult): Promise<void> => {
-
       if (
         !currentTerm ||
         courseSections[course.courseId] ||
@@ -331,7 +303,8 @@ function EditSchedulerPanel({
           ...prev,
           [course.courseId]: courseDetails,
         }));
-      } catch (error) {
+      } catch {
+        // Handle error silently
       } finally {
         setLoadingSections((prev) => ({ ...prev, [course.courseId]: false }));
       }
@@ -478,7 +451,6 @@ function EditSchedulerPanel({
   };
 
   const handleConflictResolve = (keepExisting: boolean): void => {
-
     if (
       !keepExisting &&
       pendingEvents.length > 0 &&
@@ -559,7 +531,6 @@ function EditSchedulerPanel({
     courseId: string,
     lectureNumber: string,
   ): void => {
-
     setSelectedLecture((prev) => ({
       ...prev,
       [courseId]: lectureNumber,
@@ -626,7 +597,7 @@ function EditSchedulerPanel({
       (sectionData as EnrollmentPackage[]).forEach(
         (enrollmentPackage: EnrollmentPackage) => {
           // Skip closed sections
-          // Show all packages including CLOSED ones  
+          // Show all packages including CLOSED ones
           // if (enrollmentPackage.packageEnrollmentStatus?.status === 'CLOSED') {
           //   return;
           // }
@@ -673,7 +644,6 @@ function EditSchedulerPanel({
 
     (sectionData as EnrollmentPackage[]).forEach(
       (enrollmentPackage: EnrollmentPackage) => {
-
         // Check if this enrollmentPackage contains the selected lecture
         const hasSelectedLecture = enrollmentPackage.sections?.some(
           (section: Section) =>
@@ -720,7 +690,6 @@ function EditSchedulerPanel({
 
       (sectionData as EnrollmentPackage[]).forEach(
         (enrollmentPackage: EnrollmentPackage) => {
-
           enrollmentPackage.sections?.forEach((section: Section) => {
             if (section.type === 'LAB') {
               // If discussion is selected, filter labs based on API enrollment packages
@@ -811,7 +780,6 @@ function EditSchedulerPanel({
 
     (sectionData as EnrollmentPackage[]).forEach(
       (enrollmentPackage: EnrollmentPackage) => {
-
         // Check if this enrollmentPackage contains the selected lecture
         const hasSelectedLecture = enrollmentPackage.sections?.some(
           (section: Section) =>

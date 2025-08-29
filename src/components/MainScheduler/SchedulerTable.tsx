@@ -142,23 +142,23 @@ function SchedulerTable({
     const MIN_DISPLAY_HOURS = 8;
     let min = 9;
     let max = 17;
-    
+
     if (myEvents.length > 0) {
-      min = Math.min(...myEvents.map(event => event.startTime.hour));
-      max = Math.max(...myEvents.map(event => event.endTime.hour));
-      
+      min = Math.min(...myEvents.map((event) => event.startTime.hour));
+      max = Math.max(...myEvents.map((event) => event.endTime.hour));
+
       const currentRange = max - min;
       if (currentRange < MIN_DISPLAY_HOURS) {
         const expandBy = Math.floor((MIN_DISPLAY_HOURS - currentRange) / 2);
         min = Math.max(0, min - expandBy);
         max = Math.min(23, max + (MIN_DISPLAY_HOURS - (max - min)));
-        
+
         if (max - min < MIN_DISPLAY_HOURS) {
           min = Math.max(0, max - MIN_DISPLAY_HOURS);
         }
       }
     }
-    
+
     return { minHour: min, maxHour: max };
   }, [myEvents]);
 
@@ -291,8 +291,7 @@ function SchedulerTable({
                 alignItems: 'center',
                 justifyContent: 'center',
               }}
-            >
-            </Box>
+            ></Box>
             {majorHours.map((hourLabel, hourIndex) => {
               return (
                 <Box
