@@ -47,7 +47,7 @@ const overlayStyle = {
   left: 0,
   right: 0,
   bottom: 0,
-  backgroundColor: 'rgba(0, 0, 0, 0.7)',
+  backgroundColor: 'transparent',
   zIndex: 9999,
   display: 'flex',
   alignItems: 'center',
@@ -109,6 +109,9 @@ function GuidedTour({
   }, [isOpen, currentStep]);
 
   const handleNext = (): void => {
+    // Clear target element first to prevent flickering
+    setTargetElement(null);
+    
     if (currentStep < tourSteps.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
@@ -117,28 +120,89 @@ function GuidedTour({
   };
 
   const handlePrevious = (): void => {
+    // Clear target element first to prevent flickering
+    setTargetElement(null);
+    
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1);
     }
   };
 
-  const highlightTarget = (): object => {
-    if (!targetElement) return {};
-
+  const getSpotlightOverlays = () => {
+    if (!targetElement) return [];
+    
     const rect = targetElement.getBoundingClientRect();
-    return {
-      position: 'fixed' as const,
-      top: `${rect.top - 4}px`,
-      left: `${rect.left - 4}px`,
-      width: `${rect.width + 8}px`,
-      height: `${rect.height + 8}px`,
-      border: '3px solid #B20000',
-      borderRadius: '8px',
-      backgroundColor: 'transparent',
-      zIndex: 10000,
-      pointerEvents: 'none' as const,
-      animation: 'pulse 2s infinite',
-    };
+    
+    // Check if this is the scheduler table step (step 1, index 1)
+    if (currentStep === 1) {
+      // Rectangular spotlight for scheduler table with 2px padding
+      const padding = 2;
+      
+      return [
+        // Top overlay
+        {
+          position: 'fixed' as const,
+          top: 0,
+          left: 0,
+          right: 0,
+          height: `${Math.max(0, rect.top - padding)}px`,
+          backgroundColor: 'rgba(0, 0, 0, 0.7)',
+          zIndex: 9998,
+          pointerEvents: 'none' as const,
+        },
+        // Bottom overlay  
+        {
+          position: 'fixed' as const,
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: `${Math.max(0, window.innerHeight - (rect.bottom + padding))}px`,
+          backgroundColor: 'rgba(0, 0, 0, 0.7)',
+          zIndex: 9998,
+          pointerEvents: 'none' as const,
+        },
+        // Left overlay
+        {
+          position: 'fixed' as const,
+          top: `${Math.max(0, rect.top - padding)}px`,
+          left: 0,
+          width: `${Math.max(0, rect.left - padding)}px`,
+          height: `${rect.height + padding * 2}px`,
+          backgroundColor: 'rgba(0, 0, 0, 0.7)',
+          zIndex: 9998,
+          pointerEvents: 'none' as const,
+        },
+        // Right overlay
+        {
+          position: 'fixed' as const,
+          top: `${Math.max(0, rect.top - padding)}px`,
+          right: 0,
+          width: `${Math.max(0, window.innerWidth - (rect.right + padding))}px`,
+          height: `${rect.height + padding * 2}px`,
+          backgroundColor: 'rgba(0, 0, 0, 0.7)',
+          zIndex: 9998,
+          pointerEvents: 'none' as const,
+        },
+      ];
+    } else {
+      // Circular spotlight for buttons (edit, download)
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      const radius = Math.max(rect.width, rect.height) / 2 + 2; // 2px padding for circular spotlight
+      
+      return [
+        {
+          position: 'fixed' as const,
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: `radial-gradient(circle ${radius}px at ${centerX}px ${centerY}px, transparent ${radius}px, rgba(0, 0, 0, 0.7) ${radius + 1}px)`,
+          zIndex: 9998,
+          pointerEvents: 'none' as const,
+        },
+      ];
+    }
   };
 
   if (!isOpen || currentStep >= tourSteps.length) return null;
@@ -158,14 +222,17 @@ function GuidedTour({
       </style>
 
       <Box sx={overlayStyle}>
-        {/* Highlight target element */}
-        {targetElement && <Box sx={highlightTarget()} />}
+        {/* Spotlight overlays - darkens everything except target */}
+        {targetElement && getSpotlightOverlays().map((overlayStyle, index) => (
+          <Box key={index} sx={overlayStyle} />
+        ))}
 
         {/* Tooltip */}
         <Paper
           sx={{
             ...tooltipStyle,
             position: 'relative',
+            zIndex: 10000, // Ensure modal is above spotlight overlay
           }}
         >
           {/* Close button with X icon */}
