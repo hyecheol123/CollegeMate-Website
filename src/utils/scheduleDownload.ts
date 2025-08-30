@@ -24,12 +24,17 @@ import { LOCKSCREEN_CLOCK_ZONES } from '../data/deviceSpecs';
 
 // Triggers the download of the canvas as an image
 const triggerDownload = (canvas: HTMLCanvasElement, fileName: string): void => {
-  const link = document.createElement('a');
-  link.download = fileName;
-  link.href = canvas.toDataURL('image/png');
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+  try {
+    const link = document.createElement('a');
+    link.download = fileName;
+    link.href = canvas.toDataURL('image/png');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  } catch (error) {
+    console.error('Download failed:', error);
+    alert('Download failed. Please try again.');
+  }
 };
 
 // Captures the scheduler element as canvas with mobile simulation

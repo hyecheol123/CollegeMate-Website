@@ -60,7 +60,7 @@ export async function getCourseDetails(
   courseId: string,
 ): Promise<CourseDetailsResponse> {
   const response = await fetch(
-    `/api/course-details/${termCode}/${encodeURIComponent(subjectCode)}/${courseId}`,
+    `https://api.collegemate.app/api/course-details/${termCode}/${encodeURIComponent(subjectCode)}/${courseId}`,
     {
       method: 'GET',
       headers: {
