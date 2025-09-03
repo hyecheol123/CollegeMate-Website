@@ -340,7 +340,6 @@ export const downloadScheduleAsWallpaper = async ({
     return;
   }
 
-
   try {
     if (selectedSize && selectedSize.width > 0 && selectedSize.height > 0) {
       // Capture with mobile simulation

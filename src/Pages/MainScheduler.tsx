@@ -374,7 +374,7 @@ function MainScheduler(): React.ReactElement {
 
   const removeOnlineCourse = (courseId: string): void => {
     trackCollegeMateEvent.classRemove('online');
-    
+
     // Remove from online courses
     setOnlineCourses((prev) => prev.filter((course) => course.id !== courseId));
 
@@ -413,7 +413,7 @@ function MainScheduler(): React.ReactElement {
 
   const removeEvent = (eventId: string): void => {
     trackCollegeMateEvent.classRemove('scheduled');
-    
+
     // Extract the class and section ID from the event ID (format: "courseId-sectionId-day")
     const courseId = eventId.split('-')[0];
     const sectionId = eventId.split('-')[1];
