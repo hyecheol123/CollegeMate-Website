@@ -126,6 +126,7 @@ const captureSchedule = async (
         useCORS: true,
         allowTaint: true,
         width: contentWidth,
+        logging: false,
       });
 
       // Get clock safe zone for this device
@@ -144,22 +145,13 @@ const captureSchedule = async (
 
       // If table is too tall, use maximum available space approach
       if (testCanvas.height > maxTableHeight) {
-        console.log('Table too tall, need to reduce width to fit');
-        console.log(
-          `Current height: ${testCanvas.height}, Max allowed: ${maxTableHeight}`,
-        );
-
         // Calculate how much we need to scale down the entire table
         const scaleRatio = maxTableHeight / testCanvas.height;
-        console.log(`Need to scale table by ${scaleRatio} to fit`);
 
         // Apply CSS transform scale to entire element
         const scaleValue = Math.min(scaleRatio * 0.95, 1); // 0.95 for safety margin
         element.style.transform = `scale(${scaleValue})`;
         element.style.transformOrigin = 'top left';
-
-        // Keep original width but scale the entire element
-        console.log(`Scaling entire table by ${scaleValue}`);
 
         // Wait for transform to apply
         await new Promise((resolve) => setTimeout(resolve, 300));
@@ -172,6 +164,7 @@ const captureSchedule = async (
         useCORS: true,
         allowTaint: true,
         width: contentWidth,
+        logging: false,
       });
 
       // Create final canvas with correct aspect ratio
@@ -190,28 +183,8 @@ const captureSchedule = async (
       const clockZoneScaled =
         (clockZoneHeight / targetSize.height) * finalCanvas.height;
 
-      // Debug logging
-      console.log(
-        'Final canvas dimensions:',
-        finalCanvas.width,
-        'x',
-        finalCanvas.height,
-      );
-      console.log('Clock zone height:', clockZoneScaled);
-      console.log(
-        'Content dimensions:',
-        tempCanvas.width,
-        'x',
-        tempCanvas.height,
-      );
-
       // Check if content fits within canvas
       const availableSpace = finalCanvas.height - clockZoneScaled;
-      console.log('Available space below clock:', availableSpace);
-      console.log(
-        'Content + clock will end at:',
-        clockZoneScaled + tempCanvas.height,
-      );
 
       // Calculate actual scaled width for proper centering
       // Check if scaling was applied by looking for transform in the element
@@ -224,9 +197,6 @@ const captureSchedule = async (
         if (scaleMatch) {
           const scaleValue = parseFloat(scaleMatch[1]);
           actualContentWidth = tempCanvas.width * scaleValue;
-          console.log(
-            `Content was scaled by ${scaleValue}, actual width: ${actualContentWidth}`,
-          );
         }
       }
 
@@ -239,24 +209,13 @@ const captureSchedule = async (
       if (tempCanvas.height > availableSpace * 0.9) {
         // Too tall, position right after clock with minimal padding
         yOffset = clockZoneScaled + 20 * scaleFactor;
-        console.log(
-          'Content too tall, positioning at top with minimal padding',
-        );
       } else {
         // Fits well, center it
         const topMargin =
           clockZoneScaled + (availableSpace - tempCanvas.height) / 2;
         const minTopPadding = clockZoneScaled + 40 * scaleFactor;
         yOffset = Math.max(minTopPadding, topMargin);
-        console.log('Content fits, centering');
       }
-
-      console.log('Final positioning at:', xOffset, yOffset);
-      console.log('Content will end at:', yOffset + tempCanvas.height);
-      console.log(
-        'Bottom margin:',
-        finalCanvas.height - (yOffset + tempCanvas.height),
-      );
 
       // Draw the captured content centered
       ctx.drawImage(tempCanvas, xOffset, yOffset);
@@ -342,6 +301,7 @@ const captureSchedule = async (
       scale: WALLPAPER_CONFIG.canvas.scale,
       useCORS: true,
       allowTaint: true,
+      logging: false,
     });
   } finally {
     // Restore only non-empty original styles
@@ -380,12 +340,6 @@ export const downloadScheduleAsWallpaper = async ({
     return;
   }
 
-  console.log(
-    'Starting download with selectedSize:',
-    selectedSize,
-    'device:',
-    selectedDevice,
-  );
 
   try {
     if (selectedSize && selectedSize.width > 0 && selectedSize.height > 0) {
