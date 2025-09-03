@@ -26,6 +26,7 @@ import '@fontsource/roboto/700.css';
 import Loading from './components/Common/Loading/Loading';
 import { GlobalContextProvider, useGlobalContext } from './GlobalContext';
 import getRenewToken from './data/Authentication/getRenewToken';
+import { initGA, trackPageView } from './utils/analytics';
 // const About = React.lazy(() => import('./Pages/About'));
 // const Login = React.lazy(() => import('./Pages/Login'));
 // const NewTnC = React.lazy(() => import('./Pages/NewTnC'));
@@ -211,6 +212,11 @@ function App(): React.ReactElement {
   // State
   const globalContext = useGlobalContext();
 
+  // Track page views
+  React.useEffect(() => {
+    trackPageView('/', 'CollegeMate - Schedule Planner');
+  }, []);
+
   // Initialize Application
   React.useEffect(() => {
     /**
@@ -312,6 +318,11 @@ const router = createBrowserRouter([{ path: '*', Component: App }]);
  * @returns {React.ReactElement} The entry point of the application
  */
 function AppWrapper(): React.ReactElement {
+  // Initialize Google Analytics
+  React.useEffect(() => {
+    initGA();
+  }, []);
+
   return (
     <React.StrictMode>
       <React.Suspense fallback={<Loading />}>
