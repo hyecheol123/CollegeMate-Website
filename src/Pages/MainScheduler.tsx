@@ -29,6 +29,7 @@ import GuidedTour from '../components/Common/GuidedTour';
 import { getTerms } from '../data/Terms/getTerms';
 import { getCurrentTerm, getUpcomingTerms } from '../utils/termUtils';
 import { downloadScheduleAsWallpaper } from '../utils/scheduleDownload';
+import { trackCollegeMateEvent } from '../utils/analytics';
 // Types
 import type { EventData } from '../types/event';
 import type { Term } from '../data/Terms/getTerms';
@@ -145,6 +146,11 @@ function MainScheduler(): React.ReactElement {
     setIsEditMode((prev) => {
       const newEditMode = !prev;
 
+      // Track edit mode engagement
+      if (newEditMode) {
+        trackCollegeMateEvent.scheduleEdit();
+      }
+
       // Auto-scroll to search panel on mobile when entering edit mode
       if (newEditMode && isMobile) {
         // Small delay to ensure the panel is rendered before scrolling
@@ -166,6 +172,9 @@ function MainScheduler(): React.ReactElement {
     type: 'image' | 'wallpaper',
   ): Promise<boolean> => {
     try {
+      // Track download event
+      trackCollegeMateEvent.scheduleDownload(type);
+
       if (type === 'image') {
         // Force image download with no size constraints
         await downloadScheduleAsWallpaper({
@@ -193,11 +202,13 @@ function MainScheduler(): React.ReactElement {
   };
 
   const handleTourComplete = (): void => {
+    trackCollegeMateEvent.tourComplete();
     localStorage.setItem('collegemate-tour-completed', 'true');
     setShowTour(false);
   };
 
   const handleTourSkip = (): void => {
+    trackCollegeMateEvent.tourSkip();
     localStorage.setItem('collegemate-tour-completed', 'true');
     setShowTour(false);
   };
@@ -320,6 +331,9 @@ function MainScheduler(): React.ReactElement {
 
   // Handle term change
   const handleTermChange = (newTerm: Term): void => {
+    // Track term change
+    trackCollegeMateEvent.termChange(newTerm.termCode);
+
     // Save current data to localStorage (handled by useEffect automatically)
 
     // Switch to new term
@@ -338,6 +352,7 @@ function MainScheduler(): React.ReactElement {
   };
 
   const addEvent = (event: EventData): void => {
+    trackCollegeMateEvent.classAdd('scheduled');
     setScheduleEvents((prev) => [...prev, event]);
   };
 
@@ -352,11 +367,14 @@ function MainScheduler(): React.ReactElement {
         return prev; // Don't add duplicate
       }
 
+      trackCollegeMateEvent.classAdd('online');
       return [...prev, course];
     });
   };
 
   const removeOnlineCourse = (courseId: string): void => {
+    trackCollegeMateEvent.classRemove('online');
+
     // Remove from online courses
     setOnlineCourses((prev) => prev.filter((course) => course.id !== courseId));
 
@@ -394,6 +412,8 @@ function MainScheduler(): React.ReactElement {
   };
 
   const removeEvent = (eventId: string): void => {
+    trackCollegeMateEvent.classRemove('scheduled');
+
     // Extract the class and section ID from the event ID (format: "courseId-sectionId-day")
     const courseId = eventId.split('-')[0];
     const sectionId = eventId.split('-')[1];
