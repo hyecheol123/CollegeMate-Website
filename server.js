@@ -7,7 +7,7 @@ import express from 'express';
 import cors from 'cors';
 
 const app = express();
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 
 // Enable CORS for all routes
 app.use(cors());
@@ -29,7 +29,8 @@ app.get('/api/terms', async (_req, res) => {
       {
         method: 'GET',
         headers: {
-          'User-Agent': 'CollegeMate-API-Proxy/1.0',
+          'User-Agent':
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
           Accept: 'application/json',
         },
       },
@@ -120,7 +121,8 @@ app.get(
       const response = await fetch(apiUrl, {
         method: 'GET',
         headers: {
-          'User-Agent': 'CollegeMate-API-Proxy/1.0',
+          'User-Agent':
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
           Accept: 'application/json',
         },
       });
