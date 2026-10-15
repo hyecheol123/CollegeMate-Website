@@ -173,7 +173,7 @@ function SignUp(): React.ReactElement {
               break;
             default:
               setModalMsg(
-                'Unknown Errr Occurred. Please refresh the page and start again.',
+                'Unknown Error Occurred. Please refresh the page and start again.',
               );
               break;
           }
@@ -199,7 +199,7 @@ function SignUp(): React.ReactElement {
 
   return (
     <Box sx={PageWrapperStyle}>
-      <Header />
+      <Header step={step} setStep={setStep} />
       {step === 0 && (
         <TermsConsentView
           isLoaded={isTermsLoaded}
