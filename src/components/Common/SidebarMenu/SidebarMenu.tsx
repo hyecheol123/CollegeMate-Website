@@ -25,6 +25,8 @@ import {
 import BackArrowPng from '../../../../assets/arrow_back_icon.png';
 import BackArrowWebp from '../../../../assets/arrow_back_icon.png?as=webp';
 import BackArrowAvif from '../../../../assets/arrow_back_icon.png?as=avif';
+import NotificationView from '../SidebarView/NotificationView';
+import { Announcement } from '../../../data/Miscellaneous/getAnnouncements';
 
 /**
  * SidebarMenu Component
@@ -43,9 +45,26 @@ const SidebarMenu = ({
 }: SidebarMenuProps): React.ReactElement | null => {
   // View history stack to support multi-level back navigation.
   const [viewHistory, setViewHistory] = useState<SidebarView[]>([initialView]);
+  const [selectedNotification, setSelectedNotification] =
+    useState<Announcement | null>(null);
+
+  // When entering notification detail page
+  const handleSelect = (item: Announcement): void => {
+    setSelectedNotification(item);
+  };
+
+  // When closing notification detail page
+  const notiGoBack = (): void => {
+    setSelectedNotification(null);
+    setViewHistory(['notifications']);
+  };
 
   // Current view is always the last item in history stack
   const currentView = viewHistory[viewHistory.length - 1];
+
+  useEffect(() => {
+    console.log('[DEBUG] viewHistory:', viewHistory);
+  }, [viewHistory]);
 
   useEffect(() => {
     // Reset to initial view when sidebar closes
@@ -92,39 +111,49 @@ const SidebarMenu = ({
     <SidebarContainer>
       <InnerWrapper>
         <TitleRow>
-          {showBackIcon && (
-            <BackButtonWrapper onClick={goBack}>
-              <CustomImage
-                png={BackArrowPng}
-                webp={BackArrowWebp}
-                avif={BackArrowAvif}
-                alt="Back"
-                width="14.67px"
-                height="12px"
-              />
-            </BackButtonWrapper>
-          )}
+          {showBackIcon ||
+            (selectedNotification && (
+              <BackButtonWrapper
+                onClick={currentView === 'notifications' ? notiGoBack : goBack}
+              >
+                <CustomImage
+                  png={BackArrowPng}
+                  webp={BackArrowWebp}
+                  avif={BackArrowAvif}
+                  alt="Back"
+                  width="14.67px"
+                  height="12px"
+                />
+              </BackButtonWrapper>
+            ))}
           {title && <SidebarTitle variant="h2">{title}</SidebarTitle>}
         </TitleRow>
 
-        <SidebarList>
-          {items.map((item, idx) => (
-            <SidebarMenuItem
-              key={item.label}
-              item={{
-                ...item,
-                onClick: (): void => {
-                  // Push new view to history when item is clicked
-                  navigateTo(item.label as SidebarView);
-                  item.onClick();
-                },
-              }}
-              spacing={itemSpacing}
-              showDivider={showDivider}
-              isLast={idx === items.length - 1}
-            />
-          ))}
-        </SidebarList>
+        {currentView === 'main' ? (
+          <SidebarList>
+            {items.map((item, idx) => (
+              <SidebarMenuItem
+                key={item.label}
+                item={{
+                  ...item,
+                  onClick: (): void => {
+                    // Push new view to history when item is clicked
+                    navigateTo(item.label as SidebarView);
+                    item.onClick();
+                  },
+                }}
+                spacing={itemSpacing}
+                showDivider={showDivider}
+                isLast={idx === items.length - 1}
+              />
+            ))}
+          </SidebarList>
+        ) : currentView === 'notifications' ? (
+          <NotificationView
+            selected={selectedNotification}
+            onSelect={handleSelect}
+          />
+        ) : undefined}
       </InnerWrapper>
     </SidebarContainer>
   );
